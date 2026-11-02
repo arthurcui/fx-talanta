@@ -1,0 +1,4 @@
+# Optional Windows worker pins, import-verified with CPython 3.14.7.
+# Apply together with requirements.lock; these are not core/Linux dependencies.
+MetaTrader5==5.0.6231
+numpy==2.5.4

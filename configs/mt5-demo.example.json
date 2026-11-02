@@ -1,0 +1,22 @@
+{
+  "account": {
+    "environment": "PAPER",
+    "broker": "CMC Markets Canada",
+    "server": "CMCMarkets-MT5-DEMO",
+    "login": "00000000",
+    "venue": "BROKER_DEMO"
+  },
+  "source": "MT5",
+  "terminal_path": "C:/Program Files/CMC Markets MetaTrader 5 Terminal/terminal64.exe",
+  "data_path": "C:/REPLACE-WITH-VERIFIED-DATA-PATH",
+  "expected_build": 6295,
+  "expected_company": "CMC Markets Plc",
+  "expected_currency": "USD",
+  "expected_margin_mode": 2,
+  "symbols": ["EURUSD", "USDJPY"],
+  "permissions_confirmed": false,
+  "permission_evidence": null,
+  "sdk_version": "5.0.6231",
+  "history_hours": 1,
+  "call_timeout_seconds": 30
+}

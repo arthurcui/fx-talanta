@@ -8,11 +8,14 @@ from psycopg import sql
 from psycopg.types.json import Jsonb
 
 from fx_talanta.domain.models import Environment
-from fx_talanta.storage.config import Settings, fixture_account
+from fx_talanta.storage.config import Settings, account_set
 
 
-def bootstrap(settings: Settings) -> None:
-    """Create only the named fixture databases/roles; preserve existing records."""
+def bootstrap(settings: Settings, *, paper_account=None) -> None:
+    """Create explicitly bound databases/roles; never rewrite existing identities."""
+    accounts = account_set(paper_account)
+    if paper_account and settings.namespace == "fx":
+        raise ValueError("broker demo requires a dedicated database namespace")
     allowed_hosts = {"localhost", "127.0.0.1", "::1"}
     if settings.profile == "docker":
         allowed_hosts.add("postgres")
@@ -63,6 +66,10 @@ def bootstrap(settings: Settings) -> None:
             conn.execute("SELECT pg_advisory_xact_lock(640031)")
             conn.execute("REVOKE ALL ON SCHEMA public FROM PUBLIC")
             conn.execute(sql.SQL("SET LOCAL ROLE {}").format(sql.Identifier(owner)))
+            if conn.execute("SELECT to_regclass('fx.account_binding')").fetchone()[0]:
+                existing = conn.execute("SELECT identity FROM fx.account_binding").fetchone()
+                if not existing or existing[0] != accounts[environment].model_dump(mode="json"):
+                    raise ValueError("existing database has a different account binding")
             for path in migrations:
                 version = int(path.name.split("_", 1)[0])
                 migration = path.read_text("utf-8")
@@ -83,14 +90,14 @@ def bootstrap(settings: Settings) -> None:
                 if version == 1:
                     conn.execute(
                         "INSERT INTO fx.account_binding(identity) VALUES (%s)",
-                        (Jsonb(fixture_account(environment).model_dump(mode="json")),),
+                        (Jsonb(accounts[environment].model_dump(mode="json")),),
                     )
                 conn.execute(
                     "INSERT INTO fx.schema_migrations(version, checksum) VALUES (%s, %s)",
                     (version, checksum),
                 )
             binding = conn.execute("SELECT identity FROM fx.account_binding").fetchone()[0]
-            if binding != fixture_account(environment).model_dump(mode="json"):
+            if binding != accounts[environment].model_dump(mode="json"):
                 raise ValueError("existing database has a different account binding")
             conn.execute(sql.SQL("GRANT USAGE ON SCHEMA fx TO {}").format(sql.Identifier(writer)))
             conn.execute(

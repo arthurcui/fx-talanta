@@ -11,6 +11,7 @@ dependencies = ["pydantic>=2.10,<3", "psycopg[binary]>=3.2,<4", "python-dotenv>=
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
+mt5 = ["MetaTrader5==5.0.6231; sys_platform == 'win32'"]
 
 [project.scripts]
 fx-talanta = "fx_talanta.cli:main"

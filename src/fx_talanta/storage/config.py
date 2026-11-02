@@ -22,6 +22,18 @@ def fixture_account(environment: Environment) -> AccountIdentity:
     )
 
 
+def account_set(paper_account: AccountIdentity | None = None):
+    """Explicit caller expectations; never adopt identity from an archive/database."""
+    if paper_account is not None:
+        paper_account = AccountIdentity.model_validate(paper_account.model_dump(mode="json"))
+        if paper_account.environment != Environment.PAPER or paper_account.venue != "BROKER_DEMO":
+            raise ValueError("custom provisioning only accepts PAPER/BROKER_DEMO")
+    return {
+        e: paper_account if e == Environment.PAPER and paper_account else fixture_account(e)
+        for e in Environment
+    }
+
+
 @dataclass(frozen=True)
 class Settings:
     host: str

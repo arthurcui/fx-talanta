@@ -24,6 +24,9 @@ No external broker connection or runtime account rollover is enabled yet.
 The [observer foundation](docs/observer-foundation.md) adds a synthetic read-only
 snapshot harness, process timeouts, durable retry/halt state and fixture archive
 coverage. Run `observer-demo` after migration; actual broker-connected M1A remains open.
+The [MT5 adapter](docs/mt5-observer.md) adds an optional Windows reader, explicit
+demo bindings and account-checked demo archives. It is fake-SDK tested; real CMC
+collection remains gated by qualification and has not been run.
 
 ## Quick start on Windows
 

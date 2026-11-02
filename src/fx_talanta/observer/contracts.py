@@ -1,6 +1,6 @@
 import ntpath
 from hashlib import sha256
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import Field, model_validator
 
@@ -22,11 +22,29 @@ class Binding(FrozenModel):
     call_timeout_seconds: Annotated[float, Field(gt=0, le=60)] = 5
     max_failures: Annotated[int, Field(ge=1, le=10)] = 3
     backoff_seconds: Annotated[int, Field(ge=1, le=300)] = 2
+    source: Literal["FIXTURE", "MT5"] = "FIXTURE"
+    expected_company: Text | None = None
+    expected_margin_mode: Literal[0, 1, 2] | None = None
+    permissions_confirmed: bool = False
+    permission_evidence: Text | None = None
+    sdk_version: Text = "5.0.6231"
+    history_hours: Annotated[int, Field(ge=1, le=24)] = 1
 
     @model_validator(mode="after")
     def validate_binding(self):
-        if self.account.environment != "PAPER" or self.account.venue != "SIMULATOR":
-            raise ValueError("only synthetic observation bindings are enabled in this increment")
+        if self.account.environment != "PAPER":
+            raise ValueError("observer requires PAPER")
+        if self.source == "FIXTURE" and self.account.venue != "SIMULATOR":
+            raise ValueError("fixture reader requires SIMULATOR")
+        if self.source == "MT5":
+            if self.account.venue != "BROKER_DEMO":
+                raise ValueError("MT5 reader requires BROKER_DEMO")
+            if not self.expected_company or self.expected_margin_mode is None:
+                raise ValueError("pin terminal company and account margin mode")
+            if "expected_currency" not in self.model_fields_set:
+                raise ValueError("demo currency must be supplied explicitly")
+            if not self.account.login.isdecimal():
+                raise ValueError("MT5 account login must be numeric")
         for path in (self.terminal_path, self.data_path):
             drive, _ = ntpath.splitdrive(path)
             if not drive or not ntpath.isabs(path):
@@ -37,3 +55,7 @@ class Binding(FrozenModel):
 
     def fingerprint(self):
         return sha256(self.model_dump_json().encode()).hexdigest()
+
+    def require_permissions(self):
+        if not self.permissions_confirmed or not self.permission_evidence:
+            raise ValueError("broker Python/data permissions need explicit evidence")
