@@ -1,8 +1,9 @@
-# Source specification snapshot
+# FX-Talanta Architecture and Implementation Plan
 
-Source: https://chatgpt.com/space/page_33b155951df08191a6bd0d477c965002
-
-This is the supplied plan. See README.md for the current implementation status.
+This repository-maintained specification contains the full planning baseline.
+See the [README](../README.md) for current implementation status and the
+[documentation index](../README.md#documentation) for increment details and
+operating instructions. Maintain project requirements here through pull requests.
 
 **Build FX-Talanta as a fully autonomous forex trading system with a conversational advisor, automatic market-news monitoring, durable experience memory, a portable Python application core, isolated risk and execution gateways, and separate PAPER and LIVE accounts.** MT5 is the first broker connection. Normal trading, protective management, temporary-fault recovery, and qualified strategy deployment operate within fixed mandates without per-trade human approval.
 

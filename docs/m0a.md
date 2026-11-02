@@ -1,8 +1,8 @@
 # M0A: records and account contracts
 
-Source: [FX-Talanta Architecture and Implementation Plan, baseline v0.3](https://chatgpt.com/space/page_33b155951df08191a6bd0d477c965002).
-This increment implements only the M0A handoff. The source plan is retained in
-`architecture-plan.md` for subsequent increments.
+Specification: [FX-Talanta Architecture and Implementation Plan, baseline v0.3](architecture-plan.md).
+This increment implements only the M0A handoff. The full plan is maintained in
+the repository for subsequent increments.
 
 ## Storage and authority
 
