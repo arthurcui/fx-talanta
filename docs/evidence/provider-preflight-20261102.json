@@ -83,6 +83,37 @@
       "source": "ecb",
       "status": 200,
       "transport": "Windows PowerShell HTTPS with normal certificate validation"
+    },
+    {
+      "source": "ecb",
+      "url": "https://www.ecb.europa.eu/rss/press.html",
+      "observed_at": "2026-11-02T21:01:08.693115+00:00",
+      "qualified_for_trading": false,
+      "tls_backend": "native",
+      "status": 200,
+      "bytes": 5861,
+      "content_type": "application/rss+xml",
+      "etag_present": true,
+      "last_modified": null,
+      "body_sha256": "5e33d162e6265630551a20eb2af1259e0e9dce0f06a1cfb691cde209582b4041",
+      "format": "rss",
+      "items": 15,
+      "items_with_ids": 15,
+      "duplicate_ids": 0,
+      "timestamp_missing_or_invalid": 0,
+      "earliest_publication": "2026-10-21T04:15:00+00:00",
+      "latest_publication": "2026-11-02T09:30:00+00:00",
+      "future_timestamp_count": 0,
+      "probe_state": "PARSED",
+      "request_seconds": 0.551
+    },
+    {
+      "source": "bls",
+      "checked_on": "2026-11-02",
+      "transport": "Windows PowerShell HTTPS with normal certificate validation",
+      "client": "FX-Talanta-Qualification/0.1",
+      "status": 403,
+      "qualified_for_trading": false
     }
   ],
   "ecb_python_diagnostic": {
@@ -90,5 +121,13 @@
     "verify_code": 20,
     "reason": "unable to get local issuer certificate",
     "verification_disabled": false
+  },
+  "ecb_native_tls_validation": {
+    "hostname_verification": true,
+    "certificate_verification": "CERT_REQUIRED",
+    "dependency": "truststore==0.10.5",
+    "installed_in": "isolated provider worktree only",
+    "global_ssl_patch": false,
+    "root_cause_scope": "Default vs native trust-chain handling differs; specific missing certificate not established"
   }
 }

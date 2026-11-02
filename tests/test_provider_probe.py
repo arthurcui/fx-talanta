@@ -54,3 +54,26 @@ def test_http_outcomes_never_qualify_coverage(monkeypatch, code, state):
     assert result["probe_state"] == state
     assert not result["qualified_for_trading"]
     assert "private diagnostic" not in str(result)
+
+
+def test_default_tls_requires_certificate_and_hostname_checks():
+    import ssl
+
+    ctx = probe.tls_context("default")
+    assert ctx.verify_mode == ssl.CERT_REQUIRED and ctx.check_hostname
+
+
+def test_native_backend_missing_dependency_does_not_fall_back(monkeypatch):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "truststore", None)
+    with pytest.raises(RuntimeError, match="requires"):
+        probe.tls_context("native")
+
+
+def test_insecure_context_rejected_before_network(monkeypatch):
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(probe, "tls_context", lambda _: SimpleNamespace(check_hostname=False))
+    with pytest.raises(RuntimeError, match="verified TLS"):
+        probe.probe("ecb")

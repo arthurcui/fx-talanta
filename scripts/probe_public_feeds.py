@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import ssl
 import time
 import urllib.error
 import urllib.request
@@ -66,7 +67,20 @@ def summarize_xml(body):
     }
 
 
-def probe(name, last_modified=None):
+def tls_context(backend):
+    if backend == "default":
+        return ssl.create_default_context()
+    if backend != "native":
+        raise ValueError("unknown TLS backend")
+    try:
+        import truststore
+    except ImportError:
+        raise RuntimeError("native TLS requires requirements-provider-probe.txt") from None
+    # Explicit context only: never monkey-patch global SSL behavior.
+    return truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+
+
+def probe(name, last_modified=None, tls_backend="default"):
     url = URLS[name]
     start = time.monotonic()
     result = {
@@ -74,6 +88,7 @@ def probe(name, last_modified=None):
         "url": url,
         "observed_at": datetime.now(UTC).isoformat(),
         "qualified_for_trading": False,
+        "tls_backend": tls_backend,
     }
     request = urllib.request.Request(
         url,
@@ -86,7 +101,13 @@ def probe(name, last_modified=None):
         request.add_header("If-Modified-Since", last_modified)
         result["conditional_request"] = True
     try:
-        with urllib.request.build_opener(NoRedirect()).open(request, timeout=15) as response:
+        context = tls_context(tls_backend)
+        if not context.check_hostname or context.verify_mode != ssl.CERT_REQUIRED:
+            raise RuntimeError("verified TLS is required")
+        handler = urllib.request.HTTPSHandler(context=context)
+        with urllib.request.build_opener(NoRedirect(), handler).open(
+            request, timeout=15
+        ) as response:
             body = response.read(LIMIT + 1)
             if len(body) > LIMIT:
                 raise ValueError("response exceeds bound")
@@ -136,7 +157,12 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--sources", nargs="+", choices=tuple(URLS), default=list(URLS))
     parser.add_argument("--prior", type=Path, help="previous metadata for conditional requests")
+    parser.add_argument("--tls-backend", choices=("default", "native"), default="default")
     args = parser.parse_args()
+    try:
+        tls_context(args.tls_backend)
+    except RuntimeError as exc:
+        parser.error(str(exc))
     previous = {}
     if args.prior:
         previous = {
@@ -146,7 +172,7 @@ def main():
     # Exclusive creation prevents overwriting an earlier qualification attempt.
     with args.output.open("x", encoding="utf-8") as stream:
         for name in dict.fromkeys(args.sources):
-            result = probe(name, previous.get(name, {}).get("last_modified"))
+            result = probe(name, previous.get(name, {}).get("last_modified"), args.tls_backend)
             stream.write(json.dumps(result) + "\n")
             stream.flush()
             print(json.dumps(result))

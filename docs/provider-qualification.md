@@ -17,9 +17,9 @@ requirements. No subscription was purchased, account created or vendor contacted
 | Candidate | Public evidence / actual check | Qualification decision |
 | --- | --- | --- |
 | Fed monetary-policy RSS | Python HTTPS 200; 15 items, unique IDs and parseable zoned timestamps. Conditional recheck returned 304. | Advance to optional, read-only shadow collection. Not comprehensive USD news or a calendar. |
-| ECB announcements RSS | Python TLS issuer-chain verification failed. Windows HTTPS with normal validation returned 200 and 15 items. | Fix/test trust-chain portability in an isolated collector environment first; no certificate bypass. |
+| ECB announcements RSS | Default Python TLS failed; explicit native-trust Python HTTPS now returns 200 and 15 valid items. | Windows transport fix verified in isolation; Linux/Docker and sustained coverage still pending. |
 | BOJ updates RSS | Python HTTPS 200; 47 items, unique IDs and parseable zoned timestamps. | Format preflight passed; automated-use/retention scope and coverage remain open. |
-| BLS release calendar | Public ICS endpoint returned HTTP 403 from this host. | Not usable through the tested transport; no access-control workaround attempted. USD/BLS scope only. |
+| BLS release calendar | Public ICS endpoint returned HTTP 403 through both Python and Windows HTTPS with the same identified client. | Unavailable from this host; no access-control workaround attempted. USD/BLS scope only. |
 | MT5/MQL5 calendar | Documented calendar history and incremental change-ID API, with trade-server time semantics. No terminal probe in this increment. | First no-new-subscription calendar candidate to test after the soaks or on a separate qualified terminal. Availability and rights are not assumed. |
 | Trading Economics | Calendar IDs, UTC release times, timing precision, importance and update/revision-related fields; streaming and point-in-time documentation. | Best-documented paid fallback examined; authenticated sample, quota and retention agreement still needed. |
 | FMP calendar/forex news | Calendar endpoint documented; forex-news FAQ describes daily updates. Published terms impose storage/use restrictions. | Do not adopt as the required low-latency news feed on present evidence. Reconsider only with suitable written scope and measured delivery. |
@@ -45,7 +45,14 @@ announcements from statistical publications. Its [reuse terms](https://www.ecb.e
 require accurate attribution and contain exceptions, including named-author works.
 The observed Python failure was `SSLCertVerificationError`, issuer code 20; Windows
 success indicates a transport/trust-store difference worth diagnosing, not a reason
-to turn off TLS verification. Native and Linux/Docker collectors both need testing.
+to turn off TLS verification. A subsequent Python probe using an explicit
+`truststore.SSLContext` succeeded: 15 items with unique IDs and valid timezone-aware
+timestamps. Hostname verification and `CERT_REQUIRED` remained enabled. The
+[truststore API](https://truststore.readthedocs.io/en/latest/) uses native system
+certificate validation and supports intermediate-chain retrieval; the exact
+missing certificate was not established by this test. No certificates were added
+manually and no global SSL monkey-patch was applied. Linux/Docker behavior and
+sustained delivery remain unqualified.
 
 [BOJ](https://www.boj.or.jp/en/tips.htm) distributes update titles and dates. Its
 [copyright policy](https://www.boj.or.jp/en/about/copyright.htm) lists commercial
@@ -58,6 +65,11 @@ The [BLS calendar instructions](https://www.bls.gov/help/hlpiCAL.htm) publish th
 ICS URL and describe a tentative weekly schedule update. An upcoming schedule
 does not supply actual release values or intraday completeness. The observed 403
 is a failed transport preflight, not proof that BLS has no public calendar.
+The follow-up Windows HTTPS check also returned 403 using the same honest client
+identity. This is distinct from ECB's certificate-chain failure. Leave BLS marked
+unavailable; use another separately qualified calendar or seek BLS guidance rather
+than disguise the client or bypass the denial. Its public data-series API is not
+automatically a replacement for a future-release calendar.
 
 [Eurostat's APIs](https://ec.europa.eu/eurostat/web/user-guides/data-browser/api-data-access/api-introduction)
 are free, but the documentation describes latest-version datasets without past
@@ -139,6 +151,18 @@ agreement resolving those restrictions before adoption.
 .venv\Scripts\python scripts/probe_public_feeds.py --output .local/provider-probe.jsonl
 .venv\Scripts\python scripts/probe_public_feeds.py --sources fed --prior .local/provider-probe.jsonl --output .local/provider-conditional.jsonl
 ```
+
+For Windows native certificate validation, install the pinned optional dependency
+in a separate environment, never in either active broker observer's environment:
+
+```powershell
+py -3.14 -m venv .local/provider-venv
+.local\provider-venv\Scripts\python -m pip install -r requirements-provider-probe.txt
+.local\provider-venv\Scripts\python scripts/probe_public_feeds.py --sources ecb --tls-backend native --output .local/ecb-native.jsonl
+```
+
+The backend is explicit and a missing dependency fails instead of silently
+falling back. The default backend remains Python's default verified context.
 
 Create the output directory first. Each chosen source gets one request, with a
 15-second socket timeout and a 2 MiB body bound, no redirects, retries or credentials.
