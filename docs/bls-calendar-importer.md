@@ -77,6 +77,45 @@ headless/cloud-browser test, scheduler, cookie export or browser security-settin
 change was performed. Browser acquisition has not been wired into the collector
 or promoted to verified feed freshness. The existing fail-closed rules remain.
 
+### Repeat-download blocker identified and resolved
+
+The user confirmed Chrome displayed a multiple-download permission prompt.
+A fresh page's first download succeeded, but a second download in that same
+page timed out even with a 45-second bound. After the user selected **Allow**,
+three consecutive automated downloads from the same November BLS schedule tab
+succeeded in 320, 233 and 206 milliseconds. All three files parsed successfully:
+80,672 bytes, 92 selected release events and the identical source hash above.
+[Sanitized repeat evidence](evidence/bls-browser-repeat-20261102.json) records
+these outcomes. The permission prompt explains the observed repeat-download
+blocker; simply extending the timeout did not resolve it.
+
+The repeatable browser workflow for this user session is:
+
+1. Open an official BLS schedule page and locate its HTTPS `bls.ics` file link,
+   not the `webcal:` subscription link.
+2. Use the browser's documented link-download action and wait for its returned
+   completed local path, with a bounded timeout. Never infer completion from a
+   click alone or choose an older matching filename from Downloads.
+3. Validate the returned bytes with the strict ICS importer, record the acquisition
+   time and SHA-256, preserve earlier snapshots and reconcile against FRED dates.
+4. If Chrome prompts for multiple downloads, require the user to handle the
+   permission. Do not bypass it with new tabs, change browser security settings
+   automatically or silently reuse a previous file as fresh evidence.
+5. On timeout, permission loss, parse failure or disagreement, retain the failure
+   and keep entries blocked; a permission change should be followed by another
+   same-tab repeat test before treating browser acquisition as operational.
+
+Chrome's internal Downloads page could not be inspected because the browser
+tool blocks non-HTTP(S) URLs; no alternate route was used to inspect that page.
+The user handled the permission, and local validation inspected only the actual
+download paths returned by the browser. The original BLS file was not overwritten.
+
+This resolves the observed immediate repetition issue in the existing Chrome
+session. It does not establish browser-restart persistence, unattended/cloud
+operation, cache revalidation or sustained refresh. No scheduler, cookie export
+or trading-health integration was installed. Direct Python/Windows HTTPS remains
+a separately failing path; browser success does not change its recorded HTTP 403.
+
 ## Commands
 
 From the isolated checkout, set `PYTHONPATH` to its `src` directory and use the
