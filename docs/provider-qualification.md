@@ -20,6 +20,7 @@ requirements. No subscription was purchased, account created or vendor contacted
 | ECB announcements RSS | Default Python TLS failed; explicit native-trust Python HTTPS now returns 200 and 15 valid items. | Windows transport fix verified in isolation; Linux/Docker and sustained coverage still pending. |
 | BOJ updates RSS | Python HTTPS 200; 47 items, unique IDs and parseable zoned timestamps. | Format preflight passed; automated-use/retention scope and coverage remain open. |
 | BLS release calendar | Public ICS endpoint returned HTTP 403 through both Python and Windows HTTPS with the same identified client. | Unavailable from this host; no access-control workaround attempted. USD/BLS scope only. |
+| FRED release calendar | Free public pages returned 200; jobs and CPI event-row times matched the published BLS schedule. | Advance as the BLS schedule alternative; API supplies dates only, so precise-time qualification remains necessary. |
 | MT5/MQL5 calendar | Documented calendar history and incremental change-ID API, with trade-server time semantics. No terminal probe in this increment. | First no-new-subscription calendar candidate to test after the soaks or on a separate qualified terminal. Availability and rights are not assumed. |
 | Trading Economics | Calendar IDs, UTC release times, timing precision, importance and update/revision-related fields; streaming and point-in-time documentation. | Best-documented paid fallback examined; authenticated sample, quota and retention agreement still needed. |
 | FMP calendar/forex news | Calendar endpoint documented; forex-news FAQ describes daily updates. Published terms impose storage/use restrictions. | Do not adopt as the required low-latency news feed on present evidence. Reconsider only with suitable written scope and measured delivery. |
@@ -32,6 +33,10 @@ period. It is neither proof of feed failure nor proof that all current USD news 
 covered. An HTTP 304 establishes unchanged content, not complete coverage.
 
 ## Free-source constraints and attribution
+
+Follow-up: the [free-calendar alternative assessment](free-calendar-alternative.md)
+records successful FRED jobs/CPI checks, the API's date-only limitation, and a
+working BEA JSON supplement. These findings do not qualify a full trading feed.
 
 The [Fed feed directory](https://www.federalreserve.gov/feeds/feeds.htm) offers
 separate policy, speech and other announcement feeds. The [Board's reuse policy](https://www.federalreserve.gov/disclaimer.htm)
