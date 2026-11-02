@@ -49,6 +49,11 @@ still not prove reliable refresh or complete calendar coverage. Until then, manu
 imports are useful for offline schedule checks only. BLS API registration is not
 assumed to grant access to this separate ICS URL.
 
+Subsequent [FRED public-calendar tests](fred-public-calendar.md) automatically
+retrieved all five exact times twice and agreed with this BLS snapshot. This is
+a promising alternative for time retrieval, but does not make the static BLS
+snapshot fresh or establish sustained refresh qualification.
+
 ## Commands
 
 From the isolated checkout, set `PYTHONPATH` to its `src` directory and use the
