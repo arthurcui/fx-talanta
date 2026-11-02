@@ -1,5 +1,8 @@
 .venv/
 .env
+.env.*
+!.env.example
+*.fxbackup
 .local/
 __pycache__/
 *.py[cod]

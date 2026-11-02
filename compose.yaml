@@ -1,7 +1,26 @@
 name: fx-talanta-m0a
+# Retain this project name and volume for existing M0A/M0B installations.
+x-runtime: &runtime
+  image: fx-talanta:0.3.0
+  build: .
+  depends_on:
+    postgres:
+      condition: service_healthy
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  networks: [offline]
+x-database: &database
+  FX_PROFILE: docker
+  FX_DB_HOST: postgres
+  FX_DB_PORT: 5432
+  FX_DB_NAMESPACE: ${FX_DB_NAMESPACE:-fx}
+  FX_PAPER_PASSWORD: ${FX_PAPER_PASSWORD:?Run fx-talanta init-local first}
 services:
   postgres:
     image: postgres:17-bookworm
+    networks: [default, offline]
     environment:
       POSTGRES_USER: ${FX_DB_ADMIN_USER:-postgres}
       POSTGRES_PASSWORD: ${FX_DB_ADMIN_PASSWORD:?Run fx-talanta init-local first}
@@ -15,5 +34,34 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
+  app:
+    <<: *runtime
+    profiles: [app]
+    environment:
+      <<: *database
+    command: [offline-demo]
+  admin:
+    <<: *runtime
+    profiles: [tools]
+    environment:
+      <<: *database
+      FX_DB_ADMIN_USER: ${FX_DB_ADMIN_USER:-postgres}
+      FX_DB_ADMIN_PASSWORD: ${FX_DB_ADMIN_PASSWORD:?Run fx-talanta init-local first}
+      FX_LIVE_PASSWORD: ${FX_LIVE_PASSWORD:?Run fx-talanta init-local first}
+    volumes:
+      - ${FX_ARTIFACT_DIR:-./.local/artifacts}:/artifacts
+    command: [migrate]
+  codex-test:
+    profiles: [codex]
+    image: fx-talanta-codex-test:0.3.0
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.codex-test
+    # Native PostgreSQL on loopback; no Docker socket or external network.
+    network_mode: none
 volumes:
   postgres_data:
+networks:
+  default: {}
+  offline:
+    internal: true

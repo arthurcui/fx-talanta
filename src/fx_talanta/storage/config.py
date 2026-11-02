@@ -1,6 +1,7 @@
 """Explicit local-only database settings. Never print connection strings."""
 
 import os
+import re
 import secrets
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -29,23 +30,42 @@ class Settings:
     admin_password: str = field(repr=False)
     paper_password: str = field(repr=False)
     live_password: str = field(repr=False)
+    namespace: str = "fx"
+    profile: str = "native"
+
+    def __post_init__(self):
+        if not re.fullmatch(r"[a-z][a-z0-9_]{0,30}", self.namespace):
+            raise ValueError("database namespace must be a short lowercase SQL identifier")
+        if self.profile not in {"native", "docker", "codex"}:
+            raise ValueError("unknown execution profile")
+
+    def database(self, environment: Environment) -> str:
+        return f"{self.namespace}_{environment.value.lower()}"
 
     @classmethod
-    def load(cls, path: Path = Path(".env")) -> "Settings":
+    def load(cls, path: Path = Path(".env"), *, runtime: Environment | None = None) -> "Settings":
         values = {**dotenv_values(path), **os.environ}
-        required = ("FX_DB_ADMIN_PASSWORD", "FX_PAPER_PASSWORD", "FX_LIVE_PASSWORD")
+        required = (
+            (f"FX_{runtime.value}_PASSWORD",)
+            if runtime
+            else ("FX_DB_ADMIN_PASSWORD", "FX_PAPER_PASSWORD", "FX_LIVE_PASSWORD")
+        )
         if any(not values.get(k) for k in required):
             raise ValueError("missing local database settings; run fx-talanta init-local")
         return cls(
             host=values.get("FX_DB_HOST", "127.0.0.1"),
             port=int(values.get("FX_DB_PORT", "55432")),
             admin_user=values.get("FX_DB_ADMIN_USER", "postgres"),
-            admin_password=values[required[0]],
-            paper_password=values[required[1]],
-            live_password=values[required[2]],
+            admin_password=values.get("FX_DB_ADMIN_PASSWORD", ""),
+            paper_password=values.get("FX_PAPER_PASSWORD", ""),
+            live_password=values.get("FX_LIVE_PASSWORD", ""),
+            namespace=values.get("FX_DB_NAMESPACE", "fx"),
+            profile=values.get("FX_PROFILE", "native"),
         )
 
     def admin_dsn(self, database: str = "postgres") -> str:
+        if not self.admin_password:
+            raise ValueError("administrative database credentials are not available")
         return make_conninfo(
             host=self.host,
             port=self.port,
@@ -56,15 +76,16 @@ class Settings:
         )
 
     def runtime_dsn(self, environment: Environment) -> str:
-        name = environment.value.lower()
+        name = self.database(environment)
+        password = self.paper_password if environment == Environment.PAPER else self.live_password
+        if not password:
+            raise ValueError(f"{environment.value} runtime credentials are not available")
         return make_conninfo(
             host=self.host,
             port=self.port,
-            dbname=f"fx_{name}",
-            user=f"fx_{name}_writer",
-            password=self.paper_password
-            if environment == Environment.PAPER
-            else self.live_password,
+            dbname=name,
+            user=f"{name}_writer",
+            password=password,
             connect_timeout=5,
         )
 
@@ -74,7 +95,6 @@ def init_local(path: Path = Path(".env")) -> None:
     content = "FX_DB_HOST=127.0.0.1\nFX_DB_PORT=55432\nFX_DB_ADMIN_USER=postgres\n"
     for name in ("FX_DB_ADMIN_PASSWORD", "FX_PAPER_PASSWORD", "FX_LIVE_PASSWORD"):
         content += f"{name}={secrets.token_urlsafe(32)}\n"
-    with path.open("x", encoding="utf-8") as stream:
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
         stream.write(content)
-    if os.name != "nt":
-        path.chmod(0o600)

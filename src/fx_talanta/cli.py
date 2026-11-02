@@ -9,6 +9,7 @@ from fx_talanta.domain.models import Environment
 from fx_talanta.fixtures import run_demo
 from fx_talanta.storage.bootstrap import bootstrap
 from fx_talanta.storage.config import Settings, fixture_account, init_local
+from fx_talanta.storage.offline import WriterBusy
 from fx_talanta.storage.repository import Repository
 
 
@@ -19,6 +20,21 @@ def main() -> None:
     sub.add_parser("init-local", help="create local database secrets without overwriting")
     sub.add_parser("migrate", help="bootstrap fixture databases and verify migration checksums")
     sub.add_parser("offline-demo", help="run the M0B risk/execution/restart simulator")
+    export = sub.add_parser("export", help="export both stopped fixture accounts to a new archive")
+    export.add_argument("archive", type=Path)
+    restore = sub.add_parser(
+        "restore", help="restore into empty migrated accounts, initially blocked"
+    )
+    restore.add_argument("archive", type=Path)
+    verify = sub.add_parser(
+        "verify-restore", help="verify both restored accounts before reconciliation"
+    )
+    verify.add_argument("archive", type=Path)
+    verify.add_argument(
+        "--source-retired",
+        action="store_true",
+        help="attest that the source writer is stopped and will not resume",
+    )
     demo = sub.add_parser("demo", help="record the scripted PAPER scenarios")
     demo.add_argument("--run-id", type=UUID, default=None)
     history = sub.add_parser("history", help="print account-scoped fixture records")
@@ -30,17 +46,29 @@ def main() -> None:
             init_local(args.env_file)
             print("Created local database settings; secret values are not displayed.")
             return
-        settings = Settings.load(args.env_file)
+        environment = Environment(getattr(args, "environment", "PAPER"))
+        administrative = args.command in {"migrate", "export", "restore", "verify-restore"}
+        settings = Settings.load(args.env_file, runtime=None if administrative else environment)
         if args.command == "migrate":
             bootstrap(settings)
             print("PAPER/LIVE fixture databases ready. Both execution bindings remain disabled.")
+            return
+        if args.command in {"export", "restore", "verify-restore"}:
+            from fx_talanta.storage.archive import export_archive, release_restore, restore_archive
+
+            if args.command == "export":
+                result = export_archive(settings, args.archive)
+            elif args.command == "restore":
+                result = restore_archive(settings, args.archive)
+            else:
+                result = release_restore(settings, args.archive, source_retired=args.source_retired)
+            print(json.dumps(result, indent=2))
             return
         if args.command == "offline-demo":
             from fx_talanta.offline_fixtures import run_offline_demo
 
             print(json.dumps(run_offline_demo(settings), indent=2))
             return
-        environment = Environment(getattr(args, "environment", "PAPER"))
         repo = Repository(settings.runtime_dsn(environment), fixture_account(environment))
         if args.command == "demo":
             print(json.dumps(run_demo(repo, args.run_id or uuid4()), indent=2))
@@ -54,7 +82,7 @@ def main() -> None:
     except psycopg.Error as error:
         # Database diagnostics can contain submitted payloads; do not echo them or DSNs.
         parser.exit(1, f"Database operation failed ({type(error).__name__}); check local setup.\n")
-    except (ValueError, FileExistsError) as error:
+    except (ValueError, FileExistsError, WriterBusy) as error:
         parser.exit(1, f"{error}\n")
 
 

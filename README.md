@@ -1,13 +1,14 @@
 # FX-Talanta
 
-M0A and M0B implement the portable Python offline foundation from the
+M0A–M0C implement the portable Python offline foundation from the
 [architecture plan](https://chatgpt.com/space/page_33b155951df08191a6bd0d477c965002).
 It records scripted decisions, news revisions, conversations, execution observations,
 experience, lessons, artifacts, and promotion evidence in PostgreSQL. M0B adds
 deterministic risk sizing, reservations, a durable simulated broker, protective
-management and restart reconciliation.
+management and restart reconciliation. M0C adds the application image, isolated
+task setup, and verified two-account export/restore.
 
-**Current scope: through M0B.** Real execution remains disabled on both account
+**Current scope: through M0C.** Real execution remains disabled on both account
 bindings. The `demo` command records M0A fixtures; `offline-demo` executes synthetic
 PAPER/SIMULATOR orders with no external broker connection or LLM credentials. LIVE
 is a separate, disabled database namespace for account-isolation tests; its fixture
@@ -20,15 +21,15 @@ native PostgreSQL 17 instance. Run these commands from the repository directory:
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\python -m pip install -e '.[dev]'
+.venv\Scripts\python -m pip install -c requirements.lock -e '.[dev]'
 .venv\Scripts\fx-talanta init-local
 docker compose up -d --wait postgres
 .venv\Scripts\fx-talanta migrate
 .venv\Scripts\fx-talanta demo
 .venv\Scripts\fx-talanta offline-demo
 .venv\Scripts\python -m pytest --integration -q
-.venv\Scripts\ruff check src tests
-.venv\Scripts\ruff format --check src tests
+.venv\Scripts\ruff check src tests scripts
+.venv\Scripts\ruff format --check src tests scripts
 ```
 
 `init-local` generates three different local database passwords in ignored `.env`
@@ -37,16 +38,16 @@ and refuses to overwrite an existing file. The fixture container listens only on
 own named volume. It does not use another project's database.
 
 If a restricted host prevents `venv` from installing pip, use the host pip to target
-the environment: `python -m pip --python .venv install -e '.[dev]'`. Installing
+the environment: `python -m pip --python .venv install -c requirements.lock -e '.[dev]'`. Installing
 dependencies and accessing Docker/PostgreSQL may require host network permissions.
 
 ## Native setup and Unix shells
 
-The application itself runs natively; Compose supplies only PostgreSQL. On Linux/macOS:
+For native application execution, Compose can supply PostgreSQL. On Linux/macOS:
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install -e '.[dev]'
+.venv/bin/python -m pip install -c requirements.lock -e '.[dev]'
 .venv/bin/fx-talanta init-local
 docker compose up -d --wait postgres
 .venv/bin/fx-talanta migrate
@@ -60,16 +61,49 @@ cluster, and set `FX_DB_HOST`, `FX_DB_PORT`, `FX_DB_ADMIN_USER`, and
 `FX_DB_ADMIN_PASSWORD` in `.env` to match it. Preserve the independently generated
 `FX_PAPER_PASSWORD` and `FX_LIVE_PASSWORD`. Then run `migrate`. Administrative setup
 requires permission to create databases and roles; runtime repositories use the
-limited writer credentials. Bootstrap accepts loopback hosts only and creates the
-reserved `fx_paper` and `fx_live` databases. It never substitutes SQLite.
+limited writer credentials. Bootstrap accepts loopback hosts (plus the `postgres`
+service in the explicit Docker profile). It creates `fx_paper` and `fx_live` by
+default; `FX_DB_NAMESPACE` selects an isolated pair with matching separate roles.
+It never substitutes SQLite.
 
-The supported contract targets Python 3.11+; this increment was exercised on
-Windows with Python 3.14 and PostgreSQL 17. Cross-profile deployment acceptance,
-an application image, and checked Codex-cloud setup belong to M0C.
+The package supports Python 3.11+. The acceptance profiles use Windows/Python 3.14,
+the Python 3.14 application image, and Linux/Python 3.11 with native PostgreSQL 17.
+All profiles use `requirements.lock`, the same package, commands, migrations and tests.
+
+## Application container and task profile
+
+After `init-local`, run the package inside its image:
+
+```sh
+docker compose build app
+docker compose up -d --wait postgres
+docker compose run --rm admin migrate
+docker compose run --rm app offline-demo
+```
+
+`app` has only the PAPER database password, runs as a nonroot user on a read-only
+filesystem, and uses an internal network. `admin` is the separate migration and
+archive tool with both fixture database credentials. Images contain code and
+dependencies; the existing `fx-talanta-m0a_postgres_data` volume retains history.
+No UI or externally connected broker is included.
+
+For a Linux Codex task with Python/venv and native PostgreSQL 17 available:
+
+```sh
+python3 scripts/codex_setup.py
+python3 scripts/codex_run.py test
+python3 scripts/codex_run.py offline-demo
+```
+
+Setup chooses Docker when available and otherwise starts a private native
+PostgreSQL cluster. It creates fresh fixture credentials under ignored
+`.local/codex`, and the runner excludes inherited credentials. See
+[M0C setup, restore and acceptance](docs/m0c.md) for cloud environment installation,
+startup, archive transfer, and the offline test harness.
 
 ## Repeatable demo and inspection
 
-For an existing M0A installation, run `fx-talanta migrate` to apply migration 003
+For an existing M0A/M0B installation, run `fx-talanta migrate` to apply migrations 003–004
 without resetting records or replacing the database volume. Then run
 `fx-talanta offline-demo` for the M0B loop: reserve risk, lose a simulated send
 response, restart the gateway, discover the fill, verify its stop, and close at
@@ -119,8 +153,10 @@ docker compose up -d --wait postgres
 
 `docker compose stop postgres` stops the local service while retaining its volume.
 Keep `.env` with the corresponding local volume; generating new passwords does
-not change passwords in an existing PostgreSQL cluster. Export/restore automation
-and migration between hosts are M0C work.
+not change passwords in an existing PostgreSQL cluster. `export`, `restore`, and
+`verify-restore` transfer both histories into an empty destination without copying
+credentials. Restore initially blocks runtime writes and execution. Follow the
+[handoff procedure](docs/m0c.md#export-and-restore) before releasing that guard.
 
 ## Implementation map
 
@@ -134,6 +170,10 @@ and migration between hosts are M0C work.
 | `src/fx_talanta/gateway/offline.py` | Sole offline mutation path, protection and reconciliation |
 | `src/fx_talanta/risk/governor.py` | Decimal-safe sizing, exposure, cash-flow and loss accounting |
 | `src/fx_talanta/storage/offline.py` | Session-fenced append-only simulator/gateway checkpoints |
+| `src/fx_talanta/storage/archive.py` | Checksummed two-account snapshots and blocked, resumable restore |
+| `Dockerfile`, `compose.yaml` | Application image, private runtime network and persistent PostgreSQL |
+| `scripts/codex_setup.py`, `scripts/codex_run.py` | Isolated task service setup and shared commands |
+| `scripts/profile_acceptance.py` | Native/container/task archive-transfer acceptance |
 | `src/fx_talanta/advisor/fixtures.py` | Exact scripted chat interpretation and command records |
 | `src/fx_talanta/clock.py` | Injected clock interface and deterministic fake clock |
 | `src/fx_talanta/fixtures.py` | End-to-end M0A recording demonstration |
@@ -141,7 +181,6 @@ and migration between hosts are M0C work.
 | `docs/m0a.md` | Storage guarantees, trust boundaries and next-increment interfaces |
 | `docs/architecture-plan.md` | Source specification snapshot |
 
-The portable core does not import MetaTrader5. Application images, export/restore
-and deployment parity are M0C; real news ingestion, model access, authentication,
+The portable core does not import MetaTrader5. Real news ingestion, model access, authentication,
 UI and live activation remain later work. GitHub's required `M0A checks` job name
 is retained for branch-protection compatibility and now runs the entire suite.
