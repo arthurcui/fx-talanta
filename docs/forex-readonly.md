@@ -244,6 +244,11 @@ authorized connected campaign is reported below. No CMC code/environment was cha
 
 ## Separately authorized fixed-cadence run — NOT ACCEPTED
 
+Follow-up design review: [separate connection health, quote freshness and entry
+permission](market-data-acceptance-review.md). It proposes a future versioned
+acceptance design only; the five-second ceiling and stricter offline two-second
+entry rule remain unchanged, and no additional campaign is authorized.
+
 After the correction passed 215 native tests and GitHub CI, the user separately
 authorized run `5bc4fe4f-440f-41f1-a5b9-37c2d630215f` using commit `d4aab1b`.
 It began November 2 at 22:11:07 UTC with a fixed deadline of November 3 at
