@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import Field, model_validator
+from pydantic import Field, model_serializer, model_validator
 
 from fx_talanta.domain.models import (
     AccountIdentity,
@@ -250,6 +250,15 @@ class LossLedger(FrozenModel):
 
 
 class GatewayBook(FrozenModel):
+    news_gate_identity: str | None = None
+
+    @model_serializer(mode="wrap")
+    def legacy_wire(self, handler):
+        data = handler(self)
+        if self.news_gate_identity is None:
+            data.pop("news_gate_identity", None)
+        return data
+
     account: AccountIdentity
     policy: Policy
     state: Literal[

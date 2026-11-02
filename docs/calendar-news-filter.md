@@ -1,5 +1,10 @@
 # Calendar and news filtering
 
+The [calendar/news integration](calendar-news-integration.md) now connects real
+provider metadata through a durable shadow journal to automatic offline entry
+checks. The original fixture foundation described below remains available;
+provider-shadow inputs cannot pass the required trading-input gate.
+
 This increment implements deterministic, fixture-based entry restrictions while
 the independent CMC and FOREX.com observation runs continue. It has no network,
 broker, credential, model, order or database access. It does not qualify a real

@@ -81,7 +81,7 @@ class NewsEvidence(FrozenModel):
 
 
 class FilterInputs(FrozenModel):
-    provenance: Literal["FIXTURE"] = "FIXTURE"
+    provenance: Literal["FIXTURE", "PROVIDER_SHADOW"] = "FIXTURE"
     checks: tuple[FeedCheck, ...] = Field(default=(), max_length=10000)
     calendar: tuple[CalendarRevision, ...] = Field(default=(), max_length=10000)
     news: tuple[NewsEvidence, ...] = Field(default=(), max_length=10000)
@@ -93,7 +93,7 @@ class FilterResult(FrozenModel):
     input_hash: str
     cutoff: Timestamp
     symbol: Literal["EURUSD", "USDJPY"]
-    provenance: Literal["FIXTURE"] = "FIXTURE"
+    provenance: Literal["FIXTURE", "PROVIDER_SHADOW"] = "FIXTURE"
     calendar_ok: bool
     news_ok: bool
     event_blackout: bool
@@ -231,15 +231,25 @@ def assess(policy: FilterPolicy, inputs: FilterInputs, symbol: str, cutoff) -> F
         )
     )
     return FilterResult(
+        provenance=inputs.provenance,
         policy_version=policy.version,
         policy_hash=sha256(policy.model_dump_json().encode()).hexdigest(),
         input_hash=sha256(inputs.model_dump_json().encode()).hexdigest(),
         cutoff=cutoff,
         symbol=symbol,
-        calendar_ok=health["CALENDAR"],
-        news_ok=health["NEWS"],
+        calendar_ok=health["CALENDAR"] and inputs.provenance == "FIXTURE",
+        news_ok=health["NEWS"] and inputs.provenance == "FIXTURE",
         event_blackout=blackout,
-        reasons=tuple(sorted(reasons)),
+        reasons=tuple(
+            sorted(
+                reasons
+                + (
+                    ["PROVIDER_QUALIFICATION_PENDING"]
+                    if inputs.provenance == "PROVIDER_SHADOW"
+                    else []
+                )
+            )
+        ),
         optional_degradations=tuple(sorted(optional)),
         calendar_refs=tuple(refs),
         news_refs=news_refs,

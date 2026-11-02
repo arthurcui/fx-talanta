@@ -6,6 +6,11 @@ if necessary**. PR #10 remains unmerged. Neither CMC nor FOREX.com's ongoing
 
 ## Decision and readiness
 
+Implementation follow-up: [calendar/news integration](calendar-news-integration.md)
+connects the adapters, immutable attempt/revision journal and offline entry gate.
+Fed, ECB, BOJ and FRED succeeded in its bounded check; direct BLS refresh still
+returned 403. No required provider is promoted by that integration check.
+
 Follow-up: [bounded refresh and recovery qualification](provider-refresh-qualification.md)
 records three successful FRED reconciliation passes, persisted outage/recovery
 semantics, Linux RSS transport checks, and request-dependent BLS results. Linux
