@@ -320,6 +320,115 @@ class AdministrativeCommand(FrozenModel):
         return self
 
 
+class ObservedSymbol(FrozenModel):
+    symbol: Identifier
+    digits: Annotated[int, Field(ge=0, le=12)]
+    volume_min: Annotated[Amount, Field(gt=0)]
+    volume_step: Annotated[Amount, Field(gt=0)]
+    point: Annotated[Amount, Field(gt=0)]
+
+
+class ObservedTick(FrozenModel):
+    symbol: Identifier
+    at: Timestamp
+    bid: Annotated[Amount, Field(gt=0)]
+    ask: Annotated[Amount, Field(gt=0)]
+
+    @model_validator(mode="after")
+    def spread(self):
+        if self.ask < self.bid:
+            raise ValueError("crossed quote")
+        return self
+
+
+class ObservedBar(FrozenModel):
+    symbol: Identifier
+    opened_at: Timestamp
+    period_seconds: Literal[900, 3600]
+    open: Annotated[Amount, Field(gt=0)]
+    high: Annotated[Amount, Field(gt=0)]
+    low: Annotated[Amount, Field(gt=0)]
+    close: Annotated[Amount, Field(gt=0)]
+
+    @model_validator(mode="after")
+    def range(self):
+        if not self.low <= min(self.open, self.close) <= max(self.open, self.close) <= self.high:
+            raise ValueError("invalid OHLC range")
+        return self
+
+
+class ObservedItem(FrozenModel):
+    """Account-scoped observation, never an instruction to manage an external order."""
+
+    ticket: Identifier
+    symbol: Identifier
+    side: Literal["BUY", "SELL"]
+    volume: NonNegative
+    price: NonNegative
+    at: Timestamp
+
+
+class TerminalSnapshot(FrozenModel):
+    account_before: AccountIdentity
+    account_after: AccountIdentity
+    terminal_path: Text
+    data_path: Text
+    build: Annotated[int, Field(gt=0)]
+    currency: Annotated[str, Field(pattern=r"^[A-Z]{3}$")]
+    connected: bool
+    observed_at: Timestamp
+    history_from: Timestamp
+    history_to: Timestamp
+    symbols: Annotated[tuple[ObservedSymbol, ...], Field(max_length=100)]
+    ticks: Annotated[tuple[ObservedTick, ...], Field(max_length=100)]
+    bars: Annotated[tuple[ObservedBar, ...], Field(max_length=2000)]
+    positions: Annotated[tuple[ObservedItem, ...], Field(max_length=2000)]
+    orders: Annotated[tuple[ObservedItem, ...], Field(max_length=2000)]
+    deals: Annotated[tuple[ObservedItem, ...], Field(max_length=2000)]
+    history_complete: bool
+
+
+class TerminalObservation(FrozenModel):
+    kind: Literal["observation"] = "observation"
+    binding_hash: Hash
+    state: Literal["HEALTHY", "DEGRADED", "BACKOFF", "HALTED"]
+    reason: Literal[
+        "CURRENT",
+        "DISCONNECTED",
+        "STALE_TICKS",
+        "MISSING_DATA",
+        "TIMEOUT",
+        "READER_FAILED",
+        "INVALID_DATA",
+        "IDENTITY_MISMATCH",
+        "PATH_MISMATCH",
+        "BUILD_CHANGED",
+        "CURRENCY_MISMATCH",
+    ]
+    failures: Annotated[int, Field(ge=0)]
+    last_success_at: Timestamp | None = None
+    next_retry_at: Timestamp | None = None
+    snapshot: TerminalSnapshot | None = None
+
+    @model_validator(mode="after")
+    def coherent_state(self):
+        if self.state == "HEALTHY":
+            if (
+                self.reason != "CURRENT"
+                or self.failures
+                or self.snapshot is None
+                or self.last_success_at is None
+                or self.next_retry_at is not None
+            ):
+                raise ValueError("healthy observation needs a successful snapshot")
+        else:
+            if self.reason == "CURRENT" or not self.failures:
+                raise ValueError("failed observation needs a failure reason/count")
+            if (self.state == "HALTED") != (self.next_retry_at is None):
+                raise ValueError("only a terminal halt can omit its retry deadline")
+        return self
+
+
 Body = Annotated[
     DecisionAttempt
     | RiskEvaluation
@@ -331,7 +440,8 @@ Body = Annotated[
     | NewsRevision
     | SourceHealth
     | ConversationMessage
-    | AdministrativeCommand,
+    | AdministrativeCommand
+    | TerminalObservation,
     Field(discriminator="kind"),
 ]
 
@@ -364,6 +474,18 @@ class Record(FrozenModel):
                     raise ValueError("validated response cannot redirect the account")
                 if self.body.decision.expires_at <= self.recorded_at:
                     raise ValueError("valid decision is expired")
+        if isinstance(self.body, TerminalObservation):
+            if self.account.environment != Environment.PAPER or self.account.venue != "SIMULATOR":
+                raise ValueError("observer foundation records require PAPER/SIMULATOR")
+            if self.provenance != "SCRIPTED_FIXTURE":
+                raise ValueError("observer foundation must be labelled as a scripted fixture")
+            snapshot = self.body.snapshot
+            if snapshot and (
+                snapshot.account_before != self.account
+                or snapshot.account_after != self.account
+                or snapshot.observed_at > self.recorded_at
+            ):
+                raise ValueError("observation identity or availability mismatch")
         if isinstance(self.body, NewsRevision) and self.body.available_at > self.recorded_at:
             raise ValueError("news cannot be recorded before availability")
         if isinstance(self.body, ExperienceCase) and self.body.outcome_known_at:

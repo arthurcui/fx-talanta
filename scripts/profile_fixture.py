@@ -12,6 +12,9 @@ from fx_talanta.domain.models import Environment, ExperienceCase, Record
 from fx_talanta.domain.offline import BrokerBook, Fault, GatewayBook
 from fx_talanta.fixtures import START, run_demo
 from fx_talanta.gateway.offline import Gateway
+from fx_talanta.observer.demo import fixture_binding, run_observer_demo
+from fx_talanta.observer.fixtures import FixtureReader
+from fx_talanta.observer.supervisor import Observer
 from fx_talanta.offline_fixtures import make_intent, market_at, warmup
 from fx_talanta.storage.archive import export_archive, release_restore, restore_archive
 from fx_talanta.storage.bootstrap import bootstrap
@@ -36,6 +39,7 @@ def save_bundle(settings, directory, checkpoints):
 
 
 def prepare(settings, directory):
+    run_observer_demo(settings)
     paper = Repository(settings.runtime_dsn(Environment.PAPER), fixture_account(Environment.PAPER))
     run_demo(paper, uuid4())
     live = Repository(settings.runtime_dsn(Environment.LIVE), fixture_account(Environment.LIVE))
@@ -95,6 +99,21 @@ def restore(settings, source, output=None):
     # prepare() closed every source writer. This isolated acceptance harness can
     # therefore make the explicit handoff attestation without user intervention.
     release_restore(settings, archive, source_retired=True)
+    paper = Repository(settings.runtime_dsn(Environment.PAPER), fixture_account(Environment.PAPER))
+    observations = paper.history(kind="observation")
+    assert len(observations) == 4
+    last = observations[-1]
+    observer = Observer(
+        settings.runtime_dsn(Environment.PAPER),
+        fixture_binding(),
+        last.correlation_id,
+        FakeClock(last.recorded_at),
+    )
+    try:
+        assert observer.poll(FixtureReader()) == last
+        assert last.body.state == "HALTED" and last.body.reason == "BUILD_CHANGED"
+    finally:
+        observer.close()
     updated = []
     for expected in checkpoints:
         clock = FakeClock(datetime.fromisoformat(expected["at"]))
@@ -123,6 +142,7 @@ def restore(settings, source, output=None):
                 "restore_verified": True,
                 "unknown_recovered_without_resubmit": True,
                 "loss_halt_preserved": True,
+                "observer_halt_preserved": True,
                 "live_enabled": False,
             }
         )
