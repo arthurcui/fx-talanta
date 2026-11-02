@@ -1,14 +1,17 @@
 # FX-Talanta
 
-M0A implements the portable Python record foundation from the
+M0A and M0B implement the portable Python offline foundation from the
 [architecture plan](https://chatgpt.com/space/page_33b155951df08191a6bd0d477c965002).
 It records scripted decisions, news revisions, conversations, execution observations,
-experience, lessons, artifacts, and promotion evidence in PostgreSQL.
+experience, lessons, artifacts, and promotion evidence in PostgreSQL. M0B adds
+deterministic risk sizing, reservations, a durable simulated broker, protective
+management and restart reconciliation.
 
-**Current scope: M0A only.** Both account bindings have execution disabled. The demo
-uses synthetic PAPER/SIMULATOR evidence, performs zero broker mutations, and needs
-no broker or LLM credentials. LIVE is a separate, disabled database namespace for
-account-isolation tests; its fixture identity is not a real trading account.
+**Current scope: through M0B.** Real execution remains disabled on both account
+bindings. The `demo` command records M0A fixtures; `offline-demo` executes synthetic
+PAPER/SIMULATOR orders with no external broker connection or LLM credentials. LIVE
+is a separate, disabled database namespace for account-isolation tests; its fixture
+identity is not a real trading account.
 
 ## Quick start on Windows
 
@@ -22,6 +25,7 @@ python -m venv .venv
 docker compose up -d --wait postgres
 .venv\Scripts\fx-talanta migrate
 .venv\Scripts\fx-talanta demo
+.venv\Scripts\fx-talanta offline-demo
 .venv\Scripts\python -m pytest --integration -q
 .venv\Scripts\ruff check src tests
 .venv\Scripts\ruff format --check src tests
@@ -47,6 +51,7 @@ python3 -m venv .venv
 docker compose up -d --wait postgres
 .venv/bin/fx-talanta migrate
 .venv/bin/fx-talanta demo
+.venv/bin/fx-talanta offline-demo
 .venv/bin/python -m pytest --integration -q
 ```
 
@@ -63,6 +68,14 @@ Windows with Python 3.14 and PostgreSQL 17. Cross-profile deployment acceptance,
 an application image, and checked Codex-cloud setup belong to M0C.
 
 ## Repeatable demo and inspection
+
+For an existing M0A installation, run `fx-talanta migrate` to apply migration 003
+without resetting records or replacing the database volume. Then run
+`fx-talanta offline-demo` for the M0B loop: reserve risk, lose a simulated send
+response, restart the gateway, discover the fill, verify its stop, and close at
+the holding cutoff. The JSON summary includes the simulation ID, states, retained
+reservation, entry-submission count and realized net P&L. Each invocation creates
+a separate synthetic research ledger. See [M0B details](docs/m0b.md).
 
 ```powershell
 .venv\Scripts\fx-talanta demo --run-id 6fc5695e-880f-4be9-af32-fdbb16409c20
@@ -117,6 +130,10 @@ and migration between hosts are M0C work.
 | `src/fx_talanta/storage/` | Account-bound repository, privileged bootstrap and SQL migrations |
 | `src/fx_talanta/agent/scripted.py` | DecisionSource, scripted responses and durable attempts |
 | `src/fx_talanta/brokers/protocol.py` | BrokerAdapter observation interface and fixture playback |
+| `src/fx_talanta/brokers/simulator.py` | Durable simulated orders, fills, positions and costs |
+| `src/fx_talanta/gateway/offline.py` | Sole offline mutation path, protection and reconciliation |
+| `src/fx_talanta/risk/governor.py` | Decimal-safe sizing, exposure, cash-flow and loss accounting |
+| `src/fx_talanta/storage/offline.py` | Session-fenced append-only simulator/gateway checkpoints |
 | `src/fx_talanta/advisor/fixtures.py` | Exact scripted chat interpretation and command records |
 | `src/fx_talanta/clock.py` | Injected clock interface and deterministic fake clock |
 | `src/fx_talanta/fixtures.py` | End-to-end M0A recording demonstration |
@@ -124,6 +141,7 @@ and migration between hosts are M0C work.
 | `docs/m0a.md` | Storage guarantees, trust boundaries and next-increment interfaces |
 | `docs/architecture-plan.md` | Source specification snapshot |
 
-The portable core does not import MetaTrader5. Actual risk sizing, reservations,
-order-state transitions and recovery logic are M0B; real news ingestion, model
-access, authentication, UI and live activation remain later work.
+The portable core does not import MetaTrader5. Application images, export/restore
+and deployment parity are M0C; real news ingestion, model access, authentication,
+UI and live activation remain later work. GitHub's required `M0A checks` job name
+is retained for branch-protection compatibility and now runs the entire suite.

@@ -34,36 +34,40 @@ class Repository:
 
     def append_batch(self, records: Iterable[Record]) -> list[int]:
         """Atomic, ordered insertion; identical IDs/payloads are safe to retry."""
-        sequences = []
         with psycopg.connect(self._dsn) as conn:
-            self._check_binding(conn)
-            for candidate in records:
-                # Revalidate even model_construct/model_copy inputs from callers.
-                record = Record.model_validate(candidate.model_dump(mode="json"))
-                if record.account != self.account:
-                    raise AccountMismatch("record cannot be routed to this account")
-                payload = record.model_dump(mode="json")
-                row = conn.execute(
-                    "INSERT INTO fx.records(record_id,kind,recorded_at,supersedes,payload) "
-                    "VALUES (%s,%s,%s,%s,%s) ON CONFLICT (record_id) DO NOTHING RETURNING sequence",
-                    (
-                        record.record_id,
-                        record.body.kind,
-                        record.recorded_at,
-                        record.supersedes,
-                        Jsonb(payload),
-                    ),
+            return self.append_in(conn, records)
+
+    def append_in(self, conn: psycopg.Connection, records: Iterable[Record]) -> list[int]:
+        """Append within the caller's transaction, including an offline checkpoint."""
+        sequences = []
+        self._check_binding(conn)
+        for candidate in records:
+            # Revalidate even model_construct/model_copy inputs from callers.
+            record = Record.model_validate(candidate.model_dump(mode="json"))
+            if record.account != self.account:
+                raise AccountMismatch("record cannot be routed to this account")
+            payload = record.model_dump(mode="json")
+            row = conn.execute(
+                "INSERT INTO fx.records(record_id,kind,recorded_at,supersedes,payload) "
+                "VALUES (%s,%s,%s,%s,%s) ON CONFLICT (record_id) DO NOTHING RETURNING sequence",
+                (
+                    record.record_id,
+                    record.body.kind,
+                    record.recorded_at,
+                    record.supersedes,
+                    Jsonb(payload),
+                ),
+            ).fetchone()
+            if row:
+                sequences.append(row[0])
+            else:
+                existing = conn.execute(
+                    "SELECT sequence,payload FROM fx.records WHERE record_id=%s",
+                    (record.record_id,),
                 ).fetchone()
-                if row:
-                    sequences.append(row[0])
-                else:
-                    existing = conn.execute(
-                        "SELECT sequence,payload FROM fx.records WHERE record_id=%s",
-                        (record.record_id,),
-                    ).fetchone()
-                    if existing[1] != payload:
-                        raise RecordConflict("record ID already has different immutable content")
-                    sequences.append(existing[0])
+                if existing[1] != payload:
+                    raise RecordConflict("record ID already has different immutable content")
+                sequences.append(existing[0])
         return sequences
 
     def get(self, record_id: UUID) -> Record:
