@@ -1,8 +1,9 @@
 # Market-data acceptance design review
 
 Reviewed November 2, 2026 against the committed observer, offline gateway, failed
-qualification reports and separate FOREX diagnostic. **Design proposal only:**
-no runtime, thresholds, bindings, historical outcomes or entry permissions change.
+qualification reports and separate FOREX diagnostic. The findings below describe
+the legacy policy. An opt-in implementation is now included in this branch; see
+the implementation section below. Historical outcomes and entry permissions do not change.
 No new 24-hour run is authorized. PRs #10 and #11 remain unmerged.
 
 ## Recommendation
@@ -165,3 +166,52 @@ Evidence: [CMC final report in existing PR #8](https://github.com/arthurcui/fx-t
 The diagnostic showed stale quotes on a persistent attachment and matching latest
 history/latest-tick timestamps in its separate check. It narrows the investigation;
 it does not establish whether upstream quote production or delivery is responsible.
+
+## Opt-in implementation: acceptance version 2
+
+`observe-run --acceptance-version 2` selects the new policy for a **new run ID**.
+The default remains version 1. The version and final-verification budget are
+persisted with the immutable runner plan. Observer/4 records carry a version-2
+health object; absent health fields are omitted from legacy serialization so old
+record hashes and plan identities remain unchanged. A run cannot switch versions.
+No production binding, database, running checkout or historical report is migrated.
+
+Complete stale snapshots remain DEGRADED for quote readiness, but reset the
+transport and completeness failure streaks. Their successful-read timestamp
+advances; legacy `last_success_at` still means a fresh complete assessment. Actual
+read/connection failures retain exponential backoff; missing required inputs have
+a separate counter. Only a complete validated read resets these operational
+counters, so alternating incomplete reads and transport errors cannot erase them.
+Both use the binding's existing failure limit (ten in the reviewed broker plans).
+Identity, malformed data and invalid timestamps still halt immediately. Version 2
+rejects observer age settings above five seconds. Offline entry code is unchanged
+and still caps age at two seconds; no observer result authorizes an entry.
+
+For the standard plan, attempts are anchored to 2,880 thirty-second slots. The
+runner persists the attempted slot before reading, preventing an uncertain commit
+or restart from producing another attempt in that slot. Reads that complete after
+the observation deadline are excluded from scheduled coverage. Duplicate IDs and
+additional records within a slot cannot improve coverage. Sleep uses monotonic
+time; UTC/monotonic elapsed divergence above one second aborts the runner rather
+than converting a clock jump into elapsed evidence. Restart gaps remain visible.
+
+Reports expose separate collector and quote gates, per-symbol ages/fresh fractions,
+sampled stale streaks, attempt and complete-read gaps, and a legacy fresh/committed
+fraction. Sampled stale streaks are not measurements of continuous market downtime.
+The joint `accepted` result requires both verdicts; collector success alone never
+qualifies a broker. There are no session-based denominator exclusions.
+
+The final read is separately labeled and attempted at most once after the original
+deadline, including when transport backoff would otherwise suppress polling. It
+cannot bypass a persistent halt. The plan declares a thirty-second completion
+budget; collection also retains the binding's subprocess timeout. A missing,
+timed-out, late or ambiguous final result cannot pass. Unknown final-commit outcomes
+fail closed and are not retried. Final duration and time beyond the original
+deadline are reported separately, never credited to scheduled coverage.
+
+Fixture tests cover synthetic full-duration dual outcomes, actual isolated
+PostgreSQL recovery/unknown commits, repeated unchanged stale ticks, separate halt
+budgets, final failures, identity errors, invalid clocks, legacy wire compatibility,
+and the exact two/five-second boundaries. Synthetic time is test evidence only.
+Review this prospective policy and requalify the clock/binding before requesting
+authorization for another real campaign. No new campaign has been started.

@@ -31,6 +31,7 @@ def main() -> None:
     runner.add_argument("--run-id", type=UUID, required=True)
     runner.add_argument("--duration-seconds", type=int, default=86400)
     runner.add_argument("--interval-seconds", type=int, default=30)
+    runner.add_argument("--acceptance-version", type=int, choices=(1, 2), default=1)
     runner.add_argument("--status-file", type=Path, required=True)
     runner.add_argument("--stop-file", type=Path, required=True)
     status = sub.add_parser("observe-status", help="read local health and detect a stale heartbeat")
@@ -113,7 +114,9 @@ def main() -> None:
                 args.status_file,
                 args.stop_file,
                 RunnerPlan(
-                    duration_seconds=args.duration_seconds, interval_seconds=args.interval_seconds
+                    duration_seconds=args.duration_seconds,
+                    interval_seconds=args.interval_seconds,
+                    acceptance_version=args.acceptance_version,
                 ),
             )
             print(json.dumps(status, indent=2))
