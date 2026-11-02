@@ -1,0 +1,118 @@
+{
+  "diagnostic_id": "forex-diagnostic-latest-20261102",
+  "supervisor": {
+    "started_at": "2026-11-02T22:32:31.972208+00:00",
+    "finished_at": "2026-11-02T22:47:32.381433+00:00",
+    "duration_seconds": 900,
+    "mode": "latest_ticks",
+    "timed_out": false,
+    "child_exitcode": 0,
+    "execution_enabled": false
+  },
+  "worker": {
+    "status": "COMPLETE",
+    "finished_at": "2026-11-02T22:47:32.312862+00:00",
+    "qualified_for_trading": false
+  },
+  "samples_sha256": "85be7ebc4b7b6c98650156ba22908eb972e86e1c9b489f8363b603f3692954c7",
+  "sample_count": 900,
+  "monotonic_span_seconds": 899.3335890998133,
+  "max_sampling_gap_seconds": 1.0084494999609888,
+  "joint_fresh_samples": 163,
+  "symbols": {
+    "EURUSD.": {
+      "samples": 900,
+      "fresh_at_5_seconds": 272,
+      "age_p50_seconds": 9.282416,
+      "age_p95_seconds": 34.080306,
+      "age_max_seconds": 53.088817,
+      "age_min_seconds": 1.067085,
+      "negative_age_count": 0,
+      "latest_read_max_seconds": 0.002607000060379505,
+      "distinct_tick_timestamps_observed": 99,
+      "largest_gap_between_observed_tick_timestamps_seconds": 52.343
+    },
+    "USDJPY.": {
+      "samples": 900,
+      "fresh_at_5_seconds": 507,
+      "age_p50_seconds": 4.215007,
+      "age_p95_seconds": 26.580323,
+      "age_max_seconds": 56.287561,
+      "age_min_seconds": 1.06558,
+      "negative_age_count": 0,
+      "latest_read_max_seconds": 0.0019056000746786594,
+      "distinct_tick_timestamps_observed": 230,
+      "largest_gap_between_observed_tick_timestamps_seconds": 56.054
+    }
+  },
+  "execution_enabled": false,
+  "qualified_for_trading": false,
+  "method": "One persistent SDK attachment; one latest-tick read per symbol per approximately one second; no history calls during this capture.",
+  "clock_offsets_seconds": [
+    0.0882439,
+    0.0872585,
+    0.0884952
+  ],
+  "limitations": [
+    "No synchronized simultaneous broker/network trace.",
+    "Different period and sampling cadence from qualification runs; do not compare health percentages as a controlled experiment.",
+    "Observed distinct timestamps are a subsample, not an exhaustive tick stream.",
+    "Persistent attachment does not remove intermittent staleness; it does not by itself establish its upstream cause."
+  ],
+  "history_check": {
+    "method": "Separately supervised copy_ticks_from; 5000-row limit; same bounded SDK clock mapping; after persistent capture ended.",
+    "watchdog_seconds": 15,
+    "supervisor": {
+      "started_at": "2026-11-02T22:47:50.435324+00:00",
+      "finished_at": "2026-11-02T22:47:50.806629+00:00",
+      "duration_seconds": 900,
+      "mode": "history",
+      "timed_out": false,
+      "child_exitcode": 0,
+      "execution_enabled": false
+    },
+    "worker": {
+      "status": "COMPLETE",
+      "finished_at": "2026-11-02T22:47:50.777917+00:00",
+      "qualified_for_trading": false
+    },
+    "samples_sha256": "574c88aa1cb9aac35d85d0771d61bad6279435aa57416d50b66ab8688d6889d7",
+    "symbols": [
+      {
+        "symbol": "EURUSD.",
+        "latest_tick_at": "2026-11-02T22:46:52.109000+00:00",
+        "age_seconds": 58.665947,
+        "history_count": 12,
+        "history_limit_reached": false,
+        "history_seconds": 0.0004180001560598612,
+        "history_first": "2026-11-02T22:45:29.053000+00:00",
+        "history_last": "2026-11-02T22:46:52.109000+00:00",
+        "post_history_tick_at": "2026-11-02T22:46:52.109000+00:00"
+      },
+      {
+        "symbol": "USDJPY.",
+        "latest_tick_at": "2026-11-02T22:47:49.019000+00:00",
+        "age_seconds": 1.756923,
+        "history_count": 40,
+        "history_limit_reached": false,
+        "history_seconds": 0.00043240003287792206,
+        "history_first": "2026-11-02T22:46:19.294000+00:00",
+        "history_last": "2026-11-02T22:47:49.019000+00:00",
+        "post_history_tick_at": "2026-11-02T22:47:49.019000+00:00"
+      }
+    ]
+  },
+  "initial_attempt": {
+    "supervisor": {
+      "started_at": "2026-11-02T22:30:29.151422+00:00",
+      "finished_at": "2026-11-02T22:31:50.646095+00:00",
+      "duration_seconds": 900,
+      "timed_out": false,
+      "child_exitcode": 4294967295,
+      "execution_enabled": false
+    },
+    "completed_samples": 0,
+    "outcome": "Aborted diagnostic child after about 81 seconds; precise stalled call not instrumented. Files preserved. No qualification worker or terminal stopped."
+  },
+  "original_artifact_hashes_unchanged": true
+}

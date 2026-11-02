@@ -199,7 +199,7 @@ that interval; its latest such entry preceded this sustained run. Those log chec
 provide supporting negative evidence, not proof that every host/network component
 was continuously healthy.
 
-### Engineering conclusion and proposed follow-up
+### Engineering conclusion
 
 The halt correctly enforced the original freshness/failure policy. Separately,
 applying long retry backoff to stale-but-successful reads conflicts with a 30-second
@@ -219,7 +219,7 @@ The diagnosis initially changed documentation/evidence only. The subsequent
 authorized code correction is described below; CMC and the original FOREX run
 evidence remain untouched, and PRs #10 and #11 remain unmerged.
 
-## Isolated cadence correction (not deployed to either broker run)
+## Isolated cadence correction (original runs unchanged)
 
 Observer version `observer/3` now sets the retry eligibility of DEGRADED reads
 to the assessment time itself. STALE_TICKS and MISSING_DATA therefore remain
@@ -239,5 +239,113 @@ Regression tests use fake time with the real observer, runner and separate fixtu
 PostgreSQL storage. They verify 30-second cadence through ten stale observations,
 halt persistence, recovery after eight stale/incomplete observations, collection
 completion after the cadence origin, and transport suppression just before versus
-eligibility exactly at the retry deadline. These tests are synthetic; no new
-FOREX.com observation campaign was started and no CMC code/environment was changed.
+eligibility exactly at the retry deadline. These tests are synthetic; the separately
+authorized connected campaign is reported below. No CMC code/environment was changed.
+
+## Separately authorized fixed-cadence run — NOT ACCEPTED
+
+After the correction passed 215 native tests and GitHub CI, the user separately
+authorized run `5bc4fe4f-440f-41f1-a5b9-37c2d630215f` using commit `d4aab1b`.
+It began November 2 at 22:11:07 UTC with a fixed deadline of November 3 at
+22:11:07 UTC. It halted November 2 at 22:19:08 UTC on STALE_TICKS; its worker exited.
+The original failed run was neither restarted nor rewritten. The same binding,
+five-second freshness, ten-consecutive-failure halt and acceptance gates applied.
+
+[Database-verified evidence](evidence/forex-final-cadence-20261102.json):
+
+| Gate | Requirement | Fixed-cadence result | Outcome |
+| --- | --- | --- | --- |
+| Duration | At least 86,400 s | 480.69 s | Fail |
+| Sample span | At least 86,340 s | 479.82 s | Fail |
+| Elapsed-poll coverage | At least 95% | 100% (17 observations) | Pass |
+| Healthy fraction | At least 95% | 1/17 (5.88%) | Fail |
+| Maximum gap | At most 180 s | 30.08 s | Pass |
+| Final health | HEALTHY | HALTED / STALE_TICKS | Fail |
+
+The one healthy sample reset the initial stale streak; the later ten consecutive
+failures halted the run. The cadence correction resolved skipped-poll evidence
+gaps in this campaign. It did not fix quote freshness and cannot qualify the broker.
+This eight-minute result must not be substituted for a 24-hour pass. No further
+24-hour run was started. Original deadlines, records, bindings and logs remain intact.
+
+### Comparison under identical predeclared gates
+
+CMC's final run independently halted at 22:18:32 UTC with 401 observations,
+333 healthy (83.04%), 93.69% elapsed-poll coverage and a 330.01-second maximum gap.
+Its duration, span, coverage, health, gap and final-health gates all failed.
+CMC retained the original observer code throughout; FOREX's second campaign used
+the corrected cadence. The observation periods also differ. These are engineering
+qualification outcomes, not a controlled comparison of broker execution quality.
+CMC's checkout, terminal, binding, environment and database were left untouched.
+
+## Separate FOREX tick diagnostic — November 2, 2026
+
+The user authorized this diagnostic only after the fixed-cadence worker stopped.
+Both qualification workers and their reader children had exited. No qualification
+was resumed or replaced, and CMC was not polled or reconfigured. The diagnostic
+has separate files and no database/order interface; it cannot qualify a broker.
+
+The persistent-attachment capture ran from **22:32:31 to 22:47:32 UTC**, producing
+900 samples at approximately one-second intervals. The monotonic first-to-last
+sample span was 899.33 seconds; the largest sampling gap was 1.00845 seconds.
+Identity and connected-state checks passed throughout. There were no negative
+tick ages. Both quotes were at most five seconds old in **163/900 samples (18.11%)**.
+This different time window and sampling frequency are not a controlled comparison
+with either qualification run.
+
+| Symbol | Fresh samples (age ≤5 s) | Median age | p95 age | Maximum age | Maximum latest-tick call time |
+| --- | --- | --- | --- | --- | --- |
+| EURUSD | 272/900 | 9.28 s | 34.08 s | 53.09 s | 2.61 ms |
+| USDJPY | 507/900 | 4.22 s | 26.58 s | 56.29 s | 1.91 ms |
+
+An independent read-only host-clock comparison during capture measured approximately
+0.087–0.088 seconds of offset. No clock synchronization or system setting was
+changed. Fast reads and small measured clock error cannot explain these large
+ages. Staleness persisted well after initialization on the same SDK attachment,
+so repeated initialization cannot be its sole cause. This does not establish the
+quality of continuous host time synchronization, which remains a separate concern.
+
+### History comparison and limits of the diagnosis
+
+After the persistent capture exited, a separately supervised history check at
+22:47:50 UTC returned 12 EURUSD and 40 USDJPY ticks in under 0.5 ms per call. Its
+5,000-row limit was not reached. The newest history timestamp exactly matched both
+the pre-query and post-query latest-tick timestamp for each symbol. EURUSD's most
+recent exposed tick was then **58.67 seconds old**; USDJPY's was 1.76 seconds old.
+History therefore did not expose a newer EURUSD tick hidden by the latest-tick
+API in this check. It supports an intermittently sparse tick stream as exposed
+by this terminal, not proof of a broker-wide defect or of zero network delay.
+Sparse broker updates and delayed delivery before/into the terminal remain
+indistinguishable without independent contemporaneous evidence.
+
+The [sanitized diagnostic evidence](evidence/forex-persistent-diagnostic-20261102.json)
+contains actual timings, source hashes and counts, never prices or account identity.
+It also preserves the initial diagnostic attempt: the supervised child was stopped
+after about 81 seconds with no completed sample. That first version did not log
+per-call stages, so its exact stalled call is unproven. History was subsequently
+separated from latest-tick capture and bounded by a 15-second watchdog; the separate
+history check completed. Do not erase the unsuccessful attempt or treat it as proof
+of a history outage.
+
+The history request used the existing bounded timestamp mapping. Agreement with
+latest ticks is a narrow consistency check, not a general annual clock/DST guarantee.
+The [SDK reference](https://www.mql5.com/en/docs/python_metatrader5/mt5copyticksfrom_py)
+documents tick history retrieval; this diagnostic did not expand production's SDK
+allowlist or change the binding's policy.
+
+### Reproduce only as a separately authorized diagnostic
+
+From a stopped, isolated checkout, use `scripts/capture_forex_diagnostics.py`
+with `--binding` pointing to the private FOREX demo binding, a unique `--output`
+directory and `--seconds 900`. Run `--history-only` with another unique directory
+after the first worker exits. Confirm terminal/data paths and demo identity first;
+never attach this alongside an active qualification worker. The latest-tick mode
+uses one persistent attachment and no history reads. History mode performs one
+separate bounded query, and its watchdog can terminate only its diagnostic child.
+Failed outcomes return nonzero and native exception details are redacted.
+
+Original run files, environment/binding files and failed-run database records were
+fingerprinted and checked unchanged. No new 24-hour campaign was started. The
+cadence fix is supported by the second qualification's coverage/gap results, but
+quote freshness remains unqualified. Any proposed change to freshness, halt or
+session policy requires a new prospective plan; none was applied here.
