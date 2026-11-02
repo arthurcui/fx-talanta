@@ -13,6 +13,7 @@ import psycopg
 
 from fx_talanta.domain.models import Record, TerminalObservation, TerminalSnapshot, Versions
 from fx_talanta.observer.contracts import Binding, windows_path
+from fx_talanta.observer.mt5 import MT5Reader, ObservationFailure
 from fx_talanta.storage.offline import WRITER_LOCK, WriterBusy
 from fx_talanta.storage.repository import Repository
 
@@ -26,6 +27,8 @@ def _collect(sender, reader, binding, now):
         result = reader(binding, now)
         payload = result.model_dump_json().encode()
         sender.send_bytes(payload if len(payload) <= MAX_MESSAGE else b"INVALID")
+    except ObservationFailure as error:
+        sender.send_bytes(("ERROR:" + error.reason).encode())
     except BaseException:
         # Never send exception messages, credentials or arbitrary native diagnostics.
         sender.send_bytes(b"FAILED")
@@ -49,6 +52,8 @@ def collect(reader, binding, now):
             return None, "READER_FAILED"
         if payload == b"FAILED":
             return None, "READER_FAILED"
+        if payload.startswith(b"ERROR:"):
+            return None, payload.decode().split(":", 1)[1]
         try:
             return TerminalSnapshot.model_validate_json(payload), None
         except ValueError:
@@ -80,6 +85,11 @@ def assess(snapshot, binding, now):
         return "BUILD_CHANGED"
     if snapshot.currency != binding.expected_currency:
         return "CURRENCY_MISMATCH"
+    if binding.source == "MT5":
+        if snapshot.company != binding.expected_company:
+            return "COMPANY_MISMATCH"
+        if snapshot.margin_mode != binding.expected_margin_mode:
+            return "MODE_MISMATCH"
     if not snapshot.connected:
         return "DISCONNECTED"
     if not snapshot.history_from <= snapshot.history_to <= snapshot.observed_at <= now:
@@ -91,12 +101,17 @@ def assess(snapshot, binding, now):
         for b in snapshot.bars
     ):
         return "INVALID_DATA"
-    for items in (snapshot.positions, snapshot.orders, snapshot.deals):
+    for items in (snapshot.positions, snapshot.orders, snapshot.deals, snapshot.history_orders):
         if len({item.ticket for item in items}) != len(items):
             return "INVALID_DATA"
     if any(
         item.at > snapshot.observed_at
-        for item in (*snapshot.positions, *snapshot.orders, *snapshot.deals)
+        for item in (
+            *snapshot.positions,
+            *snapshot.orders,
+            *snapshot.deals,
+            *snapshot.history_orders,
+        )
     ):
         return "INVALID_DATA"
     expected = set(binding.symbols)
@@ -156,6 +171,12 @@ class Observer:
             return self._poll(reader)
 
     def _poll(self, reader):
+        if self.binding.source == "MT5":
+            self.binding.require_permissions()
+            if type(reader) is not MT5Reader:
+                raise ValueError("demo observations require the MT5 reader")
+        elif isinstance(reader, MT5Reader):
+            raise ValueError("MT5 reader cannot write fixture evidence")
         self.repo._check_binding(self.conn)
         if not self.conn.execute(
             "SELECT 1 FROM pg_locks WHERE locktype='advisory' AND pid=pg_backend_pid() "
@@ -187,6 +208,9 @@ class Observer:
             "PATH_MISMATCH",
             "BUILD_CHANGED",
             "CURRENCY_MISMATCH",
+            "MODE_MISMATCH",
+            "COMPANY_MISMATCH",
+            "SDK_MISMATCH",
         }
         failures = 0 if reason == "CURRENT" else (previous.failures if previous else 0) + 1
         state = "HEALTHY" if reason == "CURRENT" else "DEGRADED"
@@ -216,7 +240,8 @@ class Observer:
             recorded_at=checked_at,
             correlation_id=self.run_id,
             body=body,
-            versions=Versions(component="observer-foundation/1"),
+            provenance="BROKER_OBSERVATION" if self.binding.source == "MT5" else "SCRIPTED_FIXTURE",
+            versions=Versions(component="observer/2"),
         )
         with self.conn.transaction():
             self.repo.append_in(self.conn, (record,))

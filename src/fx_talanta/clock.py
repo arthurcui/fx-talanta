@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Protocol
 
 from fx_talanta.domain.models import utc
@@ -6,6 +6,11 @@ from fx_talanta.domain.models import utc
 
 class Clock(Protocol):
     def now(self) -> datetime: ...
+
+
+class SystemClock:
+    def now(self) -> datetime:
+        return datetime.now(UTC)
 
 
 class FakeClock:

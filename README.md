@@ -1,7 +1,7 @@
 # FX-Talanta
 
 M0A–M0C implement the portable Python offline foundation from the
-[architecture plan](https://chatgpt.com/space/page_33b155951df08191a6bd0d477c965002).
+[architecture plan](docs/architecture-plan.md).
 It records scripted decisions, news revisions, conversations, execution observations,
 experience, lessons, artifacts, and promotion evidence in PostgreSQL. M0B adds
 deterministic risk sizing, reservations, a durable simulated broker, protective
@@ -24,6 +24,9 @@ No external broker connection or runtime account rollover is enabled yet.
 The [observer foundation](docs/observer-foundation.md) adds a synthetic read-only
 snapshot harness, process timeouts, durable retry/halt state and fixture archive
 coverage. Run `observer-demo` after migration; actual broker-connected M1A remains open.
+The [MT5 adapter](docs/mt5-observer.md) adds an optional Windows reader, explicit
+demo bindings and account-checked demo archives. It is fake-SDK tested; real CMC
+collection remains gated by qualification and has not been run.
 
 ## Quick start on Windows
 
@@ -191,8 +194,27 @@ credentials. Restore initially blocks runtime writes and execution. Follow the
 | `src/fx_talanta/fixtures.py` | End-to-end M0A recording demonstration |
 | `tests/` | Contract and actual PostgreSQL acceptance tests |
 | `docs/m0a.md` | Storage guarantees, trust boundaries and next-increment interfaces |
-| `docs/architecture-plan.md` | Source specification snapshot |
+| `docs/architecture-plan.md` | Architecture and implementation plan |
 
 The portable core does not import MetaTrader5. Real news ingestion, model access, authentication,
 UI and live activation remain later work. GitHub's required `M0A checks` job name
 is retained for branch-protection compatibility and now runs the entire suite.
+
+## Documentation
+
+Project specifications, implementation notes and operating instructions are maintained
+in this repository and reviewed alongside code changes. No private page or chat is
+required to understand or run the project. External links provide public vendor
+references; project requirements and procedures are recorded here.
+
+| Document | Purpose |
+| --- | --- |
+| [Architecture and implementation plan](docs/architecture-plan.md) | Full planning baseline, system design, milestones and acceptance criteria |
+| [M0A](docs/m0a.md) | Records, storage and account contracts |
+| [M0B](docs/m0b.md) | Offline execution, risk and reconciliation |
+| [M0C](docs/m0c.md) | Portable deployment profiles and archive transfer |
+| [Broker and data feasibility](docs/p0-feasibility.md) | Broker selection, evidence and outstanding qualification |
+| [M1 handoff](docs/m1-handoff.md) | Read-only observation scope and acceptance gates |
+| [Observer foundation](docs/observer-foundation.md) | Synthetic observer behavior and recovery checks |
+| [MT5 observer](docs/mt5-observer.md) | Windows setup, account binding, permissions and observation commands |
+| [Demo account rollover](docs/demo-account-rollover.md) | FOREX.com expiry and replacement-account requirements |

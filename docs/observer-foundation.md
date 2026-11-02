@@ -1,5 +1,8 @@
 # M1A observer foundation
 
+Historical scope of the first M1A increment. The subsequent
+[MT5 adapter](mt5-observer.md) adds explicit demo storage and gated broker reads.
+
 This increment implements the broker-neutral observation harness while P0 remains
 open. **It does not connect to CMC or FOREX.com, complete M1A, or place orders.**
 Only PAPER/SIMULATOR bindings and SCRIPTED_FIXTURE evidence are accepted, in Python

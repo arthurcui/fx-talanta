@@ -1,4 +1,4 @@
-"""Portable, verified logical snapshots of both fixture accounts; no SQL or credentials.
+"""Verified snapshots of explicitly expected account pairs; no SQL or credentials.
 
 Both accounts are fenced and locked while exporting. Restore never overwrites a
 nonempty destination. Cross-database commits are not atomic: durable STAGED guards
@@ -22,10 +22,11 @@ from pydantic import ValidationError
 
 from fx_talanta.domain.models import Environment, Record
 from fx_talanta.domain.offline import BrokerBook, GatewayBook
-from fx_talanta.storage.config import Settings, fixture_account
+from fx_talanta.storage.config import Settings, account_set
 from fx_talanta.storage.offline import WRITER_LOCK, WriterBusy
 
 FORMAT = "fx-talanta-fixture-archive/1"
+DEMO_FORMAT = "fx-talanta-demo-observer-archive/1"
 MAX_BYTES = 256 * 1024 * 1024
 TABLES = {
     "records": "sequence",
@@ -83,11 +84,12 @@ def data_bytes(conn, table):
     return b"".join(encode(row) + b"\n" for row in rows(conn, table, TABLES[table]))
 
 
-def export_archive(settings: Settings, destination: Path) -> dict:
+def export_archive(settings: Settings, destination: Path, *, paper_account=None) -> dict:
+    accounts = account_set(paper_account)
     if destination.exists():
         raise FileExistsError("archive destination already exists; choose a new filename")
     manifest = {
-        "format": FORMAT,
+        "format": DEMO_FORMAT if paper_account else FORMAT,
         "archive_id": str(uuid4()),
         "created_at": datetime.now(UTC).isoformat(),
         "accounts": {},
@@ -117,6 +119,14 @@ def export_archive(settings: Settings, destination: Path) -> dict:
             with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
                 for name, conn in conns.items():
                     manifest["accounts"][name] = metadata(conn)
+                    if manifest["accounts"][name]["binding"] != [
+                        {
+                            "singleton": True,
+                            "identity": accounts[Environment(name)].model_dump(mode="json"),
+                            "execution_enabled": False,
+                        }
+                    ]:
+                        raise ValueError("export account binding differs from explicit expectation")
                     for table in TABLES:
                         payload = data_bytes(conn, table)
                         total += len(payload)
@@ -146,7 +156,8 @@ def export_archive(settings: Settings, destination: Path) -> dict:
     }
 
 
-def read_archive(path: Path):
+def read_archive(path: Path, *, paper_account=None):
+    accounts = account_set(paper_account)
     expected = {f"{e.value}/{table}.jsonl" for e in Environment for table in TABLES}
     try:
         with zipfile.ZipFile(path) as archive:
@@ -157,7 +168,7 @@ def read_archive(path: Path):
                 raise ValueError("archive exceeds supported size")
             manifest = json.loads(archive.read("manifest.json"))
             if (
-                manifest["format"] != FORMAT
+                manifest["format"] != (DEMO_FORMAT if paper_account else FORMAT)
                 or set(manifest["accounts"]) != {"PAPER", "LIVE"}
                 or set(manifest["files"]) != expected
             ):
@@ -176,7 +187,7 @@ def read_archive(path: Path):
                 data[name] = [json.loads(line) for line in payload.splitlines()]
             for environment in Environment:
                 name = environment.value
-                account = fixture_account(environment)
+                account = accounts[environment]
                 if manifest["accounts"][name]["binding"] != [
                     {
                         "singleton": True,
@@ -192,6 +203,7 @@ def read_archive(path: Path):
                     if (
                         row["stream"] not in {"gateway", "broker"}
                         or environment != Environment.PAPER
+                        or account.venue != "SIMULATOR"
                     ):
                         raise ValueError("invalid offline journal scope")
                     model = GatewayBook if row["stream"] == "gateway" else BrokerBook
@@ -254,8 +266,8 @@ def verify_content(conn, name, manifest):
             raise ValueError("restored account contents differ from archive")
 
 
-def restore_archive(settings: Settings, source: Path) -> dict:
-    manifest, data = read_archive(source)  # Validate before changing either database.
+def restore_archive(settings: Settings, source: Path, *, paper_account=None) -> dict:
+    manifest, data = read_archive(source, paper_account=paper_account)
     digest = sha256(encode(manifest)).hexdigest()
     with fenced(settings) as conns:
         # Validate both destinations before staging either. No DROP, TRUNCATE,
@@ -347,10 +359,12 @@ def restore_archive(settings: Settings, source: Path) -> dict:
     }
 
 
-def release_restore(settings: Settings, source: Path, *, source_retired: bool = False) -> dict:
+def release_restore(
+    settings: Settings, source: Path, *, source_retired: bool = False, paper_account=None
+) -> dict:
     if not source_retired:
         raise ValueError("source writer retirement must be explicitly acknowledged")
-    manifest, _ = read_archive(source)
+    manifest, _ = read_archive(source, paper_account=paper_account)
     digest = sha256(encode(manifest)).hexdigest()
     with fenced(settings) as conns:
         for name, conn in conns.items():

@@ -361,11 +361,26 @@ class ObservedItem(FrozenModel):
     """Account-scoped observation, never an instruction to manage an external order."""
 
     ticket: Identifier
-    symbol: Identifier
-    side: Literal["BUY", "SELL"]
+    symbol: Annotated[str, Field(max_length=160)]
+    side: Literal["BUY", "SELL", "OTHER"]
     volume: NonNegative
     price: NonNegative
     at: Timestamp
+    type_code: int | None = None
+    profit: Amount = Decimal("0")
+    commission: Amount = Decimal("0")
+    swap: Amount = Decimal("0")
+    fee: Amount = Decimal("0")
+    stop_loss: NonNegative = Decimal("0")
+    take_profit: NonNegative = Decimal("0")
+    position_id: str | None = None
+    order_id: str | None = None
+    initial_volume: NonNegative | None = None
+    done_at: Timestamp | None = None
+    state_code: int | None = None
+    entry_code: int | None = None
+    reason_code: int | None = None
+    magic: int | None = None
 
 
 class TerminalSnapshot(FrozenModel):
@@ -386,6 +401,11 @@ class TerminalSnapshot(FrozenModel):
     orders: Annotated[tuple[ObservedItem, ...], Field(max_length=2000)]
     deals: Annotated[tuple[ObservedItem, ...], Field(max_length=2000)]
     history_complete: bool
+    history_orders: Annotated[tuple[ObservedItem, ...], Field(max_length=2000)] = ()
+    company: Text | None = None
+    margin_mode: int | None = None
+    balance: Amount | None = None
+    equity: Amount | None = None
 
 
 class TerminalObservation(FrozenModel):
@@ -404,6 +424,9 @@ class TerminalObservation(FrozenModel):
         "PATH_MISMATCH",
         "BUILD_CHANGED",
         "CURRENCY_MISMATCH",
+        "MODE_MISMATCH",
+        "COMPANY_MISMATCH",
+        "SDK_MISMATCH",
     ]
     failures: Annotated[int, Field(ge=0)]
     last_success_at: Timestamp | None = None
@@ -451,7 +474,9 @@ class Record(FrozenModel):
     account: AccountIdentity
     recorded_at: Timestamp
     correlation_id: UUID
-    provenance: Literal["SCRIPTED_FIXTURE", "OFFLINE_SIMULATION"] = "SCRIPTED_FIXTURE"
+    provenance: Literal["SCRIPTED_FIXTURE", "OFFLINE_SIMULATION", "BROKER_OBSERVATION"] = (
+        "SCRIPTED_FIXTURE"
+    )
     versions: Versions = Field(default_factory=Versions)
     costs: Cost = Field(default_factory=Cost)
     supersedes: UUID | None = None
@@ -460,6 +485,14 @@ class Record(FrozenModel):
 
     @model_validator(mode="after")
     def consistent_record(self) -> Record:
+        if self.account.venue == "BROKER_DEMO":
+            if (
+                not isinstance(self.body, TerminalObservation)
+                or self.provenance != "BROKER_OBSERVATION"
+            ):
+                raise ValueError("demo storage accepts only broker observation evidence")
+        elif self.provenance == "BROKER_OBSERVATION":
+            raise ValueError("broker observation requires a demo binding")
         if self.supersedes == self.record_id:
             raise ValueError("a correction must reference an earlier record")
         if len(set((r.record_id, r.relation) for r in self.references)) != len(self.references):
@@ -475,9 +508,9 @@ class Record(FrozenModel):
                 if self.body.decision.expires_at <= self.recorded_at:
                     raise ValueError("valid decision is expired")
         if isinstance(self.body, TerminalObservation):
-            if self.account.environment != Environment.PAPER or self.account.venue != "SIMULATOR":
-                raise ValueError("observer foundation records require PAPER/SIMULATOR")
-            if self.provenance != "SCRIPTED_FIXTURE":
+            if self.account.environment != Environment.PAPER:
+                raise ValueError("observer records require PAPER")
+            if self.account.venue == "SIMULATOR" and self.provenance != "SCRIPTED_FIXTURE":
                 raise ValueError("observer foundation must be labelled as a scripted fixture")
             snapshot = self.body.snapshot
             if snapshot and (
