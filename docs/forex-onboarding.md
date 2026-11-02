@@ -3,8 +3,8 @@
 FOREX.com Canada is the comparison broker; CMC remains primary. This increment
 provides account preparation instructions and a durable local expiry/alert tracker.
 It does not create accounts, switch terminal logins, perform automatic handoff,
-install a notification service or enable trading. No actual FOREX.com identity or
-signup date has been provisioned for this project yet.
+install a notification service or enable trading. A separate FOREX.com demo was
+connected on 2026-11-02; private identity and signup evidence remain outside Git.
 
 ## Account preparation
 
@@ -43,6 +43,9 @@ Copy `configs/forex-demo-lifecycle.example.json` to an ignored local file such a
 identity and a generated campaign UUID. Keep that campaign UUID across generations.
 Record `signup_at` as an ISO timestamp including a timezone. All comparisons and
 deadlines are normalized to UTC; 90 days means elapsed days, not three calendar months.
+When only the confirmation email's timestamp is available, set `signup_at_estimated`
+to true and provide `signup_source`. This explicitly records a proxy for signup;
+it is not a broker-confirmed expiry or proof of the exact account-creation instant.
 
 If the broker provides an expiry, add an entry to `confirmed_expiries`:
 
@@ -110,3 +113,15 @@ trading authority. It always reports `handoff_authorized: false` and
 `execution_enabled: false`. A new virtual deposit cannot be treated as profit or
 used to reset risk; campaign risk continuity and single-active-account retirement
 barriers must be implemented separately before automatic trading rollover.
+
+## Connected onboarding evidence
+
+On 2026-11-02 the separate FOREX.com terminal reported a CAD hedging demo,
+company GAIN Capital - FOREX.com Canada Ltd., and build 6295. Its visible symbols
+were `EURUSD.` and `USDJPY.`. An independent clock probe observed UTC+2 for that
+session; no annual DST rule is inferred. With an isolated database and explicit
+binding, the first read-only observation was HEALTHY/CURRENT: eight completed
+bars, no positions or pending orders, one deal-history record and no historical
+orders. No orders were submitted. CMC's concurrent test retained its own terminal,
+binding, namespace and run ID. This single observation is not sustained FOREX.com
+qualification or proof of automated rollover.

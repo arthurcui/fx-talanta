@@ -28,6 +28,8 @@ class DemoSchedule(FrozenModel):
     campaign_id: UUID
     account: AccountIdentity
     signup_at: Timestamp | None = None
+    signup_at_estimated: bool = False
+    signup_source: Text | None = None
     confirmed_expiries: Annotated[tuple[ExpiryEvidence, ...], Field(max_length=32)] = ()
     notice_days: Annotated[int, Field(ge=1, le=89)] = 14
     handoff_days: Annotated[int, Field(ge=1, le=88)] = 7
@@ -37,6 +39,8 @@ class DemoSchedule(FrozenModel):
 
     @model_validator(mode="after")
     def validate_schedule(self):
+        if self.signup_at_estimated and not (self.signup_at and self.signup_source):
+            raise ValueError("estimated signup time requires a timestamp and source reference")
         if self.handoff_days >= self.notice_days:
             raise ValueError("replacement notice must precede the handoff cutoff")
         for account in (self.account, self.replacement):
@@ -102,6 +106,7 @@ def evaluate(schedule, now):
     return {
         "account_key": schedule.key(),
         "state": state,
+        "signup_at_estimated": schedule.signup_at_estimated,
         "expiry_basis": "CONFLICTING"
         if len(dates) > 1
         else "ESTIMATED"

@@ -8,6 +8,8 @@
     "venue": "BROKER_DEMO"
   },
   "signup_at": null,
+  "signup_at_estimated": false,
+  "signup_source": null,
   "confirmed_expiries": [],
   "notice_days": 14,
   "handoff_days": 7,

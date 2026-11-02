@@ -83,6 +83,20 @@ def test_timezone_normalization_and_bad_inputs(schedule):
         DemoSchedule.model_validate(schedule.model_dump() | {"password": "must not be accepted"})
 
 
+def test_email_time_is_explicitly_estimated_signup(schedule):
+    with pytest.raises(ValueError, match="source reference"):
+        DemoSchedule.model_validate(schedule.model_dump() | {"signup_at_estimated": True})
+    estimated = DemoSchedule.model_validate(
+        schedule.model_dump()
+        | {
+            "signup_at_estimated": True,
+            "signup_source": "Confirmation email timestamp",
+        }
+    )
+    result = evaluate(estimated, START)
+    assert result["signup_at_estimated"] and result["expiry_basis"] == "ESTIMATED"
+
+
 @pytest.mark.parametrize(
     "update", [{"environment": "LIVE"}, {"venue": "BROKER_LIVE"}, {"broker": "other"}]
 )

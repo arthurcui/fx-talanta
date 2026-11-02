@@ -116,6 +116,7 @@ adapter. Campaign continuity and execution retirement barriers remain future wor
   or hard halts, inflate performance, or expand the allocation.
 - Prepared replacement reconciles successfully and receives only fresh signals.
 
-No FOREX.com reminder has been scheduled because its actual signup/expiry dates
-and demo identity are not yet available. The lifecycle CLI can supply a daily
-readiness check and alert outbox once that account is provisioned.
+The FOREX.com demo is now provisioned and its local tracker is initialized. No
+FOREX.com notification schedule is installed yet; the CLI supplies readiness and
+an alert outbox. Exact broker-confirmed expiry remains distinct from a planning
+estimate derived from signup or confirmation-email time.
