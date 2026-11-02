@@ -65,6 +65,11 @@ The [sanitized snapshot](evidence/fred-adapter-20261102.json) contains response
 hashes and actual timestamps, never credentials. Intraday time evidence is still
 incomplete, so this is successful collection, **not trading qualification**.
 
+The subsequent [BLS ICS importer](bls-calendar-importer.md) supplies exact BLS times
+and reconciles all five dates against a fresh FRED snapshot. This is a separate
+date/time reconciliation contract: FRED API dates do not corroborate exact times.
+The downloaded file still blocks on unverified automatic refresh.
+
 Tests cover complete pagination, count changes, duplicates, malformed responses,
 HTTP 403/429/500 redaction, DST, unknown/conflicting/stale/future time evidence,
 rescheduling, blackout boundaries and immutable output. Broker qualification

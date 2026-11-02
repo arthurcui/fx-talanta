@@ -1,0 +1,62 @@
+{
+  "checked_at": "2026-11-02T21:30:12.112284+00:00",
+  "source_url": "https://www.bls.gov/schedule/news_release/bls.ics",
+  "source_hash": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+  "provenance": "MANUAL_FILE",
+  "fetched_at": null,
+  "target_event_count": 92,
+  "assessment": {
+    "bls_hash": "930a0bbf43fe46ce35875c4142054a9f1ed50f36c18cd8b9e4ecdba738ffdf72",
+    "fred_hash": "f4f3dddf150261b8434535bd115e6c8dfedd9131123065c93202fa1aeaff3df4",
+    "cutoff": "2026-11-02T21:30:12.112402+00:00",
+    "matched_events": [
+      {
+        "uid": "c26d524f-228b-46e9-b00e-fdbec26d68af",
+        "sequence": 1,
+        "release_id": 10,
+        "scheduled_at": "2026-11-10T13:30:00Z",
+        "status": "CONFIRMED"
+      },
+      {
+        "uid": "0e068cb5-2188-4bfd-861e-97aac53dadff",
+        "sequence": 1,
+        "release_id": 46,
+        "scheduled_at": "2026-11-13T13:30:00Z",
+        "status": "CONFIRMED"
+      },
+      {
+        "uid": "92fcedab-204a-46b6-904a-70cb46bafdb2",
+        "sequence": 1,
+        "release_id": 50,
+        "scheduled_at": "2026-11-06T13:30:00Z",
+        "status": "CONFIRMED"
+      },
+      {
+        "uid": "f4af33e1-19ca-4d0e-ab83-ec1f71d7c1f5",
+        "sequence": 1,
+        "release_id": 192,
+        "scheduled_at": "2026-11-03T15:00:00Z",
+        "status": "CONFIRMED"
+      },
+      {
+        "uid": "1d8ac89d-ed64-4dce-844a-a24951208945",
+        "sequence": 1,
+        "release_id": 192,
+        "scheduled_at": "2026-12-01T15:00:00Z",
+        "status": "CONFIRMED"
+      }
+    ],
+    "reasons": [
+      "BLS_MANUAL_REFRESH_UNVERIFIED"
+    ],
+    "block_entries": true,
+    "calendar_coverage_complete": false,
+    "qualified_for_trading": false,
+    "execution_enabled": false
+  },
+  "refresh_probes": {
+    "python": "HTTP_403",
+    "windows_https": "HTTP_403"
+  },
+  "automatic_refresh_verified": false
+}
