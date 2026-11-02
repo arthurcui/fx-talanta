@@ -1,8 +1,14 @@
 # Read-only MT5 adapter
 
-Implementation is available; connected CMC qualification is still pending.
-The adapter has been exercised with a fake SDK, not validated against a broker
-terminal. An installed/logged-in terminal is not proof of Python/data permission.
+Implementation is available. On 2026-11-02 a connected CMC demo observation returned
+`HEALTHY / CURRENT` after explicit session clock qualification. The account reported
+CAD, hedging mode and build 6295; the selected symbols were EURUSD.a and USDJPY.a.
+Three separate CLI processes on the same durable run recorded `HEALTHY / CURRENT`,
+`DEGRADED / STALE_TICKS`, then `HEALTHY / CURRENT`, with the five-second tick-age
+threshold unchanged and no orders submitted. This verifies recovery from one stale
+sample, not a sustained soak or a terminal-disconnect exercise.
+Synthetic tests cover failure paths, but sustained connected qualification remains
+pending. An installed/logged-in terminal is not proof of Python/data permission.
 
 The Windows worker imports the optional official SDK inside its supervised child.
 The core, storage and Linux tests have no MT5 dependency. No login, password,
@@ -53,6 +59,38 @@ The optional worker lock targets Windows CPython 3.14.7, SDK 5.0.6231 and NumPy
 not qualify the broker connection. Linux/core installs do not request this extra.
 
 ## Collection and failure semantics
+
+### Broker timestamp qualification
+
+The default SDK timestamp convention remains UTC. Some server feeds expose a
+server wall clock encoded as an epoch instead. On 2026-11-02, the CMC demo's
+EURUSD.a and USDJPY.a ticks were approximately 7,200 seconds ahead of independently
+checked UTC; bars showed the same shift. This is observed evidence for that session,
+not a confirmed annual CMC timezone or DST rule.
+
+For such a feed, explicitly configure `sdk_time_offset_seconds` (server minus UTC),
+`time_policy_from`, `time_policy_until` (UTC, start inclusive/end exclusive), and
+`time_policy_evidence`. A nonzero offset requires all three qualification fields.
+The interval may be at most 48 hours and must cover the requested history window,
+every returned event/bar opening and the completed observation. Outside that interval
+the reader halts with `INVALID_DATA`; older positions/orders also fail closed until
+their timestamp periods are qualified. This short-window mapping does not support
+history spanning a DST transition.
+
+The reader subtracts the configured offset from tick, bar, position, order and deal
+timestamps (including order completion), and adds it to SDK history-query endpoints.
+Snapshot metadata retains the offset, interval and evidence so normalized values
+can be traced back to their SDK time convention. System observation timestamps stay
+UTC. Future/stale-data checks remain active; no offset is inferred automatically.
+An offset change requires renewed qualification and a new binding/run, preserving
+previous halts. Do not extend a policy across an unverified DST change.
+
+Permission status is separate from clock qualification. The operator authorized the
+local CMC check on an assumption of permission; that assumption was recorded locally
+and is not represented as broker confirmation. Private account details and observations
+remain outside Git.
+
+### Snapshot checks
 
 - Check login, exact server, demo trade mode, company, currency, margin mode,
   terminal/data paths, build and SDK version. Check identity before collection,

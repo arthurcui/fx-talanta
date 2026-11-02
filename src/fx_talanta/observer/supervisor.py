@@ -86,6 +86,16 @@ def assess(snapshot, binding, now):
     if snapshot.currency != binding.expected_currency:
         return "CURRENCY_MISMATCH"
     if binding.source == "MT5":
+        if any(
+            getattr(snapshot, name) != getattr(binding, name)
+            for name in (
+                "sdk_time_offset_seconds",
+                "time_policy_from",
+                "time_policy_until",
+                "time_policy_evidence",
+            )
+        ):
+            return "INVALID_DATA"
         if snapshot.company != binding.expected_company:
             return "COMPANY_MISMATCH"
         if snapshot.margin_mode != binding.expected_margin_mode:
@@ -106,6 +116,7 @@ def assess(snapshot, binding, now):
             return "INVALID_DATA"
     if any(
         item.at > snapshot.observed_at
+        or (item.done_at is not None and item.done_at > snapshot.observed_at)
         for item in (
             *snapshot.positions,
             *snapshot.orders,

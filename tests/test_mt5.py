@@ -146,6 +146,100 @@ def test_read_only_snapshot_and_no_credentials(demo_binding):
             ReadOnlySDK(sdk).call(name)
 
 
+def clock_binding(binding, offset=7200):
+    return binding.model_copy(
+        update={
+            "sdk_time_offset_seconds": offset,
+            "time_policy_from": NOW - timedelta(hours=12),
+            "time_policy_until": NOW + timedelta(hours=12),
+            "time_policy_evidence": "Synthetic server clock qualification",
+        }
+    )
+
+
+@pytest.mark.parametrize("offset", [7200, 10800, -18000])
+def test_server_clock_normalizes_all_collections_and_history_queries(demo_binding, offset):
+    binding = clock_binding(demo_binding, offset)
+    sdk = FakeSDK()
+    original_rates = sdk.copy_rates_from_pos
+    sdk.symbol_info_tick = lambda symbol: NS(
+        time_msc=int((NOW.timestamp() + offset) * 1000) - 123, bid=1.1, ask=1.1001
+    )
+    sdk.copy_rates_from_pos = lambda *args: [
+        dict(row, time=row["time"] + offset) for row in original_rates(*args)
+    ]
+    encoded = int(NOW.timestamp()) + offset - 60
+    row = NS(
+        ticket=1,
+        symbol="EURUSD",
+        type=0,
+        time=encoded,
+        time_setup=encoded,
+        time_done=encoded,
+        volume=0.1,
+        volume_current=0.1,
+        price=1.1,
+        price_open=1.1,
+    )
+    sdk.positions_get = lambda: (row,)
+    sdk.orders_get = lambda: (row,)
+    calls = []
+
+    def get(start, end):
+        calls.append((start, end))
+        return (row,)
+
+    def count(start, end):
+        calls.append((start, end))
+        return 1
+
+    sdk.history_deals_get = sdk.history_orders_get = get
+    sdk.history_deals_total = sdk.history_orders_total = count
+    result = snapshot(binding, sdk)
+    assert assess(result, binding, NOW) == "CURRENT"
+    assert result.ticks[0].at == NOW - timedelta(milliseconds=123)
+    for collection in (result.positions, result.orders, result.deals, result.history_orders):
+        assert collection[0].at == NOW - timedelta(seconds=60)
+        assert collection[0].done_at == NOW - timedelta(seconds=60)
+    assert calls and all(
+        pair
+        == (NOW - timedelta(hours=1) + timedelta(seconds=offset), NOW + timedelta(seconds=offset))
+        for pair in calls
+    )
+    assert result.sdk_time_offset_seconds == offset
+    assert result.time_policy_evidence == binding.time_policy_evidence
+
+
+def test_clock_override_requires_evidence_and_expires_before_sdk(demo_binding):
+    with pytest.raises(ValueError, match="requires evidence"):
+        Binding.model_validate(demo_binding.model_dump() | {"sdk_time_offset_seconds": 7200})
+    binding = clock_binding(demo_binding)
+    sdk = FakeSDK()
+    with pytest.raises(ObservationFailure, match="INVALID_DATA"):
+        read_snapshot(sdk, binding, binding.time_policy_until)
+    assert sdk.calls == []
+    with pytest.raises(ObservationFailure, match="INVALID_DATA"):
+        read_snapshot(sdk, binding, binding.time_policy_from + timedelta(minutes=30))
+    assert sdk.calls == []
+
+
+def test_clock_change_does_not_silently_recalibrate(demo_binding):
+    binding = clock_binding(demo_binding)
+    sdk = FakeSDK()
+    # A new UTC+3 feed under the qualified UTC+2 policy remains a future tick.
+    sdk.symbol_info_tick = lambda symbol: NS(
+        time_msc=int((NOW.timestamp() + 10800) * 1000), bid=1.1, ask=1.1001
+    )
+    result = snapshot(binding, sdk)
+    assert assess(result, binding, NOW) == "INVALID_DATA"
+    from fx_talanta.observer.mt5 import SDKClock
+
+    with pytest.raises(ObservationFailure, match="INVALID_DATA"):
+        SDKClock(binding).decode(
+            (binding.time_policy_from - timedelta(seconds=1)).timestamp() + 7200
+        )
+
+
 @pytest.mark.parametrize(
     "field,value,reason",
     [

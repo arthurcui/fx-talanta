@@ -4,7 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field, model_validator
 
-from fx_talanta.domain.models import AccountIdentity, FrozenModel, Identifier, Text
+from fx_talanta.domain.models import AccountIdentity, FrozenModel, Identifier, Text, Timestamp
 
 
 def windows_path(value):
@@ -29,9 +29,23 @@ class Binding(FrozenModel):
     permission_evidence: Text | None = None
     sdk_version: Text = "5.0.6231"
     history_hours: Annotated[int, Field(ge=1, le=24)] = 1
+    sdk_time_offset_seconds: Annotated[int, Field(ge=-50400, le=50400)] = 0
+    time_policy_from: Timestamp | None = None
+    time_policy_until: Timestamp | None = None
+    time_policy_evidence: Text | None = None
 
     @model_validator(mode="after")
     def validate_binding(self):
+        if self.sdk_time_offset_seconds or any(
+            (self.time_policy_from, self.time_policy_until, self.time_policy_evidence)
+        ):
+            if not all((self.time_policy_from, self.time_policy_until, self.time_policy_evidence)):
+                raise ValueError("SDK clock override requires evidence and a bounded UTC interval")
+            duration = (self.time_policy_until - self.time_policy_from).total_seconds()
+            if not 0 < duration <= 172800:
+                raise ValueError(
+                    "SDK clock qualification interval must be positive and at most 48h"
+                )
         if self.account.environment != "PAPER":
             raise ValueError("observer requires PAPER")
         if self.source == "FIXTURE" and self.account.venue != "SIMULATOR":
