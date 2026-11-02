@@ -1,0 +1,94 @@
+{
+  "scope": "Single-request public endpoint preflight, not coverage or latency qualification",
+  "observations": [
+    {
+      "source": "fed",
+      "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+      "observed_at": "2026-11-02T20:52:12.865620+00:00",
+      "qualified_for_trading": false,
+      "status": 200,
+      "bytes": 9687,
+      "content_type": "text/xml",
+      "etag_present": true,
+      "last_modified": "Wed, 28 Oct 2026 18:00:18 GMT",
+      "body_sha256": "c37b662226764db6199bcf36eb9b9013de38f6bbeab8ebf766529820265b4bf5",
+      "format": "rss",
+      "items": 15,
+      "items_with_ids": 15,
+      "duplicate_ids": 0,
+      "timestamp_missing_or_invalid": 0,
+      "earliest_publication": "2026-05-20T18:00:00+00:00",
+      "latest_publication": "2026-10-28T18:00:00+00:00",
+      "future_timestamp_count": 0,
+      "probe_state": "PARSED",
+      "request_seconds": 0.142
+    },
+    {
+      "source": "ecb",
+      "url": "https://www.ecb.europa.eu/rss/press.html",
+      "observed_at": "2026-11-02T20:52:13.008263+00:00",
+      "qualified_for_trading": false,
+      "probe_state": "TRANSPORT_OR_FORMAT_ERROR",
+      "request_seconds": 0.315
+    },
+    {
+      "source": "boj",
+      "url": "https://www.boj.or.jp/en/rss/whatsnew.xml",
+      "observed_at": "2026-11-02T20:52:13.323545+00:00",
+      "qualified_for_trading": false,
+      "status": 200,
+      "bytes": 15519,
+      "content_type": "application/xml;charset=UTF-8",
+      "etag_present": false,
+      "last_modified": null,
+      "body_sha256": "eececbc7f3255bdcd2ff5b74d5f6d1730583cd6851a947e82ab248edc5f68aa2",
+      "format": "rss",
+      "items": 47,
+      "items_with_ids": 47,
+      "duplicate_ids": 0,
+      "timestamp_missing_or_invalid": 0,
+      "earliest_publication": "2026-10-01T23:50:00+00:00",
+      "latest_publication": "2026-11-02T05:00:00+00:00",
+      "future_timestamp_count": 0,
+      "probe_state": "PARSED",
+      "request_seconds": 0.28
+    },
+    {
+      "source": "bls",
+      "url": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "observed_at": "2026-11-02T20:52:13.603247+00:00",
+      "qualified_for_trading": false,
+      "status": 403,
+      "probe_state": "HTTP_ERROR",
+      "request_seconds": 0.085
+    },
+    {
+      "source": "fed",
+      "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+      "observed_at": "2026-11-02T20:53:41.195062+00:00",
+      "qualified_for_trading": false,
+      "conditional_request": true,
+      "status": 304,
+      "probe_state": "NOT_MODIFIED",
+      "request_seconds": 0.152
+    },
+    {
+      "items": 15,
+      "qualified_for_trading": false,
+      "observed_at": "2026-11-02T20:53:00.5398190Z",
+      "publication_fields": [
+        "Mon, 02 Nov 2026 10:30:00 +0100",
+        "Fri, 30 Oct 2026 17:10:00 +0100"
+      ],
+      "source": "ecb",
+      "status": 200,
+      "transport": "Windows PowerShell HTTPS with normal certificate validation"
+    }
+  ],
+  "ecb_python_diagnostic": {
+    "error_type": "SSLCertVerificationError",
+    "verify_code": 20,
+    "reason": "unable to get local issuer certificate",
+    "verification_disabled": false
+  }
+}
