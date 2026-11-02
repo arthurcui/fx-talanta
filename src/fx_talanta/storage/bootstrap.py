@@ -13,8 +13,11 @@ from fx_talanta.storage.config import Settings, fixture_account
 
 def bootstrap(settings: Settings) -> None:
     """Create only the named fixture databases/roles; preserve existing records."""
-    if settings.host not in {"localhost", "127.0.0.1", "::1"}:
-        raise ValueError("M0A bootstrap accepts only a local isolated PostgreSQL server")
+    allowed_hosts = {"localhost", "127.0.0.1", "::1"}
+    if settings.profile == "docker":
+        allowed_hosts.add("postgres")
+    if settings.host not in allowed_hosts:
+        raise ValueError("bootstrap requires a local or explicit Compose fixture database")
     migrations = sorted(
         (
             p
@@ -24,8 +27,8 @@ def bootstrap(settings: Settings) -> None:
         key=lambda p: p.name,
     )
     for environment in Environment:
-        name = environment.value.lower()
-        database, owner, writer = f"fx_{name}", f"fx_{name}_owner", f"fx_{name}_writer"
+        database = settings.database(environment)
+        owner, writer = f"{database}_owner", f"{database}_writer"
         password = (
             settings.paper_password if environment == Environment.PAPER else settings.live_password
         )
@@ -110,4 +113,7 @@ def bootstrap(settings: Settings) -> None:
                 sql.SQL("GRANT SELECT, INSERT ON fx.offline_journal TO {}").format(
                     sql.Identifier(writer)
                 )
+            )
+            conn.execute(
+                sql.SQL("GRANT SELECT ON fx.restore_history TO {}").format(sql.Identifier(writer))
             )

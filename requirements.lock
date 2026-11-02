@@ -1,0 +1,17 @@
+# Shared tested constraints for native, Docker and task-scoped setup.
+annotated-types==0.8.0
+pydantic==2.14.2
+pydantic-core==2.50.2
+psycopg==3.3.6
+psycopg-binary==3.3.6
+python-dotenv==1.2.4
+typing-extensions==4.16.0
+typing-inspection==0.4.4
+tzdata==2026.6
+pytest==9.2.0
+ruff==0.17.3
+colorama==0.4.6
+iniconfig==2.3.1
+packaging==26.3
+pluggy==1.7.0
+pygments==2.21.0

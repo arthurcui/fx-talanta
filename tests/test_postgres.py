@@ -142,17 +142,21 @@ def test_wrong_reference_type_rolls_back_entire_batch(repo):
     ],
 )
 def test_runtime_privilege_boundaries(settings, statement):
+    statement = statement.replace("fx_", f"{settings.namespace}_")
     with psycopg.connect(settings.runtime_dsn(Environment.PAPER)) as conn:
         with pytest.raises(psycopg.errors.InsufficientPrivilege):
             conn.execute(statement)
 
 
 @pytest.mark.parametrize(
-    "environment,other", [(Environment.PAPER, "fx_live"), (Environment.LIVE, "fx_paper")]
+    "environment,other",
+    [(Environment.PAPER, Environment.LIVE), (Environment.LIVE, Environment.PAPER)],
 )
 def test_credentials_cannot_connect_other_database(settings, environment, other):
     with pytest.raises(psycopg.Error):
-        psycopg.connect(make_conninfo(settings.runtime_dsn(environment), dbname=other))
+        psycopg.connect(
+            make_conninfo(settings.runtime_dsn(environment), dbname=settings.database(other))
+        )
 
 
 def test_account_routing_blocked_by_repository_and_database(repo, settings):

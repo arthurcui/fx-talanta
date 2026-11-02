@@ -1,0 +1,18 @@
+# Allowlist: secrets, journals, backups, worktrees and local caches never enter
+# the build context. Runtime Dockerfile only copies package inputs.
+*
+!Dockerfile
+!pyproject.toml
+!requirements.lock
+!src/
+!src/**
+!tests/
+!tests/**
+!scripts/
+!scripts/**
+!deploy/
+!deploy/**
+!README.md
+**/__pycache__/
+**/*.pyc
+**/*.egg-info/

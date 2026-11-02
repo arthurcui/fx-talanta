@@ -1,0 +1,13 @@
+# Acceptance harness for the native fallback: no Docker daemon/socket inside.
+FROM postgres:17-bookworm
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /workspace
+COPY pyproject.toml requirements.lock ./
+COPY src ./src
+COPY tests ./tests
+COPY scripts ./scripts
+RUN python3 -m venv .venv \
+    && .venv/bin/python -m pip install --no-cache-dir -c requirements.lock -e '.[dev]'
+ENTRYPOINT ["bash", "-c"]
+CMD ["python3 scripts/codex_setup.py --skip-install && python3 scripts/codex_run.py test && python3 scripts/codex_run.py offline-demo"]

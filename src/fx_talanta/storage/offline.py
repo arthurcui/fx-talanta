@@ -36,6 +36,13 @@ class OfflineStore:
 
     def assert_owner(self):
         self.repo._check_binding(self.conn)
+        restored = self.conn.execute(
+            "SELECT status FROM fx.restore_history ORDER BY sequence DESC LIMIT 1"
+        ).fetchone()
+        if restored and restored[0] != "RELEASED":
+            raise ValueError(
+                "restore is blocked pending archive verification and source retirement"
+            )
         owned = self.conn.execute(
             "SELECT 1 FROM pg_locks WHERE locktype='advisory' AND pid=pg_backend_pid() "
             "AND classid=0 AND objid=%s AND objsubid=1 AND granted",

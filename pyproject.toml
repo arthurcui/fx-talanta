@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fx-talanta"
-version = "0.2.0"
-description = "Account-isolated offline risk, execution and recovery (M0B)"
+version = "0.3.0"
+description = "Portable, account-isolated offline risk, execution and recovery (M0C)"
 requires-python = ">=3.11"
 dependencies = ["pydantic>=2.10,<3", "psycopg[binary]>=3.2,<4", "python-dotenv>=1,<2"]
 

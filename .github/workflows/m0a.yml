@@ -12,21 +12,9 @@ jobs:
   checks:
     name: M0A checks
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17-bookworm
-        env:
-          POSTGRES_PASSWORD: fixture-ci-postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
     env:
       FX_DB_HOST: 127.0.0.1
-      FX_DB_PORT: 5432
+      FX_DB_PORT: 55432
       FX_DB_ADMIN_USER: postgres
       # Ephemeral credentials for this isolated CI service only.
       FX_DB_ADMIN_PASSWORD: fixture-ci-postgres
@@ -37,7 +25,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-      - run: python -m pip install -e '.[dev]'
-      - run: ruff check src tests
-      - run: ruff format --check src tests
+      - run: python -m pip install -c requirements.lock -e '.[dev]'
+      - run: ruff check src tests scripts
+      - run: ruff format --check src tests scripts
+      - run: docker compose up -d --wait postgres
       - run: python -m pytest --integration -q
+      - run: docker compose build app codex-test
+      - run: docker compose run --rm --no-deps codex-test
+      - run: python scripts/profile_acceptance.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m0c-fixture-parity
+          path: .local/parity/
+          include-hidden-files: true
