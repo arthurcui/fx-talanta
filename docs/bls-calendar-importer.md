@@ -54,6 +54,29 @@ retrieved all five exact times twice and agreed with this BLS snapshot. This is
 a promising alternative for time retrieval, but does not make the static BLS
 snapshot fresh or establish sustained refresh qualification.
 
+### Browser download trial — November 2, 2026
+
+Browser automation successfully downloaded the official ICS link from an open
+BLS schedule page in the user's Chrome session at approximately 21:48 UTC.
+The resulting file was 80,672 bytes, parsed to 92 events in the four selected
+release types, and had SHA-256
+`92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501`,
+identical to the earlier user-supplied file. A private copy was retained as
+`.local/bls-browser-first.ics`; the original `.local/bls.ics` was not overwritten.
+
+Direct file navigation through the browser automation interface first returned
+`net::ERR_BLOCKED_BY_CLIENT`; downloading the actual page link succeeded instead.
+A repeated link-download action then timed out after 20 seconds. A normal link
+click with a download-event wait also timed out after 20 seconds. No additional
+completed BLS file appeared in Downloads during these checks. The page remained
+unchanged, and the cause of the repeat failures was not established.
+
+This proves one browser-mediated automated acquisition, **not reliable repeated
+refresh or unattended operation**. It depends on the user's Chrome session; no
+headless/cloud-browser test, scheduler, cookie export or browser security-setting
+change was performed. Browser acquisition has not been wired into the collector
+or promoted to verified feed freshness. The existing fail-closed rules remain.
+
 ## Commands
 
 From the isolated checkout, set `PYTHONPATH` to its `src` directory and use the
