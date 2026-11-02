@@ -6,6 +6,12 @@ if necessary**. PR #10 remains unmerged. Neither CMC nor FOREX.com's ongoing
 
 ## Decision and readiness
 
+Follow-up: [bounded refresh and recovery qualification](provider-refresh-qualification.md)
+records three successful FRED reconciliation passes, persisted outage/recovery
+semantics, Linux RSS transport checks, and request-dependent BLS results. Linux
+probe downloads succeeded, but the unchanged refresh adapter still returned 403.
+These findings refine the initial preflight below; no required feed is qualified.
+
 No provider is yet qualified to satisfy the required trading-input gate. This is
 an evidence-backed preflight, including actual public endpoint requests, not a
 latency/coverage certification. The next no-subscription route is official-source
