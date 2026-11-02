@@ -94,6 +94,10 @@ fixture position during an outage.
 
 ## MT5 calendar route
 
+The [read-only bridge and importer](mt5-calendar-bridge.md) are now implemented
+and compiled in isolation. They have not been installed or qualified in either
+broker terminal; successful fixture tests do not change provider readiness.
+
 The [MQL5 calendar API](https://www.mql5.com/en/docs/calendar) offers events,
 importance and release values, including currency filters and incremental updates.
 Its functions use trade-server time. The official

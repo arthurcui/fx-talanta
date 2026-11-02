@@ -16,6 +16,9 @@
 !deploy/
 !deploy/**
 !README.md
+!bridges/
+!bridges/mt5/
+!bridges/mt5/CalendarExport.mq5
 **/__pycache__/
 **/*.pyc
 **/*.egg-info/

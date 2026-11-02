@@ -73,7 +73,7 @@ def digest(value):
 
 def policy():
     return FilterPolicy(
-        version="provider-shadow/1",
+        version="provider-shadow/2",
         sources=(
             SourceRule(source="calendar_inventory", role="CALENDAR", required=True),
             SourceRule(source="news_inventory", role="NEWS", required=True),
@@ -87,6 +87,7 @@ def policy():
                 for s, (_, currency) in SOURCES.items()
             ),
             SourceRule(source="fred", role="CALENDAR", required=False, currencies=("USD",)),
+            SourceRule(source="mt5_calendar", role="CALENDAR", required=False),
         ),
     )
 
@@ -268,7 +269,7 @@ class Journal:
         self.conn.close()
 
     def begin(self, source, now):
-        if source not in {*SOURCES, "fred"}:
+        if source not in {*SOURCES, "fred", "mt5_calendar"}:
             raise ValueError("unapproved source")
         latest = self.conn.execute(
             "SELECT max(stamp) FROM (SELECT started AS stamp FROM attempts "
@@ -293,7 +294,34 @@ class Journal:
         with self.conn:
             if result["status"] == "OK":
                 candidates = []
-                if source == "bls":
+                if source == "mt5_calendar":
+                    normalized = result["payload"]
+                    if (
+                        normalized["provenance"] != "MT5_CALENDAR_EXPORT"
+                        or normalized["available_at"] != now.isoformat()
+                    ):
+                        raise ValueError("invalid bridge availability or provenance")
+                    prior = self.conn.execute(
+                        "SELECT o.payload FROM attempts a JOIN outcomes o ON a.id=o.attempt "
+                        "WHERE a.source='mt5_calendar' AND o.status='OK' "
+                        "ORDER BY a.rowid DESC LIMIT 1"
+                    ).fetchone()
+                    if prior:
+                        previous_snapshot = json.loads(prior[0])["payload"]
+                        if any(
+                            normalized[k] != previous_snapshot[k]
+                            for k in ("bridge_id", "clock_policy_hash")
+                        ):
+                            raise ValueError("new bridge/clock policy requires a separate journal")
+                        if normalized["exported_at"] < previous_snapshot["exported_at"]:
+                            raise ValueError("export timeline regressed")
+                        if (
+                            normalized["exported_at"] == previous_snapshot["exported_at"]
+                            and normalized["source_hash"] != previous_snapshot["source_hash"]
+                        ):
+                            raise ValueError("conflicting export at same producer time")
+                    candidates = [(v["value_id"], v) for v in normalized["events"]]
+                elif source == "bls":
                     snapshot = bls.BlsSnapshot.model_validate(result["payload"])
                     if snapshot.imported_at > now:
                         raise ValueError("future import")
@@ -322,6 +350,17 @@ class Journal:
                     old = json.loads(previous[1]) if previous else None
                     if (
                         old
+                        and source == "mt5_calendar"
+                        and (
+                            candidate["source_revision"] < old["value"]["source_revision"]
+                            or any(
+                                candidate[k] != old["value"][k] for k in ("event_id", "currency")
+                            )
+                        )
+                    ):
+                        raise ValueError("calendar value identity or revision regressed")
+                    if (
+                        old
                         and source == "bls"
                         and (
                             candidate["sequence"] < old["value"]["sequence"]
@@ -334,7 +373,7 @@ class Journal:
                         raise ValueError("calendar revision regressed or conflicts")
                     if (
                         old
-                        and source != "bls"
+                        and source not in {"bls", "mt5_calendar"}
                         and candidate["published_at"] != old["value"]["published_at"]
                     ):
                         raise ValueError("publication time changed")
@@ -372,7 +411,11 @@ class Journal:
                 continue
             if available > cutoff:
                 available, state = started, None
-            currency = "USD" if source == "fred" else SOURCES[source][1]
+            currencies = (
+                ("USD", "EUR", "JPY")
+                if source == "mt5_calendar"
+                else ("USD" if source == "fred" else SOURCES[source][1],)
+            )
             checks[source] = FeedCheck(
                 source=source,
                 checked_at=started,
@@ -385,7 +428,7 @@ class Journal:
                 complete=False,
                 coverage_from=started - timedelta(days=1),
                 coverage_until=started + timedelta(days=1),
-                currencies=(currency,),
+                currencies=currencies,
                 verification="Transport only; inventory and delivery coverage unqualified",
             )
         for source, identity, revision, available, payload in self.conn.execute(
@@ -396,13 +439,13 @@ class Journal:
                 continue
             payload = json.loads(payload)
             value = payload["value"]
-            if source == "bls":
+            if source in {"bls", "mt5_calendar"}:
                 calendar.append(
                     CalendarRevision(
                         source=source,
                         event_id=identity,
                         revision=revision,
-                        currency="USD",
+                        currency=value["currency"] if source == "mt5_calendar" else "USD",
                         impact=value["impact"],
                         scheduled_at=value["scheduled_at"],
                         available_at=available,
