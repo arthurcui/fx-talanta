@@ -33,6 +33,7 @@ loosening the offline gateway to five seconds or adding a connected order path.
 | Medium | The first failing assessment reason and one aggregate state cover multiple symbols, bars and history completeness. | A stale EURUSD quote, missing history and an actual disconnect need separate evidence; per-symbol metrics must not silently reduce existing global entry safeguards. |
 | Medium | `last_success_at` updates only for CURRENT; heartbeat measures runner activity, not fresh committed observations. | Neither a recent heartbeat nor a terminal `connected` flag establishes data quality. Dedicated successful-read and successful-commit timestamps are needed. |
 | Medium | Thirty-second observation sampling is much slower than a two/five-second quote gate. | A soak can measure sampled availability but cannot certify continuous freshness or authorize a later entry using its last snapshot. |
+| Medium | `final_health` uses the last record's state, without reassessing its tick age at completion. | A quote fresh at its last read may be stale by the deadline; distinguish last-sample quality from current end-of-run readiness. |
 
 Code references: [supervisor](../src/fx_talanta/observer/supervisor.py),
 [runner/evidence](../src/fx_talanta/observer/runner.py),
@@ -117,6 +118,14 @@ fresh in scheduled-slot availability. Also publish the legacy fresh/committed-re
 fraction so denominator changes are explicit. A collector pass with a quote fail
 must be displayed as **collector passed / quote readiness failed**, never simply
 "broker qualified". This review does not lower 95% or redefine stale as healthy.
+
+Define completion verification explicitly: take one separately labeled bounded
+final read when the scheduled observation window closes, and assess freshness at
+that read's actual completion time. Exclude it from the 2,880 scheduled-slot
+numerators. A timeout or missing final read fails current readiness. Preserve the
+original observation-window deadline and report any final-verification duration
+separately; this cannot extend coverage or compensate for missed polls. A fresh
+last scheduled sample is not automatically fresh at the deadline or at submission.
 
 **Entry safety:** every new-entry evaluation must independently refresh/revalidate
 the required quote, conversion and account state at submission, apply the stricter
