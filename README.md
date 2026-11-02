@@ -14,6 +14,12 @@ PAPER/SIMULATOR orders with no external broker connection or LLM credentials. LI
 is a separate, disabled database namespace for account-isolation tests; its fixture
 identity is not a real trading account.
 
+**Next: P0 qualification, then M1 read-only observation.** The
+[broker/data feasibility review](docs/p0-feasibility.md) shortlists Canadian MT5
+candidates and identifies the outstanding account permissions and source rights.
+The [M1 handoff](docs/m1-handoff.md) defines the implementation and acceptance work;
+no external broker connection is enabled yet.
+
 ## Quick start on Windows
 
 Requirements: Python 3.11+ and Docker Desktop with Linux containers, or an isolated
