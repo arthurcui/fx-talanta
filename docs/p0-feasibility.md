@@ -2,7 +2,8 @@
 
 Research date: **2026-11-02**. Scope: the plan's British Columbia resident,
 single-user, EURUSD/USDJPY, MT5-first deployment. The user has no existing broker
-account and requested a shortlist. This is an interface-fit assessment, not a
+account and has selected **CMC Markets Canada first, FOREX.com Canada second**.
+This is an interface-fit assessment, not a
 ranking of investment returns or trading costs.
 
 **Status: public-source research complete; P0 exit gate remains OPEN.** No account
@@ -14,14 +15,24 @@ account-specific Python permissions, or all required data-retention rights.
 
 | Candidate | Official evidence | Fit and unresolved conditions |
 | --- | --- | --- |
-| **FOREX.com Canada — first candidate to qualify** | The Canadian MT5 page offers live and demo accounts and describes automated EAs. [MT5](https://www.forex.com/en-ca/trading-platforms/metatrader-5/). CIRO lists GAIN Capital - FOREX.com Canada Ltd. as an investment dealer. [Directory](https://www.ciro.ca/office-investor/dealers-we-regulate?field_registration_category_target_id=All&page=9&sort_bef_combine_regulated_dealers=title_ASC&sort_by=title&sort_order=ASC). Its February 2026 corporate application states registration across Canadian provinces and territories. [Dealer document, page 19](https://www.filesandimages.com/Brand/forex/pdf/FXCA_Corp_Application_EN_20260206.pdf#page=19). | Best documented match in this review for the Canadian MT5-first route. Province-wide registration is supporting evidence, not confirmation of this individual's eligibility; the corporate form is not the user's account agreement. Confirm BC retail onboarding, exact Canadian MT5 demo/live offerings, Python use, history retention and demo expiry. |
+| **CMC Markets Canada — selected primary** | Its Canadian site confirms MT5 and states that demo accounts remain active with a platform login at least every 30 days. [Canadian MT5 page](https://www.cmcmarkets.com/en-ca/trading-platforms/metatrader-5). | First account/interface to qualify. Confirm BC retail acceptance, Python permissions, account pricing mode, actual symbols/capabilities and retention rights. Track successful terminal logins; do not assume an observer process heartbeat satisfies the broker's activity rule. |
+| **FOREX.com Canada — selected secondary** | The Canadian MT5 page offers live and demo accounts and describes automated EAs. [MT5](https://www.forex.com/en-ca/trading-platforms/metatrader-5/). CIRO lists GAIN Capital - FOREX.com Canada Ltd. as an investment dealer. [Directory](https://www.ciro.ca/office-investor/dealers-we-regulate?field_registration_category_target_id=All&page=9&sort_bef_combine_regulated_dealers=title_ASC&sort_by=title&sort_order=ASC). Its February 2026 corporate application states registration across Canadian provinces and territories. [Dealer document, page 19](https://www.filesandimages.com/Brand/forex/pdf/FXCA_Corp_Application_EN_20260206.pdf#page=19). | Selected comparison broker for the Canadian MT5-first route. Province-wide registration is supporting evidence, not confirmation of this individual's eligibility; the corporate form is not the user's account agreement. Confirm BC retail onboarding, exact Canadian MT5 demo/live offerings, Python use, history retention and demo expiry. |
 | **Friedberg Direct, powered by AvaTrade — alternative to qualify** | Its Canadian site advertises MT5, MQL5 automation and custom EAs, identifying Friedberg Direct as a division of Friedberg Mercantile Group Ltd. [Canadian MT5 page](https://www.avatrade.ca/trading-platforms/metatrader-5). The same CIRO directory lists Friedberg Mercantile Group Ltd. | Plausible MT5 alternative. Confirm BC acceptance and the exact dealer/server, demo availability/expiry, Python access, and permitted data use. This review has not independently resolved provincial retail eligibility from the retrieved official pages. Do not substitute an offshore AvaTrade entity. |
 | **OANDA Canada — reserve if changing the interface** | Canadian platform documentation describes MT4; OANDA separately publishes a trading API. [Canadian MT4](https://www.oanda.com/ca-en/platforms/metatrader-4/), [developer portal](https://developer.oanda.com/). | Potential direct-API alternative, not a verified Canadian MT5 route. Canadian API entitlement, province/account eligibility, and practice/live account capabilities need separate qualification. Choosing this route would require an explicit change to the MT5-first plan. |
 
-Recommendation: qualify **FOREX.com Canada's MT5 demo** first, retaining Friedberg
-Direct as the alternative. This recommendation is based on the documented
-interface/dealer fit above. It does not imply that Python automation is already
-approved or that a funded account should be opened now.
+Decision (user, 2026-11-02): qualify **CMC Markets Canada's MT5 demo first** and
+**FOREX.com Canada's MT5 demo second** for comparison. Friedberg/AvaTrade is a
+reserve, separate from the Friedberg/FXCM technology channel; do not share platform,
+API or account assumptions between those channels. OANDA remains a possible
+future direct-API route. Selection does not establish broker permissions or
+authorize funded-account creation.
+
+FOREX.com's Canadian FAQ says demos last 90 days and cannot be renewed. Plan a
+controlled replacement before expiry, subject to the dealer permitting and
+provisioning the replacement. Do not infer an automated account-creation API or
+unlimited replacement entitlement from that FAQ. See the
+[demo rollover requirements](demo-account-rollover.md).
+[Canadian demo FAQ](https://www.forex.com/en-ca/help-and-support/popular-faqs/).
 
 FOREX.com also advertises a REST API requiring a standard account and a support
 request. Do not assume that this API operates the same MT5 account or provides a
@@ -103,7 +114,7 @@ Broker confirmation does not replace observation of actual terminal capabilities
 
 | Gate | Current status | Evidence to close it |
 | --- | --- | --- |
-| Candidate list and interface route | Researched; FOREX.com Canada proposed | User selection or a better qualified candidate |
+| Candidate list and interface route | Selected: CMC primary, FOREX.com secondary; MT5 | Selection complete; account/interface qualification remains pending |
 | BC eligibility and account-specific MT5/Python permissions | Pending | Applicable Canadian dealer terms/support confirmation and successful demo provisioning |
 | Separate PAPER/demo and eventual LIVE identities | Pending | Verified account types and dedicated terminal/server configuration; no live credentials needed now |
 | Economic calendar route | Candidate identified, not qualified | Licensed sample, timestamp/revision tests and quota/retention terms |

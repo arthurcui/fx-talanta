@@ -4,6 +4,14 @@ Status: proposed work breakdown after the [P0 qualification](p0-feasibility.md).
 M0C is merged; no external broker observation is implemented yet. Preserve the
 MT5-first mandate unless a different interface is explicitly chosen.
 
+Broker order is **CMC Markets Canada first, FOREX.com Canada second**. Implement
+the shared read-only MT5 worker against CMC, then qualify FOREX.com independently.
+Each broker has its own account binding, database/role, terminal paths and worker.
+The secondary is a comparison deployment, not automatic failover for CMC orders.
+Account replacement follows [demo rollover](demo-account-rollover.md): M1 provides
+expiry tracking and observation handoff; M2 adds the trading drain/reconciliation
+steps. No runtime rollover controller exists yet.
+
 ## M1A: read-only terminal observation
 
 Build a separate Windows worker with pinned Python/MetaTrader5 versions and one
