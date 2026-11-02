@@ -232,6 +232,9 @@ class Observer:
         last_success = (
             checked_at if state == "HEALTHY" else (previous.last_success_at if previous else None)
         )
+        # Valid but stale/incomplete reads remain eligible at the runner's next
+        # scheduled poll. Only transport failures suppress new collections.
+        # Keep an immediate deadline for DEGRADED to preserve the wire contract.
         body = TerminalObservation(
             binding_hash=self.binding.fingerprint(),
             state=state,
@@ -240,7 +243,11 @@ class Observer:
             last_success_at=last_success,
             next_retry_at=(
                 checked_at
-                + timedelta(seconds=min(300, self.binding.backoff_seconds * 2 ** (failures - 1)))
+                + timedelta(
+                    seconds=min(300, self.binding.backoff_seconds * 2 ** (failures - 1))
+                    if state == "BACKOFF"
+                    else 0
+                )
                 if failures and state != "HALTED"
                 else None
             ),
@@ -252,7 +259,7 @@ class Observer:
             correlation_id=self.run_id,
             body=body,
             provenance="BROKER_OBSERVATION" if self.binding.source == "MT5" else "SCRIPTED_FIXTURE",
-            versions=Versions(component="observer/2"),
+            versions=Versions(component="observer/3"),
         )
         with self.conn.transaction():
             self.repo.append_in(self.conn, (record,))

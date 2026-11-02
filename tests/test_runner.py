@@ -216,3 +216,73 @@ def test_actual_database_session_loss_recovers_same_run(settings, binding, tmp_p
     assert result["phase"] == "COMPLETE" and result["database_errors"] == 1
     assert len(attempts) == 2 and result["evidence"]["healthy"] >= 1
     assert all(observer.conn.closed for observer in attempts)
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("fault,recover_after", [("STALE", 8), ("STALE", 10), ("MISSING", 8)])
+def test_degraded_snapshots_keep_cadence_and_halt_threshold(
+    settings, binding, tmp_path, monkeypatch, fault, recover_after
+):
+    from fx_talanta.storage.repository import Repository
+
+    binding = binding.model_copy(update={"max_failures": 10})
+    h = Harness(tmp_path, binding)
+    calls = []
+
+    def collect_fixture(reader, pinned, now):
+        calls.append(now)
+        snapshot = FixtureReader(fault if len(calls) <= recover_after else "NONE")(pinned, now)
+        # Completion occurs after the runner's cadence origin, reproducing the
+        # boundary that formerly skipped polls while waiting for retry deadlines.
+        h.clock.advance(timedelta(milliseconds=100))
+        return snapshot, None
+
+    monkeypatch.setattr("fx_talanta.observer.supervisor.collect", collect_fixture)
+    dsn = settings.runtime_dsn(Environment.PAPER)
+    result = h.run(
+        factory=lambda _dsn, pinned, run, clock: Observer(dsn, pinned, run, clock),
+        plan=RunnerPlan(duration_seconds=300, interval_seconds=30),
+    )
+    rows = Repository(dsn, binding.account).history(correlation_id=h.run_id)
+    assert calls == [NOW + timedelta(seconds=30 * i) for i in range(10)]
+    assert len(rows) == 10 and result["evidence"]["max_gap_seconds"] <= 30
+    assert not result["evidence"]["accepted"]  # neither short nor degraded runs qualify
+    for i, row in enumerate(rows[:recover_after]):
+        assert row.body.failures == i + 1
+        assert row.body.reason == ("STALE_TICKS" if fault == "STALE" else "MISSING_DATA")
+        assert row.body.next_retry_at == (None if i == 9 else row.recorded_at)
+    if recover_after == 10:
+        assert result["phase"] == "HALTED" and rows[-1].body.failures == 10
+        reopened = Observer(dsn, binding, h.run_id, h.clock)
+        try:
+            assert reopened.poll(FixtureReader()) == rows[-1]
+            assert len(calls) == 10  # restart cannot clear a persistent halt
+        finally:
+            reopened.close()
+    else:
+        assert result["phase"] == "COMPLETE" and rows[-1].body.state == "HEALTHY"
+        assert rows[-1].body.failures == 0
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("reason", ["TIMEOUT", "READER_FAILED", "DISCONNECTED"])
+def test_transport_backoff_survives_until_exact_deadline(settings, binding, monkeypatch, reason):
+    clock, calls = FakeClock(NOW), []
+
+    def collect_fixture(reader, pinned, now):
+        calls.append(now)
+        return (None, reason) if len(calls) == 1 else (FixtureReader()(pinned, now), None)
+
+    monkeypatch.setattr("fx_talanta.observer.supervisor.collect", collect_fixture)
+    observer = Observer(settings.runtime_dsn(Environment.PAPER), binding, uuid4(), clock)
+    try:
+        failed = observer.poll(FixtureReader())
+        assert failed.body.state == "BACKOFF"
+        clock.advance(timedelta(seconds=binding.backoff_seconds, microseconds=-1))
+        assert observer.poll(FixtureReader()) == failed and len(calls) == 1
+        clock.advance(timedelta(microseconds=1))
+        recovered = observer.poll(FixtureReader())
+        assert recovered.body.state == "HEALTHY" and recovered.body.failures == 0
+        assert len(calls) == 2
+    finally:
+        observer.close()

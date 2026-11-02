@@ -206,7 +206,7 @@ applying long retry backoff to stale-but-successful reads conflicts with a 30-se
 observation plan and a 180-second maximum-gap gate. Skipping collection also means
 the run cannot establish whether quote freshness recovered between retries.
 
-For a future isolated fix, separate observation cadence from transport recovery:
+The isolated correction below separates observation cadence from transport recovery:
 continue recording stale-but-valid snapshots at the declared cadence, preserve
 entry blocking and consecutive-failure halts, and reserve bounded retry backoff
 for genuine transport/SDK failures. Add deterministic tests for stale streaks,
@@ -215,5 +215,29 @@ relax the five-second/95%/180-second gates, change this run's outcome or promise
 that a cadence fix will make the broker pass. Diagnosing upstream quote behavior
 would require a separately authorized future data-collection exercise.
 
-This turn made documentation/evidence changes only. CMC and the original FOREX
-run evidence remain untouched; PRs #10 and #11 remain unmerged.
+The diagnosis initially changed documentation/evidence only. The subsequent
+authorized code correction is described below; CMC and the original FOREX run
+evidence remain untouched, and PRs #10 and #11 remain unmerged.
+
+## Isolated cadence correction (not deployed to either broker run)
+
+Observer version `observer/3` now sets the retry eligibility of DEGRADED reads
+to the assessment time itself. STALE_TICKS and MISSING_DATA therefore remain
+collectible at the runner's next scheduled poll, without the exponential wait.
+The runner still controls the 30-second cadence. BACKOFF reasons TIMEOUT,
+READER_FAILED and DISCONNECTED retain exponential transport retry delays.
+
+The existing record schema still requires a retry timestamp for nonterminal
+failures, so immediate eligibility preserves wire/storage compatibility. Existing
+records and their deadlines are not rewritten. Persistent halts remain terminal
+when an observer is opened; this change does not permit restarting the failed run.
+The five-second freshness rule, ten-failure run binding, entry restrictions and
+all original acceptance gates remain unchanged. Ten consecutive stale reads now
+reach the same halt threshold sooner because samples are no longer skipped.
+
+Regression tests use fake time with the real observer, runner and separate fixture
+PostgreSQL storage. They verify 30-second cadence through ten stale observations,
+halt persistence, recovery after eight stale/incomplete observations, collection
+completion after the cadence origin, and transport suppression just before versus
+eligibility exactly at the retry deadline. These tests are synthetic; no new
+FOREX.com observation campaign was started and no CMC code/environment was changed.
