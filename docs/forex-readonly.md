@@ -116,9 +116,9 @@ of 89.70% coverage over 24 hours. The planned duration satisfies the minimum
 be promoted to sustained acceptance. Earlier smoke recovery and exact archive
 restoration demonstrate their narrower exercises only.
 
-The halt reason establishes stale tick evidence, not the root cause of that
-staleness or the 329.98-second gap. Broker maintenance, terminal behavior and host
-scheduling have not been distinguished. Preserve the original logs and history
+The halt reason establishes stale tick evidence. The diagnosis below explains the
+329.98-second gap through the observer's retry policy, but the upstream cause of
+quote staleness remains unproven. Preserve the original logs and history
 for diagnosis; do not claim a broker-wide outage or reset evidence to clear it.
 
 ### Independent CMC comparison at November 2, 21:53 UTC
@@ -140,3 +140,80 @@ merged independently ahead of PR #8. After PR #8 is reviewed and merged, update
 this branch against main and verify the resulting diff and CI before any merge.
 PR #10's calendar/provider work is separate and remains unmerged. This report
 records a failed qualification, not approval to trade or to create a new run.
+
+## Halt diagnosis — November 2, 2026
+
+Read-only replay of the 218 committed snapshots against the original binding and
+recorded assessment times reproduced **all 218 reasons**. Recomputing the failure
+streak produced zero counter mismatches. No terminal was initialized, restarted,
+reconfigured or polled for this diagnosis. The original run remains halted.
+[Sanitized diagnostic evidence](evidence/forex-halt-diagnosis-20261102.json)
+contains timestamps, ages and retry intervals, never prices or account identity.
+
+### Direct halt trigger
+
+The final ten collected observations failed the five-second tick-age rule between
+21:17:28 and 21:34:27 UTC, spanning approximately 17 minutes rather than ten
+consecutive 30-second polls. EURUSD was stale in eight of those checks and USDJPY
+in seven; at least one symbol was stale at every check. In the final snapshot,
+EURUSD's latest tick was 5.671 seconds old and USDJPY's was 3.121 seconds old.
+That was the tenth consecutive failure, triggering the configured halt.
+
+All 218 snapshots reported connected. Both symbols' tick timestamps advanced at
+every check in the final streak, so this was not a single frozen tick persisting
+for 17 minutes. No stored observation reported TIMEOUT, DISCONNECTED, identity
+mismatch or a clock-policy error. These facts do not prove that the feed was
+continuously connected between samples or establish whether sparse updates,
+delivery delay or terminal caching caused the observed ages.
+
+### Why the five-minute evidence gap occurred
+
+`Observer._poll` assigns exponential `next_retry_at` delays to every non-current
+observation, including STALE_TICKS: `min(300, 2 * 2**(failures - 1))` seconds.
+Before that deadline it returns the previous record without a new SDK collection.
+The runner still wakes every 30 seconds, but its evidence accumulator correctly
+deduplicates the returned record. A current process heartbeat therefore does not
+mean a fresh committed observation.
+
+| Prior failure count | Retry delay | Observed next-record gap |
+| --- | --- | --- |
+| 5 | 32 seconds | About 60 seconds |
+| 6 | 64 seconds | 90.07 seconds |
+| 7 | 128 seconds | 149.96 seconds |
+| 8 | 256 seconds | 270.06 seconds |
+| 9 | 300 seconds | 329.98 seconds |
+
+The final retry deadline was 21:33:57.888711 UTC. The next actual collection was
+21:34:27.867393 UTC, approximately one runner interval later. The deadline is
+based on completed-assessment time while polling is paced from loop start, so a
+boundary-aligned wake can precede the deadline and defer collection another poll.
+The source logic and recorded retry deadlines explain all six gaps over 45 seconds
+in the run. There is no need to infer a five-minute hung collection to explain them.
+
+Persisted timestamps bound every poll's collection-plus-assessment duration by
+1.457 seconds: `history_to` is the poll-start time rounded down to whole seconds.
+The maximum lag from completed snapshot to assessment was 0.109 seconds. The
+System log query found no matching sleep/wake/restart events from 21:10–21:36 UTC.
+The terminal journal had no categorized connection/startup/error entry during
+that interval; its latest such entry preceded this sustained run. Those log checks
+provide supporting negative evidence, not proof that every host/network component
+was continuously healthy.
+
+### Engineering conclusion and proposed follow-up
+
+The halt correctly enforced the original freshness/failure policy. Separately,
+applying long retry backoff to stale-but-successful reads conflicts with a 30-second
+observation plan and a 180-second maximum-gap gate. Skipping collection also means
+the run cannot establish whether quote freshness recovered between retries.
+
+For a future isolated fix, separate observation cadence from transport recovery:
+continue recording stale-but-valid snapshots at the declared cadence, preserve
+entry blocking and consecutive-failure halts, and reserve bounded retry backoff
+for genuine transport/SDK failures. Add deterministic tests for stale streaks,
+recovery between polls and deadline-boundary scheduling. Do not retrospectively
+relax the five-second/95%/180-second gates, change this run's outcome or promise
+that a cadence fix will make the broker pass. Diagnosing upstream quote behavior
+would require a separately authorized future data-collection exercise.
+
+This turn made documentation/evidence changes only. CMC and the original FOREX
+run evidence remain untouched; PRs #10 and #11 remain unmerged.
