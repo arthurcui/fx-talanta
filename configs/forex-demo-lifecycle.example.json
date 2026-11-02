@@ -1,0 +1,17 @@
+{
+  "campaign_id": "00000000-0000-4000-8000-000000000001",
+  "account": {
+    "environment": "PAPER",
+    "broker": "FOREX.com Canada",
+    "server": "REPLACE_WITH_VERIFIED_SERVER",
+    "login": "REPLACE_WITH_DEMO_LOGIN",
+    "venue": "BROKER_DEMO"
+  },
+  "signup_at": null,
+  "confirmed_expiries": [],
+  "notice_days": 14,
+  "handoff_days": 7,
+  "replacement": null,
+  "replacement_ready": false,
+  "replacement_evidence": null
+}

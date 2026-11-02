@@ -210,6 +210,7 @@ references; project requirements and procedures are recorded here.
 | Document | Purpose |
 | --- | --- |
 | [Architecture and implementation plan](docs/architecture-plan.md) | Full planning baseline, system design, milestones and acceptance criteria |
+| [FOREX.com onboarding](docs/forex-onboarding.md) | Secondary demo preparation, expiry tracking and durable alerts |
 | [M0A](docs/m0a.md) | Records, storage and account contracts |
 | [M0B](docs/m0b.md) | Offline execution, risk and reconciliation |
 | [M0C](docs/m0c.md) | Portable deployment profiles and archive transfer |

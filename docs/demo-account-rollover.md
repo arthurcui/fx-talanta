@@ -3,7 +3,9 @@
 Accepted requirement, 2026-11-02: CMC Markets Canada is primary; FOREX.com Canada
 is secondary. FX-Talanta must support replacing an expiring FOREX.com demo while
 retaining project evidence and qualification history. This document specifies
-future M1/M2 behavior; it is not an implemented account-switching feature.
+M1/M2 behavior. [FOREX.com onboarding and expiry tracking](forex-onboarding.md)
+now implements planning dates, daily readiness history and durable alert delivery
+state; controlled account switching and trading rollover remain unimplemented.
 
 ## Broker constraints and timing
 
@@ -94,11 +96,11 @@ avoid presenting the result as one uninterrupted broker equity curve. Qualificat
 coverage does not automatically become continuous merely because a replacement
 was opened. Keep matched CMC/FOREX.com comparisons separate and attributable.
 
-M0C restore is **not** account rollover: it preserves the same fixture account
+Archive restore is **not** account rollover: it preserves the same explicit account
 binding and intentionally rejects a different identity. Do not restore the old
 FOREX.com database into a new account or rewrite archived payload identities.
-M1 must extend account provisioning and archive support for broker-demo evidence;
-M2 must implement the campaign continuity and execution retirement barriers.
+Explicit broker-demo provisioning and archive support are implemented in the MT5
+adapter. Campaign continuity and execution retirement barriers remain future work.
 
 ## Acceptance cases
 
@@ -114,6 +116,6 @@ M2 must implement the campaign continuity and execution retirement barriers.
   or hard halts, inflate performance, or expand the allocation.
 - Prepared replacement reconciles successfully and receives only fresh signals.
 
-No scheduled reminder has been created: signup/expiry dates and actual demo
-accounts do not exist yet. Lifecycle monitoring belongs in the application once
-those accounts are provisioned.
+No FOREX.com reminder has been scheduled because its actual signup/expiry dates
+and demo identity are not yet available. The lifecycle CLI can supply a daily
+readiness check and alert outbox once that account is provisioned.
