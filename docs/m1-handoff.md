@@ -4,6 +4,10 @@ Status: proposed work breakdown after the [P0 qualification](p0-feasibility.md).
 M0C is merged; no external broker observation is implemented yet. Preserve the
 MT5-first mandate unless a different interface is explicitly chosen.
 
+The [M1A observer foundation](observer-foundation.md) now provides synthetic
+snapshot collection, process deadlines, durable recovery and archive tests.
+It does not satisfy the connected broker acceptance gates below.
+
 Broker order is **CMC Markets Canada first, FOREX.com Canada second**. Implement
 the shared read-only MT5 worker against CMC, then qualify FOREX.com independently.
 Each broker has its own account binding, database/role, terminal paths and worker.

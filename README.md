@@ -8,7 +8,7 @@ deterministic risk sizing, reservations, a durable simulated broker, protective
 management and restart reconciliation. M0C adds the application image, isolated
 task setup, and verified two-account export/restore.
 
-**Current scope: through M0C.** Real execution remains disabled on both account
+**Current scope: M0C plus the M1A observer foundation.** Real execution remains disabled on both account
 bindings. The `demo` command records M0A fixtures; `offline-demo` executes synthetic
 PAPER/SIMULATOR orders with no external broker connection or LLM credentials. LIVE
 is a separate, disabled database namespace for account-isolation tests; its fixture
@@ -21,6 +21,9 @@ The selected order is **CMC Markets Canada first, FOREX.com Canada second**.
 The [M1 handoff](docs/m1-handoff.md) defines the implementation and acceptance work,
 including [demo replacement before expiry](docs/demo-account-rollover.md).
 No external broker connection or runtime account rollover is enabled yet.
+The [observer foundation](docs/observer-foundation.md) adds a synthetic read-only
+snapshot harness, process timeouts, durable retry/halt state and fixture archive
+coverage. Run `observer-demo` after migration; actual broker-connected M1A remains open.
 
 ## Quick start on Windows
 
@@ -35,6 +38,7 @@ docker compose up -d --wait postgres
 .venv\Scripts\fx-talanta migrate
 .venv\Scripts\fx-talanta demo
 .venv\Scripts\fx-talanta offline-demo
+.venv\Scripts\fx-talanta observer-demo
 .venv\Scripts\python -m pytest --integration -q
 .venv\Scripts\ruff check src tests scripts
 .venv\Scripts\ruff format --check src tests scripts

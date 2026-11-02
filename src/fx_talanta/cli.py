@@ -20,6 +20,7 @@ def main() -> None:
     sub.add_parser("init-local", help="create local database secrets without overwriting")
     sub.add_parser("migrate", help="bootstrap fixture databases and verify migration checksums")
     sub.add_parser("offline-demo", help="run the M0B risk/execution/restart simulator")
+    sub.add_parser("observer-demo", help="run synthetic M1A observation and recovery checks")
     export = sub.add_parser("export", help="export both stopped fixture accounts to a new archive")
     export.add_argument("archive", type=Path)
     restore = sub.add_parser(
@@ -68,6 +69,11 @@ def main() -> None:
             from fx_talanta.offline_fixtures import run_offline_demo
 
             print(json.dumps(run_offline_demo(settings), indent=2))
+            return
+        if args.command == "observer-demo":
+            from fx_talanta.observer.demo import run_observer_demo
+
+            print(json.dumps(run_observer_demo(settings), indent=2))
             return
         repo = Repository(settings.runtime_dsn(environment), fixture_account(environment))
         if args.command == "demo":
