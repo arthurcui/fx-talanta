@@ -384,6 +384,10 @@ class ObservedItem(FrozenModel):
 
 
 class TerminalSnapshot(FrozenModel):
+    sdk_time_offset_seconds: Annotated[int, Field(ge=-50400, le=50400)] = 0
+    time_policy_from: Timestamp | None = None
+    time_policy_until: Timestamp | None = None
+    time_policy_evidence: Text | None = None
     account_before: AccountIdentity
     account_after: AccountIdentity
     terminal_path: Text

@@ -21,7 +21,6 @@ The principal risk is that reliable automation can execute a losing strategy rel
 | First execution route | Official Python MT5 integration through a running terminal |
 | Broker portability | Strategy and risk interfaces are portable; each broker adapter and account mode must pass capability and execution tests |
 | AI development | Separate research environment may generate strategy code; the live decision process cannot modify production code or risk limits |
-| Relationship to M²D | Standalone product. M²D retains its existing portfolio and decision-support scope |
 | Success criteria | Correct execution, account isolation, durable experience, portable operation, and independently evaluated net trading performance |
 
 An autonomous system may decide to remain flat or stop trading. A persistent capital or integrity halt is a terminal safety outcome under the current mandate, not a request for someone to approve the next trade. Administrative changes to software, accounts, or capital are outside the normal trading loop.

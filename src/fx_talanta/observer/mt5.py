@@ -66,6 +66,27 @@ def timestamp(value):
     return datetime.fromtimestamp(int(value), UTC)
 
 
+class SDKClock:
+    """Explicit, short-lived server-wall-clock mapping; never infer from stale ticks."""
+
+    def __init__(self, binding):
+        self.binding = binding
+        self.offset = timedelta(seconds=binding.sdk_time_offset_seconds)
+
+    def check(self, utc_time):
+        if self.binding.time_policy_from is not None and not (
+            self.binding.time_policy_from <= utc_time < self.binding.time_policy_until
+        ):
+            raise ObservationFailure("INVALID_DATA")
+        return utc_time
+
+    def decode(self, seconds):
+        return self.check(datetime.fromtimestamp(float(seconds), UTC) - self.offset)
+
+    def encode(self, utc_time):
+        return self.check(utc_time) + self.offset
+
+
 def validate_terminal(api, binding):
     terminal, account = api.call("terminal_info"), api.call("account_info")
     if (
@@ -91,7 +112,8 @@ def validate_terminal(api, binding):
     return terminal, account
 
 
-def item(row, kind):
+def item(row, kind, clock=None):
+    decode = clock.decode if clock else timestamp
     is_deal = kind == "deals"
     code = int(row.type)
     buy = {0} if is_deal or kind == "positions" else {0, 2, 4, 6}
@@ -103,7 +125,7 @@ def item(row, kind):
         side="BUY" if code in buy else "SELL" if code in sell else "OTHER",
         volume=number(row.volume if is_deal or kind == "positions" else row.volume_current),
         price=number(row.price if is_deal else row.price_open),
-        at=timestamp(at),
+        at=decode(at),
         type_code=code,
         profit=number(getattr(row, "profit", 0)),
         commission=number(getattr(row, "commission", 0)),
@@ -114,7 +136,7 @@ def item(row, kind):
         position_id=str(getattr(row, "position_id", getattr(row, "identifier", row.ticket))),
         order_id=str(row.order) if hasattr(row, "order") else None,
         initial_volume=number(row.volume_initial) if hasattr(row, "volume_initial") else None,
-        done_at=timestamp(row.time_done) if getattr(row, "time_done", 0) else None,
+        done_at=decode(row.time_done) if getattr(row, "time_done", 0) else None,
         state_code=getattr(row, "state", None),
         entry_code=getattr(row, "entry", None),
         reason_code=getattr(row, "reason", None),
@@ -123,8 +145,10 @@ def item(row, kind):
 
 
 def history(api, binding, kind, start, end):
+    clock = SDKClock(binding)
+    query_start, query_end = clock.encode(start), clock.encode(end)
     count_method, get_method = f"history_{kind}_total", f"history_{kind}_get"
-    before = api.call(count_method, start, end)
+    before = api.call(count_method, query_start, query_end)
     if not 0 <= before <= 2000:
         raise ObservationFailure("MISSING_DATA")
     seen = {}
@@ -132,11 +156,11 @@ def history(api, binding, kind, start, end):
     while cursor < end:
         validate_terminal(api, binding)
         stop = min(cursor + timedelta(hours=1), end)
-        batch = api.call(get_method, cursor, stop)
+        batch = api.call(get_method, clock.encode(cursor), clock.encode(stop))
         if len(batch) > 2000:
             raise ObservationFailure("MISSING_DATA")
         for row in batch:
-            value = item(row, kind)
+            value = item(row, kind, clock)
             # History orders can have a setup time before this window and a later
             # completion time; the SDK selects them by its own documented history query.
             if kind == "deals" and not start <= value.at <= end:
@@ -147,7 +171,7 @@ def history(api, binding, kind, start, end):
         if len(seen) > 2000:
             raise ObservationFailure("MISSING_DATA")
         cursor = stop
-    after = api.call(count_method, start, end)
+    after = api.call(count_method, query_start, query_end)
     if before != after or len(seen) != after:
         raise ObservationFailure("MISSING_DATA")
     return tuple(sorted(seen.values(), key=lambda value: (value.at, value.ticket)))
@@ -162,6 +186,9 @@ def read_snapshot(module, binding, now, *, finished_at=None):
     if module.__version__ != binding.sdk_version:
         raise ObservationFailure("SDK_MISMATCH")
     api = ReadOnlySDK(module)
+    clock = SDKClock(binding)
+    clock.check(now)
+    clock.check(now - timedelta(hours=binding.history_hours))
     try:
         if not api.call(
             "initialize",
@@ -189,7 +216,7 @@ def read_snapshot(module, binding, now, *, finished_at=None):
             ticks.append(
                 ObservedTick(
                     symbol=symbol,
-                    at=datetime.fromtimestamp(tick.time_msc / 1000, UTC),
+                    at=clock.decode(tick.time_msc / 1000),
                     bid=number(tick.bid),
                     ask=number(tick.ask),
                 )
@@ -202,7 +229,7 @@ def read_snapshot(module, binding, now, *, finished_at=None):
                     bars.append(
                         ObservedBar(
                             symbol=symbol,
-                            opened_at=timestamp(rate["time"]),
+                            opened_at=clock.decode(rate["time"]),
                             period_seconds=period,
                             open=number(rate["open"]),
                             high=number(rate["high"]),
@@ -210,14 +237,19 @@ def read_snapshot(module, binding, now, *, finished_at=None):
                             close=number(rate["close"]),
                         )
                     )
-        positions = tuple(item(row, "positions") for row in api.call("positions_get"))
-        orders = tuple(item(row, "orders") for row in api.call("orders_get"))
+        positions = tuple(item(row, "positions", clock) for row in api.call("positions_get"))
+        orders = tuple(item(row, "orders", clock) for row in api.call("orders_get"))
         end = now.replace(microsecond=0)
         start = end - timedelta(hours=binding.history_hours)
         deals = history(api, binding, "deals", start, end)
         history_orders = history(api, binding, "orders", start, end)
         validate_terminal(api, binding)
+        observed_at = clock.check(finished_at or datetime.now(UTC))
         return TerminalSnapshot(
+            sdk_time_offset_seconds=binding.sdk_time_offset_seconds,
+            time_policy_from=binding.time_policy_from,
+            time_policy_until=binding.time_policy_until,
+            time_policy_evidence=binding.time_policy_evidence,
             account_before=binding.account,
             account_after=binding.account,
             terminal_path=binding.terminal_path,
@@ -225,7 +257,7 @@ def read_snapshot(module, binding, now, *, finished_at=None):
             build=terminal.build,
             currency=account.currency,
             connected=True,
-            observed_at=finished_at or datetime.now(UTC),
+            observed_at=observed_at,
             history_from=start,
             history_to=end,
             history_complete=True,
