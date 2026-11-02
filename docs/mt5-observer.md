@@ -67,6 +67,10 @@ server wall clock encoded as an epoch instead. On 2026-11-02, the CMC demo's
 EURUSD.a and USDJPY.a ticks were approximately 7,200 seconds ahead of independently
 checked UTC; bars showed the same shift. This is observed evidence for that session,
 not a confirmed annual CMC timezone or DST rule.
+A separate same-day read-only history probe found one deal record: querying within
+one second of its raw SDK timestamp returned it, while querying around that timestamp
+minus two hours returned zero. This corroborates the server-clock query convention
+for deal history; nonempty order-history behavior remains unverified on this account.
 
 For such a feed, explicitly configure `sdk_time_offset_seconds` (server minus UTC),
 `time_policy_from`, `time_policy_until` (UTC, start inclusive/end exclusive), and
