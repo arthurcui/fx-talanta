@@ -72,7 +72,7 @@ attribution to FRED and BLS, rather than redistribution of unrelated series.
   endpoint trial was performed. It is a secondary candidate, not a substitute for
   the successful official-source preflight above.
 
-Next implementation is an isolated, read-only FRED schedule adapter with explicit
-unknown-time handling and a small verified release inventory. Obtaining a free
-API key is needed for authenticated API qualification, not for the completed
-public-page checks. Keep any key in local secret storage, never in chat or Git.
+The [isolated FRED adapter](fred-calendar-adapter.md) now retrieves this bounded
+release inventory with authenticated API access and explicit unknown-time vetoes.
+The user's key stays in local secret storage, never in chat or Git. Successful
+date retrieval does not complete intraday-time or broader calendar qualification.
