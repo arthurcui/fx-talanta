@@ -142,7 +142,7 @@ class RiskEvaluation(FrozenModel):
     proposed_volume: NonNegative
     planned_loss: NonNegative
     reservation_id: UUID | None = None
-    evaluation_mode: Literal["SCRIPTED"] = "SCRIPTED"
+    evaluation_mode: Literal["SCRIPTED", "DETERMINISTIC"] = "SCRIPTED"
 
 
 class ExecutionEvent(FrozenModel):
@@ -341,7 +341,7 @@ class Record(FrozenModel):
     account: AccountIdentity
     recorded_at: Timestamp
     correlation_id: UUID
-    provenance: Literal["SCRIPTED_FIXTURE"] = "SCRIPTED_FIXTURE"
+    provenance: Literal["SCRIPTED_FIXTURE", "OFFLINE_SIMULATION"] = "SCRIPTED_FIXTURE"
     versions: Versions = Field(default_factory=Versions)
     costs: Cost = Field(default_factory=Cost)
     supersedes: UUID | None = None

@@ -2,7 +2,7 @@
 
 Source: https://chatgpt.com/space/page_33b155951df08191a6bd0d477c965002
 
-This is the supplied plan. The current implementation scope is M0A only.
+This is the supplied plan. See README.md for the current implementation status.
 
 **Build FX-Talanta as a fully autonomous forex trading system with a conversational advisor, automatic market-news monitoring, durable experience memory, a portable Python application core, isolated risk and execution gateways, and separate PAPER and LIVE accounts.** MT5 is the first broker connection. Normal trading, protective management, temporary-fault recovery, and qualified strategy deployment operate within fixed mandates without per-trade human approval.
 

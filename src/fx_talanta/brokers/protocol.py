@@ -3,8 +3,10 @@
 from collections import deque
 from collections.abc import Iterable
 from typing import Protocol
+from uuid import UUID
 
 from fx_talanta.domain.models import AccountIdentity, ExecutionEvent
+from fx_talanta.domain.offline import BrokerBook, BrokerOrder, BrokerRequest, Market
 
 
 class BrokerAdapter(Protocol):
@@ -14,6 +16,14 @@ class BrokerAdapter(Protocol):
     def observe(self) -> ExecutionEvent:
         """Read the next recorded fixture observation, without sending any order."""
         ...
+
+
+class ExecutionAdapter(Protocol):
+    """M0B contract; only the session-fenced offline Simulator is enabled."""
+
+    def snapshot(self) -> BrokerBook: ...
+    def lookup(self, request_id: UUID) -> BrokerOrder | None: ...
+    def mutate(self, request: BrokerRequest, market: Market) -> BrokerOrder: ...
 
 
 class FixtureBroker:

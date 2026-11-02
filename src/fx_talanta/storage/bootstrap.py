@@ -106,3 +106,8 @@ def bootstrap(settings: Settings) -> None:
                     sql.Identifier(writer)
                 )
             )
+            conn.execute(
+                sql.SQL("GRANT SELECT, INSERT ON fx.offline_journal TO {}").format(
+                    sql.Identifier(writer)
+                )
+            )

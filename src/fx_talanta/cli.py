@@ -13,11 +13,12 @@ from fx_talanta.storage.repository import Repository
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="FX-Talanta M0A offline records")
+    parser = argparse.ArgumentParser(description="FX-Talanta offline records and execution")
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("init-local", help="create local database secrets without overwriting")
     sub.add_parser("migrate", help="bootstrap fixture databases and verify migration checksums")
+    sub.add_parser("offline-demo", help="run the M0B risk/execution/restart simulator")
     demo = sub.add_parser("demo", help="record the scripted PAPER scenarios")
     demo.add_argument("--run-id", type=UUID, default=None)
     history = sub.add_parser("history", help="print account-scoped fixture records")
@@ -33,6 +34,11 @@ def main() -> None:
         if args.command == "migrate":
             bootstrap(settings)
             print("PAPER/LIVE fixture databases ready. Both execution bindings remain disabled.")
+            return
+        if args.command == "offline-demo":
+            from fx_talanta.offline_fixtures import run_offline_demo
+
+            print(json.dumps(run_offline_demo(settings), indent=2))
             return
         environment = Environment(getattr(args, "environment", "PAPER"))
         repo = Repository(settings.runtime_dsn(environment), fixture_account(environment))
