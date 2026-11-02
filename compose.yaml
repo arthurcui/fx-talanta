@@ -1,0 +1,19 @@
+name: fx-talanta-m0a
+services:
+  postgres:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: ${FX_DB_ADMIN_USER:-postgres}
+      POSTGRES_PASSWORD: ${FX_DB_ADMIN_PASSWORD:?Run fx-talanta init-local first}
+      POSTGRES_DB: postgres
+    ports:
+      - "127.0.0.1:${FX_DB_PORT:-55432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+volumes:
+  postgres_data:
