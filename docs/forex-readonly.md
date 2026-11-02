@@ -81,7 +81,62 @@ database. Record sequences and payloads matched exactly. The target remains
 RESTORED and execution-disabled; it was not released as another active writer.
 
 The combined qualification checkout passed 209 native regression/integration tests.
-The full 24-hour acceptance report remains pending; short recovery exercises do
+The sustained run's final non-acceptance result is below; short recovery exercises do
 not qualify. Private snapshots, logs, account identity and archive files remain
 outside Git. The [expiry tracker](demo-account-rollover.md) is administrative and
 does not authorize account switching or reset campaign risk.
+
+## Sustained qualification result: NOT ACCEPTED
+
+Original run `b36e03b5-db3d-4489-9c08-3c7523e355e9` began November 2, 2026 at
+19:32:57 UTC with a fixed deadline of November 3 at 19:32:57 UTC. It halted on
+November 2 at 21:34:27 UTC with `STALE_TICKS`, approximately 2 hours 1 minute
+into the planned 24 hours. The worker exited; the terminal remained running.
+No restart, deadline extension, clock-policy adjustment or threshold relaxation
+was performed. Trading remained disabled.
+
+The final result was independently rebuilt from committed PostgreSQL observations
+using the original private binding and runtime credentials. The
+[sanitized evidence](evidence/forex-final-20261102.json) agrees with the status
+file. It contains no credentials, account identifiers or raw prices.
+
+| Gate | Original requirement | Observed final result | Outcome |
+| --- | --- | --- | --- |
+| Duration | 86,400 seconds | 7,290.83 seconds | Fail |
+| Sample span | At least 86,340 seconds | 7,290.02 seconds | Fail |
+| Coverage | At least 95% | 218 observations; 89.70% through halt | Fail |
+| Healthy fraction | At least 95% | 168/218, 77.06% | Fail |
+| Maximum gap | At most 180 seconds | 329.98 seconds | Fail |
+| Final health | HEALTHY | HALTED / STALE_TICKS | Fail |
+
+There were 50 stale observations and zero recorded database errors. Coverage is
+the runner's expected-poll fraction over elapsed time through the halt, not a claim
+of 89.70% coverage over 24 hours. The planned duration satisfies the minimum
+24-hour policy, but the elapsed-duration gate does not. None of these results can
+be promoted to sustained acceptance. Earlier smoke recovery and exact archive
+restoration demonstrate their narrower exercises only.
+
+The halt reason establishes stale tick evidence, not the root cause of that
+staleness or the 329.98-second gap. Broker maintenance, terminal behavior and host
+scheduling have not been distinguished. Preserve the original logs and history
+for diagnosis; do not claim a broker-wide outage or reset evidence to clear it.
+
+### Independent CMC comparison at November 2, 21:53 UTC
+
+Both brokers used the same gates above. CMC's original run was still RUNNING with
+a CURRENT heartbeat, 378 observations, 326 healthy (86.24%), 100% elapsed-poll
+coverage and a 30.48-second maximum gap. These are interim status-file values,
+not CMC's final database-verified acceptance result. Its latest observation was
+DEGRADED/STALE_TICKS, and its full duration was still pending. FOREX.com's final
+failure does not establish CMC acceptance or an execution-quality ranking.
+CMC's source checkout, terminal, binding, environment and database were untouched.
+
+### Pull-request dependencies
+
+This consolidated qualification branch combines the supervised runner from draft
+PR #8 with the lifecycle/onboarding work already merged as PR #9. A PR against
+main therefore still contains the unmerged PR #8 runner changes; it must not be
+merged independently ahead of PR #8. After PR #8 is reviewed and merged, update
+this branch against main and verify the resulting diff and CI before any merge.
+PR #10's calendar/provider work is separate and remains unmerged. This report
+records a failed qualification, not approval to trade or to create a new run.
