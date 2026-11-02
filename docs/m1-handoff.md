@@ -1,14 +1,15 @@
 # M1 implementation handoff
 
-Status: proposed work breakdown after the [P0 qualification](p0-feasibility.md).
-M0C is merged; no external broker observation is implemented yet. Preserve the
+Status: M0C and the MT5 adapter are merged; connected CMC demo observation works.
+The [CMC read-only milestone](cmc-readonly.md) tracks the runner and remaining
+sustained acceptance. Broader [P0 qualification](p0-feasibility.md) remains open. Preserve the
 MT5-first mandate unless a different interface is explicitly chosen.
 
 The [M1A observer foundation](observer-foundation.md) now provides synthetic
 snapshot collection, process deadlines, durable recovery and archive tests.
-It does not satisfy the connected broker acceptance gates below.
-The [MT5 adapter increment](mt5-observer.md) adds fake-SDK-tested Windows collection,
-explicit demo provisioning and archive support; actual connected qualification remains open.
+Synthetic evidence alone does not satisfy the connected broker acceptance gates below.
+The [MT5 adapter increment](mt5-observer.md) adds Windows collection,
+explicit demo provisioning and archive support; connected sustained qualification remains open.
 
 Broker order is **CMC Markets Canada first, FOREX.com Canada second**. Implement
 the shared read-only MT5 worker against CMC, then qualify FOREX.com independently.
@@ -69,9 +70,9 @@ Source content is untrusted data and cannot change risk policy or execute tools.
 
 Run the native Windows observer beside the portable core and PostgreSQL. Confirm
 account isolation, secret separation and reconnect behavior. Exercise export and
-restore of the new observed evidence and account binding; M0C's archive deliberately
-supports fixture identities only, so broker-demo support needs an explicit schema/
-archive extension with migration and wrong-account tests.
+restore of the new observed evidence and account binding. Explicit broker-demo
+archive support, migration and wrong-account tests are now implemented alongside
+the original fixture archive contract.
 
 Produce an evidence bundle of terminal/account capabilities, data-health behavior,
 source rights references and unresolved constraints. Keep broker-demo observations

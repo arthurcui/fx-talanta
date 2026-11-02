@@ -27,6 +27,14 @@ def main() -> None:
     sub.add_parser("observer-demo", help="run synthetic M1A observation and recovery checks")
     observe = sub.add_parser("observe", help="collect one read-only MT5 snapshot or retry outcome")
     observe.add_argument("--run-id", type=UUID, required=True)
+    runner = sub.add_parser("observe-run", help="run a bounded read-only observation soak")
+    runner.add_argument("--run-id", type=UUID, required=True)
+    runner.add_argument("--duration-seconds", type=int, default=86400)
+    runner.add_argument("--interval-seconds", type=int, default=30)
+    runner.add_argument("--status-file", type=Path, required=True)
+    runner.add_argument("--stop-file", type=Path, required=True)
+    status = sub.add_parser("observe-status", help="read local health and detect a stale heartbeat")
+    status.add_argument("--status-file", type=Path, required=True)
     export = sub.add_parser("export", help="export both stopped fixture accounts to a new archive")
     export.add_argument("archive", type=Path)
     restore = sub.add_parser(
@@ -49,6 +57,14 @@ def main() -> None:
     history.add_argument("--run-id", type=UUID, default=None)
     args = parser.parse_args()
     try:
+        if args.command == "observe-status":
+            from fx_talanta.observer.runner import read_status
+
+            status = read_status(args.status_file)
+            print(json.dumps(status, indent=2))
+            if status["heartbeat_state"] == "STALE":
+                parser.exit(2)
+            return
         if args.command == "init-local":
             init_local(args.env_file)
             print("Created local database settings; secret values are not displayed.")
@@ -62,13 +78,21 @@ def main() -> None:
             if (
                 binding.source != "MT5"
                 or args.command
-                not in {"migrate", "observe", "history", "export", "restore", "verify-restore"}
+                not in {
+                    "migrate",
+                    "observe",
+                    "observe-run",
+                    "history",
+                    "export",
+                    "restore",
+                    "verify-restore",
+                }
                 or environment != Environment.PAPER
             ):
                 raise ValueError(
                     "demo binding is only valid for PAPER observation/storage commands"
                 )
-        if args.command == "observe":
+        if args.command in {"observe", "observe-run"}:
             if binding is None:
                 raise ValueError("observe requires an explicit --binding")
             binding.require_permissions()
@@ -79,6 +103,23 @@ def main() -> None:
         if binding and settings.namespace == "fx":
             raise ValueError("broker demo requires a dedicated --namespace or FX_DB_NAMESPACE")
         paper_account = binding.account if binding else None
+        if args.command == "observe-run":
+            from fx_talanta.observer.runner import RunnerPlan, run_observer
+
+            status = run_observer(
+                settings.runtime_dsn(environment),
+                binding,
+                args.run_id,
+                args.status_file,
+                args.stop_file,
+                RunnerPlan(
+                    duration_seconds=args.duration_seconds, interval_seconds=args.interval_seconds
+                ),
+            )
+            print(json.dumps(status, indent=2))
+            if status["phase"] in {"HALTED", "FAILED"}:
+                parser.exit(2)
+            return
         if args.command == "migrate":
             bootstrap(settings, paper_account=paper_account)
             print("Account databases ready. Both execution bindings remain disabled.")

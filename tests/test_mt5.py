@@ -223,15 +223,16 @@ def test_clock_override_requires_evidence_and_expires_before_sdk(demo_binding):
     assert sdk.calls == []
 
 
-def test_clock_change_does_not_silently_recalibrate(demo_binding):
+@pytest.mark.parametrize("server_offset,reason", [(10800, "INVALID_DATA"), (3600, "STALE_TICKS")])
+def test_clock_change_does_not_silently_recalibrate(demo_binding, server_offset, reason):
     binding = clock_binding(demo_binding)
     sdk = FakeSDK()
     # A new UTC+3 feed under the qualified UTC+2 policy remains a future tick.
     sdk.symbol_info_tick = lambda symbol: NS(
-        time_msc=int((NOW.timestamp() + 10800) * 1000), bid=1.1, ask=1.1001
+        time_msc=int((NOW.timestamp() + server_offset) * 1000), bid=1.1, ask=1.1001
     )
     result = snapshot(binding, sdk)
-    assert assess(result, binding, NOW) == "INVALID_DATA"
+    assert assess(result, binding, NOW) == reason
     from fx_talanta.observer.mt5 import SDKClock
 
     with pytest.raises(ObservationFailure, match="INVALID_DATA"):
