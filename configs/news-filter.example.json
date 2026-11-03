@@ -1,0 +1,42 @@
+{
+  "version": "fixture-filter/1",
+  "sources": [
+    {
+      "source": "calendar",
+      "role": "CALENDAR",
+      "required": true,
+      "currencies": [
+        "USD",
+        "EUR",
+        "JPY"
+      ],
+      "max_age_seconds": 120
+    },
+    {
+      "source": "news",
+      "role": "NEWS",
+      "required": true,
+      "currencies": [
+        "USD",
+        "EUR",
+        "JPY"
+      ],
+      "max_age_seconds": 120
+    },
+    {
+      "source": "optional",
+      "role": "NEWS",
+      "required": false,
+      "currencies": [
+        "USD",
+        "EUR",
+        "JPY"
+      ],
+      "max_age_seconds": 120
+    }
+  ],
+  "blackout_before_seconds": 1800,
+  "blackout_after_seconds": 1800,
+  "release_lateness_seconds": 120,
+  "news_relevance_seconds": 3600
+}

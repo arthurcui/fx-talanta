@@ -10,6 +10,9 @@
 !tests/**
 !scripts/
 !scripts/**
+!configs/
+!configs/news-filter.example.json
+!configs/news-filter.fixture.json
 !deploy/
 !deploy/**
 !README.md

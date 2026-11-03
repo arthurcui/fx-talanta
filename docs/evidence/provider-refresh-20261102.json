@@ -1,0 +1,495 @@
+{
+  "assessment_date": "2026-11-02",
+  "kind": "BOUNDED_TRANSPORT_AND_RECOVERY_QUALIFICATION",
+  "qualified_for_trading": false,
+  "execution_enabled": false,
+  "block_entries": true,
+  "attempts": [
+    {
+      "available_at": "2026-11-02T22:21:01.233491+00:00",
+      "fred_status": "OK",
+      "date_count": 5,
+      "comparison_passed": true,
+      "matches": [
+        {
+          "release_id": 192,
+          "date": "2026-11-03",
+          "scheduled_at": "2026-11-03T15:00:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 50,
+          "date": "2026-11-06",
+          "scheduled_at": "2026-11-06T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 10,
+          "date": "2026-11-10",
+          "scheduled_at": "2026-11-10T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 46,
+          "date": "2026-11-13",
+          "scheduled_at": "2026-11-13T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 192,
+          "date": "2026-12-01",
+          "scheduled_at": "2026-12-01T15:00:00+00:00",
+          "matches_bls": true
+        }
+      ],
+      "reasons": [],
+      "bls_refresh_error": "HTTP_403",
+      "reference": {
+        "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+        "provenance": "MANUAL_FILE"
+      },
+      "previous_attempt_hash": null,
+      "attempt_sha256": "1e880287a6ba042d352101ebc38445164c57afbdb743bac9104e14434fef91a3",
+      "news": [
+        {
+          "source": "fed",
+          "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+          "observed_at": "2026-11-02T22:21:01.234276+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "default",
+          "status": 200,
+          "bytes": 9687,
+          "content_type": "text/xml",
+          "etag_present": true,
+          "last_modified": "Wed, 28 Oct 2026 18:00:18 GMT",
+          "body_sha256": "c37b662226764db6199bcf36eb9b9013de38f6bbeab8ebf766529820265b4bf5",
+          "format": "rss",
+          "items": 15,
+          "items_with_ids": 15,
+          "duplicate_ids": 0,
+          "timestamp_missing_or_invalid": 0,
+          "earliest_publication": "2026-05-20T18:00:00+00:00",
+          "latest_publication": "2026-10-28T18:00:00+00:00",
+          "future_timestamp_count": 0,
+          "probe_state": "PARSED",
+          "request_seconds": 0.144
+        },
+        {
+          "source": "ecb",
+          "url": "https://www.ecb.europa.eu/rss/press.html",
+          "observed_at": "2026-11-02T22:21:01.378244+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "native",
+          "status": 200,
+          "bytes": 5861,
+          "content_type": "application/rss+xml",
+          "etag_present": true,
+          "last_modified": null,
+          "body_sha256": "5e33d162e6265630551a20eb2af1259e0e9dce0f06a1cfb691cde209582b4041",
+          "format": "rss",
+          "items": 15,
+          "items_with_ids": 15,
+          "duplicate_ids": 0,
+          "timestamp_missing_or_invalid": 0,
+          "earliest_publication": "2026-10-21T04:15:00+00:00",
+          "latest_publication": "2026-11-02T09:30:00+00:00",
+          "future_timestamp_count": 0,
+          "probe_state": "PARSED",
+          "request_seconds": 0.677
+        },
+        {
+          "source": "boj",
+          "url": "https://www.boj.or.jp/en/rss/whatsnew.xml",
+          "observed_at": "2026-11-02T22:21:02.054924+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "default",
+          "status": 200,
+          "bytes": 15519,
+          "content_type": "application/xml;charset=UTF-8",
+          "etag_present": false,
+          "last_modified": null,
+          "body_sha256": "eececbc7f3255bdcd2ff5b74d5f6d1730583cd6851a947e82ab248edc5f68aa2",
+          "format": "rss",
+          "items": 47,
+          "items_with_ids": 47,
+          "duplicate_ids": 0,
+          "timestamp_missing_or_invalid": 0,
+          "earliest_publication": "2026-10-01T23:50:00+00:00",
+          "latest_publication": "2026-11-02T05:00:00+00:00",
+          "future_timestamp_count": 0,
+          "probe_state": "PARSED",
+          "request_seconds": 0.247
+        }
+      ]
+    },
+    {
+      "available_at": "2026-11-02T22:22:09.185442+00:00",
+      "fred_status": "OK",
+      "date_count": 5,
+      "comparison_passed": true,
+      "matches": [
+        {
+          "release_id": 192,
+          "date": "2026-11-03",
+          "scheduled_at": "2026-11-03T15:00:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 50,
+          "date": "2026-11-06",
+          "scheduled_at": "2026-11-06T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 10,
+          "date": "2026-11-10",
+          "scheduled_at": "2026-11-10T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 46,
+          "date": "2026-11-13",
+          "scheduled_at": "2026-11-13T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 192,
+          "date": "2026-12-01",
+          "scheduled_at": "2026-12-01T15:00:00+00:00",
+          "matches_bls": true
+        }
+      ],
+      "reasons": [],
+      "bls_refresh_error": "HTTP_403",
+      "reference": {
+        "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+        "provenance": "MANUAL_FILE"
+      },
+      "previous_attempt_hash": "1e880287a6ba042d352101ebc38445164c57afbdb743bac9104e14434fef91a3",
+      "attempt_sha256": "85ccd2ddf6da965f354606563fcbbae87ae39706e00d3097f7d89ea066fe2e30",
+      "news": [
+        {
+          "source": "fed",
+          "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+          "observed_at": "2026-11-02T22:22:09.186437+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "default",
+          "conditional_request": true,
+          "status": 304,
+          "probe_state": "NOT_MODIFIED",
+          "request_seconds": 0.134
+        },
+        {
+          "source": "ecb",
+          "url": "https://www.ecb.europa.eu/rss/press.html",
+          "observed_at": "2026-11-02T22:22:09.320207+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "native",
+          "status": 200,
+          "bytes": 5861,
+          "content_type": "application/rss+xml",
+          "etag_present": true,
+          "last_modified": null,
+          "body_sha256": "5e33d162e6265630551a20eb2af1259e0e9dce0f06a1cfb691cde209582b4041",
+          "format": "rss",
+          "items": 15,
+          "items_with_ids": 15,
+          "duplicate_ids": 0,
+          "timestamp_missing_or_invalid": 0,
+          "earliest_publication": "2026-10-21T04:15:00+00:00",
+          "latest_publication": "2026-11-02T09:30:00+00:00",
+          "future_timestamp_count": 0,
+          "probe_state": "PARSED",
+          "request_seconds": 0.475
+        },
+        {
+          "source": "boj",
+          "url": "https://www.boj.or.jp/en/rss/whatsnew.xml",
+          "observed_at": "2026-11-02T22:22:09.795274+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "default",
+          "status": 200,
+          "bytes": 15519,
+          "content_type": "application/xml;charset=UTF-8",
+          "etag_present": false,
+          "last_modified": null,
+          "body_sha256": "eececbc7f3255bdcd2ff5b74d5f6d1730583cd6851a947e82ab248edc5f68aa2",
+          "format": "rss",
+          "items": 47,
+          "items_with_ids": 47,
+          "duplicate_ids": 0,
+          "timestamp_missing_or_invalid": 0,
+          "earliest_publication": "2026-10-01T23:50:00+00:00",
+          "latest_publication": "2026-11-02T05:00:00+00:00",
+          "future_timestamp_count": 0,
+          "probe_state": "PARSED",
+          "request_seconds": 0.221
+        }
+      ]
+    },
+    {
+      "available_at": "2026-11-02T22:23:11.210396+00:00",
+      "fred_status": "OK",
+      "date_count": 5,
+      "comparison_passed": true,
+      "matches": [
+        {
+          "release_id": 192,
+          "date": "2026-11-03",
+          "scheduled_at": "2026-11-03T15:00:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 50,
+          "date": "2026-11-06",
+          "scheduled_at": "2026-11-06T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 10,
+          "date": "2026-11-10",
+          "scheduled_at": "2026-11-10T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 46,
+          "date": "2026-11-13",
+          "scheduled_at": "2026-11-13T13:30:00+00:00",
+          "matches_bls": true
+        },
+        {
+          "release_id": 192,
+          "date": "2026-12-01",
+          "scheduled_at": "2026-12-01T15:00:00+00:00",
+          "matches_bls": true
+        }
+      ],
+      "reasons": [],
+      "bls_refresh_error": "HTTP_403",
+      "reference": {
+        "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+        "provenance": "MANUAL_FILE"
+      },
+      "previous_attempt_hash": "85ccd2ddf6da965f354606563fcbbae87ae39706e00d3097f7d89ea066fe2e30",
+      "attempt_sha256": "fa6db663d307122f1124f93aed0edd383ca009b6a03a1c78cd982076560379c2",
+      "news": [
+        {
+          "source": "fed",
+          "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+          "observed_at": "2026-11-02T22:23:11.211475+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "default",
+          "conditional_request": true,
+          "status": 304,
+          "probe_state": "NOT_MODIFIED",
+          "request_seconds": 0.072
+        },
+        {
+          "source": "ecb",
+          "url": "https://www.ecb.europa.eu/rss/press.html",
+          "observed_at": "2026-11-02T22:23:11.283775+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "native",
+          "status": 200,
+          "bytes": 5861,
+          "content_type": "application/rss+xml",
+          "etag_present": true,
+          "last_modified": null,
+          "body_sha256": "5e33d162e6265630551a20eb2af1259e0e9dce0f06a1cfb691cde209582b4041",
+          "format": "rss",
+          "items": 15,
+          "items_with_ids": 15,
+          "duplicate_ids": 0,
+          "timestamp_missing_or_invalid": 0,
+          "earliest_publication": "2026-10-21T04:15:00+00:00",
+          "latest_publication": "2026-11-02T09:30:00+00:00",
+          "future_timestamp_count": 0,
+          "probe_state": "PARSED",
+          "request_seconds": 0.498
+        },
+        {
+          "source": "boj",
+          "url": "https://www.boj.or.jp/en/rss/whatsnew.xml",
+          "observed_at": "2026-11-02T22:23:11.781494+00:00",
+          "qualified_for_trading": false,
+          "tls_backend": "default",
+          "status": 200,
+          "bytes": 15519,
+          "content_type": "application/xml;charset=UTF-8",
+          "etag_present": false,
+          "last_modified": null,
+          "body_sha256": "eececbc7f3255bdcd2ff5b74d5f6d1730583cd6851a947e82ab248edc5f68aa2",
+          "format": "rss",
+          "items": 47,
+          "items_with_ids": 47,
+          "duplicate_ids": 0,
+          "timestamp_missing_or_invalid": 0,
+          "earliest_publication": "2026-10-01T23:50:00+00:00",
+          "latest_publication": "2026-11-02T05:00:00+00:00",
+          "future_timestamp_count": 0,
+          "probe_state": "PARSED",
+          "request_seconds": 0.2
+        }
+      ]
+    }
+  ],
+  "linux_feeds": [
+    {
+      "source": "fed",
+      "url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+      "observed_at": "2026-11-02T22:21:51.875725+00:00",
+      "qualified_for_trading": false,
+      "tls_backend": "default",
+      "status": 200,
+      "bytes": 9687,
+      "content_type": "text/xml",
+      "etag_present": true,
+      "last_modified": "Wed, 28 Oct 2026 18:00:18 GMT",
+      "body_sha256": "c37b662226764db6199bcf36eb9b9013de38f6bbeab8ebf766529820265b4bf5",
+      "format": "rss",
+      "items": 15,
+      "items_with_ids": 15,
+      "duplicate_ids": 0,
+      "timestamp_missing_or_invalid": 0,
+      "earliest_publication": "2026-05-20T18:00:00+00:00",
+      "latest_publication": "2026-10-28T18:00:00+00:00",
+      "future_timestamp_count": 0,
+      "probe_state": "PARSED",
+      "request_seconds": 0.146
+    },
+    {
+      "source": "ecb",
+      "url": "https://www.ecb.europa.eu/rss/press.html",
+      "observed_at": "2026-11-02T22:21:52.022268+00:00",
+      "qualified_for_trading": false,
+      "tls_backend": "default",
+      "status": 200,
+      "bytes": 5861,
+      "content_type": "application/rss+xml",
+      "etag_present": true,
+      "last_modified": null,
+      "body_sha256": "5e33d162e6265630551a20eb2af1259e0e9dce0f06a1cfb691cde209582b4041",
+      "format": "rss",
+      "items": 15,
+      "items_with_ids": 15,
+      "duplicate_ids": 0,
+      "timestamp_missing_or_invalid": 0,
+      "earliest_publication": "2026-10-21T04:15:00+00:00",
+      "latest_publication": "2026-11-02T09:30:00+00:00",
+      "future_timestamp_count": 0,
+      "probe_state": "PARSED",
+      "request_seconds": 0.72
+    },
+    {
+      "source": "boj",
+      "url": "https://www.boj.or.jp/en/rss/whatsnew.xml",
+      "observed_at": "2026-11-02T22:21:52.742330+00:00",
+      "qualified_for_trading": false,
+      "tls_backend": "default",
+      "status": 200,
+      "bytes": 15519,
+      "content_type": "application/xml;charset=UTF-8",
+      "etag_present": false,
+      "last_modified": null,
+      "body_sha256": "eececbc7f3255bdcd2ff5b74d5f6d1730583cd6851a947e82ab248edc5f68aa2",
+      "format": "rss",
+      "items": 47,
+      "items_with_ids": 47,
+      "duplicate_ids": 0,
+      "timestamp_missing_or_invalid": 0,
+      "earliest_publication": "2026-10-01T23:50:00+00:00",
+      "latest_publication": "2026-11-02T05:00:00+00:00",
+      "future_timestamp_count": 0,
+      "probe_state": "PARSED",
+      "request_seconds": 0.197
+    },
+    {
+      "source": "bls",
+      "url": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "observed_at": "2026-11-02T22:21:52.939844+00:00",
+      "qualified_for_trading": false,
+      "tls_backend": "default",
+      "status": 200,
+      "bytes": 80672,
+      "content_type": "text/calendar",
+      "etag_present": true,
+      "last_modified": "Wed, 10 Jun 2026 16:56:37 GMT",
+      "body_sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+      "format": "ical",
+      "events": 313,
+      "timezone_lines": [
+        "TZID:US-Eastern"
+      ],
+      "start_field_types": [
+        "DTSTART",
+        "DTSTART;TZID=US-Eastern"
+      ],
+      "probe_state": "PARSED",
+      "request_seconds": 0.102
+    }
+  ],
+  "linux_bls_repeat": [
+    {
+      "source": "bls",
+      "url": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "observed_at": "2026-11-02T22:22:58.301416+00:00",
+      "qualified_for_trading": false,
+      "tls_backend": "default",
+      "status": 200,
+      "bytes": 80672,
+      "content_type": "text/calendar",
+      "etag_present": true,
+      "last_modified": "Wed, 10 Jun 2026 16:56:37 GMT",
+      "body_sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+      "format": "ical",
+      "events": 313,
+      "timezone_lines": [
+        "TZID:US-Eastern"
+      ],
+      "start_field_types": [
+        "DTSTART",
+        "DTSTART;TZID=US-Eastern"
+      ],
+      "probe_state": "PARSED",
+      "request_seconds": 0.11
+    }
+  ],
+  "linux_bls_strict_accept": {
+    "started_at": "2026-11-02T22:23:20.858876+00:00",
+    "qualified_for_trading": false,
+    "status": 200,
+    "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+    "events": 92,
+    "provenance": "HTTPS",
+    "headers": {
+      "Date": "Mon, 02 Nov 2026 22:23:21 GMT",
+      "Age": null,
+      "Cache-Control": null,
+      "Last-Modified": "Wed, 10 Jun 2026 16:56:37 GMT",
+      "Via": null
+    }
+  },
+  "linux_unmodified_refresh": {
+    "error": "HTTP_403",
+    "snapshot": null,
+    "captured_from": "separate disposable container command during this check"
+  },
+  "windows_bls_probe": [
+    {
+      "source": "bls",
+      "url": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "observed_at": "2026-11-02T22:22:58.908868+00:00",
+      "qualified_for_trading": false,
+      "tls_backend": "default",
+      "status": 403,
+      "probe_state": "HTTP_ERROR",
+      "request_seconds": 0.085
+    }
+  ],
+  "limitations": [
+    "Three short passes cannot establish sustained availability or release latency.",
+    "BLS reference remains manual; an unchanged hash does not prove schedule completeness or freshness.",
+    "BLS access depends on request/environment; existing automatic refresh still fails.",
+    "Fed/ECB/BOJ feeds do not establish full USD/EUR/JPY news coverage."
+  ]
+}
