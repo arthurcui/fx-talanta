@@ -1,0 +1,197 @@
+{
+  "base_commit": "1c12f5b1211f48a1b8fefdb81f939614ce544e72",
+  "platform": "Windows desktop; Python 3.14; native Tk file dialog",
+  "scope": "Development-only BLS manual upload; no broker access or orders",
+  "source_bytes": 80672,
+  "source_sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+  "native_picker_verified": [
+    "select actual saved file and Open",
+    "Cancel",
+    "select malformed .ics and Open",
+    "select original file and Open after rejection"
+  ],
+  "successful_upload": {
+    "source_url": "https://www.bls.gov/schedule/news_release/bls.ics",
+    "checked_at": "2026-11-03T03:43:20.425334+00:00",
+    "provenance": "MANUAL_FILE",
+    "qualified_for_trading": false,
+    "execution_enabled": false,
+    "calendar_coverage_complete": false,
+    "reminder_due": false,
+    "reasons": [],
+    "message": "Saved for development. Review by the due date; source freshness is unverified.",
+    "last_reviewed_at": "2026-11-03T03:43:20.405821+00:00",
+    "review_due_at": "2026-11-10T03:43:20.405821+00:00",
+    "last_scheduled_event": "2026-12-15T13:30:00+00:00",
+    "event_count": 92,
+    "upcoming_event_count": 8,
+    "source_hash": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+    "upload_result": "IMPORTED"
+  },
+  "cancel": {
+    "exit_code": 0,
+    "journal_attempts_before": 1,
+    "journal_attempts_after": 1
+  },
+  "invalid_selection": {
+    "exit_code": 2,
+    "output": {
+      "reminder_due": true,
+      "execution_enabled": false,
+      "error": "Calendar unavailable or upload rejected. Check the file/store; use --file if the desktop chooser is unavailable."
+    },
+    "subsequent_status": {
+      "source_url": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "checked_at": "2026-11-03T03:45:18.741510+00:00",
+      "provenance": "MANUAL_FILE",
+      "qualified_for_trading": false,
+      "execution_enabled": false,
+      "calendar_coverage_complete": false,
+      "reminder_due": true,
+      "reasons": [
+        "LAST_UPLOAD_FAILED_OR_INTERRUPTED"
+      ],
+      "message": "Download the latest BLS calendar and upload it; this is a manual review reminder.",
+      "last_reviewed_at": "2026-11-03T03:43:20.405821+00:00",
+      "review_due_at": "2026-11-10T03:43:20.405821+00:00",
+      "last_scheduled_event": "2026-12-15T13:30:00+00:00",
+      "event_count": 92,
+      "upcoming_event_count": 8,
+      "source_hash": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501"
+    }
+  },
+  "direct_cli_recovery": {
+    "exit_code": 0,
+    "output": {
+      "source_url": "https://www.bls.gov/schedule/news_release/bls.ics",
+      "checked_at": "2026-11-03T03:45:49.736313+00:00",
+      "provenance": "MANUAL_FILE",
+      "qualified_for_trading": false,
+      "execution_enabled": false,
+      "calendar_coverage_complete": false,
+      "reminder_due": false,
+      "reasons": [],
+      "message": "Saved for development. Review by the due date; source freshness is unverified.",
+      "last_reviewed_at": "2026-11-03T03:43:20.405821+00:00",
+      "review_due_at": "2026-11-10T03:43:20.405821+00:00",
+      "last_scheduled_event": "2026-12-15T13:30:00+00:00",
+      "event_count": 92,
+      "upcoming_event_count": 8,
+      "source_hash": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+      "upload_result": "UNCHANGED"
+    }
+  },
+  "journal_counts_after_recovery": {
+    "attempts": 3,
+    "outcomes": 3,
+    "revisions": 92
+  },
+  "journal_outcomes": [
+    "OK",
+    "FAILED",
+    "OK"
+  ],
+  "source_and_archive_bytes_match": true,
+  "due_date_simulation": {
+    "clock": "2026-11-10T03:43:20.405821+00:00",
+    "reasons": [
+      "REVIEW_OVERDUE"
+    ],
+    "journal_unchanged": true,
+    "elapsed_week_observed": false
+  },
+  "earlier_actual_file_and_offline_gateway_verification": {
+    "verified_at": "2026-11-03T03:30:20.113407+00:00",
+    "implementation_commit": "160919ee0b905f309e683e3b49ddfd5014aa120d",
+    "source_sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+    "source_bytes": 80672,
+    "imported_events": 92,
+    "upcoming_events": 8,
+    "journal_revisions_after_duplicate": 92,
+    "duplicate_did_not_reset_review": true,
+    "source_and_archive_unchanged": true,
+    "last_reviewed_at": "2026-11-03T03:30:18.424295+00:00",
+    "review_due_at": "2026-11-10T03:30:18.424295+00:00",
+    "current_reminder_due": false,
+    "current_reminder_reasons": [],
+    "simulated_due_date_reminder_verified": true,
+    "sample_source_dtstart": "DTSTART;TZID=US-Eastern:20261103T100000",
+    "sample_event_utc": "2026-11-03T15:00:00+00:00",
+    "blackout_simulations": [
+      {
+        "symbol": "EURUSD",
+        "minutes_from_event": -31,
+        "target_event_blackout": false,
+        "entries_blocked": true
+      },
+      {
+        "symbol": "USDJPY",
+        "minutes_from_event": -31,
+        "target_event_blackout": false,
+        "entries_blocked": true
+      },
+      {
+        "symbol": "EURUSD",
+        "minutes_from_event": -15,
+        "target_event_blackout": true,
+        "entries_blocked": true
+      },
+      {
+        "symbol": "USDJPY",
+        "minutes_from_event": -15,
+        "target_event_blackout": true,
+        "entries_blocked": true
+      },
+      {
+        "symbol": "EURUSD",
+        "minutes_from_event": 0,
+        "target_event_blackout": true,
+        "entries_blocked": true
+      },
+      {
+        "symbol": "USDJPY",
+        "minutes_from_event": 0,
+        "target_event_blackout": true,
+        "entries_blocked": true
+      },
+      {
+        "symbol": "EURUSD",
+        "minutes_from_event": 31,
+        "target_event_blackout": false,
+        "entries_blocked": true
+      },
+      {
+        "symbol": "USDJPY",
+        "minutes_from_event": 31,
+        "target_event_blackout": false,
+        "entries_blocked": true
+      }
+    ],
+    "qualified_for_trading": false,
+    "execution_enabled": false,
+    "limitation": "Actual saved-file CLI upload and journal/gateway verification. Future event/reminder times are simulated; no live trading or elapsed-week claim. Desktop chooser not exercised.",
+    "offline_gateway_simulations": [
+      {
+        "symbol": "EURUSD",
+        "simulation_time": "2026-11-03T14:45:00+00:00",
+        "state": "REJECTED",
+        "positions": 0,
+        "event_blackout": true
+      },
+      {
+        "symbol": "USDJPY",
+        "simulation_time": "2026-11-03T14:45:00+00:00",
+        "state": "REJECTED",
+        "positions": 0,
+        "event_blackout": true
+      }
+    ],
+    "test_database_namespace": "fx_calendar_test"
+  },
+  "limitations": [
+    "Manual file freshness unverified; incomplete USD-only calendar",
+    "No general forex news feed qualified",
+    "Picker is native UI; results/reminders are CLI output",
+    "Clock simulations do not prove elapsed monitoring time"
+  ]
+}

@@ -13,6 +13,11 @@ From an installed project checkout, open the desktop file chooser:
 python -m fx_talanta.manual_bls upload --choose
 ```
 
+The chooser opens an **FX-Talanta Calendar** owner window and a native **Upload
+BLS calendar** dialog. Select a file and click **Open**; the result and review
+reminder appear in the terminal that launched the command. Both windows close
+after Open or Cancel. This is a file picker, not a full desktop dashboard.
+
 The chooser requires Python's optional Tk desktop support. Alternatively, supply
 an explicit file path (also suitable for Linux/Docker with a mounted file):
 
@@ -21,7 +26,8 @@ python -m fx_talanta.manual_bls upload --file C:/SideProjects/fx-talanta/.local/
 python -m fx_talanta.manual_bls status
 ```
 
-All commands show the review reminder when needed. The default store is
+Successful uploads and status checks show the review reminder when needed;
+Cancel only confirms that no changes were made. The default store is
 `.local/manual-bls` under the current directory. Use the same explicit `--store`
 on each invocation when launching from different directories:
 
@@ -69,9 +75,19 @@ blackout assessment retains the same point-in-time history and entry restriction
 No broker database or binding is accessed. Raw archives, journal and lock file
 remain private under `.local`; keep them together when backing up.
 
-The existing importer recognizes Employment Situation, CPI, PPI and Employment
-Cost Index, not every BLS event. This USD-only subset is sufficient for development
-fixtures, not complete USD/EUR/JPY coverage or general forex news. Provenance stays
+The existing importer recognizes Employment Situation, CPI, PPI and Job Openings
+and Labor Turnover Survey (JOLTS), not every BLS event. This USD-only subset is
+sufficient for development fixtures, not complete USD/EUR/JPY coverage or general
+forex news. Provenance stays
 `MANUAL_FILE` / `PROVIDER_SHADOW`, qualification remains false, and trading stays
 disabled. A successful upload or a reminder that is not yet due does not authorize
 entries. The file chooser is a local desktop dialog, not a browser upload server.
+
+## Acceptance evidence
+
+The [Windows acceptance report](manual-bls-windows-verification.md) records the
+actual saved-file import, native picker interactions, persisted journal checks,
+and reminder/gateway simulations. Before declaring this workflow ready after a
+change, verify the real saved-file path and each affected user interaction;
+fixture-only tests do not establish desktop acceptance. Report automated tests,
+actual interactions, simulated clocks, and remaining limitations separately.
