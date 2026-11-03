@@ -491,3 +491,133 @@ def test_final_read_checks_wall_clock_against_independent_monotonic(binding, tmp
     assert len(records) == 4 and records[-1].body.health.final_verification
     assert result["evidence"]["final_verification_records"] == 1
     assert not result["evidence"]["accepted"]  # A 90-second fixture never qualifies.
+
+
+@pytest.mark.parametrize("return_delay", [0, 30, 30.001])
+def test_final_budget_includes_commit_acknowledgement(binding, tmp_path, return_delay):
+    # Seed a complete synthetic day so an incorrect pass is observable, without
+    # spending a day or touching an SDK/broker database.
+    plan, run = RunnerPlan(acceptance_version=2), uuid4()
+    clock = FakeClock(NOW + timedelta(days=1))
+    records = list(campaign().records.values())
+    path = tmp_path / "status.json"
+    path.write_text(
+        json.dumps(
+            dict(
+                run_id=str(run),
+                binding_hash=binding.fingerprint(),
+                plan=plan.model_dump(mode="json"),
+                started_at=NOW.isoformat(),
+                updated_at=records[-1].recorded_at.isoformat(),
+                phase="RUNNING",
+                database_errors=0,
+                database_failure_streak=0,
+                execution_enabled=False,
+                last_attempt_slot=2879,
+            )
+        )
+    )
+
+    class Reader:
+        last = records[-1]
+        repo = NS(history=lambda **kwargs: records.copy())
+
+        def poll(self, reader, *, final_verification=False):
+            assert final_verification
+            record = sample(86400, final=True)
+            records.append(record)
+            self.last = record
+            # The observation timestamp precedes its transaction acknowledgement.
+            clock.advance(timedelta(seconds=return_delay))
+            return record
+
+        def close(self):
+            pass
+
+    def invoke():
+        return run_observer(
+            "dbname=unused",
+            binding,
+            run,
+            path,
+            tmp_path / "stop",
+            plan,
+            clock=clock,
+            monotonic=lambda: (clock.now() - NOW).total_seconds(),
+            observer_factory=lambda *args, **kwargs: Reader(),
+            reader=FixtureReader(),
+        )
+
+    result = invoke()
+    assert result["evidence"]["accepted"] == (return_delay <= 30)
+    assert result["phase"] == ("COMPLETE" if return_delay <= 30 else "FAILED")
+    receipt = result["final_verification_receipt"]
+    assert receipt["record_id"] == str(records[-1].record_id)
+    assert datetime.fromisoformat(receipt["returned_at"]) == clock.now()
+    if return_delay <= 30:
+        # Simulate interruption after acknowledgement but before completion.
+        result["phase"] = "STOPPED"
+        path.write_text(json.dumps(result))
+        assert invoke()["evidence"]["accepted"]
+        result["final_verification_receipt"]["record_id"] = str(uuid4())
+        path.write_text(json.dumps(result))
+        mismatch = invoke()
+        assert mismatch["phase"] == "FAILED"
+        assert mismatch["reason"] == "FINAL_VERIFICATION_UNCONFIRMED"
+        assert not mismatch["evidence"]["accepted"]
+    else:
+        assert result["reason"] == "FINAL_VERIFICATION_DEADLINE"
+        assert invoke() == result  # A failed run remains terminal.
+    assert len(records) == 2881
+
+
+@pytest.mark.integration
+def test_interrupted_final_commit_cannot_be_promoted_on_resume(
+    settings, binding, monkeypatch, tmp_path
+):
+    clock, calls = FakeClock(NOW), []
+    dsn, run = settings.runtime_dsn(Environment.PAPER), uuid4()
+
+    def collect(reader, pinned, now):
+        calls.append(now)
+        return FixtureReader()(pinned, now), None
+
+    monkeypatch.setattr("fx_talanta.observer.supervisor.collect", collect)
+
+    def factory(dsn, pinned, run, clock, **kwargs):
+        observer = Observer(dsn, pinned, run, clock, **kwargs)
+        original = observer.poll
+
+        def poll(reader, **kwargs):
+            result = original(reader, **kwargs)
+            if kwargs.get("final_verification"):
+                raise KeyboardInterrupt  # Committed, but completion never acknowledged.
+            return result
+
+        observer.poll = poll
+        return observer
+
+    args = (
+        dsn,
+        binding,
+        run,
+        tmp_path / "status.json",
+        tmp_path / "stop",
+        RunnerPlan(acceptance_version=2, duration_seconds=90),
+    )
+    kwargs = dict(
+        clock=clock,
+        sleep=lambda s: clock.advance(timedelta(seconds=s)),
+        monotonic=lambda: (clock.now() - NOW).total_seconds(),
+        observer_factory=factory,
+        reader=FixtureReader(),
+    )
+    first = run_observer(*args, **kwargs)
+    assert first["phase"] == "STOPPED" and first["final_verification_attempted"]
+    rows = Repository(dsn, binding.account).history(correlation_id=run)
+    assert len(rows) == len(calls) == 4 and rows[-1].body.health.final_verification
+    resumed = run_observer(*args, **kwargs)
+    assert resumed["phase"] == "FAILED"
+    assert resumed["reason"] == "FINAL_VERIFICATION_UNCONFIRMED"
+    assert resumed["evidence"]["final_verification_records"] == 1
+    assert not resumed["evidence"]["accepted"] and len(calls) == 4

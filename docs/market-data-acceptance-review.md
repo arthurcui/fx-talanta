@@ -240,10 +240,40 @@ not real elapsed qualification. Legacy version-1 behavior and serialization,
 five-second observation ceiling, two-second entry limit and acceptance thresholds
 are unchanged.
 
-Validation after reconciliation: all **385 native tests** passed, including the
+Validation after these review fixes: all **389 native tests** passed, including the
 isolated PostgreSQL integration suite; Ruff lint/formatting and diff checks passed.
 The clock-jump regression failed before the fix and passed afterwards; its normal
 elapsed-read control also passed. No connected collection was needed for these checks.
+
+### Final completion and recovery corrections
+
+Two additional regressions exposed gaps in the final-verification boundary:
+
+- A synthetic full-day campaign was incorrectly accepted when its final database
+  acknowledgement returned at deadline + 30.001 seconds. The observation's stored
+  timestamp is set before commit, so that timestamp alone cannot enforce the
+  thirty-second completion budget. The runner now checks the actual return time;
+  a late result yields FAILED / FINAL_VERIFICATION_DEADLINE and is never retried.
+- Interrupting a real fixture PostgreSQL operation immediately after the final
+  commit left the run STOPPED with an unconfirmed outcome. Previously, resuming
+  found the record and promoted the run to COMPLETE without evidence that the
+  operation returned within budget or passed the final clock check. Recovery now
+  yields FAILED / FINAL_VERIFICATION_UNCONFIRMED in this situation and preserves
+  the committed record without another collection attempt.
+
+The original status file now retains `final_verification_receipt`, containing the
+exact final record ID and the UTC time when its operation returned and passed the
+clock check. Recovery requires that receipt to match the single final database
+record, its assessment time and the original completion deadline. Missing or
+mismatched confirmation cannot be reconstructed from a pre-commit timestamp.
+No quote timestamp is changed, and the receipt never grants entry permission.
+Keep it with the original plan/status evidence. Version-1 records and previously
+failed broker runs are unchanged.
+
+Regression controls cover immediate completion, exactly thirty seconds, one
+millisecond beyond the budget, confirmed resume, mismatched receipt identity and
+interruption after an actual fixture commit. The full-day cases use synthetic time;
+the PostgreSQL interruption case is a short fixture, not broker qualification.
 
 The review confirms that complete stale reads reset operational failure budgets
 while remaining quote failures; missing slots cannot be replaced by bursts; final

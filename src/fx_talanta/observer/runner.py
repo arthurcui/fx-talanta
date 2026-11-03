@@ -307,11 +307,34 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
                         existing_final = [
                             r for r in records if r.body.health and r.body.health.final_verification
                         ]
-                        if (
-                            not existing_final
-                            and not status.get("final_verification_attempted")
-                            and now <= policy_end
-                        ):
+                        if existing_final or status.get("final_verification_attempted"):
+                            # The record is timestamped before its commit. Finding
+                            # it after a crash cannot establish when that commit
+                            # returned or whether the final clock check succeeded.
+                            receipt = status.get("final_verification_receipt")
+                            if (
+                                len(existing_final) != 1
+                                or not status.get("final_verification_attempted")
+                                or not receipt
+                                or receipt["record_id"] != str(existing_final[0].record_id)
+                            ):
+                                status.update(
+                                    phase="FAILED", reason="FINAL_VERIFICATION_UNCONFIRMED"
+                                )
+                                break
+                            returned_at = datetime.fromisoformat(receipt["returned_at"])
+                            if not (
+                                deadline
+                                <= existing_final[0].body.health.collection_started_at
+                                <= existing_final[0].recorded_at
+                                <= returned_at
+                                <= min(now, policy_end)
+                            ):
+                                status.update(
+                                    phase="FAILED", reason="FINAL_VERIFICATION_UNCONFIRMED"
+                                )
+                                break
+                        elif now <= policy_end:
                             status["final_verification_attempted"] = True
                             publish()
                             record = observer.poll(reader, final_verification=True)
@@ -319,10 +342,20 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
                             # There is no next loop iteration after the final read.
                             # Retain its evidence, but never accept a clock jump
                             # during collection/commit as valid elapsed time.
-                            checked_now()
+                            returned_at = checked_now()
+                            status["final_verification_receipt"] = {
+                                "record_id": str(record.record_id),
+                                "returned_at": returned_at.isoformat(),
+                            }
                             if record.body.state == "HALTED":
                                 status.update(phase="HALTED", reason=record.body.reason)
                                 break
+                            if returned_at > policy_end:
+                                status.update(phase="FAILED", reason="FINAL_VERIFICATION_DEADLINE")
+                                break
+                        else:
+                            status.update(phase="FAILED", reason="FINAL_VERIFICATION_DEADLINE")
+                            break
                     status.update(phase="COMPLETE", reason="DURATION_REACHED")
                     break
                 slot = int((now - started).total_seconds() // plan.interval_seconds)
