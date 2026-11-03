@@ -1,0 +1,578 @@
+{
+  "schema": "mt5-mcp-bounded-probe/1",
+  "observed_on": "2026-11-03",
+  "execution_enabled": false,
+  "qualified_for_trading": false,
+  "sustained_acceptance": false,
+  "terminal": "CMC MT5 demo, native MCP",
+  "protocol": "2025-06-18",
+  "terminal_tools_discovered": 107,
+  "marketdata_tools_discovered": 6,
+  "terminal_config_unchanged": true,
+  "quote_sample": {
+    "started_at": "2026-11-03T17:34:53.159475+00:00",
+    "finished_at": "2026-11-03T17:35:53.227862+00:00",
+    "duration_seconds": 60,
+    "cadence_seconds": 5,
+    "observed_offset_seconds": 7200.0,
+    "ending_observed_offset_seconds": 7200.0,
+    "summary": {
+      "EURUSD.a": {
+        "samples": 13,
+        "successful_reads": 13,
+        "within_5s_conservative": 13,
+        "within_2s_conservative": 9,
+        "max_age_upper_bound_seconds": 4.19863,
+        "distinct_timestamps": 13
+      },
+      "USDJPY.a": {
+        "samples": 13,
+        "successful_reads": 13,
+        "within_5s_conservative": 9,
+        "within_2s_conservative": 7,
+        "max_age_upper_bound_seconds": 10.213768,
+        "distinct_timestamps": 11
+      }
+    },
+    "quotes": [
+      {
+        "symbol": "EURUSD.a",
+        "sample": 0,
+        "received_at": "2026-11-03T17:34:53.186885+00:00",
+        "quote_time_utc": "2026-11-03T17:34:52+00:00",
+        "age_upper_bound_seconds": 1.186885,
+        "age_lower_bound_seconds": 0.18688499999999997,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 0,
+        "received_at": "2026-11-03T17:34:53.187980+00:00",
+        "quote_time_utc": "2026-11-03T17:34:47+00:00",
+        "age_upper_bound_seconds": 6.18798,
+        "age_lower_bound_seconds": 5.18798,
+        "valid_bid_ask": true,
+        "within_5s_conservative": false,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 1,
+        "received_at": "2026-11-03T17:34:58.199338+00:00",
+        "quote_time_utc": "2026-11-03T17:34:58+00:00",
+        "age_upper_bound_seconds": 0.199338,
+        "age_lower_bound_seconds": 0,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 1,
+        "received_at": "2026-11-03T17:34:58.214502+00:00",
+        "quote_time_utc": "2026-11-03T17:34:58+00:00",
+        "age_upper_bound_seconds": 0.214502,
+        "age_lower_bound_seconds": 0,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 2,
+        "received_at": "2026-11-03T17:35:03.187328+00:00",
+        "quote_time_utc": "2026-11-03T17:35:01+00:00",
+        "age_upper_bound_seconds": 2.187328,
+        "age_lower_bound_seconds": 1.187328,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 2,
+        "received_at": "2026-11-03T17:35:03.211390+00:00",
+        "quote_time_utc": "2026-11-03T17:35:01+00:00",
+        "age_upper_bound_seconds": 2.21139,
+        "age_lower_bound_seconds": 1.2113900000000002,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 3,
+        "received_at": "2026-11-03T17:35:08.186941+00:00",
+        "quote_time_utc": "2026-11-03T17:35:08+00:00",
+        "age_upper_bound_seconds": 0.186941,
+        "age_lower_bound_seconds": 0,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 3,
+        "received_at": "2026-11-03T17:35:08.188232+00:00",
+        "quote_time_utc": "2026-11-03T17:35:07+00:00",
+        "age_upper_bound_seconds": 1.188232,
+        "age_lower_bound_seconds": 0.18823199999999995,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 4,
+        "received_at": "2026-11-03T17:35:13.198630+00:00",
+        "quote_time_utc": "2026-11-03T17:35:09+00:00",
+        "age_upper_bound_seconds": 4.19863,
+        "age_lower_bound_seconds": 3.1986299999999996,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 4,
+        "received_at": "2026-11-03T17:35:13.214283+00:00",
+        "quote_time_utc": "2026-11-03T17:35:12+00:00",
+        "age_upper_bound_seconds": 1.214283,
+        "age_lower_bound_seconds": 0.214283,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 5,
+        "received_at": "2026-11-03T17:35:18.188031+00:00",
+        "quote_time_utc": "2026-11-03T17:35:17+00:00",
+        "age_upper_bound_seconds": 1.188031,
+        "age_lower_bound_seconds": 0.18803100000000006,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 5,
+        "received_at": "2026-11-03T17:35:18.189424+00:00",
+        "quote_time_utc": "2026-11-03T17:35:17+00:00",
+        "age_upper_bound_seconds": 1.189424,
+        "age_lower_bound_seconds": 0.18942400000000004,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 6,
+        "received_at": "2026-11-03T17:35:23.187633+00:00",
+        "quote_time_utc": "2026-11-03T17:35:22+00:00",
+        "age_upper_bound_seconds": 1.187633,
+        "age_lower_bound_seconds": 0.18763299999999994,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 6,
+        "received_at": "2026-11-03T17:35:23.188590+00:00",
+        "quote_time_utc": "2026-11-03T17:35:22+00:00",
+        "age_upper_bound_seconds": 1.18859,
+        "age_lower_bound_seconds": 0.18859000000000004,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 7,
+        "received_at": "2026-11-03T17:35:28.187483+00:00",
+        "quote_time_utc": "2026-11-03T17:35:27+00:00",
+        "age_upper_bound_seconds": 1.187483,
+        "age_lower_bound_seconds": 0.18748300000000007,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 7,
+        "received_at": "2026-11-03T17:35:28.188509+00:00",
+        "quote_time_utc": "2026-11-03T17:35:23+00:00",
+        "age_upper_bound_seconds": 5.188509,
+        "age_lower_bound_seconds": 4.188509,
+        "valid_bid_ask": true,
+        "within_5s_conservative": false,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 8,
+        "received_at": "2026-11-03T17:35:33.198495+00:00",
+        "quote_time_utc": "2026-11-03T17:35:32+00:00",
+        "age_upper_bound_seconds": 1.198495,
+        "age_lower_bound_seconds": 0.1984950000000001,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 8,
+        "received_at": "2026-11-03T17:35:33.213768+00:00",
+        "quote_time_utc": "2026-11-03T17:35:23+00:00",
+        "age_upper_bound_seconds": 10.213768,
+        "age_lower_bound_seconds": 9.213768,
+        "valid_bid_ask": true,
+        "within_5s_conservative": false,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 9,
+        "received_at": "2026-11-03T17:35:38.187626+00:00",
+        "quote_time_utc": "2026-11-03T17:35:37+00:00",
+        "age_upper_bound_seconds": 1.187626,
+        "age_lower_bound_seconds": 0.18762600000000007,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 9,
+        "received_at": "2026-11-03T17:35:38.188686+00:00",
+        "quote_time_utc": "2026-11-03T17:35:37+00:00",
+        "age_upper_bound_seconds": 1.188686,
+        "age_lower_bound_seconds": 0.1886859999999999,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 10,
+        "received_at": "2026-11-03T17:35:43.187112+00:00",
+        "quote_time_utc": "2026-11-03T17:35:40+00:00",
+        "age_upper_bound_seconds": 3.187112,
+        "age_lower_bound_seconds": 2.187112,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 10,
+        "received_at": "2026-11-03T17:35:43.188170+00:00",
+        "quote_time_utc": "2026-11-03T17:35:42+00:00",
+        "age_upper_bound_seconds": 1.18817,
+        "age_lower_bound_seconds": 0.18816999999999995,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 11,
+        "received_at": "2026-11-03T17:35:48.211564+00:00",
+        "quote_time_utc": "2026-11-03T17:35:47+00:00",
+        "age_upper_bound_seconds": 1.211564,
+        "age_lower_bound_seconds": 0.21156400000000009,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": true,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 11,
+        "received_at": "2026-11-03T17:35:48.212776+00:00",
+        "quote_time_utc": "2026-11-03T17:35:46+00:00",
+        "age_upper_bound_seconds": 2.212776,
+        "age_lower_bound_seconds": 1.2127759999999999,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "EURUSD.a",
+        "sample": 12,
+        "received_at": "2026-11-03T17:35:53.187602+00:00",
+        "quote_time_utc": "2026-11-03T17:35:51+00:00",
+        "age_upper_bound_seconds": 2.187602,
+        "age_lower_bound_seconds": 1.187602,
+        "valid_bid_ask": true,
+        "within_5s_conservative": true,
+        "within_2s_conservative": false,
+        "error": null
+      },
+      {
+        "symbol": "USDJPY.a",
+        "sample": 12,
+        "received_at": "2026-11-03T17:35:53.188689+00:00",
+        "quote_time_utc": "2026-11-03T17:35:46+00:00",
+        "age_upper_bound_seconds": 7.188689,
+        "age_lower_bound_seconds": 6.188689,
+        "valid_bid_ask": true,
+        "within_5s_conservative": false,
+        "within_2s_conservative": false,
+        "error": null
+      }
+    ],
+    "ticks": {
+      "EURUSD.a": {
+        "count": 120,
+        "limit": 1000,
+        "at_limit": false,
+        "first_time_ms": "2026-11-03T19:34:54.316",
+        "last_time_ms": "2026-11-03T19:35:51.234",
+        "monotonic_lexical": true,
+        "all_valid_bid_ask": true,
+        "request": {
+          "symbol": "EURUSD.a",
+          "datetime_from": "2026-11-03T19:34:53",
+          "datetime_to": "2026-11-03T19:35:53",
+          "limit": 1000
+        },
+        "history_ok": true,
+        "data_available_from": "2024-06-10T00:00:00"
+      },
+      "USDJPY.a": {
+        "count": 148,
+        "limit": 1000,
+        "at_limit": false,
+        "first_time_ms": "2026-11-03T19:34:56.105",
+        "last_time_ms": "2026-11-03T19:35:46.611",
+        "monotonic_lexical": true,
+        "all_valid_bid_ask": true,
+        "request": {
+          "symbol": "USDJPY.a",
+          "datetime_from": "2026-11-03T19:34:53",
+          "datetime_to": "2026-11-03T19:35:53",
+          "limit": 1000
+        },
+        "history_ok": true,
+        "data_available_from": "2024-06-10T00:00:00"
+      }
+    }
+  },
+  "calendar_catalog_counts": {
+    "USD": 248,
+    "EUR": 278,
+    "JPY": 124
+  },
+  "calendar_values": [
+    {
+      "query": {
+        "event_id": "840030021",
+        "datetime_from": "2026-11-03T00:00:00",
+        "datetime_to": "2026-11-04T00:00:00",
+        "limit": 20
+      },
+      "count": 1,
+      "truncated": false,
+      "values": [
+        {
+          "id": "289571",
+          "event_id": "840030021",
+          "time": "2026-11-03T17:00:00",
+          "time_unknown": false,
+          "revision": 0,
+          "change_id": "292016384"
+        }
+      ]
+    },
+    {
+      "query": {
+        "event_id": "999010007",
+        "datetime_from": "2026-11-01T00:00:00",
+        "datetime_to": "2026-12-31T00:00:00",
+        "limit": 20
+      },
+      "count": 1,
+      "truncated": false,
+      "values": [
+        {
+          "id": "204770",
+          "event_id": "999010007",
+          "time": "2026-12-17T15:15:00",
+          "time_unknown": false,
+          "revision": 0,
+          "change_id": "290914560"
+        }
+      ]
+    },
+    {
+      "query": {
+        "event_id": "392060022",
+        "datetime_from": "2026-11-01T00:00:00",
+        "datetime_to": "2026-12-31T00:00:00",
+        "limit": 20
+      },
+      "count": 1,
+      "truncated": false,
+      "values": [
+        {
+          "id": "264442",
+          "event_id": "392060022",
+          "time": "2026-12-18T04:30:00",
+          "time_unknown": false,
+          "revision": 0,
+          "change_id": "291201024"
+        }
+      ]
+    }
+  ],
+  "jolts_reconciliation": {
+    "manual_reference_sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+    "scheduled_utc": "2026-11-03T15:00:00+00:00",
+    "mcp_server_time": "2026-11-03T17:00:00",
+    "observed_offset_seconds": 7200,
+    "normalized_utc": "2026-11-03T15:00:00+00:00",
+    "same_release_time": true,
+    "prospective_delivery_measured": false
+  },
+  "calendar_initial_cursor_timeout": {
+    "server": "terminal",
+    "method": "tools/call",
+    "tool": "economic_calendar_list_values_last",
+    "started_at": "2026-11-03T17:32:23.682498+00:00",
+    "error_class": "TimeoutError",
+    "received_at": "2026-11-03T17:32:35.713747+00:00",
+    "duration_seconds": 12.031234900001436
+  },
+  "calendar_scoped_cursor_followup": {
+    "query": {
+      "change_id": "292017664",
+      "event_id": "840030021"
+    },
+    "result": {
+      "ok": true,
+      "input_change_id": "292017664",
+      "database_change_id": "292017664",
+      "filtered_change_id": "292017664",
+      "count": 0,
+      "values": []
+    }
+  },
+  "terminal_news": {
+    "count": 0,
+    "total_found": 0,
+    "truncated": false,
+    "items": [],
+    "metadata_sha256": "33cb09d7182f27e41ea200a4b9aec88301caad6e8c798544e12e3112837f77cf"
+  },
+  "public_marketdata": {
+    "EURUSD": {
+      "search_candidates": [
+        {
+          "url": "https://www.metatrader.com/en/symbols/eurusd",
+          "ticker": "EURUSD",
+          "exchange": "",
+          "description": "Euro vs US Dollar",
+          "category": "Currencies",
+          "sector": "Currency",
+          "industry": ""
+        }
+      ],
+      "quote": {
+        "url": "https://www.metatrader.com/en/symbols/eurusd",
+        "name": "EURUSD",
+        "exchange": "",
+        "last_date": "2026-11-03T17:00:00.0000000Z",
+        "cat": "Currencies",
+        "has_bid_and_ask": false,
+        "age_seconds": 2133.182059
+      },
+      "news": {
+        "url": "https://www.metatrader.com/en/symbols/eurusd",
+        "item_count": 1,
+        "at_limit": false,
+        "oldest_publication": "2026-11-03T09:34:00.0000000Z",
+        "newest_publication": "2026-11-03T09:34:00.0000000Z",
+        "providers": {
+          "DailyForex": 1
+        },
+        "initial_backfill_only": true,
+        "metadata_sha256": "1d99aea5987e3066569d3c528a88da54ccc4d5893a04a1f82332c77cd740af6a"
+      }
+    },
+    "USDJPY": {
+      "search_candidates": [
+        {
+          "url": "https://www.metatrader.com/en/symbols/usdjpy",
+          "ticker": "USDJPY",
+          "exchange": "",
+          "description": "US Dollar vs Yen",
+          "category": "Currencies",
+          "sector": "Currency",
+          "industry": ""
+        }
+      ],
+      "quote": {
+        "url": "https://www.metatrader.com/en/symbols/usdjpy",
+        "name": "USDJPY",
+        "exchange": "",
+        "last_date": "2026-11-03T17:00:00.0000000Z",
+        "cat": "Currencies",
+        "has_bid_and_ask": false,
+        "age_seconds": 2134.016157
+      },
+      "news": {
+        "url": "https://www.metatrader.com/en/symbols/usdjpy",
+        "item_count": 0,
+        "at_limit": false,
+        "oldest_publication": null,
+        "newest_publication": null,
+        "providers": {},
+        "initial_backfill_only": true,
+        "metadata_sha256": "af85714fd215f7dc0bd602c15fbc0ae3f3cfb6960f8ec28e757119e46521de41"
+      }
+    }
+  },
+  "limitations": [
+    "One-minute diagnostic cannot replace the fixed 24-hour campaigns.",
+    "Quote update_time has second precision; report conservative age bounds.",
+    "Observed two-hour server offset is only checked for the probe window and the same-day JOLTS match; future DST conversion is not qualified.",
+    "BOJ event metadata says exact time is specified later, despite a dated value with time_unknown=false; do not promote that timestamp to an independently verified exact release time.",
+    "Calendar catalogs do not certify required category completeness, revisions, omissions, or live delivery.",
+    "An empty cursor follow-up establishes request compatibility, not revision or reconnect recovery.",
+    "Public news items are initial backfill; no prospective receipt latency or complete news coverage is established.",
+    "Public marketdata quotes are not broker execution bid/ask.",
+    "Intended-use and retention scope, unattended operation, latency under load and restart/recovery still require review."
+  ],
+  "failures_preserved": [
+    "Initial calendar change_id=0 request timed out at the existing 12-second client bound.",
+    "Public MCP discovery initially failed because multiline SSE JSON was decoded one data line at a time; isolated client parsing was corrected and four format cases passed."
+  ],
+  "production_changes": false
+}

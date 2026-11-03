@@ -1,5 +1,9 @@
 # Real calendar/news provider qualification
 
+Current continuation: [required FX provider qualification](provider-acceptance.md).
+The findings below are historical. PRs #10/#11 are merged, the MT5 calendar route
+has been retired, and the accepted manual BLS workflow remains in place.
+
 Assessment date: **2026-11-02**. Budget preference: **free access first; paid only
 if necessary**. PR #10 remains unmerged. Neither CMC nor FOREX.com's ongoing
 24-hour run, terminal, source checkout, database or acceptance criteria is changed.
