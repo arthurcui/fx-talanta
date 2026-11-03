@@ -28,7 +28,7 @@ it is not deployed to broker terminals. The existing Python gateway stays simula
 [decision trace and EA boundary](docs/ea-execution-boundary.md) and
 [ADR-001](docs/adr/001-fixed-ea-execution.md).
 
-**Current: M2A/M2B merged; [M2C offline safety and native parity](docs/m2c-deterministic-safety.md) implemented**, preserving completed
+**Current: M2A–M2C merged; [M2D no-order preparation](docs/m2d-no-order-acceptance.md) implemented**, preserving completed
 M0A–M0C, unresolved M1 gaps and all failed or stopped evidence. New qualification work still needs its own plan/authorization.
 Use the [M1 closure checklist](docs/m1-closure-checklist.md) for the evidence gaps,
 prioritized remediation and conditions for proposing any new tests.
@@ -41,7 +41,8 @@ contracts, reference vectors and a fixture-only harness, with broker submission
 absent. Native/Tester and read-only shadow remain evidence gates within M2B/M2C;
 they are not separate milestone names. M2B cannot enable connected orders before
 M2C safety and M1 prerequisites pass. This progression authorizes offline protocol implementation, but no
-diagnostics, services or campaigns.
+connected order execution, services or campaigns. The separately authorized M2D
+short read-only captures and fault harness are documented in its evidence report.
 
 CMC remains first and FOREX.com the independent comparison, with no automatic
 failover. [P0 feasibility](docs/p0-feasibility.md), [M1 handoff](docs/m1-handoff.md)

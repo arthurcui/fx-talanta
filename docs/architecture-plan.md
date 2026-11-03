@@ -716,6 +716,11 @@ model/search budgets, owner authentication, LIVE capital, evaluated releases and
 host fencing/restore. Missing qualification keeps the corresponding entry path
 closed; changing documentation cannot authorize execution.
 
+The [M2D preparation report](m2d-no-order-acceptance.md) adds a durable no-order
+fault harness and bounded read-only CMC/FOREX capability observations. It preserves
+the two-second entry ceiling and historical M1 failures; connected PAPER
+acceptance remains open. No new sustained campaign or broker execution is enabled.
+
 ## Required quote-latency and channel-status UI
 
 The owner requires a per-account/per-symbol quote-latency panel and separate
