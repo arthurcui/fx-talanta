@@ -1,0 +1,68 @@
+{
+  "run_id": "b36e03b5-db3d-4489-9c08-3c7523e355e9",
+  "observations": 218,
+  "freshness_assessment_replay_matches": 218,
+  "failure_counter_mismatches": 0,
+  "all_snapshots_connected": true,
+  "final_streak_start": "2026-11-02T21:17:28.074270+00:00",
+  "final_streak_end": "2026-11-02T21:34:27.867393+00:00",
+  "final_streak_duration_seconds": 1019.793123,
+  "stale_symbols_in_final_streak": {
+    "EURUSD.": 8,
+    "USDJPY.": 7
+  },
+  "final_tick_ages_seconds": {
+    "EURUSD.": 5.671393,
+    "USDJPY.": 3.121393
+  },
+  "tick_timestamps_advance_every_final_check": true,
+  "long_gaps": [
+    {
+      "after": "2026-11-02T21:13:28.000801+00:00",
+      "failure_count": 5,
+      "configured_retry_delay_s": 32.0,
+      "actual_gap_s": 59.881868,
+      "wait_past_retry_s": 27.881867999999997
+    },
+    {
+      "after": "2026-11-02T21:19:27.811241+00:00",
+      "failure_count": 5,
+      "configured_retry_delay_s": 32.0,
+      "actual_gap_s": 59.994948,
+      "wait_past_retry_s": 27.994948
+    },
+    {
+      "after": "2026-11-02T21:20:27.806189+00:00",
+      "failure_count": 6,
+      "configured_retry_delay_s": 64.0,
+      "actual_gap_s": 90.068247,
+      "wait_past_retry_s": 26.068247
+    },
+    {
+      "after": "2026-11-02T21:21:57.874436+00:00",
+      "failure_count": 7,
+      "configured_retry_delay_s": 128.0,
+      "actual_gap_s": 149.955574,
+      "wait_past_retry_s": 21.955574000000013
+    },
+    {
+      "after": "2026-11-02T21:24:27.830010+00:00",
+      "failure_count": 8,
+      "configured_retry_delay_s": 256.0,
+      "actual_gap_s": 270.058701,
+      "wait_past_retry_s": 14.058700999999985
+    },
+    {
+      "after": "2026-11-02T21:28:57.888711+00:00",
+      "failure_count": 9,
+      "configured_retry_delay_s": 300.0,
+      "actual_gap_s": 329.978682,
+      "wait_past_retry_s": 29.978681999999992
+    }
+  ],
+  "max_snapshot_to_assessment_lag_s": 0.109226,
+  "max_poll_duration_upper_bound_s": 1.456654,
+  "poll_duration_bound_note": "history_to is poll-start UTC rounded down to whole seconds; this bounds collection plus assessment from above.",
+  "host_event_check": "No matching sleep/wake/restart event IDs in System log between 21:10 and 21:36 UTC",
+  "terminal_log_check": "No categorized connection/startup/error entries during the halt window; latest such entry was 11:30 local (19:30 UTC), preceding the sustained run. Absence is not proof of network continuity."
+}

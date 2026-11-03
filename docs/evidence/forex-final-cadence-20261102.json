@@ -1,0 +1,33 @@
+{
+  "broker": "forex",
+  "run_id": "5bc4fe4f-440f-41f1-a5b9-37c2d630215f",
+  "phase": "HALTED",
+  "ended_at": "2026-11-02T22:19:08.134595+00:00",
+  "database_verified": true,
+  "evidence": {
+    "observations": 17,
+    "healthy": 1,
+    "reasons": {
+      "STALE_TICKS": 16,
+      "CURRENT": 1
+    },
+    "last_state": "HALTED",
+    "last_reason": "STALE_TICKS",
+    "last_observed_at": "2026-11-02T22:19:08.128083+00:00",
+    "elapsed_seconds": 480.694046,
+    "observed_span_seconds": 479.82296,
+    "healthy_fraction": 0.058823529411764705,
+    "coverage_fraction": 1,
+    "max_gap_seconds": 30.075512,
+    "acceptance_gates": {
+      "duration": false,
+      "sample_span": false,
+      "coverage": true,
+      "healthy_fraction": false,
+      "gaps": true,
+      "final_health": false,
+      "minimum_24_hours": true
+    },
+    "accepted": false
+  }
+}

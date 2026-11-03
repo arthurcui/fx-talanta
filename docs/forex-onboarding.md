@@ -125,3 +125,6 @@ bars, no positions or pending orders, one deal-history record and no historical
 orders. No orders were submitted. CMC's concurrent test retained its own terminal,
 binding, namespace and run ID. This single observation is not sustained FOREX.com
 qualification or proof of automated rollover.
+
+See the [read-only qualification report](forex-readonly.md) for the subsequent
+isolated recovery exercise, archive verification and sustained-run criteria.

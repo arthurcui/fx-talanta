@@ -12,20 +12,23 @@ from collections import Counter
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 import psycopg
 from psycopg.conninfo import make_conninfo
-from pydantic import Field
+from pydantic import Field, model_serializer
 
 from fx_talanta.clock import SystemClock
 from fx_talanta.domain.models import FrozenModel
+from fx_talanta.observer.acceptance import SeparatedEvidence
 from fx_talanta.observer.mt5 import MT5Reader
 from fx_talanta.observer.supervisor import Observer
 from fx_talanta.storage.offline import WriterBusy
 
 
 class RunnerPlan(FrozenModel):
+    acceptance_version: Literal[1, 2] = 1
+    final_verification_seconds: Annotated[int, Field(ge=1, le=60)] = 30
     duration_seconds: Annotated[int, Field(ge=1, le=604800)] = 86400
     interval_seconds: Annotated[int, Field(ge=1, le=300)] = 30
     max_database_failures: Annotated[int, Field(ge=1, le=60)] = 12
@@ -33,6 +36,15 @@ class RunnerPlan(FrozenModel):
     minimum_healthy_fraction: Annotated[float, Field(ge=0, le=1)] = 0.95
     minimum_coverage_fraction: Annotated[float, Field(ge=0, le=1)] = 0.95
     max_gap_seconds: Annotated[int, Field(ge=1, le=3600)] = 180
+
+    @model_serializer(mode="wrap")
+    def legacy_wire_compatible(self, handler):
+        data = handler(self)
+        if self.acceptance_version == 1:
+            data.pop("acceptance_version", None)
+            if self.final_verification_seconds == 30:
+                data.pop("final_verification_seconds", None)
+        return data
 
 
 @contextmanager
@@ -219,14 +231,32 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
         }
     started = datetime.fromisoformat(status["started_at"])
     deadline = started + timedelta(seconds=plan.duration_seconds)
-    if binding.time_policy_until and deadline >= binding.time_policy_until:
+    policy_end = deadline + timedelta(
+        seconds=plan.final_verification_seconds if plan.acceptance_version == 2 else 0
+    )
+    if binding.time_policy_until and policy_end >= binding.time_policy_until:
         raise ValueError("clock qualification must cover the entire planned run")
     status["deadline"] = deadline.isoformat()
     status["heartbeat_limit_seconds"] = (
         max(60, plan.interval_seconds) + binding.call_timeout_seconds + 10
     )
-    observer, evidence = None, Evidence()
+    evidence_factory = SeparatedEvidence if plan.acceptance_version == 2 else Evidence
+    observer, evidence = None, evidence_factory()
     previous_wall = now
+    anchor_wall, anchor_monotonic = clock.now(), monotonic()
+
+    def checked_now():
+        nonlocal previous_wall
+        current = clock.now()
+        if (
+            plan.acceptance_version == 2
+            and abs((current - anchor_wall).total_seconds() - (monotonic() - anchor_monotonic)) > 1
+        ):
+            raise ValueError("UTC and monotonic elapsed time diverged")
+        if current < previous_wall:
+            raise ValueError("runner clock moved backwards")
+        previous_wall = current
+        return current
 
     def publish():
         status["updated_at"] = clock.now().isoformat()
@@ -245,38 +275,106 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
     try:
         while True:
             tick_start = monotonic()
-            now = clock.now()
-            if now < previous_wall:
-                raise ValueError("runner clock moved backwards")
-            previous_wall = now
+            now = checked_now()
             if stop_path.exists():
                 status.update(phase="STOPPED", reason="STOP_FILE")
                 break
             delay = plan.interval_seconds
             try:
                 if observer is None:
-                    observer = factory(dsn, binding, run_id, clock)
+                    observer = (
+                        factory(dsn, binding, run_id, clock, policy_version=2)
+                        if plan.acceptance_version == 2
+                        else factory(dsn, binding, run_id, clock)
+                    )
                     records = observer.repo.history(correlation_id=run_id)
                     if not existed and not evidence.ids and records:
                         raise ValueError(
                             "existing observation run requires its original status file"
                         )
-                    evidence = Evidence()
+                    evidence = evidence_factory()
                     for record in records:
                         evidence.add(record)
                     existed = True
                 if observer.last and observer.last.body.state == "HALTED":
                     status.update(phase="HALTED", reason=observer.last.body.reason)
                     break
+                now = checked_now() if plan.acceptance_version == 2 else clock.now()
                 if now >= deadline:
+                    if plan.acceptance_version == 2:
+                        # Commit uncertainty/restart must not create a second
+                        # final read or choose a later, more favorable quote.
+                        existing_final = [
+                            r for r in records if r.body.health and r.body.health.final_verification
+                        ]
+                        if existing_final or status.get("final_verification_attempted"):
+                            # The record is timestamped before its commit. Finding
+                            # it after a crash cannot establish when that commit
+                            # returned or whether the final clock check succeeded.
+                            receipt = status.get("final_verification_receipt")
+                            if (
+                                len(existing_final) != 1
+                                or not status.get("final_verification_attempted")
+                                or not receipt
+                                or receipt["record_id"] != str(existing_final[0].record_id)
+                            ):
+                                status.update(
+                                    phase="FAILED", reason="FINAL_VERIFICATION_UNCONFIRMED"
+                                )
+                                break
+                            returned_at = datetime.fromisoformat(receipt["returned_at"])
+                            if not (
+                                deadline
+                                <= existing_final[0].body.health.collection_started_at
+                                <= existing_final[0].recorded_at
+                                <= returned_at
+                                <= min(now, policy_end)
+                            ):
+                                status.update(
+                                    phase="FAILED", reason="FINAL_VERIFICATION_UNCONFIRMED"
+                                )
+                                break
+                        elif now <= policy_end:
+                            status["final_verification_attempted"] = True
+                            publish()
+                            record = observer.poll(reader, final_verification=True)
+                            evidence.add(record)
+                            # There is no next loop iteration after the final read.
+                            # Retain its evidence, but never accept a clock jump
+                            # during collection/commit as valid elapsed time.
+                            returned_at = checked_now()
+                            status["final_verification_receipt"] = {
+                                "record_id": str(record.record_id),
+                                "returned_at": returned_at.isoformat(),
+                            }
+                            if record.body.state == "HALTED":
+                                status.update(phase="HALTED", reason=record.body.reason)
+                                break
+                            if returned_at > policy_end:
+                                status.update(phase="FAILED", reason="FINAL_VERIFICATION_DEADLINE")
+                                break
+                        else:
+                            status.update(phase="FAILED", reason="FINAL_VERIFICATION_DEADLINE")
+                            break
                     status.update(phase="COMPLETE", reason="DURATION_REACHED")
                     break
-                record = observer.poll(reader)
-                evidence.add(record)
-                status.update(database_failure_streak=0, phase="RUNNING", reason=record.body.reason)
-                if record.body.state == "HALTED":
-                    status["phase"] = "HALTED"
-                    break
+                slot = int((now - started).total_seconds() // plan.interval_seconds)
+                if plan.acceptance_version == 2 and slot <= status.get("last_attempt_slot", -1):
+                    status.update(phase="RUNNING", reason="SLOT_ALREADY_ATTEMPTED")
+                else:
+                    if plan.acceptance_version == 2:
+                        status["last_attempt_slot"] = slot
+                        publish()
+                    record = observer.poll(reader)
+                    evidence.add(record)
+                    if plan.acceptance_version == 2:
+                        checked_now()
+                    status.update(
+                        database_failure_streak=0, phase="RUNNING", reason=record.body.reason
+                    )
+                    if record.body.state == "HALTED":
+                        status["phase"] = "HALTED"
+                        break
             except (psycopg.OperationalError, psycopg.InterfaceError, psycopg.errors.QueryCanceled):
                 close()
                 status["database_errors"] += 1
@@ -294,9 +392,21 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
                     * 2 ** min(6, status["database_failure_streak"] - 1),
                 )
             publish()
-            remaining = max(
-                0, min(delay - (monotonic() - tick_start), (deadline - clock.now()).total_seconds())
-            )
+            if plan.acceptance_version == 2 and delay == plan.interval_seconds:
+                # Anchor polls to the original start, not the completion of a
+                # slow read. Missed slots remain missing; do not catch up in bursts.
+                elapsed = (clock.now() - started).total_seconds()
+                target = started + timedelta(
+                    seconds=(int(elapsed // plan.interval_seconds) + 1) * plan.interval_seconds
+                )
+                remaining = max(0, (min(target, deadline) - clock.now()).total_seconds())
+            else:
+                remaining = max(
+                    0,
+                    min(
+                        delay - (monotonic() - tick_start), (deadline - clock.now()).total_seconds()
+                    ),
+                )
             # A stop-file request is noticed within one second between bounded polls.
             until = monotonic() + remaining
             while monotonic() < until and not stop_path.exists():

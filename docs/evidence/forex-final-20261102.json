@@ -1,0 +1,31 @@
+{
+  "run_id": "b36e03b5-db3d-4489-9c08-3c7523e355e9",
+  "phase": "HALTED",
+  "database_verified": true,
+  "evidence": {
+    "observations": 218,
+    "healthy": 168,
+    "reasons": {
+      "CURRENT": 168,
+      "STALE_TICKS": 50
+    },
+    "last_state": "HALTED",
+    "last_reason": "STALE_TICKS",
+    "last_observed_at": "2026-11-02T21:34:27.867393+00:00",
+    "elapsed_seconds": 7290.828129,
+    "observed_span_seconds": 7290.018301,
+    "healthy_fraction": 0.7706422018348624,
+    "coverage_fraction": 0.8970174422280638,
+    "max_gap_seconds": 329.978682,
+    "acceptance_gates": {
+      "duration": false,
+      "sample_span": false,
+      "coverage": false,
+      "healthy_fraction": false,
+      "gaps": false,
+      "final_health": false,
+      "minimum_24_hours": true
+    },
+    "accepted": false
+  }
+}

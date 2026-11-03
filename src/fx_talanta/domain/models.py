@@ -8,7 +8,15 @@ from enum import StrEnum
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
-from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, model_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    model_serializer,
+    model_validator,
+)
 
 
 def utc(value: datetime) -> datetime:
@@ -412,6 +420,43 @@ class TerminalSnapshot(FrozenModel):
     equity: Amount | None = None
 
 
+class ObservationHealth(FrozenModel):
+    schema_version: Literal[2] = 2
+    collection_started_at: Timestamp
+    transport: Literal["READ_OK", "READ_FAILED", "UNVERIFIED"]
+    integrity: Literal["VALID", "INVALID", "UNVERIFIED"]
+    complete_read: bool
+    quote_max_age_seconds: Annotated[int, Field(ge=1, le=5)] = 5
+    transport_failures: Annotated[int, Field(ge=0)]
+    completeness_failures: Annotated[int, Field(ge=0)]
+    last_successful_read_at: Timestamp | None = None
+    quote_ages_seconds: dict[Identifier, Annotated[float, Field(allow_inf_nan=False)]]
+    quote_quality: dict[Identifier, Literal["FRESH", "STALE", "UNKNOWN"]]
+    final_verification: bool = False
+    entry_authorized: Literal[False] = False
+
+    @model_validator(mode="after")
+    def coherent(self):
+        if self.complete_read and (self.transport != "READ_OK" or self.integrity != "VALID"):
+            raise ValueError("complete read requires verified transport")
+        if self.complete_read and (self.transport_failures or self.completeness_failures):
+            raise ValueError("complete read resets operational failure streaks")
+        if set(self.quote_ages_seconds) - set(self.quote_quality):
+            raise ValueError("quote ages require corresponding quality states")
+        for symbol, quality in self.quote_quality.items():
+            age = self.quote_ages_seconds.get(symbol)
+            expected = (
+                "UNKNOWN"
+                if age is None or age < 0
+                else "STALE"
+                if age > self.quote_max_age_seconds
+                else "FRESH"
+            )
+            if quality != expected:
+                raise ValueError("quote quality disagrees with its age")
+        return self
+
+
 class TerminalObservation(FrozenModel):
     kind: Literal["observation"] = "observation"
     binding_hash: Hash
@@ -436,9 +481,22 @@ class TerminalObservation(FrozenModel):
     last_success_at: Timestamp | None = None
     next_retry_at: Timestamp | None = None
     snapshot: TerminalSnapshot | None = None
+    # Omit absent v2 evidence so legacy wire payloads and hashes remain unchanged.
+    health: ObservationHealth | None = None
+
+    @model_serializer(mode="wrap")
+    def legacy_wire_compatible(self, handler):
+        data = handler(self)
+        if self.health is None:
+            data.pop("health", None)
+        return data
 
     @model_validator(mode="after")
     def coherent_state(self):
+        if self.health and self.health.complete_read != (self.reason in {"CURRENT", "STALE_TICKS"}):
+            raise ValueError("complete-read status disagrees with assessment")
+        if self.health and self.health.complete_read and self.snapshot is None:
+            raise ValueError("complete read requires a snapshot")
         if self.state == "HEALTHY":
             if (
                 self.reason != "CURRENT"
@@ -512,6 +570,15 @@ class Record(FrozenModel):
                 if self.body.decision.expires_at <= self.recorded_at:
                     raise ValueError("valid decision is expired")
         if isinstance(self.body, TerminalObservation):
+            health = self.body.health
+            if health and (
+                health.collection_started_at > self.recorded_at
+                or (
+                    health.last_successful_read_at
+                    and health.last_successful_read_at > self.recorded_at
+                )
+            ):
+                raise ValueError("observation health timestamps cannot be in the future")
             if self.account.environment != Environment.PAPER:
                 raise ValueError("observer records require PAPER")
             if self.account.venue == "SIMULATOR" and self.provenance != "SCRIPTED_FIXTURE":

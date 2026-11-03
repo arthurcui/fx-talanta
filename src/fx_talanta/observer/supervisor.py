@@ -11,7 +11,13 @@ from time import monotonic
 
 import psycopg
 
-from fx_talanta.domain.models import Record, TerminalObservation, TerminalSnapshot, Versions
+from fx_talanta.domain.models import (
+    ObservationHealth,
+    Record,
+    TerminalObservation,
+    TerminalSnapshot,
+    Versions,
+)
 from fx_talanta.observer.contracts import Binding, windows_path
 from fx_talanta.observer.mt5 import MT5Reader, ObservationFailure
 from fx_talanta.storage.offline import WRITER_LOCK, WriterBusy
@@ -74,7 +80,7 @@ def collect(reader, binding, now):
             process.close()
 
 
-def assess(snapshot, binding, now):
+def assess(snapshot, binding, now, *, quote_freshness=True):
     if snapshot.account_before != binding.account or snapshot.account_after != binding.account:
         return "IDENTITY_MISMATCH"
     if windows_path(snapshot.terminal_path) != windows_path(binding.terminal_path) or windows_path(
@@ -100,7 +106,7 @@ def assess(snapshot, binding, now):
             return "COMPANY_MISMATCH"
         if snapshot.margin_mode != binding.expected_margin_mode:
             return "MODE_MISMATCH"
-    if not snapshot.connected:
+    if not snapshot.connected and quote_freshness:
         return "DISCONNECTED"
     if not snapshot.history_from <= snapshot.history_to <= snapshot.observed_at <= now:
         return "INVALID_DATA"
@@ -125,6 +131,8 @@ def assess(snapshot, binding, now):
         )
     ):
         return "INVALID_DATA"
+    if not snapshot.connected:
+        return "DISCONNECTED"
     expected = set(binding.symbols)
     if (
         not snapshot.history_complete
@@ -136,7 +144,9 @@ def assess(snapshot, binding, now):
         != {(s, p) for s in expected for p in (900, 3600)}
     ):
         return "MISSING_DATA"
-    if any((now - t.at).total_seconds() > binding.tick_max_age_seconds for t in snapshot.ticks):
+    if quote_freshness and any(
+        (now - t.at).total_seconds() > binding.tick_max_age_seconds for t in snapshot.ticks
+    ):
         return "STALE_TICKS"
     for symbol in expected:
         for period in (900, 3600):
@@ -151,7 +161,12 @@ def assess(snapshot, binding, now):
 
 
 class Observer:
-    def __init__(self, dsn, binding, run_id, clock):
+    def __init__(self, dsn, binding, run_id, clock, *, policy_version=1):
+        if policy_version not in (1, 2):
+            raise ValueError("unknown observation policy")
+        if policy_version == 2 and binding.tick_max_age_seconds > 5:
+            raise ValueError("v2 quote freshness cannot exceed five seconds")
+        self.policy_version = policy_version
         self._mutex = RLock()
         self.binding = Binding.model_validate(binding.model_dump(mode="json"))
         self.run_id, self.clock = run_id, clock
@@ -168,6 +183,8 @@ class Observer:
                     raise ValueError("observer run contains unrelated records")
                 if record.body.binding_hash != self.binding.fingerprint():
                     raise ValueError("restart cannot change the observer binding or policy")
+                if (record.body.health is not None) != (policy_version == 2):
+                    raise ValueError("new observation policy requires a new run ID")
                 self.last = record
         except BaseException:
             self.conn.close()
@@ -177,11 +194,13 @@ class Observer:
         with self._mutex:
             self.conn.close()
 
-    def poll(self, reader):
+    def poll(self, reader, *, final_verification=False):
         with self._mutex:
-            return self._poll(reader)
+            return self._poll(reader, final_verification=final_verification)
 
-    def _poll(self, reader):
+    def _poll(self, reader, *, final_verification=False):
+        if final_verification and self.policy_version != 2:
+            raise ValueError("final verification requires policy v2")
         if self.binding.source == "MT5":
             self.binding.require_permissions()
             if type(reader) is not MT5Reader:
@@ -205,14 +224,26 @@ class Observer:
         if self.last and now < self.last.recorded_at:
             raise ValueError("observer clock moved backwards")
         if previous and (
-            previous.state == "HALTED" or (previous.next_retry_at and now < previous.next_retry_at)
+            previous.state == "HALTED"
+            or (not final_verification and previous.next_retry_at and now < previous.next_retry_at)
         ):
             return self.last
         snapshot, reason = collect(reader, self.binding, now)
         checked_at = self.clock.now()
         if checked_at < now:
             raise ValueError("observer clock moved backwards during collection")
-        reason = reason or assess(snapshot, self.binding, checked_at)
+        reason = reason or assess(
+            snapshot, self.binding, checked_at, quote_freshness=self.policy_version == 1
+        )
+        if (
+            self.policy_version == 2
+            and reason == "CURRENT"
+            and any(
+                (checked_at - t.at).total_seconds() > self.binding.tick_max_age_seconds
+                for t in snapshot.ticks
+            )
+        ):
+            reason = "STALE_TICKS"
         permanent = reason in {
             "INVALID_DATA",
             "IDENTITY_MISMATCH",
@@ -227,11 +258,72 @@ class Observer:
         state = "HEALTHY" if reason == "CURRENT" else "DEGRADED"
         if reason in {"TIMEOUT", "READER_FAILED", "DISCONNECTED"}:
             state = "BACKOFF"
-        if permanent or failures >= self.binding.max_failures:
+        health = None
+        exhausted = failures >= self.binding.max_failures
+        if self.policy_version == 2:
+            old = previous.health if previous else None
+            transport_failed = reason in {"TIMEOUT", "READER_FAILED", "DISCONNECTED"}
+            complete = reason in {"CURRENT", "STALE_TICKS"}
+            transport_failures = (
+                (old.transport_failures if old else 0) + 1
+                if transport_failed
+                else 0
+                if complete
+                else (old.transport_failures if old else 0)
+            )
+            completeness_failures = (
+                (old.completeness_failures if old else 0) + 1
+                if reason == "MISSING_DATA"
+                else 0
+                if complete
+                else (old.completeness_failures if old else 0)
+            )
+            ages = (
+                {
+                    t.symbol: (checked_at - t.at).total_seconds()
+                    for t in snapshot.ticks
+                    if t.symbol in self.binding.symbols
+                }
+                if snapshot and not permanent
+                else {}
+            )
+            health = ObservationHealth(
+                collection_started_at=now,
+                integrity="INVALID" if permanent else "VALID" if snapshot else "UNVERIFIED",
+                transport="READ_FAILED"
+                if transport_failed
+                else "READ_OK"
+                if snapshot and not permanent
+                else "UNVERIFIED",
+                complete_read=complete,
+                quote_max_age_seconds=self.binding.tick_max_age_seconds,
+                transport_failures=transport_failures,
+                completeness_failures=completeness_failures,
+                last_successful_read_at=checked_at
+                if snapshot and not permanent and not transport_failed
+                else old.last_successful_read_at
+                if old
+                else None,
+                quote_ages_seconds=ages,
+                quote_quality={
+                    s: "UNKNOWN"
+                    if s not in ages or ages[s] < 0
+                    else "STALE"
+                    if ages[s] > self.binding.tick_max_age_seconds
+                    else "FRESH"
+                    for s in self.binding.symbols
+                },
+                final_verification=final_verification,
+            )
+            exhausted = max(transport_failures, completeness_failures) >= self.binding.max_failures
+        if permanent or exhausted:
             state = "HALTED"
         last_success = (
             checked_at if state == "HEALTHY" else (previous.last_success_at if previous else None)
         )
+        # Valid but stale/incomplete reads remain eligible at the runner's next
+        # scheduled poll. Only transport failures suppress new collections.
+        # Keep an immediate deadline for DEGRADED to preserve the wire contract.
         body = TerminalObservation(
             binding_hash=self.binding.fingerprint(),
             state=state,
@@ -240,11 +332,20 @@ class Observer:
             last_success_at=last_success,
             next_retry_at=(
                 checked_at
-                + timedelta(seconds=min(300, self.binding.backoff_seconds * 2 ** (failures - 1)))
+                + timedelta(
+                    seconds=min(
+                        300,
+                        self.binding.backoff_seconds
+                        * 2 ** ((health.transport_failures if health else failures) - 1),
+                    )
+                    if state == "BACKOFF"
+                    else 0
+                )
                 if failures and state != "HALTED"
                 else None
             ),
             snapshot=None if permanent else snapshot,
+            health=health,
         )
         record = Record(
             account=self.binding.account,
@@ -252,7 +353,7 @@ class Observer:
             correlation_id=self.run_id,
             body=body,
             provenance="BROKER_OBSERVATION" if self.binding.source == "MT5" else "SCRIPTED_FIXTURE",
-            versions=Versions(component="observer/2"),
+            versions=Versions(component="observer/4" if health else "observer/3"),
         )
         with self.conn.transaction():
             self.repo.append_in(self.conn, (record,))
