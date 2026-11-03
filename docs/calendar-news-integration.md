@@ -35,6 +35,13 @@ Provider inputs are labeled `PROVIDER_SHADOW`; the filter cannot turn them into
 fixture evidence or authorize entries. The five-second quote ceiling and stricter
 two-second entry rule are unchanged.
 
+## Manual development calendar
+
+Use the [BLS upload tool](manual-bls-upload.md) to select a saved `.ics` file,
+preserve its bytes and revisions, and see an on-demand reminder after seven days
+or when the schedule runs out. No background reminder or MT5 dependency is added.
+The tool writes the same provider journal format used by the entry filter.
+
 ## Durable collection and replay
 
 Each attempt is committed before retrieval. A separate immutable outcome records
