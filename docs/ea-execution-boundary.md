@@ -39,9 +39,9 @@ closes dispatch, never falls back to unauthenticated local HTTP.
 
 | Versioned message | Producer → consumer | Required contents | Durable owner and replay rule |
 | --- | --- | --- | --- |
-| StrategyProposal | Decision worker → backend | Protocol/intent/decision IDs, trusted account context, strategy/policy version, cutoff and expiry, eligible candidate and evidence, action/symbol/side, entry bounds, stop/target/holding rules; owned position and expected state for management | PostgreSQL decision journal; HOLD produces no broker work. Same identity/different content rejected |
-| AuthorizedWork | Backend → pinned EA | Proposal digest, immutable environment/venue/account binding, release/policy digests, reservation ID, maximum size/risk, health/snapshot/version and expiry, authenticated route, payload hash | PostgreSQL reservation/work plus EA durable inbox. Same reservation counted once across replicas, not two risk allowances. EA returns prior status on duplicate, rejects hash conflict |
-| ExecutionEvent | EA → backend | Immutable event ID, account/request/reservation, monotonic local sequence, EA build/policy, UTC and broker time basis, exact request/retcode and separate broker IDs, requested/filled amounts, protection/exposure/reason and causal predecessor | EA journal before broker call; PostgreSQL append-only mirror with unique event identity/hash. Redelivery after upload loss does not re-send order or double-count fill; gap/conflict blocks readiness |
+| DecisionIntent (formerly StrategyProposal) | Decision worker → backend | Protocol/intent/decision IDs, trusted account context, strategy/policy version, cutoff and expiry, eligible candidate and evidence, action/symbol/side, entry bounds, stop/target/holding rules; owned position and expected state for management | PostgreSQL decision journal; HOLD produces no broker work. Same identity/different content rejected |
+| ExecutionRequest (formerly AuthorizedWork) | Backend → pinned EA | Proposal digest, immutable environment/venue/account binding, release/policy digests, reservation ID, maximum size/risk, health/snapshot/version and expiry, authenticated route, payload hash | PostgreSQL reservation/work plus EA durable inbox. Same reservation counted once across replicas, not two risk allowances. EA returns prior status on duplicate, rejects hash conflict |
+| ExecutionAck / ExecutionState / ReconciliationResult | EA → backend | Versioned execution-event subtypes: receipt/acceptance, lifecycle state and reconciliation evidence respectively; immutable event ID, account/request/reservation, monotonic sequence, EA build/policy, UTC and broker time basis, request/retcode and separate broker IDs, requested/filled amounts, protection/exposure/reason and causal predecessor | EA journal before broker call; PostgreSQL append-only mirror with unique event identity/hash. Ack never proves fill. Redelivery after upload loss does not re-send order or double-count fill; gap/conflict blocks readiness |
 | EAHealth | EA → backend | Pinned identity/build/login/server/mode, capability/spec hash, tick ages/clock basis, journal cursor, unresolved requests/owned positions/stops and health expiry | Local journal and scoped backend health history. Receipt alone cannot renew quote age, source coverage or an old risk snapshot |
 | AdministrativeRequest | Authenticated command router → backend → EA | Actor, conversation/message/request, explicit account/action/position, expected state, expiry and deduplication identity; policy-checked work wrapper | Account journal, EA inbox and execution events. Read/chat history replay cannot execute commands; unknown outcome is not completion |
 
@@ -137,6 +137,8 @@ or close cannot reverse a net position or open another hedge. No widening/removi
 SL, averaging down, grids, martingale or risk increase is permitted. State
 restrictions compose: the most restrictive gate wins. Owner entry-pause is an
 independent persisted flag, not a replacement for risk/integrity states.
+The roadmap's `PAUSED` is this owner entry-pause flag, not a new state that can
+overwrite LOSS_PAUSE, PROTECTION_PENDING, OUTCOME_UNKNOWN or HARD_HALT.
 
 | State | ENTER | CANCEL risk-increasing pending | TIGHTEN_STOP | REDUCE/CLOSE owned | RESUME_ENTRIES | Escalation / resolution |
 | --- | --- | --- | --- | --- | --- | --- |

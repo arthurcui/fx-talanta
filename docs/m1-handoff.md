@@ -12,8 +12,11 @@ any future active collector checkout while developing elsewhere.
 The revised [architecture](architecture-plan.md) retains M1 as read-only. Python
 will not become a connected order writer: a fixed reviewed EA is the planned sole
 broker mutator, reached via backend validation/reservation and EA-initiated pull.
-[M2's first slice](m2-handoff.md) is offline-only; native/shadow/demo stages remain
-separate, with P0/M1 prerequisites before connected execution. The retired MQL5
+Complete M1 qualification before starting [M2A intent/EA protocol](m2-handoff.md).
+Then M2B implements the fixed EA with connected submission disabled, M2C proves
+deterministic safety, and M2D accepts connected PAPER execution. Native/Tester and
+read-only shadow remain evidence gates within M2B/M2C; all prerequisites must pass
+before connected orders. The retired MQL5
 calendar service and automatic browser downloader remain retired.
 
 

@@ -27,11 +27,18 @@ deployed. The existing Python gateway stays simulator-only. See the
 [decision trace and EA boundary](docs/ea-execution-boundary.md) and
 [ADR-001](docs/adr/001-fixed-ea-execution.md).
 
-**Next proposed implementation PR, requiring separate authorization:** additive
-offline EA contracts, USD/CAD golden vectors and a fixture validation/replay harness
-with broker submission absent. Its exact scope is in the [M2 handoff](docs/m2-handoff.md).
-Native MQL5, shadow and qualified demo tests have separate gates. This design does
-not start M2 or CMC diagnostics, deploy services or enable orders.
+**Next: finish M1 qualification**, preserving completed M0A–M0C and all failed
+or stopped evidence. New qualification work still needs its own plan/authorization.
+Then follow M2A protocol → M2B fixed EA → M2C deterministic safety → M2D connected
+PAPER acceptance, followed by M3 baseline/replay, M4 AI/advisor, M5 unattended
+PAPER, M6 capped LIVE and M7 evaluated evolution.
+
+The first proposed M2 PR is [M2A intent/EA protocol](docs/m2-handoff.md): additive
+contracts, reference vectors and a fixture-only harness, with broker submission
+absent. Native/Tester and read-only shadow remain evidence gates within M2B/M2C;
+they are not separate milestone names. M2B cannot enable connected orders before
+M2C safety and M1 prerequisites pass. This design starts no implementation,
+diagnostics, services or campaigns.
 
 CMC remains first and FOREX.com the independent comparison, with no automatic
 failover. [P0 feasibility](docs/p0-feasibility.md), [M1 handoff](docs/m1-handoff.md)

@@ -1,24 +1,28 @@
-# First implementation PR: offline EA contracts and parity
+# M2A: first implementation PR, intent + EA protocol
 
 **Proposed scope, not implemented or authorized by the design PR.** This replaces
 the obsolete instruction to start M0A. Follow the [canonical architecture](architecture-plan.md)
 and [EA boundary](ea-execution-boundary.md); preserve implemented M0A–M0C.
+Start this increment after M1 qualification and separate implementation
+authorization. The canonical sequence is M2A protocol, M2B fixed EA execution,
+M2C deterministic safety, then M2D connected PAPER acceptance.
 
 ## Exact scope
 
-1. Add versioned, additive Python contracts for StrategyProposal, AuthorizedWork,
-   ExecutionEvent and EAHealth, with decimal-string units, UTC expiry, immutable
+1. Add versioned, additive Python contracts for DecisionIntent, ExecutionRequest,
+   ExecutionAck, ExecutionState and ReconciliationResult, with decimal-string units, UTC expiry, immutable
    account/venue, release/policy digests, reservation identity, canonical payload
    hash, sequence and stable rejection reasons. Do not repurpose existing M0A
    record kinds or alter historical migrations. Administrative work may reuse the
    existing typed action vocabulary; do not add conversational interpretation.
-2. Add shared fixture JSON golden vectors and a Python reference runner for
+2. Add shared fixture JSON reference vectors and a Python reference runner for
    existing USD and proposed CAD EURUSD/USDJPY eligibility, conversion, downward
    lot rounding, costs, exposure, margin, partial/reserved risk and persisted loss
    baselines. Keep the existing USD simulator guard and behavior intact. Missing,
    stale, inconsistent conversions and minimum lots above budget must reject.
+   These prepare M2C parity; M2A does not implement or qualify the full EA risk engine.
 3. Add a small fixture-fed **MQL5 validation/replay harness source** for these
-   contracts and deterministic policy calculations, with broker submission absent
+   contracts and reference calculations, with broker submission absent
    (no OrderSend, CTrade, trade-capable DLL or WebRequest path). It reads fixtures
    and emits results; it is not the deployable execution EA. Share cases and
    reason codes rather than generating expected outputs from the code under test.
@@ -49,10 +53,30 @@ into a real broker adapter.
 
 Required repository CI retains the name **M0A checks**. This first PR may finish
 without native compilation, but then **native parity and M2 stay pending**.
-The next separate gate is reviewed native build/Tester evidence, followed by
-read-only shadow on an isolated terminal with fresh binding/clock checks. Actual
-demo orders require resolved P0/M1 prerequisites and explicit provisioned demo
-authorization; no shadow result or code merge silently enables them.
+M2B implements fixed EA execution and supplies reviewed native build/Tester
+evidence. M2C proves deterministic safety, USD/CAD parity and isolated no-order
+shadow behavior with fresh binding/clock checks. M2D performs actual demo
+acceptance only after M1 and M2A–C prerequisites pass and demo access is explicitly
+authorized. M2B order code must not enable connected submission before M2C passes.
+No shadow result or code merge silently enables orders.
+
+## Protocol terminology
+
+The message names refine the earlier design without discarding its safeguards:
+
+| Canonical contract | Earlier design term | Meaning |
+| --- | --- | --- |
+| DecisionIntent | StrategyProposal | Untrusted bounded proposal with evidence/cutoff; never execution authority |
+| ExecutionRequest | AuthorizedWork | Backend-validated expiring allowance with shared reservation ID; EA can narrow/veto |
+| ExecutionAck | ExecutionEvent: receipt/acceptance subtype | Durable receipt or request acceptance; never proof of fill |
+| ExecutionState | ExecutionEvent: lifecycle subtype | Versioned order/deal/position/protection state with immutable event identity |
+| ReconciliationResult | ExecutionEvent: reconciliation subtype | Broker evidence resolving or preserving unknown outcome and reservations |
+
+EAHealth remains a separate read-only health envelope. Existing M0A record types
+are not renamed; new protocol types have explicit versioned adapters. Stable event
+identity/hash/sequence and append-only storage apply to all three event subtypes.
+Protocol acknowledgments distinguish backend receipt, EA receipt and broker
+acceptance so an HTTP success cannot become a confirmed execution.
 
 ## Explicit exclusions
 

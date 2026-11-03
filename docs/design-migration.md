@@ -74,26 +74,39 @@ CI is engineering evidence only. “Evidenced” is bounded to what was exercise
 | M1A broker observation | Bound read-only observer, clock preflight, v2 runner, reconstruction | CMC INVALID_DATA cause unknown; FOREX freshness failure; no sustained acceptance | New authorized frozen plan only after defects/preflight; independently reconcile committed observations and final receipt; separate collector health/freshness and preserve unchanged gates |
 | M1B calendar/news integration | Manual BLS UI/journal, FRED, direct feeds, optional native MCP import/filter | Broader news, USD/EUR/JPY categories, rights, exact time normalization and revisions/recovery remain open | Source inventory marks required/optional scope, unknown times and age; dedup/revision/cutoff tests and official calendar reconciliation for each required category |
 | M1C prospective qualification | Eight-source campaign and exact JOLTS schedule match, bounded MCP evidence | Stopped campaign; failed sampled publication metric; other sources lack prospective items | Predeclared cadence/success/gap/latency and prospective releases, revision/reconnect evidence, category coverage and intended-use rights; no items means insufficient, not pass |
-| M2A offline boundary | Existing simulator available as reference | New EA protocol/CAD parity not implemented | [First implementation scope](m2-handoff.md), schema/hash/replay fixtures and USD/CAD vectors; distinctly labeled Python vs unrun native results |
-| M2B native build/Tester | Not implemented | Transport timing and cross-language parity unknown | Frozen compiler/terminal/EX5 manifest, fixture Tester outputs match vectors, no orders; measured scheduling, ownership, recovery/stop fault tests |
-| M2C isolated read-only shadow | Not implemented | No live deployment/transport proven | Fresh account/clock/capability pinning, no-order proof, authenticated pull/event replay, bounded protection scheduling, permission isolation and single-writer fencing tests |
-| M2D protected broker-demo E2E | Not implemented | P0/M1 and native/shadow gates unresolved | Explicit isolated demo authorization; actual order/deal/partial/stop/unknown reconciliation, USD/CAD broker calculations, loss baseline, both qualified protection flows, measured deadlines and recovery artifacts |
+| M2A intent + EA protocol | Existing simulator available as reference | New wire contracts not implemented | Versioned DecisionIntent, ExecutionRequest, ExecutionAck, ExecutionState, ReconciliationResult; fixture hash/replay/account/expiry tests and reference vectors; no mutation |
+| M2B fixed EA execution | Not implemented | No connected writer qualified | Account/quote/volume validation, market order and SL/TP code, OnTradeTransaction, order/deal/position reconciliation, duplicate protection; frozen build/EX5 and fixture Tester evidence; connected execution remains disabled pending M2C |
+| M2C deterministic safety | Existing Python USD governor is the reference | EA risk enforcement, CAD parity, transport timing and fencing unproven | Per-trade/aggregate risk, daily loss, hard drawdown, margin/currency limits, blackouts and stale quote/news/calendar veto; shared USD/CAD native vectors; state precedence, bounded protection, journal/fencing and isolated no-order shadow evidence |
+| M2D connected PAPER acceptance | Not implemented | P0/M1, M2A–C and explicit demo authorization pending | Actual demo tests: lost response, partial fill, SL rejection, terminal restart, backend/DB loss, stale quote, duplicate intent, wrong account, unexpected position and closed-market exit; actual broker reconciliation and protection timing artifacts |
 | M3 B01 replay | Rules documented, simulator reusable | Signal engine/realistic backtest not implemented | Frozen EMA/ATR seeding, bid/ask/session/DST/cutoff conventions; chronological walk-forward and untouched holdout; commissions/slippage/swap/gaps/partials and conservative ambiguous intrabar handling |
 | M4 AI/advisor | Typed scripted records only | Production models, auth, typed queries/commands pending | Provider-neutral OpenAI-first implementation, schema/latency/spend/HOLD tests, qualified-memory cutoff, bilingual command safety and evidence-grounded explanations in simulation |
 | M5 forward PAPER | Not started | No strategy economic evidence or dashboard | At least 8 weeks AND 100 closed trades; matched AI/no-AI and AI/news/no-news snapshots, separate ledgers, costs/latency, paired uncertainty and preregistered economic thresholds; dashboard/admin/recovery gates also pass |
 | M6 capped LIVE | Disabled | Capital, release and actual account qualification absent | Exact compatible evaluated release, explicit capped mandate, fresh binding/capabilities, independent risk/ledger, tested rollback/fencing/restore; operational AND economic gates |
 | M7 controlled evolution | Not implemented | No autonomous promotion qualified | Challenger preregistration, counterexamples, failures retained, out-of-sample and prospective evaluation, immutable promotion/rejection record; no risk-authority expansion |
 
-P0/M1 unresolved items block connected trading, not isolated offline development.
-New code cannot retroactively certify a failed run. M2A can be reviewed independently;
-M2D cannot skip P0/M1 because its fixtures pass.
+Canonical order: **finish M1 → implement M2A/M2B → prove M2C/M2D → freeze
+M3 baseline → add AI in M4 → run unattended PAPER M5 → qualify M6 LIVE**.
+M1A/B/C remain internal observation/provider/qualification workstreams under M1.
+M0A–M0C remain completed within their offline scope. This replaces the prior
+suggestion to start M2A independently while M1 is unresolved.
+
+M2B develops execution capabilities with broker submission disabled in deployed
+environments; it cannot precede safety qualification with real orders. Native
+build/Tester and isolated read-only shadow are retained as evidence prerequisites
+within M2B/M2C, not renamed milestones. M2D requires M1 and M2A–C gates plus
+explicit demo authorization. New code cannot certify old failed runs.
+
+M3 tests B01 before M4 tests AI's incremental value. M5 prospectively compares
+**B01 vs B01 + AI filtering vs B01 + AI + news**, using matched observations,
+common safety gates and separate ledgers. Eight weeks AND 100 closed trades is
+only the sample floor, never sufficient LIVE qualification by itself.
 
 ## Boundary test matrix
 
 | Boundary/scenario | Environment | Expected behavior | Required artifact / prerequisite |
 | --- | --- | --- | --- |
 | Contract/currency/TTL/account/hash errors and replay | Portable fixtures | Reject invalid work; duplicate returns prior status; no double risk | M2A schemas, reason codes, hand-derived USD/CAD vectors, existing M0 suite |
-| Independent Python/MQL5 risk parity including min lot, partials, costs and cash flows | Native compiler + fixture Tester | Identical bounds/rejections after specified rounding; disagreement blocks | M2B compiled artifact/build hash and actual outputs; Python-only results insufficient |
+| Independent Python/MQL5 risk parity including min lot, partials, costs and cash flows | Native compiler + fixture Tester | Identical bounds/rejections after specified rounding; disagreement blocks | M2B compiled artifact/build hash plus M2C safety parity outputs; Python-only results insufficient |
 | Lost acknowledgment/restart/cancel/close uncertainty | Simulator first, then separately authorized demo | Preserve reservation, no blind retry or reversal; positive evidence reconciles | Submitted journal and broker history/stop evidence; M2D prerequisites |
 | Wrong login/server/build, cross-account payload and second writer | Isolated shadow/host test | No orders; deny mismatched route/manifest; replacement blocked until predecessor fenced | Host/terminal fencing evidence, authenticated channel and capability snapshot |
 | WebRequest timeout, event burst, network/DB/local-disk loss | Native harness and shadow before demo | Bound protection delay, no entry without durable journal; explicit uncertainty; broker stops distinguished from terminal exits | Predeclared timing budget, measured worst-case results, fault journal; isolated worker if inline transport fails |

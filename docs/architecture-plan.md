@@ -7,7 +7,7 @@ operating instructions. Maintain project requirements here through pull requests
 
 **Build FX-Talanta as a fully autonomous forex trading system with a conversational advisor, automatic market-news monitoring, durable experience memory, a portable Python application core, isolated backend risk/dispatch and fixed execution EAs, and separate PAPER and LIVE accounts.** MT5 is the first broker connection. Normal trading, protective management, temporary-fault recovery, and qualified strategy deployment operate within fixed mandates without per-trade human approval.
 
-**Design baseline v0.4: 3 November 2026.** This specification includes natural-language user/advisor communication, automatic market-news search and evaluation, retained successes and failures, local/Docker/Codex-cloud execution profiles, and paper-first qualification followed by a separate live deployment. Numerical settings and strategy performance remain unvalidated. M0A–M0C are implemented. The next proposed implementation slice is the offline EA contract/parity slice in [M2 handoff](m2-handoff.md); this design PR does not authorize its execution.
+**Design baseline v0.4: 3 November 2026.** This specification includes natural-language user/advisor communication, automatic market-news search and evaluation, retained successes and failures, local/Docker/Codex-cloud execution profiles, and paper-first qualification followed by a separate live deployment. Numerical settings and strategy performance remain unvalidated. M0A–M0C are implemented. After M1 qualification, the first proposed M2 implementation slice is the offline intent/EA protocol slice in [M2 handoff](m2-handoff.md); this design PR does not authorize its execution.
 
 The principal risk is that reliable automation can execute a losing strategy reliably. Engineering acceptance and evidence of a trading edge are separate gates.
 
@@ -590,7 +590,7 @@ Routine output should be concise: new trade or exit, price/time, position size, 
 
 # Roadmap and acceptance gates
 
-Run **P0 broker/interface feasibility** alongside broker-neutral M0 and complete it before broker-specific M1 integration. Subsequent phases follow their technical and evidence dependencies. Record experience from the beginning and validate local, Docker, and Codex-task operation before relying on portability. Live activation depends on the configured paper period and independent qualification gates.
+Preserve completed M0A–M0C. Finish P0 constraints and M1 qualification, then implement M2A/M2B, prove M2C/M2D, freeze the M3 baseline, add AI in M4, qualify unattended PAPER in M5, and only then consider M6 LIVE. M7 remains bounded evaluated evolution. This is the canonical implementation order; this design does not authorize new campaigns or implementation. Record experience throughout. Engineering and economic acceptance remain independent.
 
 The [milestone acceptance matrix](design-migration.md#milestone-acceptance)
 distinguishes implemented, evidenced, failed/open and planned work. Phase numbers
@@ -600,8 +600,12 @@ remain P0/M0–M7; completion of this design is not completion of those gates.
 | --- | --- |
 | P0 | Account/dealer/BC permissions, retained-data rights and deployment constraints explicitly evidenced per broker; selection alone is insufficient |
 | M0A/B/C | Preserve existing records, USD simulator risk/recovery, account isolation and profile/archive parity; additive contracts must keep those regressions green |
-| M1A/B/C | Read-only observations, provider integration and independent end-to-end qualification; preserve failed/stopped evidence, source gaps, quote readiness and zero orders |
-| M2 | Offline protocol/golden vectors → native EA build/Tester → isolated read-only shadow → explicitly provisioned, qualified demo execution; both protection flows, reconciliation and account fencing pass |
+| M1 — Observation and data qualification (M1A/B/C workstreams) | Read-only observations, provider integration and independent end-to-end qualification; preserve failed/stopped evidence, source gaps, quote readiness and zero orders |
+| M2 — Fixed MQL5 Execution Gateway | Fixed EA, typed intent protocol, deterministic risk integration, SL/TP and reconciliation; PAPER only; all fault-injection and demo execution gates pass |
+| M2A — Intent + EA protocol | Versioned DecisionIntent, ExecutionRequest, ExecutionAck, ExecutionState and ReconciliationResult; fixture validation/replay, no broker mutation |
+| M2B — Fixed EA execution | Account/quote/volume checks, order and SL/TP handling, OnTradeTransaction, order/deal/position reconciliation and duplicate protection; build/Tester evidence, connected execution still disabled |
+| M2C — Deterministic safety | Independent EA/backend trade/aggregate/loss/drawdown/margin/currency limits, blackout and stale-input veto; USD/CAD parity, state precedence, protection/fencing and measured shadow timing |
+| M2D — Connected PAPER acceptance | Explicit isolated demo authorization after M1 and M2A–C prerequisites; lost response, partial fill, rejected SL, restart, backend/DB loss, staleness, duplicates, wrong account, unexpected position and closed-market exit tests |
 | M3 | Frozen B01, point-in-time event replay, calibrated costs, experiment registry and cross-language parity; reproducible holdout and uncertainty |
 | M4 | Bounded AI and memory, bilingual evidence advisor and simulated commands; no model route to broker mutation, policy or deployment |
 | M5 | Unattended forward PAPER, dashboard/admin commands, matched AI/no-AI and news/no-news arms; at least 8 weeks AND 100 closed trades plus predeclared operational/economic gates |
@@ -678,16 +682,15 @@ Passing the software suite establishes engineering readiness only. Live qualific
 
 # Codex implementation handoff
 
-M0A–M0C are complete as offline increments. Do not rebuild the repository or
+M0A–M0C are complete as offline increments. Complete M1 qualification before starting M2 implementation. Do not rebuild the repository or
 reinterpret simulator evidence as connected execution acceptance. The next
-**proposed**, separately authorized code increment is defined exactly in
-[M2 handoff](m2-handoff.md): additive versioned EA messages, shared USD/CAD
-vectors and an offline validation/replay harness with submission absent/disabled.
+**proposed**, separately authorized M2 code increment after M1 is defined exactly in
+[M2 handoff](m2-handoff.md): additive versioned intent/EA messages, shared reference vectors and an offline protocol validation/replay harness with submission absent/disabled. Full risk-engine integration and CAD/native parity acceptance belong to M2C.
 No EA deployment, broker action, campaign restart, model invocation or configuration
 change is part of this design PR.
 
 ```text
-When separately authorized, implement only the offline EA contract/parity slice
+After M1 qualification and separate authorization, implement only the offline intent/EA protocol slice
 in docs/m2-handoff.md. Reuse the existing Python simulator and append-only records.
 Preserve all existing migrations and evidence. Add additive contracts, shared
 golden vectors and a fixture-fed MQL5 validation harness with no broker submission.
