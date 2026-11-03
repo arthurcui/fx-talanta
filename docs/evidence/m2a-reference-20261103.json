@@ -283,7 +283,7 @@
     "src/fx_talanta/execution_contracts/__init__.py": "22c0a573f722df246632d1f02b88b7a38171024dfc905d2b3d2bca05436fa4f5",
     "src/fx_talanta/execution_contracts/reference.py": "ae50f2d0a37ff1d41f3cf6f3fd67706e8e5eb3375bec8dd951b6af565ed6fcdb",
     "src/fx_talanta/execution_contracts/replay.py": "15dca6bd7d6c6af32d2b4e2e46614b92c4d3d3119db2702a3a70794abf5eaeeb",
-    "src/fx_talanta/domain/ea_protocol.py": "dd65561eaa37e3178319cb790e4bb744248f2ed296f329a646bfd0612f6c70e3",
+    "src/fx_talanta/domain/ea_protocol.py": "4a127bf803ff00fccc1d9fb2966f108f5f0a301a813525d9cd76937a9496fcaa",
     "scripts/m2a_reference.py": "e1a968caddd6513c6f18b97de5ab1880d417e282da9759f97c4988a208c33b31",
     "mql5/offline/ProtocolReference.mq5": "c1e9020e85a4dc080f779e38190a65decb1a0c1b5bbb8a7b5af960fa697da6d8",
     "tests/fixtures/ea_protocol/channels.json": "5298139ba9eeb25445909cd422fcabb5936c65af685218bb9b0e2b564ff37e2e",

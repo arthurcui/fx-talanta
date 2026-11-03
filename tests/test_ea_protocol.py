@@ -274,8 +274,33 @@ def test_ack_is_not_a_fill_and_state_requires_evidence():
     with pytest.raises(ValidationError):
         ExecutionState(**fields, **state)
     assert ExecutionState(
-        **fields, **state, broker_evidence=(HASH,), broker_position_id="fixture-pos"
+        **fields,
+        **state,
+        broker_evidence=(HASH,),
+        broker_position_id="fixture-pos",
+        accepted_stop="1.098",
     )
+
+
+def test_unknown_state_cannot_fabricate_confirmed_fill_or_protection():
+    fields = message(
+        request_id=uid(2),
+        request_hash=HASH,
+        reservation_id=uid(3),
+        predecessor_hash=HASH,
+        state="OUTCOME_UNKNOWN",
+        requested_volume="0.09",
+        filled_volume="0.03",
+        open_volume="0.03",
+        protected_volume="0.03",
+        broker_time_basis="fixture-UTC",
+        broker_position_id="fixture-pos",
+    )
+    with pytest.raises(ValidationError):
+        ExecutionState(**fields)
+    with pytest.raises(ValidationError):
+        ExecutionState(**fields, broker_evidence=(HASH,))
+    assert ExecutionState(**fields, broker_evidence=(HASH,), accepted_stop="1.098")
 
 
 def test_proposal_has_no_authority_and_validates_evidence_cutoff():

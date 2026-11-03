@@ -139,7 +139,7 @@ authenticated reads and M5 implements the indicators in the UI.
 
 ## Validation and remaining gates
 
-The local regression suite passed 381 tests, with 119 PostgreSQL integration tests
+The local regression suite passed 382 tests, with 119 PostgreSQL integration tests
 skipped locally to avoid touching broker databases. The PR's existing CI checks run
 those integrations in isolated services and build both containers. The test image
 includes only the new MQL5 source for static checks; the runtime image has no new

@@ -179,6 +179,8 @@ class ExecutionState(Message):
     broker_evidence: tuple[Hash, ...] = ()
     broker_order_id: Identifier | None = None
     broker_position_id: Identifier | None = None
+    broker_deal_ids: tuple[Identifier, ...] = ()
+    accepted_stop: Positive | None = None
     broker_time_basis: Identifier
 
     @model_validator(mode="after")
@@ -190,6 +192,12 @@ class ExecutionState(Message):
             <= self.requested_volume
         ):
             raise ValueError("execution quantity bounds violated")
+        if self.filled_volume > 0 and not self.broker_evidence:
+            raise ValueError("confirmed filled volume requires broker evidence")
+        if self.open_volume > 0 and self.broker_position_id is None:
+            raise ValueError("open exposure requires a broker position reference")
+        if self.protected_volume > 0 and self.accepted_stop is None:
+            raise ValueError("protected quantity requires the broker-accepted stop")
         if self.state in {"FILLED", "PARTIALLY_FILLED", "PROTECTED", "CLOSED"}:
             if not self.broker_evidence:
                 raise ValueError("confirmed lifecycle requires broker evidence")
