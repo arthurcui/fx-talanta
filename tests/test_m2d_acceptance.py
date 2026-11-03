@@ -28,13 +28,15 @@ def test_published_evidence_matches_final_harness_and_retains_failures():
     for path, digest in evidence["offline"]["historical_evidence_sha256"].items():
         assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
     assert evidence["probes"]["cmc_first"]["report"]["status"] == "BLOCKED"
-    for name in ("cmc_corrected", "forex"):
+    for name in ("cmc_corrected", "forex", "cmc_final", "forex_final"):
         report = evidence["probes"][name]["report"]
         assert report["status"] == "CAPTURED"
         assert not report["execution_enabled"] and not report["m2d_accepted"]
         assert not report["qualified_for_trading"]
         for symbol in report["symbols"].values():
             assert 0 <= symbol["fresh_for_two_second_entry"] <= symbol["samples"] == 30
+        for path, digest in evidence["probes"][name].get("capture_source_sha256", {}).items():
+            assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
     assert evidence["preservation"]["private_bindings_and_envs_unchanged"]
 
 

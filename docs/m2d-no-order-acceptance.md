@@ -47,18 +47,19 @@ and binding hashes remained unchanged. No account was created or switched.
 
 Freshness includes the larger pre/post NTP error bound plus a 2 ms guard. Two
 public NTP references corroborated the host clock without changing it; the
-resulting bounds were about 66 ms for CMC and 67 ms for FOREX. This is bounded,
+resulting bounds were about 58 ms for CMC and 59 ms for FOREX. This is bounded,
 unauthenticated clock corroboration, not ongoing clock qualification. Existing
 broker timestamp mappings and their expiration were preserved.
 
 | Account / symbol | Samples within 2 s entry ceiling | Samples within 5 s observer ceiling | Quote age upper-bound p95 | SDK read p95 |
 | --- | ---: | ---: | ---: | ---: |
-| CMC EURUSD | 8 / 30 | 17 / 30 | 26.130 s | 0.192 ms |
-| CMC USDJPY | 24 / 30 | 29 / 30 | 3.037 s | 0.108 ms |
-| FOREX.com EURUSD | 5 / 30 | 10 / 30 | 20.308 s | 0.142 ms |
-| FOREX.com USDJPY | 16 / 30 | 26 / 30 | 6.217 s | 0.093 ms |
+| CMC EURUSD | 6 / 30 | 9 / 30 | 22.201 s | 0.158 ms |
+| CMC USDJPY | 10 / 30 | 16 / 30 | 13.403 s | 0.104 ms |
+| FOREX.com EURUSD | 14 / 30 | 23 / 30 | 10.499 s | 0.183 ms |
+| FOREX.com USDJPY | 7 / 30 | 13 / 30 | 14.615 s | 0.140 ms |
 
-These are different short sampling windows, not a broker ranking. Fast IPC reads
+The table shows the final guarded captures; earlier windows remain in the evidence.
+These short samples are not a broker ranking. Fast IPC reads
 and a connected terminal do not make an old broker quote fresh. The **two-second
 entry ceiling remains intact**. EA and MCP channels were not exercised in these
 captures; their health must not be inferred from Python results. The required UI
@@ -84,10 +85,11 @@ The subsequent short CMC capture completed. FOREX's successful first capture is
 retained; neither historical campaign was restarted.
 
 Final review also aligned the tool's observed wall/monotonic drift limit with its
-2 ms guard, including a check after quote retrieval. The successful captures used
-the earlier 50 ms jump detector. They remain observations under that earlier
-detector, not proof of the final guard; no connected or entry-clock qualification
-is claimed. A synthetic 30 ms jump regression verifies the stricter final veto.
+2 ms guard, including a check after quote retrieval. A synthetic 30 ms jump
+regression verifies the stricter veto. Fresh final captures on both existing
+accounts completed with that exact code and contemporaneous source manifests;
+the table above uses those results. Earlier 50 ms-detector captures are retained
+and distinguished in the evidence. No connected or entry-clock qualification is claimed.
 
 ## Evidence and use
 
