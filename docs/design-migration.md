@@ -84,11 +84,12 @@ CI is engineering evidence only. “Evidenced” is bounded to what was exercise
 | M6 capped LIVE | Disabled | Capital, release and actual account qualification absent | Exact compatible evaluated release, explicit capped mandate, fresh binding/capabilities, independent risk/ledger, tested rollback/fencing/restore; operational AND economic gates |
 | M7 controlled evolution | Not implemented | No autonomous promotion qualified | Challenger preregistration, counterexamples, failures retained, out-of-sample and prospective evaluation, immutable promotion/rejection record; no risk-authority expansion |
 
-Canonical order: **finish M1 → implement M2A/M2B → prove M2C/M2D → freeze
+Owner-approved November 3 order: **carry M1 gaps → implement M2A/M2B → resolve
+connected-operation gates and prove M2C/M2D → freeze
 M3 baseline → add AI in M4 → run unattended PAPER M5 → qualify M6 LIVE**.
 M1A/B/C remain internal observation/provider/qualification workstreams under M1.
-M0A–M0C remain completed within their offline scope. This replaces the prior
-suggestion to start M2A independently while M1 is unresolved.
+M0A–M0C remain completed within their offline scope. The November 3 owner decision permits offline M2A while M1 evidence gaps remain;
+it does not turn old failures into passes or authorize connected orders.
 
 M2B develops execution capabilities with broker submission disabled in deployed
 environments; it cannot precede safety qualification with real orders. Native
@@ -131,3 +132,13 @@ No acceptable economic sample means remain PAPER; no per-loss automatic risk tun
   migrations, dependencies, workflow names, terminal or broker state is modified.
 * Documentation links/anchors and diff whitespace pass; required **M0A checks**
   are inspected on the design PR. CI does not certify providers or economics.
+
+## UI milestone acceptance: quote latency and channel status
+
+| Milestone | Required deliverable | Acceptance |
+| --- | --- | --- |
+| M2A | Read-only EA/Python-package/MCP telemetry schema | Scoped source/capability, tick age, local delay and health remain distinct; missing metrics explicit |
+| M2B | Channel telemetry producers | EA heartbeat and quotes separate; Python and MCP health identifies actual capability |
+| M2C | Failure/freshness scenarios | Healthy heartbeat plus stale quote still blocks entry beyond two seconds; disconnect/recovery cannot erase provenance |
+| M4 | Authenticated advisor/read API | Explanations identify source, window and unavailable metrics without execution authority |
+| M5 UI | Quote-latency panel and three channel cards | Show active source, quote age, measured median/p95 delay, last heartbeat/read, errors and entry-block reason; calendar-only health never implies healthy quotes |

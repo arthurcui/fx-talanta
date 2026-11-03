@@ -7,7 +7,7 @@ operating instructions. Maintain project requirements here through pull requests
 
 **Build FX-Talanta as a fully autonomous forex trading system with a conversational advisor, automatic market-news monitoring, durable experience memory, a portable Python application core, isolated backend risk/dispatch and fixed execution EAs, and separate PAPER and LIVE accounts.** MT5 is the first broker connection. Normal trading, protective management, temporary-fault recovery, and qualified strategy deployment operate within fixed mandates without per-trade human approval.
 
-**Design baseline v0.4: 3 November 2026.** This specification includes natural-language user/advisor communication, automatic market-news search and evaluation, retained successes and failures, local/Docker/Codex-cloud execution profiles, and paper-first qualification followed by a separate live deployment. Numerical settings and strategy performance remain unvalidated. M0A–M0C are implemented. After M1 qualification, the first proposed M2 implementation slice is the offline intent/EA protocol slice in [M2 handoff](m2-handoff.md); this design PR does not authorize its execution.
+**Design baseline v0.4: 3 November 2026.** This specification includes natural-language user/advisor communication, automatic market-news search and evaluation, retained successes and failures, local/Docker/Codex-cloud execution profiles, and paper-first qualification followed by a separate live deployment. Numerical settings and strategy performance remain unvalidated. M0A–M0C are implemented. On 3 November 2026 the owner accepted the bounded read-only quote-stream implementation and authorized moving to M2. Start with the offline intent/EA protocol slice in [M2 handoff](m2-handoff.md). Outstanding M1 evidence stays recorded; this does not authorize connected orders or another 24-hour campaign.
 
 The principal risk is that reliable automation can execute a losing strategy reliably. Engineering acceptance and evidence of a trading edge are separate gates.
 
@@ -590,7 +590,7 @@ Routine output should be concise: new trade or exit, price/time, position size, 
 
 # Roadmap and acceptance gates
 
-Preserve completed M0A–M0C. Finish P0 constraints and M1 qualification, then implement M2A/M2B, prove M2C/M2D, freeze the M3 baseline, add AI in M4, qualify unattended PAPER in M5, and only then consider M6 LIVE. M7 remains bounded evaluated evolution. This is the canonical implementation order; this design does not authorize new campaigns or implementation. Record experience throughout. Engineering and economic acceptance remain independent.
+Preserve completed M0A–M0C. Proceed with owner-authorized M2A/M2B implementation while carrying M1 evidence gaps; resolve applicable connected-operation gates before M2D, prove M2C/M2D, freeze the M3 baseline, add AI in M4, qualify unattended PAPER in M5, and only then consider M6 LIVE. M7 remains bounded evaluated evolution. This is the canonical implementation order; the November 3 progression authorization does not authorize new campaigns or connected trading. Record experience throughout. Engineering and economic acceptance remain independent.
 
 The [milestone acceptance matrix](design-migration.md#milestone-acceptance)
 distinguishes implemented, evidenced, failed/open and planned work. Phase numbers
@@ -682,15 +682,15 @@ Passing the software suite establishes engineering readiness only. Live qualific
 
 # Codex implementation handoff
 
-M0A–M0C are complete as offline increments. Complete M1 qualification before starting M2 implementation. Do not rebuild the repository or
+M0A–M0C are complete as offline increments. The owner authorized M2 implementation on November 3; another broker soak is not a prerequisite for offline M2A. Do not rebuild the repository or
 reinterpret simulator evidence as connected execution acceptance. The next
-**proposed**, separately authorized M2 code increment after M1 is defined exactly in
+**authorized offline** M2 code increment is defined exactly in
 [M2 handoff](m2-handoff.md): additive versioned intent/EA messages, shared reference vectors and an offline protocol validation/replay harness with submission absent/disabled. Full risk-engine integration and CAD/native parity acceptance belong to M2C.
 No EA deployment, broker action, campaign restart, model invocation or configuration
 change is part of this design PR.
 
 ```text
-After M1 qualification and separate authorization, implement only the offline intent/EA protocol slice
+Under the November 3 owner authorization, implement only the offline intent/EA protocol slice
 in docs/m2-handoff.md. Reuse the existing Python simulator and append-only records.
 Preserve all existing migrations and evidence. Add additive contracts, shared
 golden vectors and a fixture-fed MQL5 validation harness with no broker submission.
@@ -709,3 +709,25 @@ CAD conversion and account capability parity, production protection deadlines,
 model/search budgets, owner authentication, LIVE capital, evaluated releases and
 host fencing/restore. Missing qualification keeps the corresponding entry path
 closed; changing documentation cannot authorize execution.
+
+## Required quote-latency and channel-status UI
+
+The owner requires a per-account/per-symbol quote-latency panel and separate
+**EA**, **Python package**, and **MCP** channel cards. Show active quote source,
+original tick age, measured local delivery delay (median/p95 with sample count and
+window), last quote receipt, last heartbeat/successful read, transport state and
+last sanitized error. Unknown latency is unavailable, never zero. Distinguish
+not configured, disabled, connecting, healthy, degraded and disconnected/error.
+
+Label each channel by its actual supported/configured capabilities: quotes,
+account/reconciliation, news and calendar. Healthy MCP calendar access must not
+imply healthy quotes. Connection health and quote freshness are separate: healthy
+heartbeats with an old quote still show the unchanged two-second entry block and
+its reason. Multiple channels are not independent broker feeds; no automatic
+fallback is implied.
+
+Milestone ownership: M2A defines the read-only telemetry contract and fixtures;
+M2B supplies channel telemetry; M2C tests stale quotes with healthy heartbeats,
+disconnections, recovery and missing metrics; M4 exposes authenticated advisor/read
+APIs; M5 implements and accepts the actual dashboard indicators. These are required
+UI deliverables, not a claim that the dashboard exists today.

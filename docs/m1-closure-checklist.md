@@ -46,7 +46,7 @@ code alone cannot close a prospective evidence requirement.
 | P4 | Coverage and intended-use rights / source qualification | OPEN | Named sources and retained-field/use scope per family; uncovered categories remain blockers, not silently optional |
 | P5 | Provider reliability / campaign | STOPPED/insufficient | Predeclared per-source availability/gap/delivery gates; no prospective item means insufficient; availability cannot promote coverage |
 | X1 | Isolation and fail-closed integration / core | Foundation exists; integration open | Wrong binding, required-input failure and uncertain time cannot grant readiness; liveness, quote quality and entry permission stay separate |
-| X2 | Final M1 decision / acceptance report | BLOCKED | One matrix with independent broker/provider verdicts, preserved failures, zero orders and no unresolved required gate; M2 separately authorized |
+| X2 | Final M1 decision / acceptance report | BLOCKED | One matrix with independent broker/provider verdicts, preserved failures, zero orders and no unresolved required gate; M2 offline progression owner-authorized on November 3; connected orders remain gated |
 
 CMC is first, FOREX the independent comparison. Do not declare full M1 complete
 after just one passes under the current scope. Excluding a broker/source requires

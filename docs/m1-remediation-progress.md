@@ -71,5 +71,5 @@ coverage gaps. No broad-news source has been qualified by these edits.
 The separately authorized [EA quote-stream comparison](ea-quote-stream.md) measures
 transport and common-time quote age without changing entry policy. Its short result
 cannot replace sustained qualification, identify the old CMC failure, or close
-provider coverage. No new 24-hour run or M2 execution is authorized. No code merge
+provider coverage. The owner subsequently authorized offline M2 progression; no new 24-hour run or connected execution is authorized. No code merge
 or new account balance can satisfy missing evidence.
