@@ -1,0 +1,808 @@
+{
+  "schema": "m2d-evidence/1",
+  "recorded_at": "2026-11-03T23:12:38.298199+00:00",
+  "scope": "No-order preparation; connected M2D acceptance remains open",
+  "final_harness_source_sha256": {
+    "src/fx_talanta/acceptance/clock_probe.py": "ec46a4045349ffc529c8904b41e20f8ee04aedbbbcb843c4b5430ee970bdc581",
+    "src/fx_talanta/acceptance/faults.py": "1afecb85736278779de6ac5456cdbde9d3d87e2126a05cca8ab430ae552dbea4",
+    "src/fx_talanta/acceptance/probe.py": "506d66f0b6cf66a2c25e5eea01dc7d1f2f8457f0218ebaef5a3e2d5bb9c03735",
+    "src/fx_talanta/acceptance/__init__.py": "a0deb7325976db39b5640fcd9b074391a28a99b1d8c4c65a60336cfd88067504",
+    "scripts/m2d_acceptance.py": "506f51810ac36f70b107be093f8dbf9c873dd03120772d85a4f909f6a8d34392",
+    "tests/test_m2d_acceptance.py": "722d7a05de75136415978b6f79150edc146f6b631cfa25975e5e0fec99c52e2a"
+  },
+  "source_hash_scope": "Final portable harness only. Initial probe artifacts predate automatic source manifests; no contemporaneous source-hash claim for them.",
+  "offline": {
+    "schema": "m2d-no-order/1",
+    "status": "NO_ORDER_CHECKS_PASSED",
+    "results": [
+      {
+        "id": "admit_once",
+        "observed": [
+          "ACCEPTED",
+          false
+        ],
+        "expected": [
+          "ACCEPTED",
+          false
+        ],
+        "passed": true
+      },
+      {
+        "id": "nominal_still_no_send",
+        "observed": {
+          "reason": "ACCEPTED",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "ACCEPTED",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "quote_aged_in_transit",
+        "observed": {
+          "reason": "QUOTE_STALE",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "QUOTE_STALE",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "required_news_missing",
+        "observed": {
+          "reason": "REQUIRED_INPUTS",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "REQUIRED_INPUTS",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "calendar_blackout",
+        "observed": {
+          "reason": "BLACKOUT_OR_SESSION",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "BLACKOUT_OR_SESSION",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "market_closed",
+        "observed": {
+          "reason": "BLACKOUT_OR_SESSION",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "BLACKOUT_OR_SESSION",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "native_response_lost",
+        "observed": {
+          "reason": "NATIVE_PARITY_BLOCK",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "NATIVE_PARITY_BLOCK",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "storage_unavailable",
+        "observed": {
+          "reason": "STORAGE_OR_FENCE_BLOCK",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "STORAGE_OR_FENCE_BLOCK",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "writer_not_fenced",
+        "observed": {
+          "reason": "STORAGE_OR_FENCE_BLOCK",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "STORAGE_OR_FENCE_BLOCK",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "wrong_account",
+        "observed": {
+          "reason": "ACCOUNT_MISMATCH",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "ACCOUNT_MISMATCH",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "clock_regressed",
+        "observed": {
+          "reason": "SNAPSHOT_FUTURE",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "SNAPSHOT_FUTURE",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "work_expired",
+        "observed": {
+          "reason": "EXPIRED_OR_FUTURE",
+          "send_enabled": false
+        },
+        "expected": {
+          "reason": "EXPIRED_OR_FUTURE",
+          "send_enabled": false
+        },
+        "passed": true
+      },
+      {
+        "id": "duplicate_no_new_admission",
+        "observed": [
+          "ACCEPTED",
+          true
+        ],
+        "expected": [
+          "ACCEPTED",
+          true
+        ],
+        "passed": true
+      },
+      {
+        "id": "same_id_changed_hash",
+        "observed": [
+          "HASH_CONFLICT",
+          false
+        ],
+        "expected": [
+          "HASH_CONFLICT",
+          false
+        ],
+        "passed": true
+      },
+      {
+        "id": "wrong_release",
+        "observed": [
+          "RELEASE_MISMATCH",
+          false
+        ],
+        "expected": [
+          "RELEASE_MISMATCH",
+          false
+        ],
+        "passed": true
+      },
+      {
+        "id": "lost_ack_restart_retains_allowance",
+        "observed": {
+          "checkpoint_retained": true,
+          "duplicate": [
+            "ACCEPTED",
+            true
+          ],
+          "reserved": "0.09"
+        },
+        "expected": {
+          "checkpoint_retained": true,
+          "duplicate": [
+            "ACCEPTED",
+            true
+          ],
+          "reserved": "0.09"
+        },
+        "passed": true
+      },
+      {
+        "id": "unknown_retains_reservation",
+        "observed": "0.09",
+        "expected": "0.09",
+        "passed": true
+      },
+      {
+        "id": "partial_and_duplicate_do_not_double_count",
+        "observed": [
+          "0.04",
+          "0.05"
+        ],
+        "expected": [
+          "0.04",
+          "0.05"
+        ],
+        "passed": true
+      },
+      {
+        "id": "cancel_releases_only_unfilled",
+        "observed": [
+          "0.04",
+          "0.05",
+          "0.00"
+        ],
+        "expected": [
+          "0.04",
+          "0.05",
+          "0.00"
+        ],
+        "passed": true
+      },
+      {
+        "id": "wrong_position_version",
+        "observed": "STATE_MISMATCH",
+        "expected": "STATE_MISMATCH",
+        "passed": true
+      },
+      {
+        "id": "unexpected_position",
+        "observed": "NOT_OWNED",
+        "expected": "NOT_OWNED",
+        "passed": true
+      },
+      {
+        "id": "protect_once",
+        "observed": "ATTACH_STOP_ONCE",
+        "expected": "ATTACH_STOP_ONCE",
+        "passed": true
+      },
+      {
+        "id": "rejected_stop_exit_once",
+        "observed": "CONTROLLED_EXIT_ONCE",
+        "expected": "CONTROLLED_EXIT_ONCE",
+        "passed": true
+      },
+      {
+        "id": "lost_close_ack_no_resend",
+        "observed": [
+          "UNKNOWN",
+          true,
+          "RECONCILE_NO_RESEND"
+        ],
+        "expected": [
+          "UNKNOWN",
+          true,
+          "RECONCILE_NO_RESEND"
+        ],
+        "passed": true
+      },
+      {
+        "id": "backend_outage_does_not_clear_unknown",
+        "observed": "RECONCILE_NO_RESEND",
+        "expected": "RECONCILE_NO_RESEND",
+        "passed": true
+      },
+      {
+        "id": "disk_failure_no_mutation",
+        "observed": "ALERT_STORAGE_NO_MUTATION",
+        "expected": "ALERT_STORAGE_NO_MUTATION",
+        "passed": true
+      },
+      {
+        "id": "loss_halt_survives_restart",
+        "observed": [
+          true,
+          true
+        ],
+        "expected": [
+          true,
+          true
+        ],
+        "passed": true
+      },
+      {
+        "id": "wrong_signature",
+        "observed": {
+          "rejected": true,
+          "unchanged": true
+        },
+        "expected": {
+          "rejected": true,
+          "unchanged": true
+        },
+        "passed": true
+      },
+      {
+        "id": "second_writer",
+        "observed": {
+          "rejected": true,
+          "unchanged": true
+        },
+        "expected": {
+          "rejected": true,
+          "unchanged": true
+        },
+        "passed": true
+      },
+      {
+        "id": "expired_lease",
+        "observed": {
+          "rejected": true,
+          "unchanged": true
+        },
+        "expected": {
+          "rejected": true,
+          "unchanged": true
+        },
+        "passed": true
+      }
+    ],
+    "durable_records": 37,
+    "trace_tip": [
+      37,
+      "a7afd65c024cf0055f095f9be4e64728e72a49bd09ef6a43a7435f3f155e38b0"
+    ],
+    "reference": "Existing native fixture parity, not a new native or broker execution run",
+    "historical_evidence_sha256": {
+      "docs/evidence/broker-campaign-final-20261103.json": "4944e6c62990dc349fa39d4af83aac6326fdf406fd5b69948bb3af7b842f39c7",
+      "docs/evidence/provider-campaign-final-20261103.json": "9c9c317fae1406000b933705ba3bff53ae24da628e8feb8585c32a7932cee67f",
+      "docs/evidence/m2c-native-20261103.json": "011b6226599d0ad38bf666618ad27c20a53fed9e41cde70b635692b6cecfb1e4"
+    },
+    "gates": {
+      "broker_historical_acceptance": {
+        "cmc": {
+          "collector_accepted": false,
+          "quote_readiness_accepted": false,
+          "accepted": false
+        },
+        "forex": {
+          "collector_accepted": false,
+          "quote_readiness_accepted": false,
+          "accepted": false
+        }
+      },
+      "provider_coverage_qualified": false,
+      "provider_qualified_for_trading": false,
+      "connected_transport_and_fencing": "NOT_QUALIFIED",
+      "broker_costs_conversion_and_protection_deadlines": "NOT_QUALIFIED",
+      "connected_fault_execution": "NOT_AUTHORIZED_OR_RUN",
+      "execution_enabled": false,
+      "m2d_accepted": false
+    },
+    "execution_enabled": false,
+    "m2d_accepted": false,
+    "limitation": "Synthetic broker outcomes. SQLite/local fencing only; no production transport, broker fills, SL or exit qualification."
+  },
+  "probes": {
+    "cmc_first": {
+      "report": {
+        "status": "BLOCKED",
+        "reason": "HOST_CLOCK_CHANGED",
+        "execution_enabled": false,
+        "qualified_for_trading": false,
+        "m2d_accepted": false
+      },
+      "private_artifact_sha256": {
+        "clock-before.json": "017b4a52bb7e0168586e574d955878247e469c13a51b7d32562af2aa9a772c17",
+        "plan.json": "da59bfc475b84222fe5d25672c37183b1b3976a9c351f2a6d1b89e52c6742fce",
+        "private-samples.jsonl": "e09277bc093f8816175cb6ab72bc4d4a37b6aed28d0f81c75a917e12d4654f40",
+        "private-specs-calculations.json": "96d142ace920c701a610d99aed4e49f140a97ff47eaae5d0e7796ea28717c10d",
+        "report.json": "8b83c2cd980a94a6835da102747c15d3047601bc219f6565647e07de8978e05a",
+        "worker.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "worker.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "forex": {
+      "report": {
+        "schema": "m2d-readonly-probe/1",
+        "status": "CAPTURED",
+        "seconds": 30,
+        "elapsed_seconds": 31.368717399891466,
+        "symbols": {
+          "EURUSD": {
+            "samples": 30,
+            "fresh_for_two_second_entry": 5,
+            "fresh_for_five_second_observer": 10,
+            "distinct_tick_times": 5,
+            "age_upper_p95_ms": 20308.263185668944,
+            "read_p95_ms": 0.14159991405904293
+          },
+          "USDJPY": {
+            "samples": 30,
+            "fresh_for_two_second_entry": 16,
+            "fresh_for_five_second_observer": 26,
+            "distinct_tick_times": 14,
+            "age_upper_p95_ms": 6216.908185668945,
+            "read_p95_ms": 0.09289989247918129
+          }
+        },
+        "identity_verified": true,
+        "existing_terminal_unchanged": true,
+        "binding_sha256": "7e2d329bfa5a4a933f77e6a0645320bae5ac7970bdc1f41747aff44aff9c5ba6",
+        "account_currency": "CAD",
+        "initial_positions": 0,
+        "initial_pending_orders": 0,
+        "account_counts_unchanged": true,
+        "clock_before_bound_ms": 65.12887573242188,
+        "clock_after_bound_ms": 65.28718566894531,
+        "used_clock_bound_ms": 67.28718566894531,
+        "calculations": {
+          "EURUSD": [
+            {
+              "side": "BUY",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            },
+            {
+              "side": "SELL",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            }
+          ],
+          "USDJPY": [
+            {
+              "side": "BUY",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            },
+            {
+              "side": "SELL",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            }
+          ]
+        },
+        "sdk_calls": {
+          "initialize": 1,
+          "terminal_info": 32,
+          "account_info": 32,
+          "positions_get": 31,
+          "orders_get": 31,
+          "symbol_info": 2,
+          "symbol_info_tick": 62,
+          "order_calc_profit": 4,
+          "order_calc_margin": 4,
+          "shutdown": 1
+        },
+        "execution_enabled": false,
+        "qualified_for_trading": false,
+        "m2d_accepted": false,
+        "scope": "Short read-only capability observation; not execution, cost calibration or sustained qualification"
+      },
+      "private_artifact_sha256": {
+        "clock-after.json": "2c1f0a6ec1b67e6ca35bdbae19b4c4cc980a1c4a0a6c48eca0f8de5050a5cefe",
+        "clock-before.json": "77e289e2497076953ffa695cba7f3ec91646ff19a56fb0b9a2069e67f8c5310a",
+        "plan.json": "1987aaea2fbda2d44deed9ef66dd44ca7cca5cb7f9c367191ec56198450961ea",
+        "private-samples.jsonl": "344aa2993760c3d33d4316171814e5879b339b6de9ba7221dc4e55b67d91c140",
+        "private-specs-calculations.json": "6054658a2fb834cc816c46a25479b859abaea9367c81d2e2ea92615b39694193",
+        "report.json": "19695c66536b1fee2aa5371da452c403908050d3eb5d4fafb4529bc4c70f495e",
+        "worker.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "worker.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "cmc_corrected": {
+      "report": {
+        "schema": "m2d-readonly-probe/1",
+        "status": "CAPTURED",
+        "seconds": 30,
+        "elapsed_seconds": 31.356037700083107,
+        "symbols": {
+          "EURUSD": {
+            "samples": 30,
+            "fresh_for_two_second_entry": 8,
+            "fresh_for_five_second_observer": 17,
+            "distinct_tick_times": 7,
+            "age_upper_p95_ms": 26130.35703363037,
+            "read_p95_ms": 0.19240006804466248
+          },
+          "USDJPY": {
+            "samples": 30,
+            "fresh_for_two_second_entry": 24,
+            "fresh_for_five_second_observer": 29,
+            "distinct_tick_times": 17,
+            "age_upper_p95_ms": 3036.652033630371,
+            "read_p95_ms": 0.1083998940885067
+          }
+        },
+        "identity_verified": true,
+        "terminal_process_unchanged": true,
+        "binding_sha256": "b8e0243e17b13523bac366b8dfcb56a982e17de7231fccc1f97468dcb6cd5504",
+        "account_currency": "CAD",
+        "initial_positions": 0,
+        "initial_pending_orders": 0,
+        "account_counts_unchanged": true,
+        "clock_before_bound_ms": 63.911033630371094,
+        "clock_after_bound_ms": 63.63399124145508,
+        "used_clock_bound_ms": 65.9110336303711,
+        "calculations": {
+          "EURUSD": [
+            {
+              "side": "BUY",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            },
+            {
+              "side": "SELL",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            }
+          ],
+          "USDJPY": [
+            {
+              "side": "BUY",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            },
+            {
+              "side": "SELL",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            }
+          ]
+        },
+        "sdk_calls": {
+          "initialize": 1,
+          "terminal_info": 32,
+          "account_info": 32,
+          "positions_get": 31,
+          "orders_get": 31,
+          "symbol_info": 2,
+          "symbol_info_tick": 62,
+          "order_calc_profit": 4,
+          "order_calc_margin": 4,
+          "shutdown": 1
+        },
+        "sampled_channel": "PYTHON_PACKAGE",
+        "other_channels": {
+          "EA": "NOT_TESTED",
+          "MCP": "NOT_TESTED"
+        },
+        "execution_enabled": false,
+        "qualified_for_trading": false,
+        "m2d_accepted": false,
+        "scope": "Short read-only capability observation; not execution, cost calibration or sustained qualification"
+      },
+      "private_artifact_sha256": {
+        "clock-after.json": "d5061bc1004ff34f61b11ee3e0311cdd79098fb23e8c3b8ba24fcf45b9ea869f",
+        "clock-before.json": "84b12c3d1f34b224d95f21918f2f2fffe5b7043b4ef7391c1dfc9a1582a3a181",
+        "plan.json": "6e063e4cf24ee08f3f783e31986b27e34b85d318a99ebaf2fea75295fdccd923",
+        "private-samples.jsonl": "64a28b669881d4bb204980f0fbe492827d9956861d91c7318c8096bf8923c22c",
+        "private-specs-calculations.json": "8c3f26b19b282c62a9ef5287798864a243a77e7ee9e04191d1b45acb79c325ff",
+        "report.json": "8b95f1c3baea86784100101a7aa6f6ad43690eac4ebcc15277ae732e894d58f8",
+        "worker.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "worker.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "cmc_final": {
+      "report": {
+        "schema": "m2d-readonly-probe/1",
+        "status": "CAPTURED",
+        "seconds": 30,
+        "elapsed_seconds": 31.33707969984971,
+        "symbols": {
+          "EURUSD": {
+            "samples": 30,
+            "fresh_for_two_second_entry": 6,
+            "fresh_for_five_second_observer": 9,
+            "distinct_tick_times": 6,
+            "age_upper_p95_ms": 22200.552526519776,
+            "read_p95_ms": 0.15760003589093685
+          },
+          "USDJPY": {
+            "samples": 30,
+            "fresh_for_two_second_entry": 10,
+            "fresh_for_five_second_observer": 16,
+            "distinct_tick_times": 7,
+            "age_upper_p95_ms": 13403.071526519776,
+            "read_p95_ms": 0.10360009036958218
+          }
+        },
+        "identity_verified": true,
+        "terminal_process_unchanged": true,
+        "binding_sha256": "b8e0243e17b13523bac366b8dfcb56a982e17de7231fccc1f97468dcb6cd5504",
+        "account_currency": "CAD",
+        "initial_positions": 0,
+        "initial_pending_orders": 0,
+        "account_counts_unchanged": true,
+        "clock_before_bound_ms": 56.330753326416016,
+        "clock_after_bound_ms": 56.47952651977539,
+        "used_clock_bound_ms": 58.47952651977539,
+        "calculations": {
+          "EURUSD": [
+            {
+              "side": "BUY",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            },
+            {
+              "side": "SELL",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            }
+          ],
+          "USDJPY": [
+            {
+              "side": "BUY",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            },
+            {
+              "side": "SELL",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            }
+          ]
+        },
+        "sdk_calls": {
+          "initialize": 1,
+          "terminal_info": 32,
+          "account_info": 32,
+          "positions_get": 31,
+          "orders_get": 31,
+          "symbol_info": 2,
+          "symbol_info_tick": 62,
+          "order_calc_profit": 4,
+          "order_calc_margin": 4,
+          "shutdown": 1
+        },
+        "sampled_channel": "PYTHON_PACKAGE",
+        "other_channels": {
+          "EA": "NOT_TESTED",
+          "MCP": "NOT_TESTED"
+        },
+        "execution_enabled": false,
+        "qualified_for_trading": false,
+        "m2d_accepted": false,
+        "scope": "Short read-only capability observation; not execution, cost calibration or sustained qualification"
+      },
+      "capture_source_commit": "9511a75d2010af6a4bee2b28a430191f72645b04",
+      "capture_source_sha256": {
+        "scripts/m2d_acceptance.py": "506f51810ac36f70b107be093f8dbf9c873dd03120772d85a4f909f6a8d34392",
+        "src/fx_talanta/acceptance/clock_probe.py": "ec46a4045349ffc529c8904b41e20f8ee04aedbbbcb843c4b5430ee970bdc581",
+        "src/fx_talanta/acceptance/faults.py": "1afecb85736278779de6ac5456cdbde9d3d87e2126a05cca8ab430ae552dbea4",
+        "src/fx_talanta/acceptance/probe.py": "506d66f0b6cf66a2c25e5eea01dc7d1f2f8457f0218ebaef5a3e2d5bb9c03735",
+        "src/fx_talanta/acceptance/__init__.py": "a0deb7325976db39b5640fcd9b074391a28a99b1d8c4c65a60336cfd88067504"
+      },
+      "private_artifact_sha256": {
+        "clock-after.json": "1d439e060518cf24e35b52d0507f18684e91d7abbfa37de0c026260a5215ec5b",
+        "clock-before.json": "0298b1f9b5aafaad8a4d8c9f8bf253ff3ce8456f98384eb7ba21f9edee2a2b5b",
+        "plan.json": "353532ef0eced155085f35437c1c6df3f21ea022c0f7166206da70fa77435947",
+        "private-samples.jsonl": "95cff9d664a9dcf3166e9967ddbd7f049cbacb1015fc6fe34e2114ac1ce0c4d1",
+        "private-specs-calculations.json": "02ad51c84b459a208c78a81ab7429083baae5947192ea15dff7aff1245a67700",
+        "report.json": "1d78e2c5a3c5b046b70df538ccedc63561ee8fc98ee5d7cf017e994301c2cf6c",
+        "sources.json": "7082e054114e76c3d0f6f4dd533f065d52a851b7da7961a106cdaf6c2efab989",
+        "worker.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "worker.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "forex_final": {
+      "report": {
+        "schema": "m2d-readonly-probe/1",
+        "status": "CAPTURED",
+        "seconds": 30,
+        "elapsed_seconds": 31.30832209996879,
+        "symbols": {
+          "EURUSD": {
+            "samples": 30,
+            "fresh_for_two_second_entry": 14,
+            "fresh_for_five_second_observer": 23,
+            "distinct_tick_times": 11,
+            "age_upper_p95_ms": 10499.106328521728,
+            "read_p95_ms": 0.18319999799132347
+          },
+          "USDJPY": {
+            "samples": 30,
+            "fresh_for_two_second_entry": 7,
+            "fresh_for_five_second_observer": 13,
+            "distinct_tick_times": 6,
+            "age_upper_p95_ms": 14615.37332852173,
+            "read_p95_ms": 0.14030002057552338
+          }
+        },
+        "identity_verified": true,
+        "terminal_process_unchanged": true,
+        "binding_sha256": "7e2d329bfa5a4a933f77e6a0645320bae5ac7970bdc1f41747aff44aff9c5ba6",
+        "account_currency": "CAD",
+        "initial_positions": 0,
+        "initial_pending_orders": 0,
+        "account_counts_unchanged": true,
+        "clock_before_bound_ms": 56.8629035949707,
+        "clock_after_bound_ms": 56.895328521728516,
+        "used_clock_bound_ms": 58.895328521728516,
+        "calculations": {
+          "EURUSD": [
+            {
+              "side": "BUY",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            },
+            {
+              "side": "SELL",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            }
+          ],
+          "USDJPY": [
+            {
+              "side": "BUY",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            },
+            {
+              "side": "SELL",
+              "valid_signs": true,
+              "within_one_account_cent": true
+            }
+          ]
+        },
+        "sdk_calls": {
+          "initialize": 1,
+          "terminal_info": 32,
+          "account_info": 32,
+          "positions_get": 31,
+          "orders_get": 31,
+          "symbol_info": 2,
+          "symbol_info_tick": 62,
+          "order_calc_profit": 4,
+          "order_calc_margin": 4,
+          "shutdown": 1
+        },
+        "sampled_channel": "PYTHON_PACKAGE",
+        "other_channels": {
+          "EA": "NOT_TESTED",
+          "MCP": "NOT_TESTED"
+        },
+        "execution_enabled": false,
+        "qualified_for_trading": false,
+        "m2d_accepted": false,
+        "scope": "Short read-only capability observation; not execution, cost calibration or sustained qualification"
+      },
+      "capture_source_commit": "9511a75d2010af6a4bee2b28a430191f72645b04",
+      "capture_source_sha256": {
+        "scripts/m2d_acceptance.py": "506f51810ac36f70b107be093f8dbf9c873dd03120772d85a4f909f6a8d34392",
+        "src/fx_talanta/acceptance/clock_probe.py": "ec46a4045349ffc529c8904b41e20f8ee04aedbbbcb843c4b5430ee970bdc581",
+        "src/fx_talanta/acceptance/faults.py": "1afecb85736278779de6ac5456cdbde9d3d87e2126a05cca8ab430ae552dbea4",
+        "src/fx_talanta/acceptance/probe.py": "506d66f0b6cf66a2c25e5eea01dc7d1f2f8457f0218ebaef5a3e2d5bb9c03735",
+        "src/fx_talanta/acceptance/__init__.py": "a0deb7325976db39b5640fcd9b074391a28a99b1d8c4c65a60336cfd88067504"
+      },
+      "private_artifact_sha256": {
+        "clock-after.json": "e5a07953547ea60df9818b73f1e6d3a45672236e908ce9874d4a2bd706d17470",
+        "clock-before.json": "e2175eeaebd5f11b5fe64f2b36d801d31aa1b66226f7e03e4688a2da5056cd3b",
+        "plan.json": "adebeb31bff22dfdbdd2d5109bf1e71aa63a0fa0e5ffb511464516e2b457fbc5",
+        "private-samples.jsonl": "887c400665c96c47dfde8c6a38c66f0f3e98b9580412f50e375512a5c41f370b",
+        "private-specs-calculations.json": "6d1c422cd8022ef939a380d9690be3e6033f68e5ca8d3cfa7292be266b798f76",
+        "report.json": "5e34c9935b88301cd33990b1987f9ab9302883fc03f6fbaad8e664a75386d3ae",
+        "sources.json": "7082e054114e76c3d0f6f4dd533f065d52a851b7da7961a106cdaf6c2efab989",
+        "worker.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "worker.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "initial_cmc_diagnostic": "HOST_CLOCK_CHANGED retained. A detector defect compared noncorresponding instants around SDK validation; delayed-response regression now passes. No proof of a host clock jump or cause of old campaign INVALID_DATA.",
+  "preservation": {
+    "private_bindings_and_envs_unchanged": true,
+    "prior_evidence_and_sql_files_unchanged": 36,
+    "protected_checkout_heads": {
+      "cmc-v2-campaign": "c9b2e435859d324097c6ef9c2b8db3f4cef7420e",
+      "forex-v2-campaign": "c9b2e435859d324097c6ef9c2b8db3f4cef7420e",
+      "provider-campaign": "007a17ad71adb58f16d5d2f7383b1123ed8ec527",
+      "forex-readonly": "d761c2cd6e8898b6353c67997ea0a67cb186f01c",
+      "root": "834cb8b42199e1424de433a08afa1b808a4124ba"
+    }
+  },
+  "execution_enabled": false,
+  "m2d_accepted": false,
+  "new_broker_accounts": 0,
+  "new_campaigns": 0,
+  "terminal_deployments": 0,
+  "final_review_note": "Final probe enforces observed wall/monotonic drift <=2 ms, including after quote reads. cmc_final and forex_final completed fresh bounded captures with this exact probe and source manifests. The earlier 50 ms-detector captures and first failure remain preserved. No connected/entry-clock or sustained qualification is claimed."
+}

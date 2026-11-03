@@ -30,6 +30,9 @@
 !docs/evidence/
 !docs/evidence/m2b-native-20261103.json
 !docs/evidence/m2c-native-20261103.json
+!docs/evidence/broker-campaign-final-20261103.json
+!docs/evidence/provider-campaign-final-20261103.json
+!docs/evidence/m2d-no-order-20261103.json
 !README.md
 **/__pycache__/
 **/*.pyc
