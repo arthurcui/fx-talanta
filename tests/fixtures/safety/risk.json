@@ -1,0 +1,689 @@
+{
+  "version": "m2c-safety/1",
+  "note": "Synthetic, hand-declared outcomes. No native expected outputs are exported. Prices and fee rates are not broker calibration.",
+  "defaults": {
+    "symbol": "EURUSD",
+    "currency": "USD",
+    "side": "BUY",
+    "bid": "1.1",
+    "ask": "1.1002",
+    "stop": "1.098",
+    "benchmark": "1.1002",
+    "maximum_spread": "0.0003",
+    "maximum_adverse": "0.0002",
+    "usd_to_account": "1",
+    "base_to_account": "1.1",
+    "quote_to_account": "1",
+    "cost_to_account": "1",
+    "commission_currency": "USD",
+    "conversion_age_ms": 500,
+    "quote_age_ms": 500,
+    "clock_error_ms": 10,
+    "expires_in_ms": 60000,
+    "inputs_ok": true,
+    "blackout": false,
+    "session_open": true,
+    "flags": 0,
+    "occupied_slots": 0,
+    "symbol_occupied": false,
+    "cashflows_known": true,
+    "equity": "10000",
+    "capital": "10000",
+    "day_start": "10000",
+    "day_loss": "0",
+    "commission": "4",
+    "slippage": "5",
+    "financing": "0",
+    "contract": "100000",
+    "tick_size": "0.00001",
+    "tick_value_loss": "1",
+    "broker_loss_per_lot": "220",
+    "broker_margin_per_lot": "2200",
+    "minimum": "0.01",
+    "step": "0.01",
+    "maximum": "100",
+    "request_volume": "0.09",
+    "request_risk": "25",
+    "existing_risk": "0",
+    "existing_gross": "0",
+    "existing_margin": "0",
+    "base_exposure": "0",
+    "quote_exposure": "0",
+    "other_exposure": "0",
+    "stress_loss": "0",
+    "stopout_ratio": "1.5",
+    "measured_at_ms": 1767614400000
+  },
+  "cases": [
+    {
+      "id": "usd-eurusd-buy",
+      "input": {},
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "usd-eurusd-sell",
+      "input": {
+        "side": "SELL",
+        "stop": "1.1022",
+        "benchmark": "1.1"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "cad-eurusd-buy",
+      "input": {
+        "currency": "CAD",
+        "usd_to_account": "1.35",
+        "base_to_account": "1.485",
+        "quote_to_account": "1.35",
+        "cost_to_account": "1.35",
+        "equity": "13500",
+        "capital": "13500",
+        "day_start": "13500",
+        "tick_value_loss": "1.35",
+        "broker_loss_per_lot": "297",
+        "broker_margin_per_lot": "2970",
+        "request_risk": "33.75"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "cad-eurusd-sell",
+      "input": {
+        "currency": "CAD",
+        "usd_to_account": "1.35",
+        "base_to_account": "1.485",
+        "quote_to_account": "1.35",
+        "cost_to_account": "1.35",
+        "equity": "13500",
+        "capital": "13500",
+        "day_start": "13500",
+        "tick_value_loss": "1.35",
+        "broker_loss_per_lot": "297",
+        "broker_margin_per_lot": "2970",
+        "request_risk": "33.75",
+        "side": "SELL",
+        "stop": "1.1022",
+        "benchmark": "1.1"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "cad-account-costs",
+      "input": {
+        "currency": "CAD",
+        "usd_to_account": "1.35",
+        "base_to_account": "1.485",
+        "quote_to_account": "1.35",
+        "cost_to_account": "1",
+        "equity": "13500",
+        "capital": "13500",
+        "day_start": "13500",
+        "tick_value_loss": "1.35",
+        "broker_loss_per_lot": "297",
+        "broker_margin_per_lot": "2970",
+        "request_risk": "33.75",
+        "commission_currency": "CAD",
+        "commission": "5.4",
+        "slippage": "6.75"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "usd-usdjpy-buy",
+      "input": {
+        "symbol": "USDJPY",
+        "bid": "150",
+        "ask": "150.02",
+        "stop": "149.8",
+        "benchmark": "150.02",
+        "maximum_spread": "0.03",
+        "maximum_adverse": "0.02",
+        "base_to_account": "1",
+        "quote_to_account": "0.006666666666666666666666666667",
+        "tick_size": "0.001",
+        "tick_value_loss": "0.6666666666666666666666666667",
+        "broker_loss_per_lot": "146.6666666666666666666666667",
+        "broker_margin_per_lot": "2000"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "usd-usdjpy-sell",
+      "input": {
+        "symbol": "USDJPY",
+        "bid": "150",
+        "ask": "150.02",
+        "stop": "150.22",
+        "benchmark": "150",
+        "maximum_spread": "0.03",
+        "maximum_adverse": "0.02",
+        "base_to_account": "1",
+        "quote_to_account": "0.006666666666666666666666666667",
+        "tick_size": "0.001",
+        "tick_value_loss": "0.6666666666666666666666666667",
+        "broker_loss_per_lot": "146.6666666666666666666666667",
+        "broker_margin_per_lot": "2000",
+        "side": "SELL"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "cad-usdjpy-buy",
+      "input": {
+        "currency": "CAD",
+        "usd_to_account": "1.35",
+        "base_to_account": "1.35",
+        "quote_to_account": "0.009",
+        "cost_to_account": "1.35",
+        "equity": "13500",
+        "capital": "13500",
+        "day_start": "13500",
+        "tick_value_loss": "0.9",
+        "broker_loss_per_lot": "198",
+        "broker_margin_per_lot": "2700",
+        "request_risk": "33.75",
+        "symbol": "USDJPY",
+        "bid": "150",
+        "ask": "150.02",
+        "stop": "149.8",
+        "benchmark": "150.02",
+        "maximum_spread": "0.03",
+        "maximum_adverse": "0.02",
+        "tick_size": "0.001"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "cad-usdjpy-sell",
+      "input": {
+        "currency": "CAD",
+        "usd_to_account": "1.35",
+        "base_to_account": "1.35",
+        "quote_to_account": "0.009",
+        "cost_to_account": "1.35",
+        "equity": "13500",
+        "capital": "13500",
+        "day_start": "13500",
+        "tick_value_loss": "0.9",
+        "broker_loss_per_lot": "198",
+        "broker_margin_per_lot": "2700",
+        "request_risk": "33.75",
+        "symbol": "USDJPY",
+        "bid": "150",
+        "ask": "150.02",
+        "stop": "150.22",
+        "benchmark": "150",
+        "maximum_spread": "0.03",
+        "maximum_adverse": "0.02",
+        "tick_size": "0.001",
+        "side": "SELL"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "quote-boundary",
+      "input": {
+        "quote_age_ms": 1990
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09"
+      }
+    },
+    {
+      "id": "quote-over",
+      "input": {
+        "quote_age_ms": 1991
+      },
+      "expected": {
+        "reason": "QUOTE_STALE"
+      }
+    },
+    {
+      "id": "quote-future",
+      "input": {
+        "quote_age_ms": -1
+      },
+      "expected": {
+        "reason": "QUOTE_STALE"
+      }
+    },
+    {
+      "id": "uncertain-future",
+      "input": {
+        "quote_age_ms": 5
+      },
+      "expected": {
+        "reason": "QUOTE_STALE"
+      }
+    },
+    {
+      "id": "clock",
+      "input": {
+        "clock_error_ms": 101
+      },
+      "expected": {
+        "reason": "CLOCK_UNVERIFIED"
+      }
+    },
+    {
+      "id": "expiry",
+      "input": {
+        "expires_in_ms": 10
+      },
+      "expected": {
+        "reason": "EXPIRED"
+      }
+    },
+    {
+      "id": "conversion-old",
+      "input": {
+        "conversion_age_ms": 1991
+      },
+      "expected": {
+        "reason": "CONVERSION_STALE"
+      }
+    },
+    {
+      "id": "missing-rate",
+      "input": {
+        "quote_to_account": "0"
+      },
+      "expected": {
+        "reason": "CONVERSION_MISSING"
+      }
+    },
+    {
+      "id": "wrong-rate",
+      "input": {
+        "base_to_account": "1.11"
+      },
+      "expected": {
+        "reason": "CONVERSION_INCONSISTENT"
+      }
+    },
+    {
+      "id": "cost-currency",
+      "input": {
+        "commission_currency": "CAD"
+      },
+      "expected": {
+        "reason": "CONVERSION_INCONSISTENT"
+      }
+    },
+    {
+      "id": "unknown-flow",
+      "input": {
+        "cashflows_known": false
+      },
+      "expected": {
+        "reason": "UNKNOWN_CASHFLOW"
+      }
+    },
+    {
+      "id": "missing-news",
+      "input": {
+        "inputs_ok": false
+      },
+      "expected": {
+        "reason": "REQUIRED_INPUTS"
+      }
+    },
+    {
+      "id": "blackout",
+      "input": {
+        "blackout": true
+      },
+      "expected": {
+        "reason": "BLACKOUT_OR_SESSION"
+      }
+    },
+    {
+      "id": "closed-session",
+      "input": {
+        "session_open": false
+      },
+      "expected": {
+        "reason": "BLACKOUT_OR_SESSION"
+      }
+    },
+    {
+      "id": "slot-two",
+      "input": {
+        "occupied_slots": 2
+      },
+      "expected": {
+        "reason": "POSITION_LIMIT"
+      }
+    },
+    {
+      "id": "same-symbol",
+      "input": {
+        "symbol_occupied": true
+      },
+      "expected": {
+        "reason": "POSITION_LIMIT"
+      }
+    },
+    {
+      "id": "daily-breach",
+      "input": {
+        "day_loss": "100"
+      },
+      "expected": {
+        "reason": "LOSS_PAUSE"
+      }
+    },
+    {
+      "id": "stop-wrong-side",
+      "input": {
+        "stop": "1.101"
+      },
+      "expected": {
+        "reason": "INVALID_SPECIFICATION"
+      }
+    },
+    {
+      "id": "off-tick-stop",
+      "input": {
+        "stop": "1.098001"
+      },
+      "expected": {
+        "reason": "INVALID_SPECIFICATION"
+      }
+    },
+    {
+      "id": "lot-grid",
+      "input": {
+        "step": "0.03"
+      },
+      "expected": {
+        "reason": "INVALID_SPECIFICATION"
+      }
+    },
+    {
+      "id": "wide-spread",
+      "input": {
+        "maximum_spread": "0.0001"
+      },
+      "expected": {
+        "reason": "COST_LIMIT"
+      }
+    },
+    {
+      "id": "adverse-buy",
+      "input": {
+        "benchmark": "1.099"
+      },
+      "expected": {
+        "reason": "COST_LIMIT"
+      }
+    },
+    {
+      "id": "adverse-sell",
+      "input": {
+        "side": "SELL",
+        "stop": "1.1022",
+        "benchmark": "1.101"
+      },
+      "expected": {
+        "reason": "COST_LIMIT"
+      }
+    },
+    {
+      "id": "reserved-risk",
+      "input": {
+        "existing_risk": "49"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "unknown-reservation",
+      "input": {
+        "flags": 4,
+        "existing_risk": "25"
+      },
+      "expected": {
+        "reason": "OUTCOME_UNKNOWN"
+      }
+    },
+    {
+      "id": "reserved-margin",
+      "input": {
+        "existing_margin": "1999"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "reserved-gross",
+      "input": {
+        "existing_gross": "19999"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "currency-leg",
+      "input": {
+        "base_exposure": "9999"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "other-currency",
+      "input": {
+        "other_exposure": "10001"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "daily-remaining",
+      "input": {
+        "day_loss": "99"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "stopout-stress",
+      "input": {
+        "stress_loss": "9999"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "small-capital",
+      "input": {
+        "capital": "1000"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "backend-risk-small",
+      "input": {
+        "request_risk": "1"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "broker-loss-larger",
+      "input": {
+        "broker_loss_per_lot": "4000"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "broker-margin-larger",
+      "input": {
+        "broker_margin_per_lot": "300000"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "financing-cost",
+      "input": {
+        "financing": "4000"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      }
+    },
+    {
+      "id": "budget-exhausted",
+      "input": {
+        "step": "0.00001",
+        "minimum": "0.00001",
+        "maximum": "10",
+        "request_volume": "100",
+        "existing_risk": "50",
+        "broker_loss_per_lot": "1",
+        "stop": "1.0999",
+        "commission": "0",
+        "slippage": "0"
+      },
+      "expected": {
+        "reason": "COMPUTE_BUDGET"
+      }
+    },
+    {
+      "id": "rounded-reservation",
+      "input": {
+        "request_volume": "0.089"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.08"
+      }
+    },
+    {
+      "id": "partial-plus-reserve",
+      "input": {
+        "existing_risk": "29.02"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.08"
+      }
+    },
+    {
+      "id": "state-1",
+      "input": {
+        "flags": 1
+      },
+      "expected": {
+        "reason": "HARD_HALT"
+      }
+    },
+    {
+      "id": "state-2",
+      "input": {
+        "flags": 2
+      },
+      "expected": {
+        "reason": "LOSS_PAUSE"
+      }
+    },
+    {
+      "id": "state-8",
+      "input": {
+        "flags": 8
+      },
+      "expected": {
+        "reason": "PROTECTION_PENDING"
+      }
+    },
+    {
+      "id": "state-16",
+      "input": {
+        "flags": 16
+      },
+      "expected": {
+        "reason": "STARTUP_RECONCILE"
+      }
+    },
+    {
+      "id": "state-32",
+      "input": {
+        "flags": 32
+      },
+      "expected": {
+        "reason": "DEGRADED_PROTECT"
+      }
+    },
+    {
+      "id": "state-64",
+      "input": {
+        "flags": 64
+      },
+      "expected": {
+        "reason": "OWNER_PAUSED"
+      }
+    },
+    {
+      "id": "state-127",
+      "input": {
+        "flags": 127
+      },
+      "expected": {
+        "reason": "HARD_HALT"
+      }
+    },
+    {
+      "id": "state-126",
+      "input": {
+        "flags": 126
+      },
+      "expected": {
+        "reason": "LOSS_PAUSE"
+      }
+    }
+  ]
+}

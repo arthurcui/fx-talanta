@@ -28,7 +28,7 @@ it is not deployed to broker terminals. The existing Python gateway stays simula
 [decision trace and EA boundary](docs/ea-execution-boundary.md) and
 [ADR-001](docs/adr/001-fixed-ea-execution.md).
 
-**Current: M2A merged; M2B native implementation and bounded test evidence**, preserving completed
+**Current: M2A/M2B merged; [M2C offline safety and native parity](docs/m2c-deterministic-safety.md) implemented**, preserving completed
 M0A–M0C, unresolved M1 gaps and all failed or stopped evidence. New qualification work still needs its own plan/authorization.
 Use the [M1 closure checklist](docs/m1-closure-checklist.md) for the evidence gaps,
 prioritized remediation and conditions for proposing any new tests.

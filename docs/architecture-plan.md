@@ -344,6 +344,12 @@ Handle partial fills as actual filled exposure plus reserved remaining exposure 
 
 ## Current evidence and risk parity
 
+M2C now adds [separate Python/MQL5 deterministic safety libraries and bounded
+native parity evidence](m2c-deterministic-safety.md), preserving the original M0
+USD-only governor. Those synthetic USD/CAD results do not qualify real broker
+cost/conversion sourcing, connected execution, deployed fencing or transport
+timing. The numerical policy below and all retained M1 failures remain unchanged.
+
 Baseline inspected: `main` at `adc864017d29eca0b3dd1769164171a2a26b0fd9` after
 PRs #13 and #14 merged. No PRs were open when this design began. The handoff's
 `c9b2e435` main / draft #13 `0d011cb3` snapshot is superseded. All campaigns are

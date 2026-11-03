@@ -1,0 +1,951 @@
+{
+  "version": "m2c-parity/1",
+  "all_pass": true,
+  "hmac_parity": true,
+  "results": [
+    {
+      "id": "usd-eurusd-buy",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "20.970001",
+        "gross": "9900.000001",
+        "margin": "198.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "20.970001",
+        "gross": "9900.000001",
+        "margin": "198.000001"
+      },
+      "duration_us": 19
+    },
+    {
+      "id": "usd-eurusd-sell",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "20.970001",
+        "gross": "9900.000001",
+        "margin": "198.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "20.970001",
+        "gross": "9900.000001",
+        "margin": "198.000001"
+      },
+      "duration_us": 8
+    },
+    {
+      "id": "cad-eurusd-buy",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "28.309501",
+        "gross": "13365.000001",
+        "margin": "267.300001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "28.309501",
+        "gross": "13365.000001",
+        "margin": "267.300001"
+      },
+      "duration_us": 8
+    },
+    {
+      "id": "cad-eurusd-sell",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "28.309501",
+        "gross": "13365.000001",
+        "margin": "267.300001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "28.309501",
+        "gross": "13365.000001",
+        "margin": "267.300001"
+      },
+      "duration_us": 7
+    },
+    {
+      "id": "cad-account-costs",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "28.309501",
+        "gross": "13365.000001",
+        "margin": "267.300001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "28.309501",
+        "gross": "13365.000001",
+        "margin": "267.300001"
+      },
+      "duration_us": 8
+    },
+    {
+      "id": "usd-usdjpy-buy",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "14.370001",
+        "gross": "9000.000001",
+        "margin": "180.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "14.370001",
+        "gross": "9000.000001",
+        "margin": "180.000001"
+      },
+      "duration_us": 8
+    },
+    {
+      "id": "usd-usdjpy-sell",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "14.370001",
+        "gross": "9000.000001",
+        "margin": "180.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "14.370001",
+        "gross": "9000.000001",
+        "margin": "180.000001"
+      },
+      "duration_us": 8
+    },
+    {
+      "id": "cad-usdjpy-buy",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "19.399501",
+        "gross": "12150.000001",
+        "margin": "243.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "19.399501",
+        "gross": "12150.000001",
+        "margin": "243.000001"
+      },
+      "duration_us": 8
+    },
+    {
+      "id": "cad-usdjpy-sell",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "19.399501",
+        "gross": "12150.000001",
+        "margin": "243.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "19.399501",
+        "gross": "12150.000001",
+        "margin": "243.000001"
+      },
+      "duration_us": 7
+    },
+    {
+      "id": "quote-boundary",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "20.970001",
+        "gross": "9900.000001",
+        "margin": "198.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.09000000",
+        "risk": "20.970001",
+        "gross": "9900.000001",
+        "margin": "198.000001"
+      },
+      "duration_us": 7
+    },
+    {
+      "id": "quote-over",
+      "pass": true,
+      "python": {
+        "reason": "QUOTE_STALE"
+      },
+      "native": {
+        "reason": "QUOTE_STALE",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 2
+    },
+    {
+      "id": "quote-future",
+      "pass": true,
+      "python": {
+        "reason": "QUOTE_STALE"
+      },
+      "native": {
+        "reason": "QUOTE_STALE",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "uncertain-future",
+      "pass": true,
+      "python": {
+        "reason": "QUOTE_STALE"
+      },
+      "native": {
+        "reason": "QUOTE_STALE",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "clock",
+      "pass": true,
+      "python": {
+        "reason": "CLOCK_UNVERIFIED"
+      },
+      "native": {
+        "reason": "CLOCK_UNVERIFIED",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "expiry",
+      "pass": true,
+      "python": {
+        "reason": "EXPIRED"
+      },
+      "native": {
+        "reason": "EXPIRED",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "conversion-old",
+      "pass": true,
+      "python": {
+        "reason": "CONVERSION_STALE"
+      },
+      "native": {
+        "reason": "CONVERSION_STALE",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 2
+    },
+    {
+      "id": "missing-rate",
+      "pass": true,
+      "python": {
+        "reason": "CONVERSION_MISSING"
+      },
+      "native": {
+        "reason": "CONVERSION_MISSING",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 2
+    },
+    {
+      "id": "wrong-rate",
+      "pass": true,
+      "python": {
+        "reason": "CONVERSION_INCONSISTENT"
+      },
+      "native": {
+        "reason": "CONVERSION_INCONSISTENT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 2
+    },
+    {
+      "id": "cost-currency",
+      "pass": true,
+      "python": {
+        "reason": "CONVERSION_INCONSISTENT"
+      },
+      "native": {
+        "reason": "CONVERSION_INCONSISTENT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 3
+    },
+    {
+      "id": "unknown-flow",
+      "pass": true,
+      "python": {
+        "reason": "UNKNOWN_CASHFLOW"
+      },
+      "native": {
+        "reason": "UNKNOWN_CASHFLOW",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 0
+    },
+    {
+      "id": "missing-news",
+      "pass": true,
+      "python": {
+        "reason": "REQUIRED_INPUTS"
+      },
+      "native": {
+        "reason": "REQUIRED_INPUTS",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "blackout",
+      "pass": true,
+      "python": {
+        "reason": "BLACKOUT_OR_SESSION"
+      },
+      "native": {
+        "reason": "BLACKOUT_OR_SESSION",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "closed-session",
+      "pass": true,
+      "python": {
+        "reason": "BLACKOUT_OR_SESSION"
+      },
+      "native": {
+        "reason": "BLACKOUT_OR_SESSION",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "slot-two",
+      "pass": true,
+      "python": {
+        "reason": "POSITION_LIMIT"
+      },
+      "native": {
+        "reason": "POSITION_LIMIT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 4
+    },
+    {
+      "id": "same-symbol",
+      "pass": true,
+      "python": {
+        "reason": "POSITION_LIMIT"
+      },
+      "native": {
+        "reason": "POSITION_LIMIT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 3
+    },
+    {
+      "id": "daily-breach",
+      "pass": true,
+      "python": {
+        "reason": "LOSS_PAUSE"
+      },
+      "native": {
+        "reason": "LOSS_PAUSE",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 3
+    },
+    {
+      "id": "stop-wrong-side",
+      "pass": true,
+      "python": {
+        "reason": "INVALID_SPECIFICATION"
+      },
+      "native": {
+        "reason": "INVALID_SPECIFICATION",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 2
+    },
+    {
+      "id": "off-tick-stop",
+      "pass": true,
+      "python": {
+        "reason": "INVALID_SPECIFICATION"
+      },
+      "native": {
+        "reason": "INVALID_SPECIFICATION",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 3
+    },
+    {
+      "id": "lot-grid",
+      "pass": true,
+      "python": {
+        "reason": "INVALID_SPECIFICATION"
+      },
+      "native": {
+        "reason": "INVALID_SPECIFICATION",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 3
+    },
+    {
+      "id": "wide-spread",
+      "pass": true,
+      "python": {
+        "reason": "COST_LIMIT"
+      },
+      "native": {
+        "reason": "COST_LIMIT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 3
+    },
+    {
+      "id": "adverse-buy",
+      "pass": true,
+      "python": {
+        "reason": "COST_LIMIT"
+      },
+      "native": {
+        "reason": "COST_LIMIT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 3
+    },
+    {
+      "id": "adverse-sell",
+      "pass": true,
+      "python": {
+        "reason": "COST_LIMIT"
+      },
+      "native": {
+        "reason": "COST_LIMIT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 4
+    },
+    {
+      "id": "reserved-risk",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 10
+    },
+    {
+      "id": "unknown-reservation",
+      "pass": true,
+      "python": {
+        "reason": "OUTCOME_UNKNOWN"
+      },
+      "native": {
+        "reason": "OUTCOME_UNKNOWN",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 0
+    },
+    {
+      "id": "reserved-margin",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 11
+    },
+    {
+      "id": "reserved-gross",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 11
+    },
+    {
+      "id": "currency-leg",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 15
+    },
+    {
+      "id": "other-currency",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 18
+    },
+    {
+      "id": "daily-remaining",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 10
+    },
+    {
+      "id": "stopout-stress",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 13
+    },
+    {
+      "id": "small-capital",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 6
+    },
+    {
+      "id": "backend-risk-small",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 5
+    },
+    {
+      "id": "broker-loss-larger",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 5
+    },
+    {
+      "id": "broker-margin-larger",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 5
+    },
+    {
+      "id": "financing-cost",
+      "pass": true,
+      "python": {
+        "reason": "MINIMUM_LOT"
+      },
+      "native": {
+        "reason": "MINIMUM_LOT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 5
+    },
+    {
+      "id": "budget-exhausted",
+      "pass": true,
+      "python": {
+        "reason": "COMPUTE_BUDGET"
+      },
+      "native": {
+        "reason": "COMPUTE_BUDGET",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1820
+    },
+    {
+      "id": "rounded-reservation",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.08",
+        "risk": "18.640001",
+        "gross": "8800.000001",
+        "margin": "176.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.08000000",
+        "risk": "18.640001",
+        "gross": "8800.000001",
+        "margin": "176.000001"
+      },
+      "duration_us": 6
+    },
+    {
+      "id": "partial-plus-reserve",
+      "pass": true,
+      "python": {
+        "reason": "ACCEPTED",
+        "volume": "0.08",
+        "risk": "18.640001",
+        "gross": "8800.000001",
+        "margin": "176.000001"
+      },
+      "native": {
+        "reason": "ACCEPTED",
+        "volume": "0.08000000",
+        "risk": "18.640001",
+        "gross": "8800.000001",
+        "margin": "176.000001"
+      },
+      "duration_us": 7
+    },
+    {
+      "id": "state-1",
+      "pass": true,
+      "python": {
+        "reason": "HARD_HALT"
+      },
+      "native": {
+        "reason": "HARD_HALT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 0
+    },
+    {
+      "id": "state-2",
+      "pass": true,
+      "python": {
+        "reason": "LOSS_PAUSE"
+      },
+      "native": {
+        "reason": "LOSS_PAUSE",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 0
+    },
+    {
+      "id": "state-8",
+      "pass": true,
+      "python": {
+        "reason": "PROTECTION_PENDING"
+      },
+      "native": {
+        "reason": "PROTECTION_PENDING",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 0
+    },
+    {
+      "id": "state-16",
+      "pass": true,
+      "python": {
+        "reason": "STARTUP_RECONCILE"
+      },
+      "native": {
+        "reason": "STARTUP_RECONCILE",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 0
+    },
+    {
+      "id": "state-32",
+      "pass": true,
+      "python": {
+        "reason": "DEGRADED_PROTECT"
+      },
+      "native": {
+        "reason": "DEGRADED_PROTECT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "state-64",
+      "pass": true,
+      "python": {
+        "reason": "OWNER_PAUSED"
+      },
+      "native": {
+        "reason": "OWNER_PAUSED",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 0
+    },
+    {
+      "id": "state-127",
+      "pass": true,
+      "python": {
+        "reason": "HARD_HALT"
+      },
+      "native": {
+        "reason": "HARD_HALT",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 1
+    },
+    {
+      "id": "state-126",
+      "pass": true,
+      "python": {
+        "reason": "LOSS_PAUSE"
+      },
+      "native": {
+        "reason": "LOSS_PAUSE",
+        "volume": "0.00000000",
+        "risk": "0.000000",
+        "gross": "0.000000",
+        "margin": "0.000000"
+      },
+      "duration_us": 0
+    }
+  ],
+  "timing_scope": "One native pure-calculation pass per synthetic snapshot; excludes broker/transport/OS scheduling latency",
+  "shadow_compute_budget_us": 20000,
+  "shadow_compute_max_us": 1820,
+  "shadow_compute_pass": true,
+  "native_assertions": 52,
+  "native_failures": 0,
+  "compiler_build": "5.0.0.6295",
+  "terminal_build": "5.0.0.6295",
+  "compiler_errors": 0,
+  "compiler_warnings": 0,
+  "connected_execution_enabled": false,
+  "account_profiles_copied": 0,
+  "new_broker_accounts": 0,
+  "new_campaigns": 0,
+  "order_api_calls_in_compiled_sources": 0,
+  "native_mode": "Model=3; isolated local math Tester; no broker account login; remote/cloud agents disabled",
+  "source_sha256": {
+    "mql5/gateway/Core.mqh": "0707e0dd42d0d0287fa4736ca34a1af5ce8a9d6d4093fe45cdcb60f8384cb58f",
+    "mql5/gateway/Wire.mqh": "3de5c0a65bc1b6e97bd0e77bd7821bfc395e0fce7f134c41effd34acdb8c6ebd",
+    "mql5/safety/Control.mqh": "6a356d4f7c4f51b6a3c08688089e7e589a5386cbea7b8c66949156d56b41b242",
+    "mql5/safety/Exposure.mqh": "a50dd3688d579212663ecd01f5d8bfaac9f3539a6be519a2d5bd0747eb8f9f1f",
+    "mql5/safety/Fence.mqh": "06024c335ab1a4f8261720dda2429f412422c83d42a0e3b92004bf56b71a754c",
+    "mql5/safety/NativeTests.mq5": "6edab1ad6fcdc8b1da029d345883ac553ac03bdece8f8d90e54f62b260644023",
+    "mql5/safety/Preflight.mqh": "fdda266458b3ac6460410353858483dc8e040bdf4397f09adaeea484fb8ce548",
+    "mql5/safety/Risk.mqh": "2e62685c22176f9e1ad1a55d7e3cc916991087dc6472023c4d442b2ad2c6d71d",
+    "mql5/safety/StateStore.mqh": "92a2cdf6b054fdcffc47429171d471ad09b4e202e6e91bb161fa5e580051fd06",
+    "scripts/m2c_evidence.py": "15c2160de3cea6659d8f00421792968b68f008c741e96d621cd1fffdfd73578c",
+    "src/fx_talanta/safety/__init__.py": "00cf7ebce9bb8f50e7caec244df55c289bd342caa244270aac9cfabb9fcd3370",
+    "src/fx_talanta/safety/control.py": "03cb2c859526193e759e0bc5119ad654469239eb91bc063b395ae4927b1d1e2b",
+    "src/fx_talanta/safety/exposure.py": "f8d6e809f546facdff4bd7b521276318edf151bbfbb8ac924719daa5f2fb23c5",
+    "src/fx_talanta/safety/journal.py": "34627f0d791f8ac232455775f51c5eb2679543bdabc31f3779faad4470b9eaa7",
+    "src/fx_talanta/safety/preflight.py": "2861249816d590665e9039fa254fc54c254162d294ff6a04c52ae4283c1b37ff",
+    "src/fx_talanta/safety/risk.py": "ab4d4db4cec68bdf71607d657727c3aac1f0f5a604ad80e55b6be0d42b251e36",
+    "tests/fixtures/safety/risk.json": "6eea4d97bd1b719f27fbdc7a4d530eded97075b69684da7438c24d3ccd014517"
+  },
+  "artifact_sha256": {
+    "MQL5/Experts/FXTalanta/safety/NativeTests.ex5": "bb3d5d553f0f38c6af17bf1b32299093d3093861f61bf62f04f88b273e79661c",
+    "Tester/Agent-127.0.0.1-3001/MQL5/Files/m2c-risk.tsv": "823fb60134b3651553f1783ed4a67b790117ad540e87b6a3c3b3e6968f34c60c",
+    "Tester/Agent-127.0.0.1-3001/MQL5/Files/m2c-native.tsv": "461d3bc99b67458cacd6ce66f22fd0e302d511a3562839c80160a7848d9af6a4",
+    "Tester/Agent-127.0.0.1-3001/MQL5/Files/m2c-hmac.txt": "70a48c181a44472290588757cb0413fa6d45f1154eff0e9e57f76eb36d969102",
+    "Tester/Agent-127.0.0.1-3001/MQL5/Files/m2c-loss.journal": "669386c01562939218ce65f4c095d2df7fd330100f0b5d4833aee2bed892b6e8",
+    "Tester/Agent-127.0.0.1-3001/MQL5/Files/m2c-full-loss.journal": "068b41b71a4e899507544506a1cee101e0157a2786302d629a4035f92a13ec65",
+    "Tester/Agent-127.0.0.1-3001/logs/20261103.log": "83add79f9221f83b4cd1745f58fc1983a4bd087ffd7a52e3c6fce023c159edb7",
+    "compile-06.log": "a51d97ab65f0aaec3a44fd91c7399ec25a1d7e74552343902a8261507ef7ac2e",
+    "native-05.ini": "940a6db646b08d9abeaff4a157468263b212bd0c89a215dea0c6576c202657f8"
+  },
+  "retained_attempts": [
+    "compile-01: failed (reserved identifier); log preserved",
+    "compile-02: 0 errors, 7 boolean warnings; 32 native checks/56 risk cases passed",
+    "compile-03: 0 errors/warnings; 43 native checks/56 risk cases passed",
+    "compile-04: 0 errors/warnings; 50 native checks/56 risk cases passed",
+    "Python cash-flow drawdown boundary regression corrected and rerun",
+    "compile-05: 0 errors/warnings; 52 native checks/56 risk cases passed, including high-water and daily-baseline reset rejection",
+    "compile-06: LF source normalization; 0 errors/warnings; same 52 native checks and 56 parity cases passed"
+  ],
+  "qualification": "OFFLINE_SAFETY_EVIDENCE_ONLY; real broker/cost sources, deployed transport/fencing and end-to-end shadow timing remain open"
+}

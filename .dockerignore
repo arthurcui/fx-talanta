@@ -18,6 +18,9 @@
 !mql5/gateway/
 !mql5/gateway/*.mq5
 !mql5/gateway/*.mqh
+!mql5/safety/
+!mql5/safety/*.mq5
+!mql5/safety/*.mqh
 !configs/
 !configs/news-filter.example.json
 !configs/news-filter.fixture.json
@@ -26,6 +29,7 @@
 !docs/
 !docs/evidence/
 !docs/evidence/m2b-native-20261103.json
+!docs/evidence/m2c-native-20261103.json
 !README.md
 **/__pycache__/
 **/*.pyc
