@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "source": "FRED",
+  "started_at": "2026-11-02T21:20:15.187171Z",
+  "available_at": "2026-11-02T21:20:16.524719Z",
+  "window_start": "2026-11-02",
+  "window_end": "2026-12-02",
+  "status": "OK",
+  "error": null,
+  "dates": [
+    {
+      "release_id": 50,
+      "date": "2026-11-06"
+    },
+    {
+      "release_id": 10,
+      "date": "2026-11-10"
+    },
+    {
+      "release_id": 46,
+      "date": "2026-11-13"
+    },
+    {
+      "release_id": 192,
+      "date": "2026-11-03"
+    },
+    {
+      "release_id": 192,
+      "date": "2026-12-01"
+    }
+  ],
+  "response_hashes": [
+    "3417370900474708a5e5a603c06f7752d4cfa50062e3238a2b78001e950d45d4",
+    "ddaa3217ec2123cb4d39d7994b5f6f36ad0fc0371d62e09bf9298e3279232881",
+    "8a3e74f2cc1625fba78b1a524f494e4e3425ca61f27fd4604e24403e5a4a15c7",
+    "c5d9708e5a50024b9c8e9afb6a36275580f25749702ab96ed2391ea6e82529fc"
+  ],
+  "previous_hash": null,
+  "qualified_for_trading": false,
+  "execution_enabled": false
+}

@@ -1,0 +1,32 @@
+{
+  "verified_at": "2026-11-02T21:55:36.306013+00:00",
+  "source_url": "https://www.bls.gov/schedule/news_release/bls.ics",
+  "browser": "Chrome existing user session",
+  "permission": "User reported selecting Allow for multiple downloads",
+  "results": [
+    {
+      "attempt": 1,
+      "bytes": 80672,
+      "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+      "target_events": 92,
+      "download_elapsed_ms": 320
+    },
+    {
+      "attempt": 2,
+      "bytes": 80672,
+      "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+      "target_events": 92,
+      "download_elapsed_ms": 233
+    },
+    {
+      "attempt": 3,
+      "bytes": 80672,
+      "sha256": "92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501",
+      "target_events": 92,
+      "download_elapsed_ms": 206
+    }
+  ],
+  "consecutive_successes": 3,
+  "qualified_for_trading": false,
+  "sustained_refresh_verified": false
+}

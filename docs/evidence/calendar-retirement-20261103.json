@@ -1,0 +1,21 @@
+{
+  "stopped_at_utc": "2026-11-03T00:42:03.4102148+00:00",
+  "task_disabled": true,
+  "service_lock_released": true,
+  "root_stop_present": true,
+  "service_stop_present": true,
+  "deployment_files_preserved": 115,
+  "inbox_files_preserved": 17,
+  "execution_enabled": false,
+  "schema_version": 1,
+  "route": "MT5 calendar",
+  "state": "RETIRED",
+  "reason": "Use broker-independent direct HTTP calendar/news providers",
+  "historical_source_commit": "b571d57ccc5afcb7128aa019c71c977012a6dd81",
+  "evidence_preserved": true,
+  "provider_qualification_granted": false,
+  "terminal_processes_unchanged": true,
+  "changed_preserved_deployment_files": 0,
+  "changed_preserved_inbox_files": 0,
+  "new_inbox_files_after_shutdown": 0
+}

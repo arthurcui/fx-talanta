@@ -1,0 +1,78 @@
+{
+  "started_at": "2026-11-02T21:41:21.793139+00:00",
+  "available_at": "2026-11-02T21:41:29.276133+00:00",
+  "fred_hash": "b6c39ea47b828cdedac39e9240071f17ec5db4bfe5340bb592fafd08ffdc75c8",
+  "bls_hash": "9323342bc29c570476221e589ec1e6ace27406ae2e9bb17641b28b9386ce389e",
+  "pages": [
+    {
+      "date": "2026-11-03",
+      "fetched_at": "2026-11-02T21:41:21.793262+00:00",
+      "source_hash": "fac83a20661d361e0946e3eb697ae2441451815cab57cb3fb74f5f67ecad4cdb",
+      "status": "PARSED"
+    },
+    {
+      "date": "2026-11-06",
+      "fetched_at": "2026-11-02T21:41:22.664411+00:00",
+      "source_hash": "b646ca65f5c99681f00a2e58551b2446aa0d0e2245b73c1afbc49534dba91c01",
+      "status": "PARSED"
+    },
+    {
+      "date": "2026-11-10",
+      "fetched_at": "2026-11-02T21:41:24.612915+00:00",
+      "source_hash": "c2a09420248f71b3df23b22444d885bb877b28716e764512d3494bbc4fc06c18",
+      "status": "PARSED"
+    },
+    {
+      "date": "2026-11-13",
+      "fetched_at": "2026-11-02T21:41:27.405044+00:00",
+      "source_hash": "943ab227c26e914007b41ab9ad07334675190298c3c21b9c6a354b54604daa44",
+      "status": "PARSED"
+    },
+    {
+      "date": "2026-12-01",
+      "fetched_at": "2026-11-02T21:41:28.365910+00:00",
+      "source_hash": "d93a8c2328e8c695bf6497277f84993fc3e52b673ee670fcad3b6b74d1a18334",
+      "status": "PARSED"
+    }
+  ],
+  "matches": [
+    {
+      "release_id": 192,
+      "date": "2026-11-03",
+      "scheduled_at": "2026-11-03T15:00:00+00:00",
+      "matches_bls": true
+    },
+    {
+      "release_id": 50,
+      "date": "2026-11-06",
+      "scheduled_at": "2026-11-06T13:30:00+00:00",
+      "matches_bls": true
+    },
+    {
+      "release_id": 10,
+      "date": "2026-11-10",
+      "scheduled_at": "2026-11-10T13:30:00+00:00",
+      "matches_bls": true
+    },
+    {
+      "release_id": 46,
+      "date": "2026-11-13",
+      "scheduled_at": "2026-11-13T13:30:00+00:00",
+      "matches_bls": true
+    },
+    {
+      "release_id": 192,
+      "date": "2026-12-01",
+      "scheduled_at": "2026-12-01T15:00:00+00:00",
+      "matches_bls": true
+    }
+  ],
+  "comparison_passed": true,
+  "reasons": [],
+  "previous_hash": "4cbfdac65cfa5b590dfab72ad223195f15545422a85bc1746e8f608d3afdaf29",
+  "bls_provenance": "MANUAL_FILE",
+  "block_entries": true,
+  "qualified_for_trading": false,
+  "execution_enabled": false,
+  "limitation": "Bounded transport/time comparison only; no sustained refresh evidence"
+}

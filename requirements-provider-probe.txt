@@ -1,0 +1,2 @@
+# Optional native TLS for the isolated public-provider probe; not broker runtime.
+truststore==0.10.5

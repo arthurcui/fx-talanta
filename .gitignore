@@ -11,3 +11,5 @@ __pycache__/
 .ruff_cache/
 build/
 dist/
+bridges/mt5/*.ex5
+bridges/mt5/*.log
