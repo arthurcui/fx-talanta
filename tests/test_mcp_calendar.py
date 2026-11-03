@@ -437,13 +437,25 @@ def test_transport_failures_do_not_expose_server_messages(tmp_path, kind):
     assert NoRedirect().redirect_request(None, None, 302, None, None, "https://example.com") is None
 
 
-def test_native_revision_regression_and_clock_change_do_not_update_cursor(tmp_path):
+def test_native_revision_regression_does_not_update_cursor(tmp_path):
     with closing(Journal(tmp_path / "calendar.sqlite", create=True)) as journal:
         save(journal, capture(Fake(rows=[value(revision=1)])))
         older = capture(Fake(rows=[value(revision=0, change_id="11")], new_cursor="11"), "10")
         with pytest.raises(ValueError, match="regressed"):
             save(journal, older, NOW + timedelta(seconds=1))
         assert mcp.checkpoint(journal.conn)["database_cursor"] == "10"
+
+
+def test_aging_snapshot_does_not_relabel_transport_success(tmp_path):
+    with closing(Journal(tmp_path / "calendar.sqlite", create=True)) as journal:
+        save(journal, capture())
+        cutoff = NOW + timedelta(seconds=121)
+        check = next(c for c in journal.inputs(cutoff).checks if c.source == mcp.SOURCE)
+        assert check.connection == "OK" and check.checked_at == NOW
+        assert (cutoff - check.checked_at).total_seconds() > 120
+        assert not check.complete and check.verified_through is None
+        result = journal.evaluate("EURUSD", cutoff)
+        assert not result.calendar_ok and not result.execution_enabled
 
 
 def test_existing_news_and_mcp_share_journal_without_false_coverage(tmp_path):

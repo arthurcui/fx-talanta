@@ -92,7 +92,7 @@
     "No provider promotion, automatic failover or 24-hour campaign was started."
   ],
   "local_validation": {
-    "passed": 315,
+    "passed": 316,
     "skipped": 119,
     "skipped_reason": "PostgreSQL-dependent checks deferred to isolated CI to preserve active environments",
     "ruff_check": "PASS",

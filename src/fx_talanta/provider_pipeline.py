@@ -455,7 +455,11 @@ class Journal:
                 )
                 coverage_from = datetime.fromisoformat(snapshot["coverage_from"])
                 coverage_until = datetime.fromisoformat(snapshot["coverage_until"])
-                if not 0 <= (cutoff - checked_at).total_seconds() <= 120 or cutoff > coverage_until:
+                # MCP transport success remains historical fact. The filter checks
+                # its age and coverage separately; staleness is not a failed request.
+                if source == "mt5_calendar" and (
+                    not 0 <= (cutoff - checked_at).total_seconds() <= 120 or cutoff > coverage_until
+                ):
                     state = "FAILED"
             currencies = (
                 ("USD", "EUR", "JPY")

@@ -120,11 +120,13 @@ policy. No unattended deployment or new 24-hour campaign is started by this chan
 
 ## Validation and remaining qualification
 
-Local validation passed 315 tests; 119 PostgreSQL-dependent tests were skipped
+Local validation passed 316 tests; 119 PostgreSQL-dependent tests were skipped
 locally to preserve active broker environments. Focused tests include atomic
 cursor/revision rollback, restart replay, identity/version conflicts, uncertainty,
 omissions, clock/anchor mismatch, partial responses, invalid endpoints, timeout and
 server-error sanitization, multiline SSE, and coexistence with news in one journal.
+A successful MCP request retains its transport result as the snapshot ages;
+the filter evaluates freshness and coverage separately and continues blocking entries.
 CI runs the full PostgreSQL, Docker/container and profile checks on the PR commit.
 
 Real release revisions and terminal disconnect recovery have not yet been observed.
