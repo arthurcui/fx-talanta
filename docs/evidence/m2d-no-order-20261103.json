@@ -5,10 +5,10 @@
   "final_harness_source_sha256": {
     "src/fx_talanta/acceptance/clock_probe.py": "ec46a4045349ffc529c8904b41e20f8ee04aedbbbcb843c4b5430ee970bdc581",
     "src/fx_talanta/acceptance/faults.py": "1afecb85736278779de6ac5456cdbde9d3d87e2126a05cca8ab430ae552dbea4",
-    "src/fx_talanta/acceptance/probe.py": "8ec680b073d93cb77daebc8a9494b46c0c72aa6b4ccd5bf6de1988a0e7befefc",
+    "src/fx_talanta/acceptance/probe.py": "506d66f0b6cf66a2c25e5eea01dc7d1f2f8457f0218ebaef5a3e2d5bb9c03735",
     "src/fx_talanta/acceptance/__init__.py": "a0deb7325976db39b5640fcd9b074391a28a99b1d8c4c65a60336cfd88067504",
     "scripts/m2d_acceptance.py": "506f51810ac36f70b107be093f8dbf9c873dd03120772d85a4f909f6a8d34392",
-    "tests/test_m2d_acceptance.py": "5b33f61ce32b4c72e999928b80badfcd2de5bdd9f506f85259e6e5c1ad8dd8a2"
+    "tests/test_m2d_acceptance.py": "c19248465cfcf5001f15ac24453ea92e4741ef7050a6726adfe6446173402bf0"
   },
   "source_hash_scope": "Final portable harness only. Initial probe artifacts predate automatic source manifests; no contemporaneous source-hash claim for them.",
   "offline": {
@@ -599,5 +599,6 @@
   "m2d_accepted": false,
   "new_broker_accounts": 0,
   "new_campaigns": 0,
-  "terminal_deployments": 0
+  "terminal_deployments": 0,
+  "final_review_note": "Final probe enforces observed wall/monotonic drift <=2 ms, including after quote reads. Successful captures used the earlier 50 ms detector and do not verify the final guard or entry-clock qualification. A synthetic 30 ms jump regression verifies the veto."
 }

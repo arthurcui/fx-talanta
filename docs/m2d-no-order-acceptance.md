@@ -83,6 +83,12 @@ change and does not explain the earlier CMC campaign's `INVALID_DATA` failure.
 The subsequent short CMC capture completed. FOREX's successful first capture is
 retained; neither historical campaign was restarted.
 
+Final review also aligned the tool's observed wall/monotonic drift limit with its
+2 ms guard, including a check after quote retrieval. The successful captures used
+the earlier 50 ms jump detector. They remain observations under that earlier
+detector, not proof of the final guard; no connected or entry-clock qualification
+is claimed. A synthetic 30 ms jump regression verifies the stricter final veto.
+
 ## Evidence and use
 
 The sanitized [M2D evidence](evidence/m2d-no-order-20261103.json) contains actual

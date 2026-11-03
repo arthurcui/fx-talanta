@@ -215,6 +215,28 @@ def test_slow_identity_read_is_not_a_clock_jump(capture_fixture):
     assert probe.capture(path, folder, 10)["status"] == "CAPTURED"
 
 
+def test_jump_smaller_than_old_detector_exceeds_two_ms_guard(capture_fixture, monkeypatch):
+    path, folder, sdk, _, _ = capture_fixture
+    original_clock = probe.datetime
+    shift = [0]
+
+    class JumpingClock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return original_clock.now(tz) + timedelta(seconds=shift[0])
+
+    original_tick = sdk.symbol_info_tick
+
+    def tick(symbol):
+        shift[0] = 0.03
+        return original_tick(symbol)
+
+    monkeypatch.setattr(probe, "datetime", JumpingClock)
+    sdk.symbol_info_tick = tick
+    with pytest.raises(ObservationFailure, match="HOST_CLOCK_CHANGED"):
+        probe.capture(path, folder, 10)
+
+
 def test_existing_terminal_required_before_initialize(capture_fixture, monkeypatch):
     path, folder, _, calls, _ = capture_fixture
     monkeypatch.setattr(probe, "running_pids", lambda _: [])

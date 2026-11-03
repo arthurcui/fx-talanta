@@ -216,7 +216,10 @@ def capture(binding_path: Path, folder: Path, seconds: int):
                 validate_terminal(api, binding)
                 sampled_monotonic = time.monotonic()
                 now = datetime.now(UTC)
-                if abs((now - initial_wall).total_seconds() - (sampled_monotonic - started)) > 0.05:
+                if (
+                    abs((now - initial_wall).total_seconds() - (sampled_monotonic - started))
+                    > 0.002
+                ):
                     raise ObservationFailure("HOST_CLOCK_CHANGED")
                 clock.check(now)
                 quotes = []
@@ -231,6 +234,11 @@ def capture(binding_path: Path, folder: Path, seconds: int):
                     ):
                         raise ObservationFailure("INVALID_QUOTE")
                     receipt = datetime.now(UTC)
+                    if (
+                        abs((receipt - initial_wall).total_seconds() - (time.monotonic() - started))
+                        > 0.002
+                    ):
+                        raise ObservationFailure("HOST_CLOCK_CHANGED")
                     age = (receipt - clock.decode(tick.time_msc / 1000)).total_seconds() * 1000
                     quotes.append(
                         {
