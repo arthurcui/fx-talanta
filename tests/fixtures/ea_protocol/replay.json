@@ -1,0 +1,104 @@
+{
+  "note": "A single ordered inbox. Hash tokens represent canonical payload digests; native harness validates envelope routing/replay only, not JSON canonicalization. Native mode is never production authentication.",
+  "cases": [
+    {
+      "id": "accept",
+      "request": "one",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "account": "fixture-usd",
+      "version": "ea-protocol/1",
+      "expires": 60,
+      "now": 1,
+      "expected": "ACCEPTED"
+    },
+    {
+      "id": "replay-after-expiry",
+      "request": "one",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "account": "fixture-usd",
+      "version": "ea-protocol/1",
+      "expires": 60,
+      "now": 61,
+      "expected": "REPLAY"
+    },
+    {
+      "id": "hash-conflict",
+      "request": "one",
+      "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "sequence": 1,
+      "account": "fixture-usd",
+      "version": "ea-protocol/1",
+      "expires": 60,
+      "now": 2,
+      "expected": "HASH_CONFLICT"
+    },
+    {
+      "id": "cross-account",
+      "request": "two",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 2,
+      "account": "other-account",
+      "version": "ea-protocol/1",
+      "expires": 60,
+      "now": 2,
+      "expected": "ACCOUNT_MISMATCH"
+    },
+    {
+      "id": "wrong-version",
+      "request": "two",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 2,
+      "account": "fixture-usd",
+      "version": "ea-protocol/2",
+      "expires": 60,
+      "now": 2,
+      "expected": "UNSUPPORTED"
+    },
+    {
+      "id": "expired",
+      "request": "two",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 2,
+      "account": "fixture-usd",
+      "version": "ea-protocol/1",
+      "expires": 60,
+      "now": 60,
+      "expected": "EXPIRED"
+    },
+    {
+      "id": "sequence-gap",
+      "request": "three",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 4,
+      "account": "fixture-usd",
+      "version": "ea-protocol/1",
+      "expires": 60,
+      "now": 3,
+      "expected": "SEQUENCE_GAP"
+    },
+    {
+      "id": "accept-second",
+      "request": "fresh",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 3,
+      "account": "fixture-usd",
+      "version": "ea-protocol/1",
+      "expires": 60,
+      "now": 3,
+      "expected": "ACCEPTED"
+    },
+    {
+      "id": "replay-rejection",
+      "request": "two",
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 2,
+      "account": "fixture-usd",
+      "version": "ea-protocol/1",
+      "expires": 60,
+      "now": 1,
+      "expected": "REPLAY_EXPIRED"
+    }
+  ]
+}

@@ -35,7 +35,7 @@ Then follow M2A protocol → M2B fixed EA → M2C deterministic safety → M2D c
 PAPER acceptance, followed by M3 baseline/replay, M4 AI/advisor, M5 unattended
 PAPER, M6 capped LIVE and M7 evaluated evolution.
 
-The first authorized M2 PR is [M2A intent/EA protocol](docs/m2-handoff.md): additive
+The [M2A offline implementation](docs/m2a-protocol.md) delivers the first authorized [intent/EA protocol scope](docs/m2-handoff.md): additive
 contracts, reference vectors and a fixture-only harness, with broker submission
 absent. Native/Tester and read-only shadow remain evidence gates within M2B/M2C;
 they are not separate milestone names. M2B cannot enable connected orders before

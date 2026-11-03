@@ -13,6 +13,8 @@
 !mql5/
 !mql5/readonly/
 !mql5/readonly/QuoteStream.mq5
+!mql5/offline/
+!mql5/offline/ProtocolReference.mq5
 !configs/
 !configs/news-filter.example.json
 !configs/news-filter.fixture.json
