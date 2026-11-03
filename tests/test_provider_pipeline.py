@@ -20,6 +20,27 @@ def rss(title="first", stamp="Mon, 02 Nov 2026 11:00:00 GMT"):
     return f"<rss><channel><item><guid>one</guid><link>https://www.federalreserve.gov/new.htm</link><title>{title}</title><pubDate>{stamp}</pubDate></item></channel></rss>".encode()
 
 
+@pytest.mark.parametrize(
+    "source,host", [("bls_jolts", "www.bls.gov"), ("eurostat", "ec.europa.eu")]
+)
+def test_new_statistical_feeds_retain_news_provenance_and_fail_closed(tmp_path, source, host):
+    raw = (
+        '<feed xmlns="http://www.w3.org/2005/Atom"><entry><id>release-one</id>'
+        f'<link href="https://{host}/release"/><title>private fixture title</title>'
+        "<published>2026-11-02T12:00:00+01:00</published></entry></feed>"
+    ).encode()
+    rows = parse_news(source, raw, NOW)
+    with closing(Journal(tmp_path / "feeds.sqlite", create=True)) as journal:
+        attempt = journal.begin(source, NOW)
+        journal.finish(attempt, {"status": "OK", "payload": rows}, NOW)
+        inputs = journal.inputs(NOW)
+        assert len(inputs.news) == 1
+        assert inputs.news[0].item.published_at.hour == 11
+        assert "private fixture title" not in inputs.model_dump_json()
+        result = journal.evaluate("EURUSD", NOW)
+        assert not result.execution_enabled and not result.news_ok
+
+
 def ingest(journal, at, raw=None):
     attempt = journal.begin("fed", at)
     rows = parse_news("fed", raw or rss(), at)

@@ -1,0 +1,101 @@
+{
+  "verified_at": "2026-11-03T18:30:24.694058+00:00",
+  "scope": "Bounded CMC native MCP calendar plus direct news in a separate development journal",
+  "plan_hash": "364d038fe82dce2f156c06a13cd0b19483162faf2d3687979877c720c0aa98d8",
+  "polls": [
+    {
+      "started_at": "2026-11-03T18:27:19.224633+00:00",
+      "outcome_available_at": "2026-11-03T18:27:31.859553+00:00",
+      "status": "FAILED",
+      "error": "TRANSPORT_OR_SCHEMA_FAILURE",
+      "stage": "INITIAL_CURSOR",
+      "request_count": 9,
+      "failed_requests": [
+        {
+          "method": "tools/call",
+          "tool": "economic_calendar_list_values_last",
+          "ok": false,
+          "error": "TRANSPORT_OR_SCHEMA_FAILURE",
+          "duration_seconds": 12.022183400113136
+        }
+      ],
+      "normalized_instance_count": 0
+    },
+    {
+      "started_at": "2026-11-03T18:28:26.624033+00:00",
+      "outcome_available_at": "2026-11-03T18:28:27.378132+00:00",
+      "status": "OK",
+      "error": null,
+      "stage": "CLOCK_POSTCHECK",
+      "request_count": 12,
+      "failed_requests": [],
+      "normalized_instance_count": 72
+    },
+    {
+      "started_at": "2026-11-03T18:28:50.712828+00:00",
+      "outcome_available_at": "2026-11-03T18:28:51.314526+00:00",
+      "status": "OK",
+      "error": null,
+      "stage": "CLOCK_POSTCHECK",
+      "request_count": 11,
+      "failed_requests": [],
+      "normalized_instance_count": 72
+    }
+  ],
+  "clock_anchor": {
+    "release": "BLS JOLTS",
+    "server_time": "2026-11-03T17:00:00",
+    "verified_utc": "2026-11-03T15:00:00+00:00",
+    "offset_seconds": 7200
+  },
+  "coverage_from": "2026-11-03T00:00:00+00:00",
+  "coverage_until": "2026-11-06T00:00:00+00:00",
+  "catalog_counts": {
+    "USD": 248,
+    "EUR": 278,
+    "JPY": 124
+  },
+  "calendar_instances": 72,
+  "calendar_instances_by_currency": {
+    "JPY": 9,
+    "USD": 31,
+    "EUR": 32
+  },
+  "uncertain_time_instances": 10,
+  "reopen_replay_succeeded": true,
+  "duplicate_revisions_added": 0,
+  "cursor_and_revisions_committed_together": true,
+  "direct_news_collection": {
+    "fed": "OK",
+    "ecb": "OK",
+    "boj": "OK"
+  },
+  "news_items_by_source": {
+    "boj": 42,
+    "ecb": 15,
+    "fed": 15
+  },
+  "entry_checks": {
+    "EURUSD": "BLOCKED",
+    "USDJPY": "BLOCKED"
+  },
+  "source_provenance_separate": true,
+  "calendar_qualified": false,
+  "news_qualified": false,
+  "execution_enabled": false,
+  "limitations": [
+    "Initial unfiltered cursor request failed at approximately the 12-second bound; failed attempt remains immutable. Scoped initialization obtains the database-wide cursor before the full snapshot and unfiltered delta; underlying terminal cause unproven.",
+    "Two successful bounded reads establish replay/idempotency, not sustained reliability or prospective latency.",
+    "Real revisions and terminal reconnect recovery remain unobserved; transactional failures/revisions covered by synthetic tests.",
+    "Clock anchor is a historical same-day cross-check; future timezone changes need independent verification.",
+    "USD/EUR/JPY dated category completeness and broad market-news coverage remain unqualified.",
+    "No provider promotion, automatic failover or 24-hour campaign was started."
+  ],
+  "local_validation": {
+    "passed": 316,
+    "skipped": 119,
+    "skipped_reason": "PostgreSQL-dependent checks deferred to isolated CI to preserve active environments",
+    "ruff_check": "PASS",
+    "ruff_format": "PASS"
+  }
+}
