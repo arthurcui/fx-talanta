@@ -104,7 +104,7 @@ def policy():
     )
 
 
-def parse_news(source, raw, observed):
+def parse_news(source, raw, observed, *, timestamp_evidence=None):
     if len(raw) > LIMIT:
         raise ValueError("body bound")
     text = raw.decode("utf-8-sig")
@@ -144,6 +144,21 @@ def parse_news(source, raw, observed):
         )
         if published > observed or identity in identities:
             raise ValueError("future timestamp or duplicate identity")
+        if timestamp_evidence is not None:
+            if not isinstance(stamp, str) or len(stamp) > 128:
+                raise ValueError("publication timestamp bound")
+            timestamp_evidence.append(
+                {
+                    "item_id": identity,
+                    "field": "pubDate"
+                    if fields.get("pubDate")
+                    else "published"
+                    if fields.get("published")
+                    else "date",
+                    "original": stamp,
+                    "normalized_utc": published.isoformat(),
+                }
+            )
         identities.add(identity)
         rows.append(
             dict(
@@ -160,6 +175,7 @@ def parse_news(source, raw, observed):
 
 
 def _worker(sender, source, tls, fred_key, start, end):
+    evidence = {}
     try:
         if source == "fred":
             snapshot = fred.collect(fred_key, start, end)
@@ -189,10 +205,20 @@ def _worker(sender, source, tls, fred_key, start, end):
             if len(raw) > LIMIT:
                 raise ValueError("body bound")
             observed = datetime.now(UTC)
+            timestamps = []
+            evidence = {
+                "version": "provider-receipt/1",
+                "parser": "news-timestamps/1" if source != "bls" else "bls-calendar",
+                "body_sha256": sha256(raw).hexdigest(),
+                "body_bytes": len(raw),
+                "received_at": observed.isoformat(),
+                "publication_timestamps": timestamps,
+                "raw_body_retained": False,
+            }
             payload = (
                 bls.import_calendar(raw, fetched_at=observed).model_dump(mode="json")
                 if source == "bls"
-                else parse_news(source, raw, observed)
+                else parse_news(source, raw, observed, timestamp_evidence=timestamps)
             )
             result = {"status": "OK", "payload": payload, "response_hash": sha256(raw).hexdigest()}
     except urllib.error.HTTPError as exc:
@@ -202,6 +228,10 @@ def _worker(sender, source, tls, fred_key, start, end):
         }
     except Exception:
         result = {"status": "FAILED", "error": "TRANSPORT_OR_SCHEMA_FAILURE"}
+    if evidence:
+        # Stored with the immutable attempt outcome, not the item/revision hash:
+        # repeated receipts must not manufacture news revisions or freshen items.
+        result["receipt_evidence"] = evidence
     try:
         sender.send_bytes(json.dumps(result).encode())
     finally:

@@ -457,6 +457,26 @@ class ObservationHealth(FrozenModel):
         return self
 
 
+class ObservationDiagnostic(FrozenModel):
+    """Allowlisted failure facts; never exception text or rejected input values."""
+
+    version: Literal[1] = 1
+    stage: Literal["READER", "TRANSPORT", "ASSESSMENT"]
+    rule: Literal[
+        "SNAPSHOT_SCHEMA",
+        "PAYLOAD_LIMIT",
+        "CLOCK_POLICY_EXPIRED",
+        "CLOCK_POLICY_MISMATCH",
+        "HISTORY_RANGE",
+        "SNAPSHOT_TIME_ORDER",
+        "FUTURE_TICK",
+        "INCOMPLETE_BAR",
+        "DUPLICATE_TICKET",
+        "FUTURE_ACCOUNT_ITEM",
+    ]
+    violations: Annotated[int, Field(ge=1, le=1000000)] = 1
+
+
 class TerminalObservation(FrozenModel):
     kind: Literal["observation"] = "observation"
     binding_hash: Hash
@@ -483,16 +503,21 @@ class TerminalObservation(FrozenModel):
     snapshot: TerminalSnapshot | None = None
     # Omit absent v2 evidence so legacy wire payloads and hashes remain unchanged.
     health: ObservationHealth | None = None
+    diagnostic: ObservationDiagnostic | None = None
 
     @model_serializer(mode="wrap")
     def legacy_wire_compatible(self, handler):
         data = handler(self)
         if self.health is None:
             data.pop("health", None)
+        if self.diagnostic is None:
+            data.pop("diagnostic", None)
         return data
 
     @model_validator(mode="after")
     def coherent_state(self):
+        if self.diagnostic is not None and self.reason != "INVALID_DATA":
+            raise ValueError("integrity diagnostic requires INVALID_DATA")
         if self.health and self.health.complete_read != (self.reason in {"CURRENT", "STALE_TICKS"}):
             raise ValueError("complete-read status disagrees with assessment")
         if self.health and self.health.complete_read and self.snapshot is None:

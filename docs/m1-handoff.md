@@ -2,6 +2,8 @@
 
 The [M1 closure checklist and remediation scope](m1-closure-checklist.md) is the
 current existing-evidence work queue. It authorizes no new tests or campaigns.
+The [remediation progress](m1-remediation-progress.md) records local implementation
+and actual committed-record analysis separately from outstanding qualification.
 
 ## Current status and execution handoff (2026-11-03)
 

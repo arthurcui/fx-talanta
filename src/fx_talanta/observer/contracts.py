@@ -4,7 +4,29 @@ from typing import Annotated, Literal
 
 from pydantic import Field, model_validator
 
-from fx_talanta.domain.models import AccountIdentity, FrozenModel, Identifier, Text, Timestamp
+from fx_talanta.domain.models import (
+    AccountIdentity,
+    FrozenModel,
+    Identifier,
+    ObservationDiagnostic,
+    Text,
+    Timestamp,
+)
+
+
+class DiagnosticReason(str):
+    """Preserve the existing reason/tuple API while carrying bounded evidence."""
+
+    def __new__(cls, diagnostic):
+        value = super().__new__(cls, "INVALID_DATA")
+        value.diagnostic = ObservationDiagnostic.model_validate(diagnostic)
+        return value
+
+
+def invalid(rule, *, stage="ASSESSMENT", violations=1):
+    return DiagnosticReason(
+        ObservationDiagnostic(stage=stage, rule=rule, violations=min(violations, 1000000))
+    )
 
 
 def windows_path(value):

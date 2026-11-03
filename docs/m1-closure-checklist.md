@@ -8,8 +8,10 @@ not change acceptance criteria. M0A–M0C remain completed within offline scope.
 **Next work: diagnostic evidence and an existing-record report, not another soak.**
 Prepare one consolidated remediation PR, reviewing that first slice before adding
 provider work. Do not create incremental PRs for every capture/status update.
-Implementation and validation require separate authorization. This planning branch
-is local because opening a PR automatically invokes the repository's tests.
+Implementation was subsequently authorized by the owner's instruction to finish
+M1. See [actual remediation progress](m1-remediation-progress.md). The earlier
+no-new-tests/campaigns restriction is retained; this branch stays local because
+opening a PR automatically invokes the repository's tests.
 
 ## Existing evidence and limitations
 
@@ -34,7 +36,7 @@ code alone cannot close a prospective evidence requirement.
 | ID | Requirement / owner | Current state | Closure artifact |
 | --- | --- | --- | --- |
 | B1 | CMC failure attribution / observer | OPEN: generic INVALID_DATA; failing snapshot/cause lost | Stable diagnostic stage/rule codes and bounded sanitized facts survive failure; historical trigger stays unknown unless retained evidence proves it |
-| B2 | FOREX quote quality / evidence reporting | FAILED original freshness gate; continuity is distinct | Existing-record report by symbol, age, repeated ticks, clock uncertainty, call/commit duration and session; unavailable fields labeled, no invented causes |
+| B2 | FOREX quote quality / evidence reporting | Existing-record report delivered; original freshness gate FAILED, cause unresolved | [Actual report](m1-remediation-progress.md) separates symbol ages/repeated ticks and collection duration; clock uncertainty and commit latency unavailable |
 | B3 | Identity, clock, completeness and recovery / observer | Partial evidence | Pinned account/build/symbol/clock policy; durable reads/commits; unchanged halt/freshness semantics; later authorized preflight and bounded recovery evidence |
 | B4 | Sustained broker acceptance / runner | Both NOT ACCEPTED | Independent committed-row reconstruction and final receipt for each broker under its predeclared plan; no deadline extension or gate weakening |
 | P1 | Calendar normalization / provider integration | PARTIAL | Immutable event/source/version IDs, UTC and original time basis, exact/approximate/date-only flags, horizon completeness, independent mapping and schedule revisions |
@@ -143,8 +145,8 @@ resurrection, automated browser refresh and shared environment modifications.
 
 ## Stop conditions and practical timing
 
-This checklist is the current deliverable. The next code task is diagnostic
-preservation/reporting, not waiting for elapsed evidence. If old records lack a
+Diagnostic preservation/reporting is now implemented but unvalidated; see the
+[progress record](m1-remediation-progress.md). If old records lack a
 cause, identify the missing evidence and stop guessing. If a required source is
 infeasible, present the source/scope decision instead of waiting indefinitely.
 No defensible full-M1 completion date exists until those dependencies and release
