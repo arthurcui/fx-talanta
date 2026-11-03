@@ -130,7 +130,7 @@ def verify(native, compiler_run="05", service_run="02"):
         new_broker_campaign_started=False,
         host_verification=isolation,
         earlier_attempts=[
-            "OnTesterInit bootstrap timed out before its body ran; not a test pass.",
+            "OnTesterInit bootstrap timed out without a completed result; not a test pass.",
             "Initial service bootstrap reported error 5308; later setup produced 7200 bars.",
             "Credential-free full Tester startup refused: account not specified.",
             "Earlier core math: 51 passed; earlier orders: 72 passed/5 simulated sends.",

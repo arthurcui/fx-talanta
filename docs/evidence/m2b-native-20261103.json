@@ -1,6 +1,6 @@
 {
   "schema": "m2b-native-evidence/1",
-  "verified_at": "2026-11-03T22:08:43.072747+00:00",
+  "verified_at": "2026-11-03T22:10:46.262740+00:00",
   "scope": "Offline native Strategy Tester using synthetic custom-symbol data only",
   "terminal_build": 6295,
   "source_sha256": {
@@ -163,7 +163,7 @@
     "original_profile_unchanged": true
   },
   "earlier_attempts": [
-    "OnTesterInit bootstrap timed out before its body ran; not a test pass.",
+    "OnTesterInit bootstrap timed out without a completed result; not a test pass.",
     "Initial service bootstrap reported error 5308; later setup produced 7200 bars.",
     "Credential-free full Tester startup refused: account not specified.",
     "Earlier core math: 51 passed; earlier orders: 72 passed/5 simulated sends."
