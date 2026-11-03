@@ -401,8 +401,8 @@ class Journal:
     def inputs(self, cutoff):
         cutoff = utc(cutoff)
         checks, calendar, news = {}, [], []
-        for source, started, available, state in self.conn.execute(
-            "SELECT a.source, a.started, o.available, o.status FROM attempts a "
+        for source, started, available, state, outcome in self.conn.execute(
+            "SELECT a.source, a.started, o.available, o.status, o.payload FROM attempts a "
             "LEFT JOIN outcomes o ON a.id=o.attempt ORDER BY a.rowid DESC"
         ):
             started = datetime.fromisoformat(started)
@@ -411,6 +411,15 @@ class Journal:
                 continue
             if available > cutoff:
                 available, state = started, None
+            checked_at = started
+            coverage_from, coverage_until = started - timedelta(days=1), started + timedelta(days=1)
+            if source == "mt5_calendar" and state == "OK":
+                snapshot = json.loads(outcome)["payload"]
+                checked_at = datetime.fromisoformat(snapshot["exported_at"])
+                coverage_from = datetime.fromisoformat(snapshot["coverage_from"])
+                coverage_until = datetime.fromisoformat(snapshot["coverage_until"])
+                if not 0 <= (cutoff - checked_at).total_seconds() <= 120 or cutoff > coverage_until:
+                    state = "FAILED"
             currencies = (
                 ("USD", "EUR", "JPY")
                 if source == "mt5_calendar"
@@ -418,7 +427,7 @@ class Journal:
             )
             checks[source] = FeedCheck(
                 source=source,
-                checked_at=started,
+                checked_at=checked_at,
                 available_at=available,
                 connection="OK"
                 if state == "OK"
@@ -426,8 +435,8 @@ class Journal:
                 if state == "THROTTLED"
                 else "FAILED",
                 complete=False,
-                coverage_from=started - timedelta(days=1),
-                coverage_until=started + timedelta(days=1),
+                coverage_from=coverage_from,
+                coverage_until=coverage_until,
                 currencies=currencies,
                 verification="Transport only; inventory and delivery coverage unqualified",
             )

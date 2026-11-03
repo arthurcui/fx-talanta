@@ -100,6 +100,8 @@ November 3 captured 29 records twice and imported 19 exact-time events, retainin
 10 uncertain-time records. ISM and BLS schedules independently supported UTC+2
 for that narrow query window. CMC remained untouched. This verifies bounded
 capture/import and time conversion, not full provider readiness or release latency.
+The [automatic FOREX deployment](automatic-calendar.md) now installs a read-only
+service and a scheduled importer with explicit expiry at the verified horizon.
 
 The [MQL5 calendar API](https://www.mql5.com/en/docs/calendar) offers events,
 importance and release values, including currency filters and incremental updates.

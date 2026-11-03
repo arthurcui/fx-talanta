@@ -29,8 +29,9 @@ separately before unattended use; never kill a shared broker terminal to enforce
 Each output gets a unique filename in that terminal's local `MQL5/Files` sandbox.
 It is flushed to a temporary file and renamed without overwrite. A failed export
 has no partial values; interrupted temporary files are not importable evidence.
-Re-running creates a new full snapshot, not an incremental cursor. There is no
-background scheduler or automatic terminal installation in this increment.
+Re-running creates a new full snapshot, not an incremental cursor. The optional
+[automatic deployment](automatic-calendar.md) adds a background service and an
+isolated scheduled importer for the separately authorized FOREX demo terminal.
 
 The Python `fx_talanta.mt5_calendar` importer checks the exact schema, duplicate
 JSON keys/IDs, currency counts, collection timing, clock/build/bridge identity,

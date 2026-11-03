@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "result": "AUTOMATIC_CALENDAR_COLLECTION_AND_RECOVERY_PASSED",
+  "verified_at": "2026-11-03T00:30:10.654506+00:00",
+  "broker": "FOREX.com Canada demo",
+  "refresh_seconds": 60,
+  "import_task_seconds": 60,
+  "freshness_limit_seconds": 120,
+  "expires_at": "2026-11-03T22:00:00+00:00",
+  "installation_time": "2026-11-03T00:23:19.179428Z",
+  "service_build": {
+    "SourceSHA256": "E7ED6DC6BD297C97B588FA1468524F91316C7C2AA3BB3AAE04515A07CEDD4D1D",
+    "ExportSourceSHA256": "D6D3AB8293CDE68FFAF2D5B8BC8D6C6DCA468E65AC92B0B7D524F3D7EFB36DCB",
+    "BinarySHA256": "71731715E1BD9B59CD12A58DFD0BB4FC9A0E8CCB4BD741957EAD1DF1E3CB4F01",
+    "CompilerVersion": "5.0.0.6295"
+  },
+  "captures": [
+    {
+      "sha256": "57703660a9ab677122a9b78a9763c732967efd3749a21609131ca929aaae8988",
+      "started_utc": "2026-11-03T00:24:46+00:00",
+      "status": "COMPLETE",
+      "elapsed_ms": 0,
+      "counts": {
+        "USD": 12,
+        "EUR": 16,
+        "JPY": 1
+      }
+    },
+    {
+      "sha256": "529d7328285c9f43e4a3779fa91281fa111826217e506f5accd0feaf954dfbc3",
+      "started_utc": "2026-11-03T00:25:46+00:00",
+      "status": "COMPLETE",
+      "elapsed_ms": 0,
+      "counts": {
+        "USD": 12,
+        "EUR": 16,
+        "JPY": 1
+      }
+    },
+    {
+      "sha256": "b8cea51bdf6188443571427673bab5a2982f828b8b3c7475cf89a6dabed52f3b",
+      "started_utc": "2026-11-03T00:29:07+00:00",
+      "status": "COMPLETE",
+      "elapsed_ms": 0,
+      "counts": {
+        "USD": 12,
+        "EUR": 16,
+        "JPY": 1
+      }
+    }
+  ],
+  "first_scheduled_import": {
+    "state": "FRESH",
+    "checked_at": "2026-11-03T00:25:13.057139+00:00",
+    "exported_at": "2026-11-03T00:24:46+00:00",
+    "export_age_seconds": 27.057139,
+    "imported_snapshots": 1,
+    "expires_at": "2026-11-03T22:00:00+00:00",
+    "deployment_hash": "b5b47bff4d0c0da5f131b718ba1281abe117a3b6509ff9a949211dbf86fce5ff",
+    "qualified_for_trading": false,
+    "execution_enabled": false
+  },
+  "scheduled_outage_detection": {
+    "state": "STALE",
+    "checked_at": "2026-11-03T00:28:14.417632+00:00",
+    "exported_at": "2026-11-03T00:25:46+00:00",
+    "export_age_seconds": 148.417632,
+    "imported_snapshots": 0,
+    "expires_at": "2026-11-03T22:00:00+00:00",
+    "deployment_hash": "b5b47bff4d0c0da5f131b718ba1281abe117a3b6509ff9a949211dbf86fce5ff",
+    "qualified_for_trading": false,
+    "execution_enabled": false
+  },
+  "outage_filter_check": {
+    "checked_at": "2026-11-03T00:28:48.042793+00:00",
+    "producer_freshness_failed": true,
+    "both_pairs_blocked": true
+  },
+  "scheduled_recovery": {
+    "state": "FRESH",
+    "checked_at": "2026-11-03T00:29:13.915726+00:00",
+    "exported_at": "2026-11-03T00:29:07+00:00",
+    "export_age_seconds": 6.915726,
+    "imported_snapshots": 1,
+    "expires_at": "2026-11-03T22:00:00+00:00",
+    "deployment_hash": "b5b47bff4d0c0da5f131b718ba1281abe117a3b6509ff9a949211dbf86fce5ff",
+    "qualified_for_trading": false,
+    "execution_enabled": false
+  },
+  "journal_counts": {
+    "attempts": 3,
+    "outcomes": 3,
+    "event_revisions": 19
+  },
+  "both_pairs_remain_blocked": true,
+  "fixture_tests_passed": 336,
+  "cmc_untouched": true,
+  "broker_terminals_restarted": false,
+  "broker_campaigns_restarted": false,
+  "service_trading_permission": false,
+  "execution_enabled": false,
+  "qualification_limits": [
+    "No scheduled-release update latency claim.",
+    "Only the existing independently checked two-day clock window.",
+    "Whole-terminal restart recovery is documented by vendor, not tested here.",
+    "Windows user must remain logged in and FOREX terminal connected."
+  ]
+}

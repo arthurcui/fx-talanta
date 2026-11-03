@@ -1,12 +1,15 @@
 // Read-only, one-shot calendar exporter. No trading, DLLs or external URLs.
 #property strict
+#ifndef FX_CALENDAR_SERVICE
 #property script_show_inputs
+#endif
 #property version "1.00"
 
 input string BridgeId="fx_calendar_shadow";
 input string ExpectedServer="";
 input datetime ServerFrom=0;
 input datetime ServerUntil=0;
+input string ExportDirectory="";
 
 bool WithinBudget(ulong start)
   {
@@ -28,9 +31,10 @@ bool SafeIdentity(string value)
    return true;
   }
 
-void OnStart()
+void CaptureCalendar()
   {
-   if(!SafeIdentity(BridgeId) || ServerFrom<=0 || ServerUntil<=ServerFrom ||
+   if(!SafeIdentity(BridgeId) || (ExportDirectory!="" && !SafeIdentity(ExportDirectory)) ||
+      ServerFrom<=0 || ServerUntil<=ServerFrom ||
       ServerUntil-ServerFrom>31*86400)
      { Print("Calendar export: invalid explicit window or bridge ID"); return; }
    if(ExpectedServer=="" || AccountInfoString(ACCOUNT_SERVER)!=ExpectedServer ||
@@ -104,6 +108,7 @@ void OnStart()
       "\"counts\":{\"USD\":"+IntegerToString(counts[0])+",\"EUR\":"+IntegerToString(counts[1])+","+
       "\"JPY\":"+IntegerToString(counts[2])+"},\"values\":["+rows+"],\"execution_enabled\":false}";
    string name="fx-calendar-"+BridgeId+"-"+Signed((long)utc_start)+"-"+Unsigned(start);
+   if(ExportDirectory!="") name=ExportDirectory+"\\"+name;
    string temporary=name+".tmp";
    string destination=name+".json";
    if(FileIsExist(temporary) || FileIsExist(destination))
@@ -117,3 +122,7 @@ void OnStart()
      { Print("Calendar export: incomplete artifact; temporary retained"); return; }
    Print("Calendar export saved: ",destination,"; execution disabled");
   }
+
+#ifndef FX_CALENDAR_SERVICE
+void OnStart() { CaptureCalendar(); }
+#endif

@@ -19,6 +19,7 @@
 !bridges/
 !bridges/mt5/
 !bridges/mt5/CalendarExport.mq5
+!bridges/mt5/CalendarService.mq5
 **/__pycache__/
 **/*.pyc
 **/*.egg-info/
