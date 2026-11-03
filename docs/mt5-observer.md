@@ -48,8 +48,10 @@ After configuration and qualification, install the optional SDK on Windows:
 .venv\Scripts\fx-talanta --env-file .local/cmc.env --binding .local/cmc.json observe --run-id <UUID>
 ```
 
-`observe` collects once and exits. Reuse the same UUID for subsequent polls/restarts
-to retain backoff/halts. There is no automatic service, scheduler or rollover yet.
+`observe` collects once and exits. The [CMC runner](cmc-readonly.md) provides bounded
+scheduled polling, health reporting and restart recovery with `observe-run`.
+Reuse the same UUID for subsequent polls/restarts
+to retain backoff/halts. No Windows service or rollover controller is installed.
 The binding fingerprint includes qualification evidence, SDK version and policy.
 Changing it requires a deliberately new observation run; it cannot clear an old
 run's halt. This is not an execution-risk campaign reset mechanism.

@@ -8,25 +8,28 @@ deterministic risk sizing, reservations, a durable simulated broker, protective
 management and restart reconciliation. M0C adds the application image, isolated
 task setup, and verified two-account export/restore.
 
-**Current scope: M0C plus the M1A observer foundation.** Real execution remains disabled on both account
+**Current scope: M0C plus CMC read-only observation and qualification.** Real execution remains disabled on both account
 bindings. The `demo` command records M0A fixtures; `offline-demo` executes synthetic
 PAPER/SIMULATOR orders with no external broker connection or LLM credentials. LIVE
 is a separate, disabled database namespace for account-isolation tests; its fixture
 identity is not a real trading account.
 
-**Next: P0 qualification, then M1 read-only observation.** The
+**Next: complete the CMC 24-hour read-only acceptance run.** The
 [broker/data feasibility review](docs/p0-feasibility.md) shortlists Canadian MT5
 candidates and identifies the outstanding account permissions and source rights.
 The selected order is **CMC Markets Canada first, FOREX.com Canada second**.
 The [M1 handoff](docs/m1-handoff.md) defines the implementation and acceptance work,
 including [demo replacement before expiry](docs/demo-account-rollover.md).
-No external broker connection or runtime account rollover is enabled yet.
+CMC demo observation is implemented; runtime account rollover is not yet implemented.
 The [observer foundation](docs/observer-foundation.md) adds a synthetic read-only
 snapshot harness, process timeouts, durable retry/halt state and fixture archive
 coverage. Run `observer-demo` after migration; actual broker-connected M1A remains open.
 The [MT5 adapter](docs/mt5-observer.md) adds an optional Windows reader, explicit
-demo bindings and account-checked demo archives. It is fake-SDK tested; real CMC
-collection remains gated by qualification and has not been run.
+demo bindings and account-checked demo archives. Connected CMC observations have
+run under the operator's explicit permission assumption. The
+[CMC read-only milestone](docs/cmc-readonly.md) adds a supervised runner, database
+recovery, timestamp qualification and health/acceptance reporting; sustained
+acceptance remains pending until the full run finishes and its gates pass.
 
 ## Quick start on Windows
 
@@ -222,4 +225,5 @@ references; project requirements and procedures are recorded here.
 | [M1 handoff](docs/m1-handoff.md) | Read-only observation scope and acceptance gates |
 | [Observer foundation](docs/observer-foundation.md) | Synthetic observer behavior and recovery checks |
 | [MT5 observer](docs/mt5-observer.md) | Windows setup, account binding, permissions and observation commands |
+| [CMC read-only milestone](docs/cmc-readonly.md) | Supervised run, recovery, clock policy and 24-hour acceptance |
 | [Demo account rollover](docs/demo-account-rollover.md) | FOREX.com expiry and replacement-account requirements |

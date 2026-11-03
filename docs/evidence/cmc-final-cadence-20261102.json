@@ -1,0 +1,34 @@
+{
+  "broker": "cmc",
+  "run_id": "fe4bba5a-96e8-469b-a46d-b8692011ad42",
+  "phase": "HALTED",
+  "ended_at": "2026-11-02T22:18:32.189618+00:00",
+  "database_verified": true,
+  "evidence": {
+    "observations": 401,
+    "healthy": 333,
+    "reasons": {
+      "CURRENT": 333,
+      "STALE_TICKS": 67,
+      "MISSING_DATA": 1
+    },
+    "last_state": "HALTED",
+    "last_reason": "STALE_TICKS",
+    "last_observed_at": "2026-11-02T22:18:32.176786+00:00",
+    "elapsed_seconds": 12840.848094,
+    "observed_span_seconds": 12840.095219,
+    "healthy_fraction": 0.830423940149626,
+    "coverage_fraction": 0.9368540077676897,
+    "max_gap_seconds": 330.007901,
+    "acceptance_gates": {
+      "duration": false,
+      "sample_span": false,
+      "coverage": false,
+      "healthy_fraction": false,
+      "gaps": false,
+      "final_health": false,
+      "minimum_24_hours": true
+    },
+    "accepted": false
+  }
+}
