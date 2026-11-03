@@ -1,5 +1,9 @@
 # Required FX provider qualification
 
+The campaign is now concluded by user-requested early stop; see the
+[final conclusion](provider-campaign-conclusion.md). The launch description below
+is historical, and its original deadline was not reached.
+
 Status: implementation and bounded collection verified; **required coverage and
 ongoing release delivery are not yet qualified**. This document supersedes the
 older provider notes' PR statuses and proposed MT5-calendar route. PRs #8, #10,
