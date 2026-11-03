@@ -1,7 +1,6 @@
 import json
 from contextlib import closing
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
 import pytest
 
@@ -182,6 +181,13 @@ def test_reimport_keeps_export_age_and_revisions_are_point_in_time(tmp_path):
         assert before.event_blackout and not before.calendar_ok
         old = import_file(journal, export(), policy(), NOW + timedelta(seconds=300))
         assert not old["transport_fresh"]
+        check = next(
+            c
+            for c in journal.inputs(NOW + timedelta(seconds=300)).checks
+            if c.source == "mt5_calendar"
+        )
+        assert check.connection == "FAILED"
+        assert check.checked_at == NOW + timedelta(seconds=1)
         assert len(journal.inputs(NOW + timedelta(seconds=300)).calendar) == 1
         revised = export(
             [changed(server_time=EPOCH + 7200 + 7200)],
@@ -228,18 +234,3 @@ def test_regression_new_clock_or_partial_import_is_atomic_and_durable(tmp_path):
             == 3
         )
         assert len(journal.inputs(NOW + timedelta(seconds=35)).calendar) == 1
-
-
-def test_exporter_has_no_trade_network_or_dll_capabilities():
-    source = (Path(__file__).resolve().parents[1] / "bridges/mt5/CalendarExport.mq5").read_text()
-    for forbidden in (
-        "OrderSend(",
-        "OrderSendAsync(",
-        "CTrade",
-        "#import",
-        "WebRequest(",
-        "FILE_COMMON",
-        "FILE_REWRITE",
-    ):
-        assert forbidden not in source
-    assert "CalendarValueHistory" in source and "ACCOUNT_TRADE_MODE_DEMO" in source

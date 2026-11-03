@@ -1,44 +1,25 @@
-# Read-only MT5 calendar bridge
+# Historical MT5 calendar capture and offline validation
 
-The bridge passed a separately authorized **FOREX.com demo calendar smoke check**
-on November 3, 2026 UTC. Two captures and an independent schedule comparison verified
-the bounded time conversion described below. This does not qualify complete event
-coverage, continuous availability or release latency. CMC remained untouched; no
-broker observation campaign was restarted. PRs #10 and #11 remain unmerged.
-The bridge has no trading functions,
-DLL imports, article scraping or external HTTP requests.
+**Retired route:** MT5 calendar collection is no longer deployed or supported.
+The service and scheduled importer were stopped on November 3, 2026; see the
+[retirement record](automatic-calendar.md). MT5 is reserved for broker
+connectivity. This document preserves historical observations and validation
+semantics, not instructions to install a calendar script.
 
-## Export and import
+The exporter and service source are preserved in Git history at
+`b571d57ccc5afcb7128aa019c71c977012a6dd81`. Their binaries, raw captures and private
+clock policies remain local evidence. The terminal export/build/install path has
+been removed from the current source tree and container acceptance harness.
 
-`bridges/mt5/CalendarExport.mq5` is a one-shot script for a connected demo terminal.
-The operator supplies an explicit trade-server date window, at most 31 days, and
-a non-secret bridge ID and the exact expected demo server. The script checks the
-server before and after collection and rejects an account change without exporting
-the login. Three `CalendarValueHistory` requests retrieve USD, EUR and
-JPY. Event/country lookups verify currencies and obtain importance, time precision,
-units and multipliers. The exporter retains value IDs, event IDs, reporting periods,
-source revisions and raw actual/forecast/previous/revised-previous values. It does
-not export account login, credentials, balances or terminal paths.
+## Retained offline validation
 
-The script rejects errors and a full 500-row buffer rather than accepting potential
-truncation. It checks a thirty-second elapsed budget between API calls. This is a
-**cooperative budget**, not a mechanism to interrupt a blocked native calendar call;
-the importer rejects over-budget exports. A terminal-level watchdog must be assessed
-separately before unattended use; never kill a shared broker terminal to enforce it.
-
-Each output gets a unique filename in that terminal's local `MQL5/Files` sandbox.
-It is flushed to a temporary file and renamed without overwrite. A failed export
-has no partial values; interrupted temporary files are not importable evidence.
-Re-running creates a new full snapshot, not an incremental cursor. The optional
-[automatic deployment](automatic-calendar.md) adds a background service and an
-isolated scheduled importer for the separately authorized FOREX demo terminal.
-
-The Python `fx_talanta.mt5_calendar` importer checks the exact schema, duplicate
-JSON keys/IDs, currency counts, collection timing, clock/build/bridge identity,
-time windows and numeric ranges before appending to the provider journal. Failed
-validation is recorded as a failed attempt. Raw exports remain in their original
-files. Revisions and normalized exact-time events reach the existing per-pair
-blackout filter through the journal; entry authority remains false.
+`fx_talanta.mt5_calendar` validates saved snapshots without a terminal, MT5 Python
+package, scheduled task or network request. It checks schema, duplicate JSON
+keys/IDs, currency counts, timing, clock/build/bridge identity, time windows and
+numeric ranges before appending to a separate provider journal. Failed validation
+is retained. Exact-time revisions and uncertain-time records remain distinguishable.
+These historical inputs remain unqualified for trading; do not import them as
+current coverage or replace their original availability evidence.
 
 ## Time and value semantics
 
@@ -51,8 +32,8 @@ folds, missing spring-forward times, gaps and dates outside the policy are rejec
 The query boundaries must lie inside the qualified intervals too.
 
 `configs/mt5-calendar-clock.fixture.json` is deliberately synthetic and cannot
-authorize a real import. Create a private, independently verified policy before
-terminal qualification. The policy pins bridge ID and terminal build. Changing
+authorize a real import. Historical imports require their original independently
+verified policy. The policy pins bridge ID and terminal build. Changing
 the clock policy/bridge requires a separate provider journal; old rows are never
 reinterpreted with a new offset.
 
@@ -76,45 +57,6 @@ changes, earlier exports and conflicting exports at the same producer time fail
 closed. Reimporting the same file does not reset its export age or duplicate events.
 Local import time is the earliest availability credited to FX-Talanta; a release
 found in history never receives a fabricated earlier receipt time.
-
-## Reproduction
-
-Compile with an isolated copy of MetaEditor; the helper never launches a terminal:
-
-```powershell
-./scripts/build_calendar_bridge.ps1 -MetaEditorPath 'C:/Program Files/FOREX.com CA MT5 Terminal/metaeditor64.exe'
-```
-
-The helper prints the artifact path and hashes. Compiler version 5.0.0.6295 produced
-zero errors and warnings in the initial isolated check. Neither the proprietary
-compiler nor generated EX5 binaries are committed to the repository.
-
-After an authorized demo-terminal capture and independent clock check:
-
-```powershell
-python -m fx_talanta.mt5_calendar --export .local/export.json --clock-policy .local/calendar-clock.json --journal .local/mt5-calendar.sqlite
-python -m fx_talanta.provider_pipeline --journal .local/mt5-calendar.sqlite --symbol EURUSD
-```
-
-Do not run this example against a synthetic clock file or label fixture output as
-live data. Import success means structurally valid shadow evidence only. The source
-is optional and the required inventory/news gates remain closed. Policy version is
-now `provider-shadow/2`; existing gateway mandates cannot silently change to it.
-
-## Website alternative and remaining qualification
-
-The public [MQL5 calendar](https://www.mql5.com/en/economic-calendar) is useful for
-visual checks without a terminal. Its web display is not a documented ingestion
-API established by this work, and agreement with MT5 is not independent-source
-confirmation. Verify important event times against their original publishers.
-General news headlines are separate from this scheduled-release bridge.
-
-Further qualification requires broader event-inventory checks and repeat collection
-through a release/update/outage, with new clock evidence for any wider horizon.
-Full snapshots provide restart recovery
-without cursor advancement, but can miss transient updates between captures; they
-do not establish incremental-delivery completeness or latency. No new 24-hour
-broker test is needed to complete a bounded calendar smoke check.
 
 ## FOREX.com demo smoke check: November 3, 2026 UTC
 

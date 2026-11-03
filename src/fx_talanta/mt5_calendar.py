@@ -1,4 +1,4 @@
-"""Validate an MT5 calendar file and import shadow evidence; no terminal access."""
+"""Offline validation of historical MT5 calendar captures; no terminal collection."""
 
 import argparse
 import json

@@ -213,6 +213,7 @@ references; project requirements and procedures are recorded here.
 | [FOREX.com onboarding](docs/forex-onboarding.md) | Secondary demo preparation, expiry tracking and durable alerts |
 | [Provider qualification](docs/provider-qualification.md) | Free-first calendar/news preflight, measured endpoint checks and remaining gates |
 | [Calendar/news filtering](docs/calendar-news-filter.md) | Fixture-based blackouts, coverage gates and point-in-time evidence |
+| [Calendar/news integration](docs/calendar-news-integration.md) | Broker-independent collection, durable journal and qualification gaps |
 | [M0A](docs/m0a.md) | Records, storage and account contracts |
 | [M0B](docs/m0b.md) | Offline execution, risk and reconciliation |
 | [M0C](docs/m0c.md) | Portable deployment profiles and archive transfer |

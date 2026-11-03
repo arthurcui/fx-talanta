@@ -7,8 +7,6 @@ COPY pyproject.toml requirements.lock ./
 COPY src ./src
 COPY tests ./tests
 COPY scripts ./scripts
-COPY bridges/mt5/CalendarExport.mq5 ./bridges/mt5/
-COPY bridges/mt5/CalendarService.mq5 ./bridges/mt5/
 COPY configs/news-filter.example.json configs/news-filter.fixture.json ./configs/
 RUN python3 -m venv .venv \
     && .venv/bin/python -m pip install --no-cache-dir -c requirements.lock -e '.[dev]'

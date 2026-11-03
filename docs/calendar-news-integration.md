@@ -92,28 +92,29 @@ Protective management and exits do not require healthy news inputs. Tests cover
 outages between sizing/submission, restart bypass attempts and closing an existing
 fixture position during an outage.
 
-## MT5 calendar route
+## Broker-independent calendar collection
 
-The [read-only bridge and importer](mt5-calendar-bridge.md) are implemented and
-compiled in isolation. A separately authorized FOREX.com demo smoke check on
-November 3 captured 29 records twice and imported 19 exact-time events, retaining
-10 uncertain-time records. ISM and BLS schedules independently supported UTC+2
-for that narrow query window. CMC remained untouched. This verifies bounded
-capture/import and time conversion, not full provider readiness or release latency.
-The [automatic FOREX deployment](automatic-calendar.md) now installs a read-only
-service and a scheduled importer with explicit expiry at the verified horizon.
+Calendar/news collection must run in the Python application using direct HTTP
+providers, independently of broker terminals. MT5 is reserved for broker
+connectivity. The terminal calendar experiment was retired on November 3, 2026
+at the user's request because its service, terminal session, file exchange and
+scheduled importer added deployment dependencies and recovery failure modes.
 
-The [MQL5 calendar API](https://www.mql5.com/en/docs/calendar) offers events,
-importance and release values, including currency filters and incremental updates.
-Its functions use trade-server time. The official
-[Python API](https://www.mql5.com/en/docs/python_metatrader5) does not expose those
-calendar functions, so a separate read-only MQL5 bridge is needed. That bridge is
-not installed or tested by this integration. Its independently verified UTC
-mapping, initial coverage, incremental recovery and revisions must be qualified
-before its data can satisfy a required gate. General headline export is not assumed
-to be available through that API.
+The FOREX calendar service is stopped and its scheduled importer is disabled.
+The MQL5 exporter/service, build/install/scheduling helpers and automatic file
+collector have been removed. See the [retirement record](automatic-calendar.md).
+Historical captures and their offline validators remain available for evidence
+replay; they are not an active calendar provider or a deployment prerequisite.
 
-Remaining release blockers are provider coverage/latency qualification, reliable
-automatic calendar refresh and the eventual connected execution adapter. The
-integration must not conceal these gaps by claiming that partial free feeds are a
-complete news service. No broker qualification run was started or altered.
+The retained BLS ICS, FRED and official RSS adapters, immutable journal, UTC and
+revision validation, and per-pair entry restrictions do not require MT5. Direct
+BLS refresh previously returned HTTP 403; a saved ICS remains manual evidence.
+FRED dates and official RSS announcements do not establish complete USD/EUR/JPY
+calendar or breaking-news coverage. No replacement provider is certified by this
+change, and neither expired nor historical captures can satisfy current coverage.
+
+Remaining release blockers are direct-provider coverage/latency qualification,
+reliable automatic HTTP refresh and the eventual connected execution adapter.
+Free access is the first choice; paid access is considered only if necessary.
+Missing, stale or unqualified required coverage continues to block entries.
+Trading stays disabled. No broker qualification run was started or altered.
