@@ -30,6 +30,9 @@ it is not deployed to broker terminals. The existing Python gateway stays simula
 
 **Current: M2A–M2C merged; [M2D no-order preparation](docs/m2d-no-order-acceptance.md) implemented**, preserving completed
 M0A–M0C, unresolved M1 gaps and all failed or stopped evidence. New qualification work still needs its own plan/authorization.
+The [M2D shadow transport](docs/m2d-shadow-transport.md) now adds authenticated
+pull/receipt code, PostgreSQL persistence and native inbox parity. It is not
+deployed to broker terminals and does not complete connected PAPER acceptance.
 Use the [M1 closure checklist](docs/m1-closure-checklist.md) for the evidence gaps,
 prioritized remediation and conditions for proposing any new tests.
 Then follow M2A protocol → M2B fixed EA → M2C deterministic safety → M2D connected

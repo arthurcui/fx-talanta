@@ -1,6 +1,9 @@
 # M2D no-order preparation
 
 M2D's **preparation is implemented; connected PAPER execution acceptance is open**.
+The subsequent [shadow transport increment](m2d-shadow-transport.md) adds durable
+authenticated delivery and native receipt parity, with its own bounded evidence.
+It preserves every observation and verdict in this report.
 The November 3 authorization permits progressing with trading disabled and no
 new 24-hour campaign. This increment composes existing M2A/M2C components, probes
 the two existing demo accounts read-only, and retains the original failed/stopped

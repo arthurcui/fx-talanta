@@ -87,6 +87,9 @@ CI is engineering evidence only. “Evidenced” is bounded to what was exercise
 Owner-approved November 3 order: **carry M1 gaps → implement M2A/M2B → resolve
 connected-operation gates and prove M2C/M2D → freeze
 M3 baseline → add AI in M4 → run unattended PAPER M5 → qualify M6 LIVE**.
+M2D now also has [shadow delivery code and bounded native/HTTPS evidence](m2d-shadow-transport.md).
+Its PostgreSQL shadow journal and native receipt outbox do not qualify connected
+execution, production fencing, native HTTPS or current broker snapshot/clock sourcing.
 M1A/B/C remain internal observation/provider/qualification workstreams under M1.
 M0A–M0C remain completed within their offline scope. The November 3 owner decision permits offline M2A while M1 evidence gaps remain;
 it does not turn old failures into passes or authorize connected orders.

@@ -1,6 +1,6 @@
 # Acceptance harness for the native fallback: no Docker daemon/socket inside.
 FROM postgres:17-bookworm
-RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv \
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv openssl \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /workspace
 COPY pyproject.toml requirements.lock ./
@@ -12,10 +12,12 @@ COPY mql5/offline/ProtocolReference.mq5 ./mql5/offline/ProtocolReference.mq5
 COPY mql5/gateway ./mql5/gateway
 COPY docs/evidence/m2b-native-20261103.json ./docs/evidence/m2b-native-20261103.json
 COPY mql5/safety ./mql5/safety
+COPY mql5/shadow ./mql5/shadow
 COPY docs/evidence/m2c-native-20261103.json ./docs/evidence/m2c-native-20261103.json
 COPY docs/evidence/broker-campaign-final-20261103.json ./docs/evidence/broker-campaign-final-20261103.json
 COPY docs/evidence/provider-campaign-final-20261103.json ./docs/evidence/provider-campaign-final-20261103.json
 COPY docs/evidence/m2d-no-order-20261103.json ./docs/evidence/m2d-no-order-20261103.json
+COPY docs/evidence/m2d-shadow-20261103.json ./docs/evidence/m2d-shadow-20261103.json
 COPY configs/news-filter.example.json configs/news-filter.fixture.json ./configs/
 RUN python3 -m venv .venv \
     && .venv/bin/python -m pip install --no-cache-dir -c requirements.lock -e '.[dev]'

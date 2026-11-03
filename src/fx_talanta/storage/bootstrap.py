@@ -124,3 +124,8 @@ def bootstrap(settings: Settings, *, paper_account=None) -> None:
             conn.execute(
                 sql.SQL("GRANT SELECT ON fx.restore_history TO {}").format(sql.Identifier(writer))
             )
+            conn.execute(
+                sql.SQL("GRANT SELECT, INSERT ON fx.shadow_events TO {}").format(
+                    sql.Identifier(writer)
+                )
+            )

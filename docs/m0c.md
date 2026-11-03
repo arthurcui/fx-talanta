@@ -101,6 +101,13 @@ restore provenance. All record kinds travel together: conversations, intentions,
 incidents, lessons, artifacts and promotion evidence are retained alongside losses,
 reservations, open positions and unresolved operations.
 
+Migration 007 adds the no-order shadow journal. Archive version 2 includes its
+account-bound hash chains and blocks restored shadow writers until release.
+Version 1 archives remain readable with their original schema; restore continues
+to require matching application/schema checksums. Preserve old archives instead
+of editing their manifests. The native shadow inbox is a separate artifact:
+database export alone does not establish a coordinated EA/peer restore.
+
 Export takes account writer fences and table locks, and refuses an active gateway
 or an incomplete restore. Checksums and counts cover each data file; publication
 is atomic and refuses an existing filename. The destination filesystem must
