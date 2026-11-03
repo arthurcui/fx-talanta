@@ -4,7 +4,9 @@ Status: implementation and bounded collection verified; **required coverage and
 ongoing release delivery are not yet qualified**. This document supersedes the
 older provider notes' PR statuses and proposed MT5-calendar route. PRs #8, #10,
 #11 and #12 have merged. The manual BLS workflow remains the accepted development
-calendar; no MT5 calendar collector or automatic BLS ICS downloader is restored.
+calendar. A later approved [Python/native MCP calendar adapter](native-mcp-calendar.md)
+now has bounded CMC import/replay evidence as an optional shadow source. The retired
+MQL5 service/file importer and automatic BLS ICS downloader are not restored.
 
 ## Scope and evidence
 

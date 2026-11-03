@@ -1,8 +1,9 @@
 # Retired MT5 calendar deployment
 
 The terminal-based calendar route was retired on November 3, 2026 at the user's
-request. Calendar/news collection belongs in the Python application with direct
-HTTP providers; MT5 is reserved for broker connectivity. The runtime dependency
+request. Calendar/news collection belongs in the Python application. A later
+approved [native MCP calendar adapter](native-mcp-calendar.md) is an optional
+shadow input; it does not restore this retired deployment. The runtime dependency
 on a terminal service, file handoff and Windows importer is no longer supported.
 
 ## Verified shutdown

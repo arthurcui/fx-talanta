@@ -2,7 +2,10 @@
 
 The integration now connects bounded public collection, durable metadata storage,
 point-in-time normalization, blackout assessment and the offline gateway's entry
-checks. It runs independently of MT5 and does not change broker runs or databases.
+checks. Direct-provider collection runs independently of MT5. An optional
+[native MCP calendar adapter](native-mcp-calendar.md) now runs in Python and reads
+the selected terminal without installing an MQL5 script or service. Neither path
+changes broker runs or databases.
 PR #10 is merged. This completes the implemented **shadow integration**;
 required live-provider qualification remains incomplete and entries stay blocked.
 
@@ -104,9 +107,10 @@ fixture position during an outage.
 
 ## Broker-independent calendar collection
 
-Calendar/news collection must run in the Python application using direct HTTP
-providers, independently of broker terminals. MT5 is reserved for broker
-connectivity. The terminal calendar experiment was retired on November 3, 2026
+Direct calendar/news collection runs in Python using HTTP providers independently
+of broker terminals. The later approved native MCP calendar adapter is an optional
+shadow source and still requires its selected terminal. The earlier MQL5 calendar
+experiment was retired on November 3, 2026
 at the user's request because its service, terminal session, file exchange and
 scheduled importer added deployment dependencies and recovery failure modes.
 

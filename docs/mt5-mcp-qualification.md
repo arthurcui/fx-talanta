@@ -67,7 +67,9 @@ watchlist, shell, file and service mutation tools were never called. Terminal
 configuration hashes stayed unchanged. Existing collector sources, environments,
 bindings, deadlines and evidence were not changed or restarted.
 
-Native MCP can be investigated as an optional calendar adapter. Promotion still
+The subsequent [native MCP adapter](native-mcp-calendar.md) implements optional
+calendar ingestion into the shared provider journal and records its actual
+import/replay evidence separately from these earlier probes. Promotion still
 requires normalization of unknown times, official USD/EUR/JPY reconciliation,
 prospective delivery and omission evidence, revision and reconnect handling,
 intended-use review and sustained reliability. The required-news gap remains

@@ -84,7 +84,7 @@ def digest(value):
 
 def policy():
     return FilterPolicy(
-        version="provider-shadow/2",
+        version="provider-shadow/3",
         sources=(
             SourceRule(source="calendar_inventory", role="CALENDAR", required=True),
             SourceRule(source="news_inventory", role="NEWS", required=True),
@@ -99,6 +99,7 @@ def policy():
             ),
             SourceRule(source="fred", role="CALENDAR", required=False, currencies=("USD",)),
             SourceRule(source="mt5_calendar", role="CALENDAR", required=False),
+            SourceRule(source="mt5_mcp_calendar", role="CALENDAR", required=False),
         ),
     )
 
@@ -280,7 +281,7 @@ class Journal:
         self.conn.close()
 
     def begin(self, source, now):
-        if source not in {*SOURCES, "fred", "mt5_calendar"}:
+        if source not in {*SOURCES, "fred", "mt5_calendar", "mt5_mcp_calendar"}:
             raise ValueError("unapproved source")
         latest = self.conn.execute(
             "SELECT max(stamp) FROM (SELECT started AS stamp FROM attempts "
@@ -303,9 +304,15 @@ class Journal:
         if now < datetime.fromisoformat(started):
             raise ValueError("clock rollback")
         with self.conn:
+            if source == "mt5_mcp_calendar" and not self.conn.in_transaction:
+                self.conn.execute("BEGIN IMMEDIATE")
             if result["status"] == "OK":
                 candidates = []
-                if source == "mt5_calendar":
+                if source == "mt5_mcp_calendar":
+                    from fx_talanta.mcp_calendar import candidates as mcp_candidates
+
+                    candidates = mcp_candidates(self.conn, result["payload"], now)
+                elif source == "mt5_calendar":
                     normalized = result["payload"]
                     if (
                         normalized["provenance"] != "MT5_CALENDAR_EXPORT"
@@ -361,7 +368,7 @@ class Journal:
                     old = json.loads(previous[1]) if previous else None
                     if (
                         old
-                        and source == "mt5_calendar"
+                        and source in {"mt5_calendar", "mt5_mcp_calendar"}
                         and (
                             candidate["source_revision"] < old["value"]["source_revision"]
                             or any(
@@ -370,6 +377,21 @@ class Journal:
                         )
                     ):
                         raise ValueError("calendar value identity or revision regressed")
+                    if old and source == "mt5_mcp_calendar":
+                        previous_value = old["value"]
+                        if (
+                            int(candidate["source_change_id"])
+                            < int(previous_value["source_change_id"])
+                            or int(candidate["event_change_id"])
+                            < int(previous_value["event_change_id"])
+                            or (
+                                candidate["source_change_id"] == previous_value["source_change_id"]
+                                and candidate["event_change_id"]
+                                == previous_value["event_change_id"]
+                                and candidate != previous_value
+                            )
+                        ):
+                            raise ValueError("MCP value change regressed or conflicts")
                     if (
                         old
                         and source == "bls"
@@ -384,7 +406,7 @@ class Journal:
                         raise ValueError("calendar revision regressed or conflicts")
                     if (
                         old
-                        and source not in {"bls", "mt5_calendar"}
+                        and source not in {"bls", "mt5_calendar", "mt5_mcp_calendar"}
                         and candidate["published_at"] != old["value"]["published_at"]
                     ):
                         raise ValueError("publication time changed")
@@ -424,16 +446,20 @@ class Journal:
                 available, state = started, None
             checked_at = started
             coverage_from, coverage_until = started - timedelta(days=1), started + timedelta(days=1)
-            if source == "mt5_calendar" and state == "OK":
+            if source in {"mt5_calendar", "mt5_mcp_calendar"} and state == "OK":
                 snapshot = json.loads(outcome)["payload"]
-                checked_at = datetime.fromisoformat(snapshot["exported_at"])
+                checked_at = datetime.fromisoformat(
+                    snapshot["finished_at"]
+                    if source == "mt5_mcp_calendar"
+                    else snapshot["exported_at"]
+                )
                 coverage_from = datetime.fromisoformat(snapshot["coverage_from"])
                 coverage_until = datetime.fromisoformat(snapshot["coverage_until"])
                 if not 0 <= (cutoff - checked_at).total_seconds() <= 120 or cutoff > coverage_until:
                     state = "FAILED"
             currencies = (
                 ("USD", "EUR", "JPY")
-                if source == "mt5_calendar"
+                if source in {"mt5_calendar", "mt5_mcp_calendar"}
                 else ("USD" if source == "fred" else SOURCES[source][1],)
             )
             checks[source] = FeedCheck(
@@ -459,13 +485,16 @@ class Journal:
                 continue
             payload = json.loads(payload)
             value = payload["value"]
-            if source in {"bls", "mt5_calendar"}:
+            if source in {"bls", "mt5_calendar", "mt5_mcp_calendar"}:
+                # Uncertain/omitted updates cannot erase a previously exact blackout.
+                if source == "mt5_mcp_calendar" and value["scheduled_at"] is None:
+                    continue
                 calendar.append(
                     CalendarRevision(
                         source=source,
                         event_id=identity,
                         revision=revision,
-                        currency=value["currency"] if source == "mt5_calendar" else "USD",
+                        currency=value["currency"] if source != "bls" else "USD",
                         impact=value["impact"],
                         scheduled_at=value["scheduled_at"],
                         available_at=available,
