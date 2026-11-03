@@ -126,5 +126,35 @@ database. The records matched exactly. The restore target remains blocked in
 RESTORED state; it was not released as a second writer and the original database
 remains primary. The native suite passed 194 tests.
 
-**24-hour acceptance: pending.** Neither a healthy snapshot nor a short recovery
+**24-hour acceptance: NOT ACCEPTED.** Neither a healthy snapshot nor a short recovery
 exercise completes this gate. Full M1 additionally requires calendar/news work.
+
+## Final sustained-run result — November 2, 2026
+
+Run `fe4bba5a-96e8-469b-a46d-b8692011ad42` began at 18:44:31 UTC with an
+original deadline of November 3 at 18:44:31 UTC. It halted on `STALE_TICKS` at
+22:18:32 UTC on November 2. The worker exited. No restart, deadline extension,
+policy relaxation or source/terminal/environment change was made. This report
+was prepared in a separate checkout; the original CMC checkout remains unchanged.
+
+Read-only reconstruction from all committed observations matched the final status
+counts, reasons, state and acceptance gates. The
+[sanitized final evidence](evidence/cmc-final-cadence-20261102.json) records:
+
+| Gate | Requirement | Final value | Outcome |
+| --- | --- | --- | --- |
+| Duration | At least 86,400 s | 12,840.85 s | Fail |
+| Sample span | At least 86,340 s | 12,840.10 s | Fail |
+| Elapsed-poll coverage | At least 95% | 93.69% (401 observations) | Fail |
+| Healthy fraction | At least 95% | 333/401 (83.04%) | Fail |
+| Maximum gap | At most 180 s | 330.01 s | Fail |
+| Final health | HEALTHY | HALTED / STALE_TICKS | Fail |
+
+There were 67 STALE_TICKS observations and one MISSING_DATA observation. Coverage
+is measured through the halt, not across an invented 24-hour history. The planned
+24-hour duration met the minimum plan requirement; the actual run did not.
+The original observer's retry policy was unchanged during this run. A later
+FOREX-only cadence fix is not retroactively applied to CMC evidence. A connected
+snapshot does not prove continuously fresh quotes or identify a broker-wide fault.
+The short recovery/archive exercises above retain their limited scope. Trading
+stays disabled. No new CMC campaign or terminal diagnostic was performed.
