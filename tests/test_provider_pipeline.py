@@ -47,6 +47,43 @@ def ingest(journal, at, raw=None):
     journal.finish(attempt, {"status": "OK", "payload": rows}, at)
 
 
+def test_publication_evidence_does_not_freshen_or_revise_items(tmp_path):
+    evidence = []
+    plain = parse_news("fed", rss(), NOW)
+    captured = parse_news("fed", rss(), NOW, timestamp_evidence=evidence)
+    assert plain == captured
+    assert evidence == [
+        {
+            "item_id": plain[0]["item_id"],
+            "field": "pubDate",
+            "original": "Mon, 02 Nov 2026 11:00:00 GMT",
+            "normalized_utc": "2026-11-02T11:00:00+00:00",
+        }
+    ]
+    with closing(Journal(tmp_path / "timestamps.sqlite", create=True)) as journal:
+        for offset in (0, 1):
+            at = NOW + timedelta(seconds=offset)
+            attempt = journal.begin("fed", at)
+            journal.finish(
+                attempt,
+                {
+                    "status": "OK",
+                    "payload": captured,
+                    "receipt_evidence": {
+                        "publication_timestamps": evidence,
+                        "received_at": at.isoformat(),
+                    },
+                },
+                at,
+            )
+        assert journal.conn.execute("SELECT count(*) FROM revisions").fetchone()[0] == 1
+        outcomes = journal.conn.execute("SELECT payload FROM outcomes").fetchall()
+        assert all(
+            json.loads(row[0])["receipt_evidence"]["publication_timestamps"] == evidence
+            for row in outcomes
+        )
+
+
 def test_restart_revisions_availability_and_metadata_only(tmp_path):
     path = tmp_path / "feeds.sqlite"
     with closing(Journal(path, create=True)) as journal:

@@ -1,10 +1,11 @@
 # M2A: first implementation PR, intent + EA protocol
 
-**Proposed scope, not implemented or authorized by the design PR.** This replaces
+**Owner-authorized on 3 November 2026; implementation pending.** This replaces
 the obsolete instruction to start M0A. Follow the [canonical architecture](architecture-plan.md)
 and [EA boundary](ea-execution-boundary.md); preserve implemented M0A–M0C.
-Start this increment after M1 qualification and separate implementation
-authorization. The canonical sequence is M2A protocol, M2B fixed EA execution,
+Start this offline increment now under the owner's M2 progression authorization.
+Carry unresolved M1 evidence explicitly; do not require another broker soak before
+protocol work. Connected orders remain disabled. The canonical sequence is M2A protocol, M2B fixed EA execution,
 M2C deterministic safety, then M2D connected PAPER acceptance.
 
 ## Exact scope
@@ -85,3 +86,15 @@ compiler invocation against installed broker terminals, new campaign, terminal
 configuration change, shared Python environment modification, broker operation,
 LIVE activation, B01 production engine, model calls, paid service or dashboard.
 Do not edit frozen campaign sources or reclassify failed/stopped evidence.
+
+## Required UI telemetry contract in M2A
+
+Include an additive read-only contract with account/symbol scope, channel
+(EA / Python package / MCP), capability, configured/enabled state, transport
+health, last heartbeat/success/error, original tick timestamp/age, receipt time
+and measured delivery delay with window/sample count. Unknown metrics are nullable.
+Heartbeats cannot refresh tick age and telemetry cannot grant execution authority.
+M2A provides schemas and fixtures only, not a dashboard or connected deployment.
+M2B emits telemetry; M2C validates stale-quote/healthy-channel and failure/recovery
+cases. M4 exposes authenticated reads. M5 delivers latency and channel-status UI
+with explicit source/capability labels and the two-second entry-block reason.

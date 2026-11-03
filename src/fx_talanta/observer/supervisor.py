@@ -10,15 +10,17 @@ from threading import RLock
 from time import monotonic
 
 import psycopg
+from pydantic import ValidationError
 
 from fx_talanta.domain.models import (
+    ObservationDiagnostic,
     ObservationHealth,
     Record,
     TerminalObservation,
     TerminalSnapshot,
     Versions,
 )
-from fx_talanta.observer.contracts import Binding, windows_path
+from fx_talanta.observer.contracts import Binding, DiagnosticReason, invalid, windows_path
 from fx_talanta.observer.mt5 import MT5Reader, ObservationFailure
 from fx_talanta.storage.offline import WRITER_LOCK, WriterBusy
 from fx_talanta.storage.repository import Repository
@@ -32,9 +34,16 @@ def _collect(sender, reader, binding, now):
     try:
         result = reader(binding, now)
         payload = result.model_dump_json().encode()
-        sender.send_bytes(payload if len(payload) <= MAX_MESSAGE else b"INVALID")
+        if len(payload) > MAX_MESSAGE:
+            diagnostic = invalid("PAYLOAD_LIMIT", stage="READER").diagnostic
+            sender.send_bytes(b"DIAGNOSTIC:" + diagnostic.model_dump_json().encode())
+        else:
+            sender.send_bytes(payload)
     except ObservationFailure as error:
-        sender.send_bytes(("ERROR:" + error.reason).encode())
+        if isinstance(error.reason, DiagnosticReason):
+            sender.send_bytes(b"DIAGNOSTIC:" + error.reason.diagnostic.model_dump_json().encode())
+        else:
+            sender.send_bytes(("ERROR:" + error.reason).encode())
     except BaseException:
         # Never send exception messages, credentials or arbitrary native diagnostics.
         sender.send_bytes(b"FAILED")
@@ -58,12 +67,22 @@ def collect(reader, binding, now):
             return None, "READER_FAILED"
         if payload == b"FAILED":
             return None, "READER_FAILED"
+        if payload.startswith(b"DIAGNOSTIC:"):
+            try:
+                diagnostic = ObservationDiagnostic.model_validate_json(payload.split(b":", 1)[1])
+                return None, DiagnosticReason(diagnostic)
+            except ValueError:
+                return None, invalid("SNAPSHOT_SCHEMA", stage="TRANSPORT")
         if payload.startswith(b"ERROR:"):
             return None, payload.decode().split(":", 1)[1]
         try:
             return TerminalSnapshot.model_validate_json(payload), None
+        except ValidationError as error:
+            return None, invalid(
+                "SNAPSHOT_SCHEMA", stage="TRANSPORT", violations=error.error_count()
+            )
         except ValueError:
-            return None, "INVALID_DATA"
+            return None, invalid("SNAPSHOT_SCHEMA", stage="TRANSPORT")
     finally:
         receiver.close()
         sender.close()
@@ -101,7 +120,7 @@ def assess(snapshot, binding, now, *, quote_freshness=True):
                 "time_policy_evidence",
             )
         ):
-            return "INVALID_DATA"
+            return invalid("CLOCK_POLICY_MISMATCH")
         if snapshot.company != binding.expected_company:
             return "COMPANY_MISMATCH"
         if snapshot.margin_mode != binding.expected_margin_mode:
@@ -109,17 +128,17 @@ def assess(snapshot, binding, now, *, quote_freshness=True):
     if not snapshot.connected and quote_freshness:
         return "DISCONNECTED"
     if not snapshot.history_from <= snapshot.history_to <= snapshot.observed_at <= now:
-        return "INVALID_DATA"
+        return invalid("SNAPSHOT_TIME_ORDER")
     if any(t.at > snapshot.observed_at for t in snapshot.ticks):
-        return "INVALID_DATA"
+        return invalid("FUTURE_TICK")
     if any(
         b.opened_at + timedelta(seconds=b.period_seconds) > snapshot.observed_at
         for b in snapshot.bars
     ):
-        return "INVALID_DATA"
+        return invalid("INCOMPLETE_BAR")
     for items in (snapshot.positions, snapshot.orders, snapshot.deals, snapshot.history_orders):
         if len({item.ticket for item in items}) != len(items):
-            return "INVALID_DATA"
+            return invalid("DUPLICATE_TICKET")
     if any(
         item.at > snapshot.observed_at
         or (item.done_at is not None and item.done_at > snapshot.observed_at)
@@ -130,7 +149,7 @@ def assess(snapshot, binding, now, *, quote_freshness=True):
             *snapshot.history_orders,
         )
     ):
-        return "INVALID_DATA"
+        return invalid("FUTURE_ACCOUNT_ITEM")
     if not snapshot.connected:
         return "DISCONNECTED"
     expected = set(binding.symbols)
@@ -346,6 +365,7 @@ class Observer:
             ),
             snapshot=None if permanent else snapshot,
             health=health,
+            diagnostic=getattr(reason, "diagnostic", None),
         )
         record = Record(
             account=self.binding.account,
@@ -353,7 +373,7 @@ class Observer:
             correlation_id=self.run_id,
             body=body,
             provenance="BROKER_OBSERVATION" if self.binding.source == "MT5" else "SCRIPTED_FIXTURE",
-            versions=Versions(component="observer/4" if health else "observer/3"),
+            versions=Versions(component="observer/5"),
         )
         with self.conn.transaction():
             self.repo.append_in(self.conn, (record,))

@@ -1,0 +1,172 @@
+{
+  "status": "COMPLETED",
+  "failure": null,
+  "started_utc": "2026-11-03T20:07:50.155431+00:00",
+  "requested_seconds": 300,
+  "collection_seconds": 300.0829026000574,
+  "poll_interval_seconds": 1,
+  "assessment_interval_seconds": 0.1,
+  "assessments": 2994,
+  "entry_ceiling_seconds": 2,
+  "qualification": false,
+  "symbols": {
+    "EURUSD.": {
+      "ea_delivery_ms": {
+        "count": 194,
+        "median": 47,
+        "p95": 63,
+        "max": 79,
+        "min": 15
+      },
+      "matched_poll_minus_ea_receipt_ms": {
+        "count": 107,
+        "median": 359,
+        "p95": 859,
+        "max": 906,
+        "min": -63
+      },
+      "ea_unique_quotes": 194,
+      "poll_unique_quotes": 118,
+      "ea_only_quotes": 87,
+      "poll_only_quotes": 11,
+      "buffer_drops": 0,
+      "paths": {
+        "EA": {
+          "age_seconds": {
+            "count": 2994,
+            "median": 2.0085043907165527,
+            "p95": 8.887777090072632,
+            "max": 16.20824098587036,
+            "min": 0.5258960723876953
+          },
+          "fresh_at_two_seconds": 1492,
+          "missing": 0
+        },
+        "POLL": {
+          "age_seconds": {
+            "count": 2990,
+            "median": 2.533071994781494,
+            "p95": 9.397953033447266,
+            "max": 17.0997531414032,
+            "min": 0.5416779518127441
+          },
+          "fresh_at_two_seconds": 1138,
+          "missing": 4
+        }
+      }
+    },
+    "USDJPY.": {
+      "ea_delivery_ms": {
+        "count": 195,
+        "median": 47,
+        "p95": 78,
+        "max": 79,
+        "min": 15
+      },
+      "matched_poll_minus_ea_receipt_ms": {
+        "count": 113,
+        "median": 375,
+        "p95": 906,
+        "max": 953,
+        "min": -31
+      },
+      "ea_unique_quotes": 195,
+      "poll_unique_quotes": 113,
+      "ea_only_quotes": 82,
+      "poll_only_quotes": 0,
+      "buffer_drops": 0,
+      "paths": {
+        "EA": {
+          "age_seconds": {
+            "count": 2994,
+            "median": 2.287769317626953,
+            "p95": 14.457735776901245,
+            "max": 29.36434245109558,
+            "min": 0.5236294269561768
+          },
+          "fresh_at_two_seconds": 1369,
+          "missing": 0
+        },
+        "POLL": {
+          "age_seconds": {
+            "count": 2990,
+            "median": 2.804802894592285,
+            "p95": 15.158302068710327,
+            "max": 30.06329917907715,
+            "min": 0.5455520153045654
+          },
+          "fresh_at_two_seconds": 1057,
+          "missing": 4
+        }
+      }
+    }
+  },
+  "poll_cycle_seconds": {
+    "count": 298,
+    "median": 0.0014667999930679798,
+    "p95": 0.003382900031283498,
+    "max": 0.004755199886858463,
+    "min": 0.0010035999584943056
+  },
+  "assessment_lateness_seconds": {
+    "count": 2994,
+    "median": 0.0057377738412469625,
+    "p95": 0.010801257565617561,
+    "max": 0.6087766946293414,
+    "min": 4.5157503336668015e-06
+  },
+  "evidence": {
+    "raw_events_sha256": "6ee518ae4ec4bbdf0014738fff41a24a58c2852bdaf1b3531594f297d7f029b5",
+    "common_time_ages_verified_against_raw_tick_timestamps": true,
+    "formatted_source_ast_matches_captured_source": true,
+    "native_source_sha256": "2c9b6df1856daa6735985d49e7a71e8988452d34087d467739b8800f13e3d32c",
+    "compiler_errors": 0,
+    "compiler_warnings": 0,
+    "clock_offset_seconds_before": [
+      0.0223665,
+      0.022727,
+      0.0221445
+    ],
+    "clock_offset_seconds_after": [
+      0.0262372,
+      0.0240452,
+      0.0247237
+    ],
+    "teardown": {
+      "trading_disabled": true,
+      "demo": true,
+      "connected": true,
+      "positions": 0,
+      "orders": 0,
+      "build": 6295,
+      "files": [
+        {
+          "name": "comparison-20261103-b-EURUSD_.csv",
+          "bytes": 77837,
+          "sha256": "caa77c46fb5c0b5cdc7f6fe70a9dc39ef8a9ce24a8e7776eee633561876265d5",
+          "last_event": "STOP",
+          "final_sequence": 661,
+          "drops": 0
+        },
+        {
+          "name": "comparison-20261103-b-USDJPY_.csv",
+          "bytes": 68075,
+          "sha256": "8e4a2a4943f0c9f87334a7a9371ee19e7af5f8ee7198f9040b90dcbcbe3f98b2",
+          "last_event": "STOP",
+          "final_sequence": 590,
+          "drops": 0
+        }
+      ],
+      "binary_sha256": "b24ba8dfcfac03cc71dcdba370bb8cb9a12a13a158ae8241a92acd146bab2279"
+    }
+  },
+  "limitations": [
+    "Five-minute FOREX-only development comparison; not sustained acceptance.",
+    "One-second latest-quote poller, not the full 30-second account/history observer.",
+    "OnTick may coalesce; zero ring drops does not establish a lossless tick archive.",
+    "Common-time assessment includes four polling-startup missing samples; missed times are not fabricated.",
+    "System uptime timing is quantized at approximately 10-16ms.",
+    "Existing explicit broker clock mapping used; host NTP does not independently establish broker clock accuracy.",
+    "No production observer, entry authority or execution path is switched to this stream."
+  ]
+}

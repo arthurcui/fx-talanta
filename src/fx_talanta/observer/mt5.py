@@ -17,7 +17,7 @@ from fx_talanta.domain.models import (
     ObservedTick,
     TerminalSnapshot,
 )
-from fx_talanta.observer.contracts import Binding, windows_path
+from fx_talanta.observer.contracts import Binding, invalid, windows_path
 
 READ_METHODS = frozenset(
     {
@@ -77,7 +77,7 @@ class SDKClock:
         if self.binding.time_policy_from is not None and not (
             self.binding.time_policy_from <= utc_time < self.binding.time_policy_until
         ):
-            raise ObservationFailure("INVALID_DATA")
+            raise ObservationFailure(invalid("CLOCK_POLICY_EXPIRED", stage="READER"))
         return utc_time
 
     def decode(self, seconds):
@@ -164,7 +164,7 @@ def history(api, binding, kind, start, end):
             # History orders can have a setup time before this window and a later
             # completion time; the SDK selects them by its own documented history query.
             if kind == "deals" and not start <= value.at <= end:
-                raise ObservationFailure("INVALID_DATA")
+                raise ObservationFailure(invalid("HISTORY_RANGE", stage="READER"))
             if value.ticket in seen and seen[value.ticket] != value:
                 raise ObservationFailure("MISSING_DATA")
             seen[value.ticket] = value

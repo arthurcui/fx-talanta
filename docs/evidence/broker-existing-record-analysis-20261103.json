@@ -1,0 +1,237 @@
+{
+  "cmc": {
+    "schema": "observation-description/1",
+    "records": 441,
+    "records_sha256": "0d712d55e327e1587224d2bbe880fd3f54e2e42990a10aea48e3c925df5531b3",
+    "first_record_at": "2026-11-03T04:50:34.095106+00:00",
+    "last_record_at": "2026-11-03T08:31:04.299052+00:00",
+    "reasons": {
+      "CURRENT": 394,
+      "INVALID_DATA": 1,
+      "MISSING_DATA": 1,
+      "STALE_TICKS": 44,
+      "TIMEOUT": 1
+    },
+    "diagnostics": {},
+    "missing_health_records": 0,
+    "collection_to_record_seconds": {
+      "samples": 441,
+      "p50": 0.831785,
+      "p95": 1.064465,
+      "max": 30.12228
+    },
+    "inter_record_seconds": {
+      "samples": 440,
+      "p50": 30.006318,
+      "p95": 30.254247,
+      "max": 59.290526
+    },
+    "symbols": {
+      "EURUSD.a": {
+        "sampled_age_seconds": {
+          "samples": 439,
+          "p50": 1.177546,
+          "p95": 8.801743,
+          "max": 103.820684
+        },
+        "age_le_2_seconds": 287,
+        "age_gt_2_le_5_seconds": 112,
+        "age_gt_5_seconds": 40,
+        "negative_age": 0,
+        "repeated_timestamp_adjacent_reads": 1,
+        "longest_consecutive_stale_samples": 2
+      },
+      "USDJPY.a": {
+        "sampled_age_seconds": {
+          "samples": 439,
+          "p50": 0.543915,
+          "p95": 3.827565,
+          "max": 95.798684
+        },
+        "age_le_2_seconds": 373,
+        "age_gt_2_le_5_seconds": 53,
+        "age_gt_5_seconds": 13,
+        "negative_age": 0,
+        "repeated_timestamp_adjacent_reads": 0,
+        "longest_consecutive_stale_samples": 1
+      }
+    },
+    "utc_hours": {
+      "2026-11-03T04:00:00Z": {
+        "records": 19,
+        "complete": 19,
+        "fresh": 15
+      },
+      "2026-11-03T05:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 99
+      },
+      "2026-11-03T06:00:00Z": {
+        "records": 120,
+        "complete": 119,
+        "fresh": 104
+      },
+      "2026-11-03T07:00:00Z": {
+        "records": 119,
+        "complete": 118,
+        "fresh": 115
+      },
+      "2026-11-03T08:00:00Z": {
+        "records": 63,
+        "complete": 62,
+        "fresh": 61
+      }
+    },
+    "limitations": [
+      "Descriptive committed samples only; no acceptance verdict or entry authorization.",
+      "Collection-to-record excludes database commit latency; no SDK-call stage timings.",
+      "Per-sample independent clock uncertainty is absent from legacy records.",
+      "UTC hours are not inferred market sessions; no continuous-freshness claim.",
+      "Missing slots and absent ticks are not imputed; old failed snapshots stay missing."
+    ],
+    "previous_verification_hash_matched": true
+  },
+  "forex": {
+    "schema": "observation-description/1",
+    "records": 1720,
+    "records_sha256": "91bbc5054b2a1a74250d4f479c7444c1c33c27eea0b8ae3766bfc7a0331d982f",
+    "first_record_at": "2026-11-03T04:35:15.621277+00:00",
+    "last_record_at": "2026-11-03T18:55:15.760050+00:00",
+    "reasons": {
+      "CURRENT": 1485,
+      "MISSING_DATA": 1,
+      "STALE_TICKS": 233,
+      "TIMEOUT": 1
+    },
+    "diagnostics": {},
+    "missing_health_records": 0,
+    "collection_to_record_seconds": {
+      "samples": 1720,
+      "p50": 0.877557,
+      "p95": 1.155825,
+      "max": 30.125535
+    },
+    "inter_record_seconds": {
+      "samples": 1719,
+      "p50": 30.002042,
+      "p95": 30.293936,
+      "max": 59.095795
+    },
+    "symbols": {
+      "EURUSD.": {
+        "sampled_age_seconds": {
+          "samples": 1719,
+          "p50": 1.034141,
+          "p95": 6.45649,
+          "max": 27.908749
+        },
+        "age_le_2_seconds": 1247,
+        "age_gt_2_le_5_seconds": 342,
+        "age_gt_5_seconds": 130,
+        "negative_age": 0,
+        "repeated_timestamp_adjacent_reads": 0,
+        "longest_consecutive_stale_samples": 3
+      },
+      "USDJPY.": {
+        "sampled_age_seconds": {
+          "samples": 1719,
+          "p50": 1.045635,
+          "p95": 6.476949,
+          "max": 20.509443
+        },
+        "age_le_2_seconds": 1233,
+        "age_gt_2_le_5_seconds": 348,
+        "age_gt_5_seconds": 138,
+        "negative_age": 0,
+        "repeated_timestamp_adjacent_reads": 0,
+        "longest_consecutive_stale_samples": 3
+      }
+    },
+    "utc_hours": {
+      "2026-11-03T04:00:00Z": {
+        "records": 50,
+        "complete": 50,
+        "fresh": 31
+      },
+      "2026-11-03T05:00:00Z": {
+        "records": 120,
+        "complete": 119,
+        "fresh": 87
+      },
+      "2026-11-03T06:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 92
+      },
+      "2026-11-03T07:00:00Z": {
+        "records": 119,
+        "complete": 118,
+        "fresh": 110
+      },
+      "2026-11-03T08:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 111
+      },
+      "2026-11-03T09:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 109
+      },
+      "2026-11-03T10:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 105
+      },
+      "2026-11-03T11:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 87
+      },
+      "2026-11-03T12:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 108
+      },
+      "2026-11-03T13:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 115
+      },
+      "2026-11-03T14:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 115
+      },
+      "2026-11-03T15:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 118
+      },
+      "2026-11-03T16:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 116
+      },
+      "2026-11-03T17:00:00Z": {
+        "records": 120,
+        "complete": 120,
+        "fresh": 99
+      },
+      "2026-11-03T18:00:00Z": {
+        "records": 111,
+        "complete": 111,
+        "fresh": 82
+      }
+    },
+    "limitations": [
+      "Descriptive committed samples only; no acceptance verdict or entry authorization.",
+      "Collection-to-record excludes database commit latency; no SDK-call stage timings.",
+      "Per-sample independent clock uncertainty is absent from legacy records.",
+      "UTC hours are not inferred market sessions; no continuous-freshness claim.",
+      "Missing slots and absent ticks are not imputed; old failed snapshots stay missing."
+    ],
+    "previous_verification_hash_matched": true
+  }
+}

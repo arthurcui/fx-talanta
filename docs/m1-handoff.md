@@ -1,5 +1,10 @@
 # M1 implementation handoff
 
+The [M1 closure checklist and remediation scope](m1-closure-checklist.md) is the
+current existing-evidence work queue. It authorizes no new tests or campaigns.
+The [remediation progress](m1-remediation-progress.md) records local implementation
+and actual committed-record analysis separately from outstanding qualification.
+
 ## Current status and execution handoff (2026-11-03)
 
 The broker and provider campaigns are concluded without sustained acceptance; see
@@ -12,7 +17,10 @@ any future active collector checkout while developing elsewhere.
 The revised [architecture](architecture-plan.md) retains M1 as read-only. Python
 will not become a connected order writer: a fixed reviewed EA is the planned sole
 broker mutator, reached via backend validation/reservation and EA-initiated pull.
-Complete M1 qualification before starting [M2A intent/EA protocol](m2-handoff.md).
+The owner authorized [M2A intent/EA protocol](m2-handoff.md) on November 3 after
+accepting the bounded read-only quote stream. Carry M1 evidence gaps explicitly;
+offline protocol work does not require another soak. Failed/stopped campaign
+verdicts remain unchanged and connected orders remain disabled.
 Then M2B implements the fixed EA with connected submission disabled, M2C proves
 deterministic safety, and M2D accepts connected PAPER execution. Native/Tester and
 read-only shadow remain evidence gates within M2B/M2C; all prerequisites must pass
