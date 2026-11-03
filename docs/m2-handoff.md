@@ -1,10 +1,11 @@
 # M2A: first implementation PR, intent + EA protocol
 
 **Owner-authorized on 3 November 2026; offline implementation delivered.** See
-the [M2A implementation and evidence](m2a-protocol.md). Native parity and the
-subsequent M2C/M2D gates remain pending. PR #17 is merged; the
-[M2B native implementation and bounded evidence](m2b-fixed-ea.md) now follow it,
-with connected execution disabled. This replaces
+the [M2A implementation and evidence](m2a-protocol.md). PRs #17 and #18 are merged;
+the [M2B native implementation](m2b-fixed-ea.md) and the separate
+[M2C offline safety/native parity evidence](m2c-deterministic-safety.md) now follow it.
+Real snapshot sourcing, deployed transport/fencing and end-to-end shadow timing
+remain gates; connected execution is disabled. This replaces
 the obsolete instruction to start M0A. Follow the [canonical architecture](architecture-plan.md)
 and [EA boundary](ea-execution-boundary.md); preserve implemented M0A–M0C.
 Start this offline increment now under the owner's M2 progression authorization.

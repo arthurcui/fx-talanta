@@ -31,6 +31,12 @@ slippage, commission and financing determine actual net results.
 
 ## Protocol and storage ownership
 
+The [M2C safety implementation](m2c-deterministic-safety.md) supplies read-only
+preflight, independent native arithmetic, loss/protection reducers and local
+durability/fencing reference checks. Production authenticated transport, actual
+broker snapshot construction and a connected sender remain gated. Its local
+SQLite reference does not replace the PostgreSQL ownership specified below.
+
 Transport is **EA-initiated pull of prepared work**, followed by idempotent event
 upload. A private authenticated HTTPS endpoint is pinned per account; a local relay
 may carry bytes but has no broker credentials or mutation authority. Distinct
