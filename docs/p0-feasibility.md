@@ -1,5 +1,18 @@
 # P0: broker and data feasibility
 
+## Design migration status (2026-11-03)
+
+The historical comparisons below remain dated feasibility evidence, not completed
+permission or execution qualification. Current design uses Python for observation
+and decision work, a bounded read-only native MCP calendar adapter, and a proposed
+fixed EA for all connected mutations. Separately verify the exact account's
+permissions for observation, data retention/use, native MCP and EA execution;
+availability of a package or terminal feature is not such evidence. No broker
+failover or live permission is inferred. See [milestone gates](design-migration.md)
+and the preserved [broker](broker-campaign-conclusion.md)/[provider](provider-campaign-conclusion.md)
+conclusions. This document does not restart campaigns or authorize orders.
+
+
 Research date: **2026-11-02**. Scope: the plan's British Columbia resident,
 single-user, EURUSD/USDJPY, MT5-first deployment. The user has no existing broker
 account and has selected **CMC Markets Canada first, FOREX.com Canada second**.

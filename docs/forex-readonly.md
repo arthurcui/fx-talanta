@@ -1,5 +1,16 @@
 # FOREX.com read-only qualification
 
+## Current acceptance status
+
+The [consolidated conclusion](broker-campaign-conclusion.md) records the
+user-stopped v2 run and earlier failures. No 24-hour acceptance passed. Historical
+commands and references to contemporaneous CMC isolation below are retained as
+context, not evidence that either campaign is still running or permission to
+resume it. New campaigns require new plans/authorization and separate frozen
+sources. The [fixed EA design](ea-execution-boundary.md) changes future execution
+authority only; this Python observer remains read-only.
+
+
 FOREX.com Canada is the secondary comparison broker. This qualification uses a
 separate terminal, data directory, PAPER/BROKER_DEMO binding, database namespace
 and observer process. CMC's running checkout, terminal, binding and run are not

@@ -8,28 +8,42 @@ deterministic risk sizing, reservations, a durable simulated broker, protective
 management and restart reconciliation. M0C adds the application image, isolated
 task setup, and verified two-account export/restore.
 
-**Current scope: M0C plus CMC read-only observation and qualification.** Real execution remains disabled on both account
-bindings. The `demo` command records M0A fixtures; `offline-demo` executes synthetic
-PAPER/SIMULATOR orders with no external broker connection or LLM credentials. LIVE
-is a separate, disabled database namespace for account-isolation tests; its fixture
-identity is not a real trading account.
+**Current implementation:** M0A–M0C offline foundation, read-only CMC/FOREX
+observers, manual BLS calendar upload/reminders, provider journal/filtering and
+bounded native MCP calendar import. Broker execution and LIVE remain disabled.
+The `demo` and `offline-demo` commands use fixtures/SIMULATOR only.
 
-**Next: complete the CMC 24-hour read-only acceptance run.** The
-[broker/data feasibility review](docs/p0-feasibility.md) shortlists Canadian MT5
-candidates and identifies the outstanding account permissions and source rights.
-The selected order is **CMC Markets Canada first, FOREX.com Canada second**.
-The [M1 handoff](docs/m1-handoff.md) defines the implementation and acceptance work,
-including [demo replacement before expiry](docs/demo-account-rollover.md).
-CMC demo observation is implemented; runtime account rollover is not yet implemented.
-The [observer foundation](docs/observer-foundation.md) adds a synthetic read-only
-snapshot harness, process timeouts, durable retry/halt state and fixture archive
-coverage. Run `observer-demo` after migration; actual broker-connected M1A remains open.
-The [MT5 adapter](docs/mt5-observer.md) adds an optional Windows reader, explicit
-demo bindings and account-checked demo archives. Connected CMC observations have
-run under the operator's explicit permission assumption. The
-[CMC read-only milestone](docs/cmc-readonly.md) adds a supervised runner, database
-recovery, timestamp qualification and health/acceptance reporting; sustained
-acceptance remains pending until the full run finishes and its gates pass.
+**Qualification concluded without a pass:** CMC halted; FOREX and the provider
+campaign were stopped at the owner's request. See the
+[broker conclusions](docs/broker-campaign-conclusion.md) and
+[provider conclusion](docs/provider-campaign-conclusion.md). No campaign is
+restarted by this plan; historical evidence remains unchanged.
+
+**Design direction:** Python proposes, deterministic backend risk reserves an
+allowance, and one fixed reviewed EA per account would independently authorize,
+execute, protect and reconcile connected orders. The EA is not implemented or
+deployed. The existing Python gateway stays simulator-only. See the
+[migration and milestone gates](docs/design-migration.md),
+[decision trace and EA boundary](docs/ea-execution-boundary.md) and
+[ADR-001](docs/adr/001-fixed-ea-execution.md).
+
+**Next: finish M1 qualification**, preserving completed M0A–M0C and all failed
+or stopped evidence. New qualification work still needs its own plan/authorization.
+Then follow M2A protocol → M2B fixed EA → M2C deterministic safety → M2D connected
+PAPER acceptance, followed by M3 baseline/replay, M4 AI/advisor, M5 unattended
+PAPER, M6 capped LIVE and M7 evaluated evolution.
+
+The first proposed M2 PR is [M2A intent/EA protocol](docs/m2-handoff.md): additive
+contracts, reference vectors and a fixture-only harness, with broker submission
+absent. Native/Tester and read-only shadow remain evidence gates within M2B/M2C;
+they are not separate milestone names. M2B cannot enable connected orders before
+M2C safety and M1 prerequisites pass. This design starts no implementation,
+diagnostics, services or campaigns.
+
+CMC remains first and FOREX.com the independent comparison, with no automatic
+failover. [P0 feasibility](docs/p0-feasibility.md), [M1 handoff](docs/m1-handoff.md)
+and [demo rollover](docs/demo-account-rollover.md) retain unresolved permissions,
+source qualification and operational prerequisites.
 
 ## Quick start on Windows
 
@@ -199,8 +213,10 @@ credentials. Restore initially blocks runtime writes and execution. Follow the
 | `docs/m0a.md` | Storage guarantees, trust boundaries and next-increment interfaces |
 | `docs/architecture-plan.md` | Architecture and implementation plan |
 
-The portable core does not import MetaTrader5. Real news ingestion, model access, authentication,
-UI and live activation remain later work. GitHub's required `M0A checks` job name
+The portable core does not import MetaTrader5. Provider ingestion is implemented
+with qualification gaps; production model access, owner authentication, the
+trading dashboard and live activation remain later work. The manual BLS tool
+already has a local desktop file chooser. GitHub's required `M0A checks` job name
 is retained for branch-protection compatibility and now runs the entire suite.
 
 ## Documentation
@@ -213,6 +229,10 @@ references; project requirements and procedures are recorded here.
 | Document | Purpose |
 | --- | --- |
 | [Architecture and implementation plan](docs/architecture-plan.md) | Full planning baseline, system design, milestones and acceptance criteria |
+| [Fixed EA decision](docs/adr/001-fixed-ea-execution.md) | Dated authority decision and alternatives |
+| [EA boundary and operating design](docs/ea-execution-boundary.md) | Worked decision, protocol, lost acknowledgment, state/actions and deployment/restore |
+| [Design migration](docs/design-migration.md) | Actual baseline, old-to-new map, milestone gates and boundary test matrix |
+| [First M2 implementation slice](docs/m2-handoff.md) | Exact offline-only scope; no deployment or broker execution |
 | [FOREX.com onboarding](docs/forex-onboarding.md) | Secondary demo preparation, expiry tracking and durable alerts |
 | [Provider qualification](docs/provider-qualification.md) | Free-first calendar/news preflight, measured endpoint checks and remaining gates |
 | [Required provider acceptance](docs/provider-acceptance.md) | USD/EUR/JPY coverage inventory, expanded official feeds and prospective delivery checks |

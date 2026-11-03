@@ -1,5 +1,15 @@
 # CMC read-only milestone
 
+## Current acceptance status
+
+The [consolidated conclusion](broker-campaign-conclusion.md) records the halted
+v2 run and earlier failures. It did not pass; the exact INVALID_DATA trigger
+remains unproven. The procedures below are historical reproduction guidance,
+not authorization to resume or overwrite any concluded run. A future campaign
+needs a new plan and authorization. The [fixed EA design](ea-execution-boundary.md)
+does not change this read-only observer or its evidence.
+
+
 Scope: a supervised Windows MT5 demo observer with isolated PostgreSQL storage,
 health reporting, persistent halts and a bounded 24-hour acceptance run. Trading,
 calendar/news qualification and FOREX.com rollover are outside this milestone.

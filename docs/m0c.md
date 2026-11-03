@@ -1,5 +1,15 @@
 # M0C: deployment parity and durable transfer
 
+## Scope under the fixed EA design
+
+This remains the implemented **offline** profile/archive procedure. The future
+[EA deployment/runbook](ea-execution-boundary.md#deployment-release-and-restore-runbook-design)
+adds an independently durable EA journal, compatible release hashes and actual
+host/terminal fencing. Existing PostgreSQL restore/session locks alone do not
+establish those properties. A future restore must reconcile both journals and
+broker state while preserving losses/unknowns; no connected host is deployed here.
+
+
 M0C completes the offline foundation. It packages the same Python contracts,
 PostgreSQL schema, risk governor and simulator for native execution, an application
 container and a Linux task workspace. It does not introduce MT5, model calls,
