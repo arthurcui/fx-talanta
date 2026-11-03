@@ -45,7 +45,7 @@ source, compiler log and EX5 by SHA-256. MetaEditor build 6295 compiled the gate
 test harnesses and bootstrap with zero errors and warnings. EX5 files, raw logs
 and account-bearing host artifacts stay in ignored local storage.
 
-* **78 native checks passed** in the final bounded Strategy Tester exercise.
+* **85 native checks passed** in the final bounded Strategy Tester exercise.
   It performed seven simulated calls, including a test-only resting-order seed
   and cancellation, received trade callbacks and ended with zero positions/orders.
 * Actual native entry, SL/TP verification, tightening, buy/sell closes, duplicate
@@ -61,7 +61,7 @@ and account-bearing host artifacts stay in ignored local storage.
   JSON against the M2A schema.
 * A separate non-Tester initialization emitted
   `FX_M2B_CONNECTED_EXECUTION_DISABLED` and refused to run.
-* The local Python suite passed **416 tests**; 119 PostgreSQL tests were skipped
+* The local Python suite passed **417 tests**; 119 PostgreSQL tests were skipped
   locally. Required CI runs those tests against its own isolated database and
   builds the runtime/test images. CI does not compile or run proprietary MT5.
   It verifies that the committed native evidence matches every shipped native source.
@@ -110,7 +110,7 @@ The final local artifacts were verified with:
 ```powershell
 python scripts/m2b_evidence.py `
   --native-root C:\SideProjects\fx-talanta\.local\m2b-native-20261103 `
-  --compiler-run 04 --service-run 02 `
+  --compiler-run 05 --service-run 02 `
   --output docs/evidence/m2b-native-20261103.json
 ```
 

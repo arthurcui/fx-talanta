@@ -98,6 +98,18 @@ bool FxRunNativeTests()
    file=FileOpen(path,FILE_WRITE|FILE_TXT|FILE_ANSI,0,CP_UTF8); FileWriteString(file,"corrupt\r\n"); FileClose(file);
    FxCheck("corruption_halts",!gateway.Open(path));
    FxCheck("journal_failure_no_submit",!gateway.MarkSubmitting(0));
+   FxGateway rounded;
+   string round_path="fx-m2b-tests/rounded-"+IntegerToString((long)GetTickCount64())+".journal";
+   FxCheck("rounded_journal",rounded.Open(round_path));
+   bad=c; bad.lot_step=4000000; bad.min_lot=4000000;
+   FxCheck("rounded_admission",rounded.Admit(frames[0],bad,index)=="OK");
+   FxCheck("rounded_write_ahead",rounded.MarkSubmitting(index));
+   FxCheck("rounded_ack",rounded.Result(index,true,404,"FIXTURE_ACK"));
+   FxCheck("rounded_partial",rounded.Reconcile(index,true,4000000,4000000,4000000,404,303,1.098,false));
+   entry=rounded.At(index);
+   FxCheck("rounded_reservation_never_expands",entry.filled+entry.remaining==8000000);
+   FxCheck("rounded_overfill_rejected",!rounded.Reconcile(index,true,4000000,4000000,5000000,404,303,1.098,false));
+   rounded.Close();
    Print("FX_M2B_NATIVE_RESULT checks=",fx_checks," failures=",fx_failures);
    return fx_failures==0;
 }

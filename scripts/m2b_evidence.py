@@ -17,7 +17,7 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def verify(native, compiler_run="03", service_run="02"):
+def verify(native, compiler_run="05", service_run="02"):
     sources = {}
     for source in sorted((ROOT / "mql5/gateway").iterdir()):
         copied = (
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--native-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--compiler-run", default="03")
+    parser.add_argument("--compiler-run", default="05")
     parser.add_argument("--service-run", default="02")
     args = parser.parse_args()
     report = verify(args.native_root, args.compiler_run, args.service_run)

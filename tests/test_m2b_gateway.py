@@ -19,7 +19,7 @@ def test_committed_native_evidence_matches_the_shipped_sources():
     for name, expected in report["source_sha256"].items():
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
     native = report["native_checks"]
-    assert native["count"] == len(native["checks"]) == 78
+    assert native["count"] == len(native["checks"]) == 85
     assert all(value == "PASS" for value in native["checks"].values())
     assert native["failures"] == native["final_positions"] == native["final_orders"] == 0
     assert report["journal"]["all_closed"]
@@ -88,6 +88,13 @@ def test_independent_reader_reconstructs_write_ahead_without_broker_access():
     assert records[-1].state == "OUTCOME_UNKNOWN"
     assert records[-1].remaining_units == 9_000_000
     assert records[-1].filled_units == 0
+
+
+def test_rounded_allocation_cannot_expand_during_partial_reconciliation():
+    initial = record(remaining=8_000_000)
+    expanded = record("OUTCOME_UNKNOWN", version=2, remaining=9_000_000)
+    with pytest.raises(ValueError, match="reservation expanded"):
+        read_journal(journal_bytes([initial, expanded]))
 
 
 @pytest.mark.parametrize(

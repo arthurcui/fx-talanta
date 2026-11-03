@@ -1,16 +1,16 @@
 {
   "schema": "m2b-native-evidence/1",
-  "verified_at": "2026-11-03T22:03:17.494676+00:00",
+  "verified_at": "2026-11-03T22:08:43.072747+00:00",
   "scope": "Offline native Strategy Tester using synthetic custom-symbol data only",
   "terminal_build": 6295,
   "source_sha256": {
     "mql5/gateway/BootstrapSynthetic.mq5": "cd2707dd990be7ba5344bd109a505ac9a278fff86c4f6c06d6341cfc503bbef3",
     "mql5/gateway/Broker.mqh": "11609be3fc7d8824a73f666bdc3207ac624f1dbb02dd0cdcbcf3324f1d575112",
-    "mql5/gateway/Core.mqh": "fc1a48a8e7f468117f1349f6c0f8c292ea04e2cefd9eda67d04abf1ef9f11bcb",
+    "mql5/gateway/Core.mqh": "0707e0dd42d0d0287fa4736ca34a1af5ce8a9d6d4093fe45cdcb60f8384cb58f",
     "mql5/gateway/FixedGateway.mq5": "434c71a3dc7519ad3de020d45abc6af7cdb11653796f1d06324339ee533cb489",
     "mql5/gateway/GatewayTester.mq5": "5cf9be06e49df34ea372484eb6120934b17df42adcc6a3c7a0bdb74ea8a36075",
     "mql5/gateway/NativeTests.mq5": "f7153216f9dafec8dcce3e518b80e729e808fbea9727022a0c038eec38d5f8dc",
-    "mql5/gateway/NativeTests.mqh": "5edf94c928cb8f17a060896d7bfd8ffd6aa6c47937ae405644430e5dafc04b5a",
+    "mql5/gateway/NativeTests.mqh": "e3f47e6d95b7073cac7707e5d7e58b78fecc4e2393d8f073214a2a490b21d22c",
     "mql5/gateway/Telemetry.mqh": "4f221a33e11fc03b032c4b5eb52ab34fecd889b7bca68eb3c0fde9b21c47b358",
     "mql5/gateway/Wire.mqh": "3de5c0a65bc1b6e97bd0e77bd7821bfc395e0fce7f134c41effd34acdb8c6ebd"
   },
@@ -18,20 +18,20 @@
     "NativeTests": {
       "errors": 0,
       "warnings": 0,
-      "ex5_sha256": "9c377421d0305d5f0adba7088699236fc325a81ea91ed15321f8ae4e63e1c6db",
-      "compile_log_sha256": "732b9f657fd1b95d4a96d08201ba4817784f0fcca4df27db637716295afc61a0"
+      "ex5_sha256": "6c7051bd95d0d93c0afdc03a170f001c950c63bd950223ec632731e46f9f90ff",
+      "compile_log_sha256": "05dbb96d23c5dbb79a947578ad3b4334a78638fb273dc8d01a6559b1cc028106"
     },
     "FixedGateway": {
       "errors": 0,
       "warnings": 0,
-      "ex5_sha256": "84cb7fc232fd7fa1f712a3eb9be427350d633b943490ed952634c114c547ae78",
-      "compile_log_sha256": "c7e14e0040aef075be82ee3b552ada7006ba8e4f3a6e1b3611f368c5a789b3c9"
+      "ex5_sha256": "1f2bec00ea469e829bcb0d8bf2daec5ee3335623bf27f615a6ad9a27c111e50a",
+      "compile_log_sha256": "0d6b3bc264c00440522a623d5e5862095c87ee1ec5e3fe124543e5b47e8d7df2"
     },
     "GatewayTester": {
       "errors": 0,
       "warnings": 0,
-      "ex5_sha256": "74386930914a54d4323125ca1c811953ca7a008f016ab7fe9356ff9933f2d28e",
-      "compile_log_sha256": "f1ea24c688f29c1530f7482750654feec8dfa5c6600fb1472ea5f38dee965dee"
+      "ex5_sha256": "d7e9b14ecc33dd617b49601b21b1b21477ea3554b547d3b0a1d01aeaee3e60a6",
+      "compile_log_sha256": "4e5b6202ef5fac5fefd8f1b2c0a93ec40347b10576a37fe4801c9ed0bcaf95a0"
     },
     "FXTalantaBootstrap": {
       "errors": 0,
@@ -41,7 +41,7 @@
     }
   },
   "native_checks": {
-    "count": 78,
+    "count": 85,
     "failures": 0,
     "checks": {
       "python_native_canonical_hash": "PASS",
@@ -100,6 +100,13 @@
       "closed_retained": "PASS",
       "corruption_halts": "PASS",
       "journal_failure_no_submit": "PASS",
+      "rounded_journal": "PASS",
+      "rounded_admission": "PASS",
+      "rounded_write_ahead": "PASS",
+      "rounded_ack": "PASS",
+      "rounded_partial": "PASS",
+      "rounded_reservation_never_expands": "PASS",
+      "rounded_overfill_rejected": "PASS",
       "native_buy_ack": "PASS",
       "native_positive_fill": "PASS",
       "native_initial_sl": "PASS",
@@ -127,7 +134,7 @@
     "trade_callbacks": 22,
     "final_positions": 0,
     "final_orders": 0,
-    "agent_log_sha256": "0c0463d609d3d970ee3aeb6238df24a3837dcf6a025060ddbd752af44e48d67b"
+    "agent_log_sha256": "01ae36243d008b34358662586be4557f86038ebe80f92f67921f505ead3c3340"
   },
   "journal": {
     "independently_verified_rows": 31,
@@ -148,11 +155,11 @@
   "connected_trading_enabled": false,
   "new_broker_campaign_started": false,
   "host_verification": {
-    "loopback_proxy_configured": true,
+    "temporary_account_cache_removed": true,
     "allow_live_trading_disabled": true,
     "private_terminal_stopped": true,
-    "temporary_account_cache_removed": true,
-    "verified_at": "2026-11-03T22:03:16.3581671Z",
+    "loopback_proxy_configured": true,
+    "verified_at": "2026-11-03T22:07:56.8173762Z",
     "original_profile_unchanged": true
   },
   "earlier_attempts": [

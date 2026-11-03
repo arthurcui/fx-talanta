@@ -74,6 +74,8 @@ def read_journal(data: bytes) -> list[NativeRecord]:
             raise ValueError("request digest/version mismatch")
         elif filled < old.filled_units:
             raise ValueError("filled quantity regressed")
+        elif filled + remaining > old.filled_units + old.remaining_units:
+            raise ValueError("native reservation expanded")
         record = NativeRecord(
             envelope, f[0], f[1], version, filled, opened, remaining, order, position, stop, digest
         )

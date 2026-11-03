@@ -201,12 +201,13 @@ public:
    {
       if(index<0 || index>=Count() || !positive || !MathIsValidNumber(stop) || stop<0) return false;
       FxEntry e=entries[index];
-      if(e.state=="READY" || e.state=="REJECTED" || filled<e.filled || filled<open_volume || open_volume<0 || pending<0 || filled+pending>e.work.volume) return false;
+      long retained=e.filled+e.remaining;
+      if(e.state=="READY" || e.state=="REJECTED" || filled<e.filled || filled<open_volume || open_volume<0 || pending<0 || filled+pending>retained) return false;
       if(open_volume>0 && position==0) return false;
       double requested_stop=(double)e.work.stop/100000000;
       bool protected_stop=stop>0 && (e.work.side=="BUY" ? stop>=requested_stop : stop<=requested_stop);
       string state=open_volume>0 ? (protected_stop ? "PROTECTED" : "PROTECTION_PENDING") : (final_order ? "CLOSED" : "OUTCOME_UNKNOWN");
-      long unfilled=e.work.volume-filled;
+      long unfilled=retained-filled;
       long remaining=final_order ? pending : (pending>unfilled ? pending : unfilled);
       if(state==e.state && filled==e.filled && open_volume==e.open_volume && remaining==e.remaining && stop==e.accepted_stop && order==e.order && position==e.position) return true;
       e.filled=filled; e.open_volume=open_volume; e.remaining=remaining; e.order=order; e.position=position; e.accepted_stop=stop;
