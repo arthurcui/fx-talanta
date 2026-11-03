@@ -149,11 +149,26 @@ def choose_file():
         window = tkinter.Tk()
     except tkinter.TclError as exc:
         raise ValueError("Desktop chooser unavailable; use --file") from exc
-    window.withdraw()
     try:
+        window.title("FX-Talanta Calendar")
+        window.geometry("440x110")
+        tkinter.Label(
+            window,
+            text=(
+                "Select your downloaded BLS calendar (.ics).\nResults will appear in the terminal."
+            ),
+            padx=20,
+            pady=20,
+        ).pack()
+        window.update_idletasks()
         return filedialog.askopenfilename(
-            title="Upload BLS calendar", filetypes=[("Calendar", "*.ics")]
+            parent=window,
+            initialdir=str(Path.cwd()),
+            title="Upload BLS calendar",
+            filetypes=[("Calendar", "*.ics")],
         )
+    except tkinter.TclError as exc:
+        raise ValueError("Desktop chooser unavailable; use --file") from exc
     finally:
         window.destroy()
 
