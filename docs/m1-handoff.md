@@ -1,5 +1,8 @@
 # M1 implementation handoff
 
+The [M1 closure checklist and remediation scope](m1-closure-checklist.md) is the
+current existing-evidence work queue. It authorizes no new tests or campaigns.
+
 ## Current status and execution handoff (2026-11-03)
 
 The broker and provider campaigns are concluded without sustained acceptance; see

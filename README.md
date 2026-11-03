@@ -29,6 +29,8 @@ deployed. The existing Python gateway stays simulator-only. See the
 
 **Next: finish M1 qualification**, preserving completed M0A–M0C and all failed
 or stopped evidence. New qualification work still needs its own plan/authorization.
+Use the [M1 closure checklist](docs/m1-closure-checklist.md) for the evidence gaps,
+prioritized remediation and conditions for proposing any new tests.
 Then follow M2A protocol → M2B fixed EA → M2C deterministic safety → M2D connected
 PAPER acceptance, followed by M3 baseline/replay, M4 AI/advisor, M5 unattended
 PAPER, M6 capped LIVE and M7 evaluated evolution.
