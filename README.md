@@ -21,13 +21,14 @@ restarted by this plan; historical evidence remains unchanged.
 
 **Design direction:** Python proposes, deterministic backend risk reserves an
 allowance, and one fixed reviewed EA per account would independently authorize,
-execute, protect and reconcile connected orders. The EA is not implemented or
-deployed. The existing Python gateway stays simulator-only. See the
+execute, protect and reconcile connected orders. The [M2B native EA](docs/m2b-fixed-ea.md)
+is implemented and tested in Strategy Tester; connected execution is disabled and
+it is not deployed to broker terminals. The existing Python gateway stays simulator-only. See the
 [migration and milestone gates](docs/design-migration.md),
 [decision trace and EA boundary](docs/ea-execution-boundary.md) and
 [ADR-001](docs/adr/001-fixed-ea-execution.md).
 
-**Current: owner-authorized M2A offline protocol work**, preserving completed
+**Current: M2A merged; M2B native implementation and bounded test evidence**, preserving completed
 M0A–M0C, unresolved M1 gaps and all failed or stopped evidence. New qualification work still needs its own plan/authorization.
 Use the [M1 closure checklist](docs/m1-closure-checklist.md) for the evidence gaps,
 prioritized remediation and conditions for proposing any new tests.
