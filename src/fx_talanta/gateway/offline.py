@@ -58,14 +58,27 @@ class Gateway:
         run_id: UUID,
         clock: Clock,
         policy: Policy | None = None,
+        *,
+        news_gate=None,
     ):
         policy = Policy.model_validate((policy or Policy()).model_dump(mode="json"))
         self.lock = RLock()
         self.store = OfflineStore(dsn, account, run_id, clock)
         self.clock, self.account, self.run_id = clock, account, run_id
+        self.news_gate = news_gate
         try:
+            if news_gate is not None:
+                from fx_talanta.provider_pipeline import JournalGate
+
+                if type(news_gate) is not JournalGate:
+                    raise ValueError("use the audited provider journal gate")
             self.broker = Simulator(self.store, policy.capital)
-            self.book = self.store.load("gateway") or GatewayBook(account=account, policy=policy)
+            gate_identity = news_gate.identity if news_gate else None
+            self.book = self.store.load("gateway") or GatewayBook(
+                account=account, policy=policy, news_gate_identity=gate_identity
+            )
+            if self.book.news_gate_identity != gate_identity:
+                raise ValueError("restart cannot remove or change the calendar/news gate")
             if self.book.policy != policy:
                 raise ValueError("restart cannot change the persisted risk mandate")
             self.book = self.book.model_copy(update={"state": "STARTUP_RECONCILE"})
@@ -76,6 +89,15 @@ class Gateway:
 
     def close(self):
         self.store.close()
+
+    def _restrict_news(self, market, symbol):
+        if self.news_gate is None:
+            return market
+        try:
+            return self.news_gate.restrict(market, symbol, self.clock.now())
+        except Exception:
+            # A missing/corrupt journal cannot bypass the persisted entry gate.
+            return market.model_copy(update={"calendar_ok": False, "news_ok": False})
 
     def _save(self, event, records=()):
         self.store.save("gateway", self.book, event, records)
@@ -199,6 +221,7 @@ class Gateway:
                     raise RecordConflict("intent identity already has different content")
                 return existing
             self._validate_decision(intent)
+            market = self._restrict_news(market, intent.symbol)
             self.reconcile(market)
             entry = Entry(intent=intent, state="CREATED")
             self.book = self.book.model_copy(update={"entries": self.book.entries + (entry,)})
@@ -259,6 +282,7 @@ class Gateway:
                 raise SimulatedCrash(crash_at)
             # Last clock/health/account checks occur inside the one writer boundary.
             now = self.clock.now()
+            market = self._restrict_news(market, intent.symbol)
             if intent.expires_at <= now or health_reason(market, now, self.book.policy):
                 return self._transition(
                     entry,

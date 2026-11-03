@@ -1,0 +1,14 @@
+{
+  "source": "bridges/mt5/CalendarExport.mq5",
+  "source_sha256": "dbbee08bd2425b9cc0595bc4a2a032b9a110647e53e39d91c25ad597e4dc87e0",
+  "compiler_version": "5.0.0.6295",
+  "binary_sha256": "922d563e90844e2216ecc0573b1cf9722793cc104c896ebf7edc0bf6788c1c06",
+  "errors": 0,
+  "warnings": 0,
+  "native_tests_passed": 330,
+  "terminal_started": false,
+  "live_calendar_capture_performed": false,
+  "qualified_for_trading": false,
+  "execution_enabled": false,
+  "limitation": "Isolated compilation and synthetic importer tests only; no broker terminal qualification."
+}

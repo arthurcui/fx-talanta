@@ -1,0 +1,51 @@
+{
+  "provenance": "FIXTURE",
+  "checks": [
+    {
+      "source": "calendar",
+      "checked_at": "2026-01-05T12:00:00Z",
+      "available_at": "2026-01-05T12:00:00Z",
+      "connection": "OK",
+      "complete": true,
+      "verified_through": "2026-01-05T12:00:00Z",
+      "coverage_from": "2026-01-04T12:00:00Z",
+      "coverage_until": "2026-01-06T12:00:00Z",
+      "currencies": [
+        "USD",
+        "EUR",
+        "JPY"
+      ],
+      "verification": "fixture independent check"
+    },
+    {
+      "source": "news",
+      "checked_at": "2026-01-05T12:00:00Z",
+      "available_at": "2026-01-05T12:00:00Z",
+      "connection": "OK",
+      "complete": true,
+      "verified_through": "2026-01-05T12:00:00Z",
+      "coverage_from": "2026-01-04T12:00:00Z",
+      "coverage_until": "2026-01-06T12:00:00Z",
+      "currencies": [
+        "USD",
+        "EUR",
+        "JPY"
+      ],
+      "verification": "fixture independent check"
+    }
+  ],
+  "calendar": [
+    {
+      "source": "calendar",
+      "event_id": "release",
+      "revision": 1,
+      "currency": "USD",
+      "impact": "HIGH",
+      "scheduled_at": "2026-01-05T12:00:00Z",
+      "available_at": "2026-01-04T12:00:00Z",
+      "status": "SCHEDULED",
+      "expects_release": true
+    }
+  ],
+  "news": []
+}
