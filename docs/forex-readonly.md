@@ -16,6 +16,10 @@ that runner with merged PR #9 without changing the active CMC installation.
 
 Before starting, save a unique run ID and choose private status and stop files:
 
+The command below documents the original version-1 policy. It is not the proposed
+next campaign: the [reviewed version-2 plan](market-data-acceptance-review.md)
+requires fresh clock qualification and separate authorization first.
+
 ```powershell
 $runId = [guid]::NewGuid().ToString()
 .venv\Scripts\fx-talanta --env-file .local/forex.env --binding .local/forex-readonly.json observe-run --run-id $runId --duration-seconds 86400 --interval-seconds 30 --status-file .local/forex-soak.json --stop-file .local/forex-soak.stop
@@ -138,8 +142,10 @@ PR #8 with the lifecycle/onboarding work already merged as PR #9. A PR against
 main therefore still contains the unmerged PR #8 runner changes; it must not be
 merged independently ahead of PR #8. After PR #8 is reviewed and merged, update
 this branch against main and verify the resulting diff and CI before any merge.
-PR #10's calendar/provider work is separate and remains unmerged. This report
-records a failed qualification, not approval to trade or to create a new run.
+PR #10's calendar/provider work and PR #12's desktop verification are now merged.
+The isolated follow-up review reconciles this branch with current main and PR #8's
+final report; both broker checkouts remain unchanged. PR #11 stays draft/unmerged.
+This report records a failed qualification, not approval to trade or create a run.
 
 ## Halt diagnosis — November 2, 2026
 

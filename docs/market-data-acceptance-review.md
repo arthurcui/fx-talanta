@@ -4,7 +4,8 @@ Reviewed November 2, 2026 against the committed observer, offline gateway, faile
 qualification reports and separate FOREX diagnostic. The findings below describe
 the legacy policy. An opt-in implementation is now included in this branch; see
 the implementation section below. Historical outcomes and entry permissions do not change.
-No new 24-hour run is authorized. PRs #10 and #11 remain unmerged.
+No new 24-hour run is authorized. PRs #10 and #12 are now merged; PR #11 remains
+draft and unmerged, with the unmerged PR #8 runner dependency retained.
 
 ## Recommendation
 
@@ -215,3 +216,60 @@ budgets, final failures, identity errors, invalid clocks, legacy wire compatibil
 and the exact two/five-second boundaries. Synthetic time is test evidence only.
 Review this prospective policy and requalify the clock/binding before requesting
 authorization for another real campaign. No new campaign has been started.
+
+## Follow-up code review — November 3, 2026
+
+Reviewed the version-2 implementation from `d761c2c` in a separate checkout,
+including the PR #8 final report at `6990a0d` and current main at `22437a6`.
+Both dependencies merged cleanly into this review branch; neither protected broker
+checkout was updated. The failed CMC/FOREX results retain their original policies.
+
+**Fixed finding:** the runner checked wall time against monotonic time only at
+the top of the loop. A forward clock adjustment during the final read could
+escape that check because completion exits the loop. A deterministic reproduction
+advanced wall time by two seconds during that read while monotonic time stayed
+unchanged: the old code incorrectly returned COMPLETE instead of rejecting the
+clock divergence. The same test with both clocks advancing by two seconds was a
+valid slow read and completed normally.
+
+Version 2 now rechecks after connection/history reconstruction and after each
+scheduled/final poll, including its commit. A divergent final observation remains
+in the evidence but the campaign fails; it is not retried or relabeled fresh.
+The regression uses a 90-second synthetic campaign and proves this failure path,
+not real elapsed qualification. Legacy version-1 behavior and serialization,
+five-second observation ceiling, two-second entry limit and acceptance thresholds
+are unchanged.
+
+Validation after reconciliation: all **385 native tests** passed, including the
+isolated PostgreSQL integration suite; Ruff lint/formatting and diff checks passed.
+The clock-jump regression failed before the fix and passed afterwards; its normal
+elapsed-read control also passed. No connected collection was needed for these checks.
+
+The review confirms that complete stale reads reset operational failure budgets
+while remaining quote failures; missing slots cannot be replaced by bursts; final
+verification cannot fill scheduled slots; and collector success cannot grant entry
+permission. Thirty-second samples establish sampled availability only. The report's
+`last_committed_at` is the assessment timestamp carried by the latest committed
+record, not a separately measured PostgreSQL commit-completion timestamp. Neither
+it nor a CURRENT process heartbeat establishes continuously fresh quotes.
+
+### Concrete prospective campaign requirements (not started)
+
+| Item | Requirement before a new FOREX comparison campaign |
+| --- | --- |
+| Scope | Read-only demo; only the pinned EURUSD and USDJPY broker symbols; no order route |
+| Policy | Acceptance version 2; fresh run ID, status/stop files and saved plan; retain all failed evidence |
+| Budget | 86,400 seconds, 30-second cadence, at most 2,880 scheduled collection attempts plus one final attempt; each complete read includes two tick and four completed-bar requests plus pinned account/history checks |
+| Final read | Separate 30-second completion budget; never extends scheduled coverage |
+| Gates | At least 95% scheduled coverage, complete reads and jointly fresh slots; at least 86,340-second span; attempt and complete-read gaps at most 180 seconds; valid final read and fresh final quotes |
+| Recovery | Existing ten-failure transport/completeness limits and twelve-failure database limit; no stale-only halt, no weakened entry limits |
+| Clock | Independently verify host time and SDK mapping again; qualify the history lookback, full duration and final-read budget; retain evidence and a new binding fingerprint |
+| Isolation | Verify no observer owns that terminal/account; use the isolated checkout and unchanged execution-disabled environment; do not touch CMC |
+| Approval | Review PR #8 before PR #11, recheck CI after the dependency merge, and obtain separate campaign authorization |
+
+The old FOREX clock policy ends at **2026-11-04T00:00:00Z**. At the November 3
+review time it cannot cover another full 24-hour campaign plus final verification.
+Do not merely extend its dates or reuse its evidence. A freshly verified policy
+is a prerequisite, not a reason to modify or restart a historical run. This plan
+does not promise a quote-readiness pass: the prior diagnostic's stale quotes remain
+unresolved upstream evidence.

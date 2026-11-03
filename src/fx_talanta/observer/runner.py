@@ -245,6 +245,19 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
     previous_wall = now
     anchor_wall, anchor_monotonic = clock.now(), monotonic()
 
+    def checked_now():
+        nonlocal previous_wall
+        current = clock.now()
+        if (
+            plan.acceptance_version == 2
+            and abs((current - anchor_wall).total_seconds() - (monotonic() - anchor_monotonic)) > 1
+        ):
+            raise ValueError("UTC and monotonic elapsed time diverged")
+        if current < previous_wall:
+            raise ValueError("runner clock moved backwards")
+        previous_wall = current
+        return current
+
     def publish():
         status["updated_at"] = clock.now().isoformat()
         status["evidence"] = evidence.summary(started, clock.now(), plan, status["phase"])
@@ -262,15 +275,7 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
     try:
         while True:
             tick_start = monotonic()
-            now = clock.now()
-            if (
-                plan.acceptance_version == 2
-                and abs((now - anchor_wall).total_seconds() - (monotonic() - anchor_monotonic)) > 1
-            ):
-                raise ValueError("UTC and monotonic elapsed time diverged")
-            if now < previous_wall:
-                raise ValueError("runner clock moved backwards")
-            previous_wall = now
+            now = checked_now()
             if stop_path.exists():
                 status.update(phase="STOPPED", reason="STOP_FILE")
                 break
@@ -294,7 +299,7 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
                 if observer.last and observer.last.body.state == "HALTED":
                     status.update(phase="HALTED", reason=observer.last.body.reason)
                     break
-                now = clock.now()
+                now = checked_now() if plan.acceptance_version == 2 else clock.now()
                 if now >= deadline:
                     if plan.acceptance_version == 2:
                         # Commit uncertainty/restart must not create a second
@@ -311,6 +316,10 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
                             publish()
                             record = observer.poll(reader, final_verification=True)
                             evidence.add(record)
+                            # There is no next loop iteration after the final read.
+                            # Retain its evidence, but never accept a clock jump
+                            # during collection/commit as valid elapsed time.
+                            checked_now()
                             if record.body.state == "HALTED":
                                 status.update(phase="HALTED", reason=record.body.reason)
                                 break
@@ -325,6 +334,8 @@ def _run(dsn, binding, run_id, path, stop_path, plan, clock, sleep, monotonic, f
                         publish()
                     record = observer.poll(reader)
                     evidence.add(record)
+                    if plan.acceptance_version == 2:
+                        checked_now()
                     status.update(
                         database_failure_streak=0, phase="RUNNING", reason=record.body.reason
                     )

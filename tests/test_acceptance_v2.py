@@ -431,3 +431,63 @@ def test_forward_wall_clock_jump_cannot_substitute_elapsed_time(binding, tmp_pat
             sleep=sleep,
             observer_factory=factory,
         )
+
+
+@pytest.mark.parametrize("jump", [True, False])
+def test_final_read_checks_wall_clock_against_independent_monotonic(binding, tmp_path, jump):
+    clock, elapsed, records = FakeClock(NOW), [0.0], []
+
+    def sleep(seconds):
+        elapsed[0] += seconds
+        clock.advance(timedelta(seconds=seconds))
+
+    class Reader:
+        last = None
+        repo = NS(history=lambda **kwargs: records.copy())
+
+        def poll(self, reader, *, final_verification=False):
+            started = clock.now()
+            if final_verification:
+                clock.advance(timedelta(seconds=2))
+                if not jump:
+                    elapsed[0] += 2
+            record = sample((clock.now() - NOW).total_seconds(), final=final_verification)
+            record.body.health = record.body.health.model_copy(
+                update={"collection_started_at": started}
+            )
+            self.last = record
+            records.append(record)
+            return record
+
+        def close(self):
+            pass
+
+    path = tmp_path / "status.json"
+
+    def run():
+        return run_observer(
+            "dbname=unused",
+            binding,
+            uuid4(),
+            path,
+            tmp_path / "stop",
+            RunnerPlan(acceptance_version=2, duration_seconds=90),
+            clock=clock,
+            monotonic=lambda: elapsed[0],
+            sleep=sleep,
+            observer_factory=lambda *args, **kwargs: Reader(),
+            reader=FixtureReader(),
+        )
+
+    if jump:
+        with pytest.raises(ValueError, match="diverged"):
+            run()
+        result = json.loads(path.read_text())
+        assert result["phase"] == "FAILED"
+    else:
+        result = run()
+        assert result["phase"] == "COMPLETE"
+        assert result["evidence"]["collector_gates"]["final_read"]
+    assert len(records) == 4 and records[-1].body.health.final_verification
+    assert result["evidence"]["final_verification_records"] == 1
+    assert not result["evidence"]["accepted"]  # A 90-second fixture never qualifies.
