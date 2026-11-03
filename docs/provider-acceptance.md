@@ -50,6 +50,19 @@ before fixing and testing the schema handling.
 
 ## Bounded prospective delivery campaign
 
+Campaign `38d5afe0-8953-4001-b82b-f1b194395a32` actually started November 3 at
+05:08:37.618299 UTC and has a fixed deadline November 4 at 05:08:37.618299 UTC.
+It runs from a detached checkout pinned to
+`007a17ad71adb58f16d5d2f7383b1123ed8ec527`, independently of the review branch.
+The [initial committed report](evidence/provider-campaign-start-20261103.json)
+records one successful attempt for each source, all initial items excluded as
+backfill, and no qualification pass. The worker and its separate journal were
+verified on the host. These observations are not a completed 24-hour result.
+
+Local validation: 283 tests passed and 119 integration tests were skipped. The
+broker database environments were not used for this suite. Lint/format checks
+passed; CI runs the isolated PostgreSQL and profile checks.
+
 `python -m fx_talanta.provider_campaign run --directory <new-directory>
 --inventory docs/provider-inventory.json --tls native` creates an exclusive,
 24-hour plan before any collection. Install `requirements-provider-probe.txt`

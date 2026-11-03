@@ -1,0 +1,204 @@
+{
+  "run_id": "38d5afe0-8953-4001-b82b-f1b194395a32",
+  "phase": "RUNNING",
+  "checked_at": "2026-11-03T05:08:43.413472+00:00",
+  "started_at": "2026-11-03T05:08:37.618299+00:00",
+  "deadline": "2026-11-04T05:08:37.618299+00:00",
+  "plan_hash": "a424ce85893bde0653afc26e7f1c5e1910e3d8a3d41facd9612ef8d2c6c97bda",
+  "sources": {
+    "fed": {
+      "slots_due": 1,
+      "scheduled_slots": 288,
+      "attempted_slots": 1,
+      "successful_slots": 1,
+      "success_fraction": 1.0,
+      "maximum_success_gap_seconds": 5.0441,
+      "initial_backfill_items_excluded": 15,
+      "other_backfill_items_excluded": 0,
+      "revisions_requiring_independent_time_evidence": 0,
+      "prospective_first_version_items": 0,
+      "publication_to_receipt_seconds": {
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "transport_reliability_passed": false,
+      "sampled_delivery_passed": false,
+      "required_category_delivery_qualified": false
+    },
+    "ecb": {
+      "slots_due": 1,
+      "scheduled_slots": 288,
+      "attempted_slots": 1,
+      "successful_slots": 1,
+      "success_fraction": 1.0,
+      "maximum_success_gap_seconds": 4.089953,
+      "initial_backfill_items_excluded": 15,
+      "other_backfill_items_excluded": 0,
+      "revisions_requiring_independent_time_evidence": 0,
+      "prospective_first_version_items": 0,
+      "publication_to_receipt_seconds": {
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "transport_reliability_passed": false,
+      "sampled_delivery_passed": false,
+      "required_category_delivery_qualified": false
+    },
+    "boj": {
+      "slots_due": 1,
+      "scheduled_slots": 288,
+      "attempted_slots": 1,
+      "successful_slots": 1,
+      "success_fraction": 1.0,
+      "maximum_success_gap_seconds": 3.420315,
+      "initial_backfill_items_excluded": 44,
+      "other_backfill_items_excluded": 0,
+      "revisions_requiring_independent_time_evidence": 0,
+      "prospective_first_version_items": 0,
+      "publication_to_receipt_seconds": {
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "transport_reliability_passed": false,
+      "sampled_delivery_passed": false,
+      "required_category_delivery_qualified": false
+    },
+    "bls_jobs": {
+      "slots_due": 1,
+      "scheduled_slots": 288,
+      "attempted_slots": 1,
+      "successful_slots": 1,
+      "success_fraction": 1.0,
+      "maximum_success_gap_seconds": 2.927308,
+      "initial_backfill_items_excluded": 12,
+      "other_backfill_items_excluded": 0,
+      "revisions_requiring_independent_time_evidence": 0,
+      "prospective_first_version_items": 0,
+      "publication_to_receipt_seconds": {
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "transport_reliability_passed": false,
+      "sampled_delivery_passed": false,
+      "required_category_delivery_qualified": false
+    },
+    "bls_cpi": {
+      "slots_due": 1,
+      "scheduled_slots": 288,
+      "attempted_slots": 1,
+      "successful_slots": 1,
+      "success_fraction": 1.0,
+      "maximum_success_gap_seconds": 3.576536,
+      "initial_backfill_items_excluded": 12,
+      "other_backfill_items_excluded": 0,
+      "revisions_requiring_independent_time_evidence": 0,
+      "prospective_first_version_items": 0,
+      "publication_to_receipt_seconds": {
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "transport_reliability_passed": false,
+      "sampled_delivery_passed": false,
+      "required_category_delivery_qualified": false
+    },
+    "bls_ppi": {
+      "slots_due": 1,
+      "scheduled_slots": 288,
+      "attempted_slots": 1,
+      "successful_slots": 1,
+      "success_fraction": 1.0,
+      "maximum_success_gap_seconds": 4.108758,
+      "initial_backfill_items_excluded": 12,
+      "other_backfill_items_excluded": 0,
+      "revisions_requiring_independent_time_evidence": 0,
+      "prospective_first_version_items": 0,
+      "publication_to_receipt_seconds": {
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "transport_reliability_passed": false,
+      "sampled_delivery_passed": false,
+      "required_category_delivery_qualified": false
+    },
+    "bls_jolts": {
+      "slots_due": 1,
+      "scheduled_slots": 288,
+      "attempted_slots": 1,
+      "successful_slots": 1,
+      "success_fraction": 1.0,
+      "maximum_success_gap_seconds": 4.677011,
+      "initial_backfill_items_excluded": 12,
+      "other_backfill_items_excluded": 0,
+      "revisions_requiring_independent_time_evidence": 0,
+      "prospective_first_version_items": 0,
+      "publication_to_receipt_seconds": {
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "transport_reliability_passed": false,
+      "sampled_delivery_passed": false,
+      "required_category_delivery_qualified": false
+    },
+    "eurostat": {
+      "slots_due": 1,
+      "scheduled_slots": 288,
+      "attempted_slots": 1,
+      "successful_slots": 1,
+      "success_fraction": 1.0,
+      "maximum_success_gap_seconds": 5.79063,
+      "initial_backfill_items_excluded": 11,
+      "other_backfill_items_excluded": 0,
+      "revisions_requiring_independent_time_evidence": 0,
+      "prospective_first_version_items": 0,
+      "publication_to_receipt_seconds": {
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "transport_reliability_passed": false,
+      "sampled_delivery_passed": false,
+      "required_category_delivery_qualified": false
+    }
+  },
+  "independent_scheduled_release_checks": [
+    {
+      "event_id": "a5f62569c18ea6778048207d0a771e0ed3e3413a5b15d7162d9561b4b2b08a3b",
+      "source": "bls_jolts",
+      "scheduled_at": "2026-11-03T15:00:00+00:00",
+      "state": "NOT_DUE",
+      "first_receipt_at": null,
+      "schedule_to_receipt_seconds": null
+    }
+  ],
+  "coverage_gaps": [
+    "USD_POLICY",
+    "USD_JOBS_INFLATION",
+    "USD_GROWTH_PCE",
+    "USD_OTHER_ACTIVITY",
+    "USD_OFFICIAL_UNSCHEDULED",
+    "EUR_POLICY",
+    "EUR_INFLATION",
+    "EUR_GROWTH_JOBS",
+    "EUR_OTHER_ACTIVITY",
+    "EUR_OFFICIAL_UNSCHEDULED",
+    "JPY_POLICY",
+    "JPY_INFLATION",
+    "JPY_GROWTH",
+    "JPY_JOBS_WAGES_ACTIVITY",
+    "JPY_OFFICIAL_UNSCHEDULED",
+    "FX_BROADER_NEWS"
+  ],
+  "coverage_qualified": false,
+  "qualified_for_trading": false,
+  "execution_enabled": false,
+  "limitation": "Feed transport and prospective item-age evidence only. Independent per-category release matching, omissions, source rights, and full coverage remain separate gates.",
+  "source_commit": "007a17ad71adb58f16d5d2f7383b1123ed8ec527",
+  "scope": "Initial committed collection only; no elapsed qualification"
+}
