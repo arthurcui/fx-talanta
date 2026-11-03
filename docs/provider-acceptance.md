@@ -111,6 +111,12 @@ omissions, timing, revision/recovery and intended-use evidence. The existing
 
 ## Closing the remaining gaps
 
+The separate [native MT5 MCP probe](mt5-mcp-qualification.md) confirms calendar
+access without a custom MQL5 collector, with a same-day JOLTS time-conversion
+check. Its one-minute quote sample still contained stale quotes; its news checks
+did not establish complete coverage. It does not alter the active campaigns or
+promote any required input, and the recorded timeout remains failed evidence.
+
 1. Normalize and independently reconcile the official calendar sources against
    the declared families, including dates with unknown times and schedule revisions.
 2. Match actual notices with independently recorded expected releases. At least
