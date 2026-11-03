@@ -1,0 +1,35 @@
+{
+  "payload": {
+    "version": "ea-protocol/1",
+    "message_id": "00000000-0000-0000-0000-000000000001",
+    "account": {
+      "environment": "PAPER",
+      "broker": "fixture",
+      "server": "offline",
+      "login": "paper-fixture",
+      "venue": "SIMULATOR"
+    },
+    "sequence": 1,
+    "created_at": "2026-01-05T12:00:00Z",
+    "release_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "expires_at": "2026-01-05T12:01:00Z",
+    "kind": "execution_request",
+    "intent_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reservation_id": "00000000-0000-0000-0000-000000000002",
+    "snapshot_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "action": "ENTER",
+    "symbol": "EURUSD",
+    "broker_symbol": "EURUSD",
+    "currency": "USD",
+    "max_volume": "0.09",
+    "max_risk": "20.97",
+    "side": "BUY",
+    "stop": "1.098",
+    "target": "1.1046",
+    "position_id": null,
+    "order_id": null,
+    "expected_state_version": null
+  },
+  "digest": "7586948c5ed02b216325c862e0688198cf6b93d9b36fa47db53d49afabbaba2c"
+}

@@ -1,0 +1,5 @@
+[
+  {"channel":"EA", "capability":"QUOTES", "state":"HEALTHY", "measured_at":"2026-01-05T12:00:30Z", "last_heartbeat":"2026-01-05T12:00:30Z", "last_success":"2026-01-05T12:00:30Z", "last_quote_receipt":"2026-01-05T12:00:00.047Z", "original_tick_at":"2026-01-05T12:00:00Z", "delivery_median_ms":"47", "delivery_p95_ms":"63", "window_seconds":"300", "samples":194},
+  {"channel":"PYTHON_PACKAGE", "capability":"QUOTES", "state":"DISABLED", "measured_at":"2026-01-05T12:00:30Z"},
+  {"channel":"MCP", "capability":"CALENDAR", "state":"NOT_CONFIGURED", "measured_at":"2026-01-05T12:00:30Z"}
+]

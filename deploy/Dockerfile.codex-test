@@ -8,6 +8,7 @@ COPY src ./src
 COPY tests ./tests
 COPY scripts ./scripts
 COPY mql5/readonly/QuoteStream.mq5 ./mql5/readonly/QuoteStream.mq5
+COPY mql5/offline/ProtocolReference.mq5 ./mql5/offline/ProtocolReference.mq5
 COPY configs/news-filter.example.json configs/news-filter.fixture.json ./configs/
 RUN python3 -m venv .venv \
     && .venv/bin/python -m pip install --no-cache-dir -c requirements.lock -e '.[dev]'

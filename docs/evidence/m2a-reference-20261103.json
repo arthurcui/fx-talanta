@@ -1,0 +1,294 @@
+{
+  "version": "m2a-reference-report/1",
+  "native_compiler": "NOT_RUN",
+  "native_parity": "NOT_QUALIFIED",
+  "all_pass": true,
+  "results": [
+    {
+      "id": "usd-eurusd",
+      "actual": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "20.97",
+        "gross": "9900",
+        "margin": "198",
+        "risk_per_lot": "233"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "20.97",
+        "gross": "9900",
+        "margin": "198",
+        "risk_per_lot": "233"
+      },
+      "pass": true
+    },
+    {
+      "id": "cad-eurusd",
+      "actual": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "28.3095",
+        "gross": "13365",
+        "margin": "267.3",
+        "risk_per_lot": "314.55"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "28.3095",
+        "gross": "13365",
+        "margin": "267.3",
+        "risk_per_lot": "314.55"
+      },
+      "pass": true
+    },
+    {
+      "id": "usd-usdjpy",
+      "actual": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "14.37",
+        "gross": "9000",
+        "margin": "180",
+        "risk_per_lot": "159.666667"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "14.37",
+        "gross": "9000",
+        "margin": "180",
+        "risk_per_lot": "159.666667"
+      },
+      "pass": true
+    },
+    {
+      "id": "cad-usdjpy",
+      "actual": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "19.3995",
+        "gross": "12150",
+        "margin": "243",
+        "risk_per_lot": "215.55"
+      },
+      "expected": {
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "risk": "19.3995",
+        "gross": "12150",
+        "margin": "243",
+        "risk_per_lot": "215.55"
+      },
+      "pass": true
+    },
+    {
+      "id": "small-capital",
+      "actual": {
+        "reason": "MINIMUM_LOT"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      },
+      "pass": true
+    },
+    {
+      "id": "missing-conversion",
+      "actual": {
+        "reason": "CONVERSION_MISSING"
+      },
+      "expected": {
+        "reason": "CONVERSION_MISSING"
+      },
+      "pass": true
+    },
+    {
+      "id": "stale-conversion",
+      "actual": {
+        "reason": "CONVERSION_STALE"
+      },
+      "expected": {
+        "reason": "CONVERSION_STALE"
+      },
+      "pass": true
+    },
+    {
+      "id": "future-conversion",
+      "actual": {
+        "reason": "CONVERSION_STALE"
+      },
+      "expected": {
+        "reason": "CONVERSION_STALE"
+      },
+      "pass": true
+    },
+    {
+      "id": "inconsistent-conversion",
+      "actual": {
+        "reason": "CONVERSION_INCONSISTENT"
+      },
+      "expected": {
+        "reason": "CONVERSION_INCONSISTENT"
+      },
+      "pass": true
+    },
+    {
+      "id": "reserved-risk",
+      "actual": {
+        "reason": "MINIMUM_LOT"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      },
+      "pass": true
+    },
+    {
+      "id": "reserved-margin",
+      "actual": {
+        "reason": "MINIMUM_LOT"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      },
+      "pass": true
+    },
+    {
+      "id": "reserved-gross",
+      "actual": {
+        "reason": "MINIMUM_LOT"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      },
+      "pass": true
+    },
+    {
+      "id": "reserved-currency",
+      "actual": {
+        "reason": "MINIMUM_LOT"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      },
+      "pass": true
+    },
+    {
+      "id": "persisted-daily-loss",
+      "actual": {
+        "reason": "MINIMUM_LOT"
+      },
+      "expected": {
+        "reason": "MINIMUM_LOT"
+      },
+      "pass": true
+    },
+    {
+      "id": "persisted-hard-halt",
+      "actual": {
+        "reason": "LOSS_BLOCK"
+      },
+      "expected": {
+        "reason": "LOSS_BLOCK"
+      },
+      "pass": true
+    },
+    {
+      "id": "drawdown-boundary",
+      "actual": {
+        "reason": "LOSS_BLOCK"
+      },
+      "expected": {
+        "reason": "LOSS_BLOCK"
+      },
+      "pass": true
+    },
+    {
+      "id": "unknown-cashflow",
+      "actual": {
+        "reason": "UNKNOWN_CASHFLOW"
+      },
+      "expected": {
+        "reason": "UNKNOWN_CASHFLOW"
+      },
+      "pass": true
+    },
+    {
+      "id": "invalid-lot-step",
+      "actual": {
+        "reason": "INVALID_SPECIFICATION"
+      },
+      "expected": {
+        "reason": "INVALID_SPECIFICATION"
+      },
+      "pass": true
+    },
+    {
+      "id": "accept",
+      "actual": "ACCEPTED",
+      "expected": "ACCEPTED",
+      "pass": true
+    },
+    {
+      "id": "replay-after-expiry",
+      "actual": "REPLAY",
+      "expected": "REPLAY",
+      "pass": true
+    },
+    {
+      "id": "hash-conflict",
+      "actual": "HASH_CONFLICT",
+      "expected": "HASH_CONFLICT",
+      "pass": true
+    },
+    {
+      "id": "cross-account",
+      "actual": "ACCOUNT_MISMATCH",
+      "expected": "ACCOUNT_MISMATCH",
+      "pass": true
+    },
+    {
+      "id": "wrong-version",
+      "actual": "UNSUPPORTED",
+      "expected": "UNSUPPORTED",
+      "pass": true
+    },
+    {
+      "id": "expired",
+      "actual": "EXPIRED",
+      "expected": "EXPIRED",
+      "pass": true
+    },
+    {
+      "id": "sequence-gap",
+      "actual": "SEQUENCE_GAP",
+      "expected": "SEQUENCE_GAP",
+      "pass": true
+    },
+    {
+      "id": "accept-second",
+      "actual": "ACCEPTED",
+      "expected": "ACCEPTED",
+      "pass": true
+    },
+    {
+      "id": "replay-rejection",
+      "actual": "REPLAY_EXPIRED",
+      "expected": "REPLAY_EXPIRED",
+      "pass": true
+    }
+  ],
+  "sha256": {
+    "src/fx_talanta/execution_contracts/__init__.py": "22c0a573f722df246632d1f02b88b7a38171024dfc905d2b3d2bca05436fa4f5",
+    "src/fx_talanta/execution_contracts/reference.py": "ae50f2d0a37ff1d41f3cf6f3fd67706e8e5eb3375bec8dd951b6af565ed6fcdb",
+    "src/fx_talanta/execution_contracts/replay.py": "15dca6bd7d6c6af32d2b4e2e46614b92c4d3d3119db2702a3a70794abf5eaeeb",
+    "src/fx_talanta/domain/ea_protocol.py": "4a127bf803ff00fccc1d9fb2966f108f5f0a301a813525d9cd76937a9496fcaa",
+    "scripts/m2a_reference.py": "e1a968caddd6513c6f18b97de5ab1880d417e282da9759f97c4988a208c33b31",
+    "mql5/offline/ProtocolReference.mq5": "c1e9020e85a4dc080f779e38190a65decb1a0c1b5bbb8a7b5af960fa697da6d8",
+    "tests/fixtures/ea_protocol/channels.json": "5298139ba9eeb25445909cd422fcabb5936c65af685218bb9b0e2b564ff37e2e",
+    "tests/fixtures/ea_protocol/replay.json": "661bd7241144d271b3d29a6934bbc39d12f0c21d9effcfa90108b225a8e6ba2c",
+    "tests/fixtures/ea_protocol/request.json": "83420c75dc73d425e0f2373aa3393a7e429a1c4b27058e817322e3c9d5e1e655",
+    "tests/fixtures/ea_protocol/risk.json": "53ca236b4f4dbdc22b8c56ec17e24da4c28a1491036c9a89dad57f7304984589"
+  }
+}
