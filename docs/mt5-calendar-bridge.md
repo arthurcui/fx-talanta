@@ -1,9 +1,11 @@
 # Read-only MT5 calendar bridge
 
-This bridge is built and fixture-tested, but has **not been installed or run in a
-broker terminal**. It does not qualify MT5 calendar availability, completeness or
-release latency. CMC and FOREX terminals, bindings, databases and campaigns remain
-untouched. PRs #10 and #11 remain unmerged. The bridge has no trading functions,
+The bridge passed a separately authorized **FOREX.com demo calendar smoke check**
+on November 3, 2026 UTC. Two captures and an independent schedule comparison verified
+the bounded time conversion described below. This does not qualify complete event
+coverage, continuous availability or release latency. CMC remained untouched; no
+broker observation campaign was restarted. PRs #10 and #11 remain unmerged.
+The bridge has no trading functions,
 DLL imports, article scraping or external HTTP requests.
 
 ## Export and import
@@ -86,7 +88,7 @@ The helper prints the artifact path and hashes. Compiler version 5.0.0.6295 prod
 zero errors and warnings in the initial isolated check. Neither the proprietary
 compiler nor generated EX5 binaries are committed to the repository.
 
-After a **separately authorized** demo-terminal capture and independent clock check:
+After an authorized demo-terminal capture and independent clock check:
 
 ```powershell
 python -m fx_talanta.mt5_calendar --export .local/export.json --clock-policy .local/calendar-clock.json --journal .local/mt5-calendar.sqlite
@@ -106,12 +108,54 @@ API established by this work, and agreement with MT5 is not independent-source
 confirmation. Verify important event times against their original publishers.
 General news headlines are separate from this scheduled-release bridge.
 
-Next qualification requires a demo-terminal capture, clock verification across
-the requested horizon, comparison against original release schedules, and repeat
-collection through a release/update/outage. Full snapshots provide restart recovery
+Further qualification requires broader event-inventory checks and repeat collection
+through a release/update/outage, with new clock evidence for any wider horizon.
+Full snapshots provide restart recovery
 without cursor advancement, but can miss transient updates between captures; they
 do not establish incremental-delivery completeness or latency. No new 24-hour
 broker test is needed to complete a bounded calendar smoke check.
+
+## FOREX.com demo smoke check: November 3, 2026 UTC
+
+[Sanitized capture evidence](evidence/mt5-calendar-capture-20261103.json) records
+two successful snapshots for server wall time November 2 00:00 through November 4
+00:00. Each contained 29 records: USD 12, EUR 16 and JPY 1. The first took 828 ms;
+the second reported 0 ms at the terminal clock's resolution, which is not a claim
+of zero network latency. Cached calendar data can satisfy a repeat request.
+
+The first snapshot was used only for clock calibration. The official
+[ISM release schedule](https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/)
+places Manufacturing PMI on November 2 at 10:00 Eastern, and the
+[BLS schedule](https://www.bls.gov/schedule/2026/11_sched.htm) places JOLTS on
+November 3 at 10:00 Eastern. Both are 15:00 UTC on these dates. The exporter
+returned 17:00 server time for both events: subtracting 7,200 seconds matched
+exactly. The [MQL5 book](https://www.mql5.com/en/book/advanced/calendar/calendar_trading)
+provides the event-ID crosswalk (840040001 and 840030021); it is not the independent
+time authority. No quote-clock policy was reused.
+
+The clock policy was recorded at 00:06:44.547310 UTC, before the second capture
+at 00:07:23 UTC. Its interval is narrowly bounded to this query, with one second
+beyond the decoded end boundary to satisfy the importer's half-open clock segments.
+Two US schedule anchors support this post-DST smoke mapping, not other dates,
+DST transitions or independent validation of every EUR/JPY event.
+
+The second capture was imported into a separate local SQLite journal at
+00:07:39.716566 UTC, 16.716566 seconds after export. It produced 19 exact-time
+events and retained 10 date-only/tentative records as uncertain. Both checked
+events still matched their official UTC times after import. Reimport left the
+revision count at 19 and preserved export time/age. Assessments for EURUSD and
+USDJPY kept calendar and news gates closed: transport freshness alone does not
+establish provider qualification.
+
+The EX5 was hash-verified against the isolated build and installed only under the
+FOREX terminal's local Scripts folder. Each launch explicitly unchecked the
+script's Allow Algo Trading option; it defaults to checked on a new launch.
+Input preset datetime values must be numeric server-wall epoch representations:
+date strings were observed to load incorrectly and were corrected and visually
+verified before either script execution. The one-shot script exited; no recurring
+collector, terminal restart, trading call or new 24-hour run was introduced.
+Raw exports, policy and journal remain private; published evidence contains hashes,
+counts and scheduled times without account IDs, credentials or quote prices.
 
 Official references: [calendar requests and errors](https://www.mql5.com/en/docs/calendar/calendarvaluehistory),
 [calendar structures and values](https://www.mql5.com/en/docs/constants/structures/mqlcalendar),

@@ -94,9 +94,12 @@ fixture position during an outage.
 
 ## MT5 calendar route
 
-The [read-only bridge and importer](mt5-calendar-bridge.md) are now implemented
-and compiled in isolation. They have not been installed or qualified in either
-broker terminal; successful fixture tests do not change provider readiness.
+The [read-only bridge and importer](mt5-calendar-bridge.md) are implemented and
+compiled in isolation. A separately authorized FOREX.com demo smoke check on
+November 3 captured 29 records twice and imported 19 exact-time events, retaining
+10 uncertain-time records. ISM and BLS schedules independently supported UTC+2
+for that narrow query window. CMC remained untouched. This verifies bounded
+capture/import and time conversion, not full provider readiness or release latency.
 
 The [MQL5 calendar API](https://www.mql5.com/en/docs/calendar) offers events,
 importance and release values, including currency filters and incremental updates.

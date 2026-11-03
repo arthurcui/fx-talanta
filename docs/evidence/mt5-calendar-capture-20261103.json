@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "result": "BOUNDED_CALENDAR_SMOKE_PASSED",
+  "broker": "FOREX.com Canada demo",
+  "captures": [
+    {
+      "role": "calibration",
+      "sha256": "59192102dfe75714d47d7fb3e55fd4873e2cac71925b179d610dc7b07c16671b",
+      "started_utc": "2026-11-03T00:05:29+00:00",
+      "finished_utc": "2026-11-03T00:05:29+00:00",
+      "status": "COMPLETE",
+      "error_code": 0,
+      "elapsed_ms": 828,
+      "counts": {
+        "USD": 12,
+        "EUR": 16,
+        "JPY": 1
+      },
+      "record_count": 29,
+      "terminal_build": 6295
+    },
+    {
+      "role": "verified_import",
+      "sha256": "7b56b4659c5bbc40ec34b16b9ebeab879fbd93ecac83b3291def27cff4e69094",
+      "started_utc": "2026-11-03T00:07:23+00:00",
+      "finished_utc": "2026-11-03T00:07:23+00:00",
+      "status": "COMPLETE",
+      "error_code": 0,
+      "elapsed_ms": 0,
+      "counts": {
+        "USD": 12,
+        "EUR": 16,
+        "JPY": 1
+      },
+      "record_count": 29,
+      "terminal_build": 6295
+    }
+  ],
+  "clock_check": {
+    "verified_at": "2026-11-03T00:06:44.547310+00:00",
+    "calibration_export_sha256": "59192102dfe75714d47d7fb3e55fd4873e2cac71925b179d610dc7b07c16671b",
+    "event_identity_reference": "https://www.mql5.com/en/book/advanced/calendar/calendar_trading",
+    "identity_reference_role": "Event ID crosswalk only; independent release schedules supplied by ISM and BLS.",
+    "anchors": [
+      {
+        "event_id": "840040001",
+        "event": "ISM Manufacturing PMI",
+        "server_wall": "2026-11-02T17:00:00",
+        "publisher_local_time": "2026-11-02T10:00:00-05:00",
+        "expected_utc": "2026-11-02T15:00:00+00:00",
+        "converted_utc": "2026-11-02T15:00:00+00:00",
+        "difference_seconds": 0,
+        "schedule_source": "https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/"
+      },
+      {
+        "event_id": "840030021",
+        "event": "JOLTS Job Openings",
+        "server_wall": "2026-11-03T17:00:00",
+        "publisher_local_time": "2026-11-03T10:00:00-05:00",
+        "expected_utc": "2026-11-03T15:00:00+00:00",
+        "converted_utc": "2026-11-03T15:00:00+00:00",
+        "difference_seconds": 0,
+        "schedule_source": "https://www.bls.gov/schedule/2026/11_sched.htm"
+      }
+    ],
+    "server_offset_seconds": 7200,
+    "scope": "Two-day post-DST smoke window only; no claim for other dates, DST boundaries, release latency or complete currency coverage."
+  },
+  "clock_policy": {
+    "version": "forex-calendar-smoke/20261103",
+    "bridge_id": "forex_calendar_20261103",
+    "terminal_build": 6295,
+    "evidence_type": "INDEPENDENT_CALENDAR_CHECK",
+    "evidence_hash": "cd70a5024b8beb676ab3d5a6aeb72b038f33c1746e55df357864b69425a0a735",
+    "verified_at": "2026-11-03T00:06:44.547310+00:00",
+    "segments": [
+      {
+        "utc_from": "2026-11-01T22:00:00Z",
+        "utc_until": "2026-11-03T22:00:01Z",
+        "server_offset_seconds": 7200
+      }
+    ]
+  },
+  "import": {
+    "source_hash": "7b56b4659c5bbc40ec34b16b9ebeab879fbd93ecac83b3291def27cff4e69094",
+    "clock_policy_hash": "8cec5ee84a337e3dcedcd678fbd04d5cdfe8ae0157cc09b3a3f2717bda439358",
+    "exported_at": "2026-11-03T00:07:23+00:00",
+    "available_at": "2026-11-03T00:07:39.716566+00:00",
+    "coverage_from": "2026-11-01T22:00:00+00:00",
+    "coverage_until": "2026-11-03T22:00:00+00:00",
+    "export_age_seconds": 16.716566,
+    "transport_fresh": true,
+    "qualified_for_trading": false,
+    "execution_enabled": false
+  },
+  "imported_exact_time_events": 19,
+  "uncertain_time_records": 10,
+  "validation": {
+    "revision_count_before_reimport": 19,
+    "revision_count_after_reimport": 19,
+    "reimport_preserves_export_time": true,
+    "calendar_and_news_gates_closed_for_both_pairs": true
+  },
+  "limitations": [
+    "Two US publisher schedule anchors; not independent verification of every EUR/JPY event.",
+    "No qualification of DST transitions, broader horizons, event completeness, unattended refresh or release delivery latency.",
+    "Second request reported 0 ms at terminal resolution; this is not network latency evidence."
+  ],
+  "isolation": {
+    "cmc_untouched": true,
+    "broker_campaigns_restarted": false,
+    "broker_databases_changed": false,
+    "prs_10_and_11_merged": false,
+    "script_trading_permission": false
+  }
+}
