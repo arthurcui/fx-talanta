@@ -10,8 +10,9 @@ Prepare one consolidated remediation PR, reviewing that first slice before addin
 provider work. Do not create incremental PRs for every capture/status update.
 Implementation was subsequently authorized by the owner's instruction to finish
 M1. See [actual remediation progress](m1-remediation-progress.md). The earlier
-no-new-tests/campaigns restriction is retained; this branch stays local because
-opening a PR automatically invokes the repository's tests.
+campaign restriction remains. A later explicit authorization permits the bounded
+[read-only EA quote comparison](ea-quote-stream.md) and related verification.
+The remediation and its evidence are consolidated in one implementation PR.
 
 ## Existing evidence and limitations
 
@@ -120,10 +121,10 @@ resurrection, automated browser refresh and shared environment modifications.
 
 ## Validation proposal — not started or authorized
 
-1. After separate approval, run isolated regressions for diagnostic preservation,
-   identity/schema/clock failures, revisions/dedup and fail-closed decisions.
-2. Only after those pass, perform authorized short read-only captures for specific
-   unresolved behavior. Each has a fixed purpose, duration, stop condition and
+1. Local regression verification now passed: 334 tests; 119 PostgreSQL-dependent
+   tests were skipped to preserve broker databases. CI uses its isolated fixture database.
+2. The owner authorized a five-minute FOREX EA-versus-Python quote comparison.
+   Other captures still require a specific authorized scope. Each has a fixed purpose, duration, stop condition and
    evidence list. Short success is readiness evidence, never sustained acceptance.
 3. Approve sustained plans only when failures are attributable and the selected
    path can plausibly meet its gates. Existing broker plan: 86,400 seconds, 2,880
@@ -145,7 +146,7 @@ resurrection, automated browser refresh and shared environment modifications.
 
 ## Stop conditions and practical timing
 
-Diagnostic preservation/reporting is now implemented but unvalidated; see the
+Diagnostic preservation/reporting now has local regression coverage; see the
 [progress record](m1-remediation-progress.md). If old records lack a
 cause, identify the missing evidence and stop guessing. If a required source is
 infeasible, present the source/scope decision instead of waiting indefinitely.

@@ -35,7 +35,7 @@ def summarize(records):
         raise ValueError("mixed observation scope")
     if len({r.record_id for r in records}) != len(records):
         raise ValueError("duplicate record")
-    if any(a.recorded_at > b.recorded_at for a, b in zip(records, records[1:])):
+    if any(a.recorded_at > b.recorded_at for a, b in zip(records, records[1:], strict=False)):
         raise ValueError("records out of commit order")
     reasons = Counter()
     diagnostics = Counter()
@@ -85,7 +85,10 @@ def summarize(records):
         "missing_health_records": missing_health,
         "collection_to_record_seconds": distribution(durations),
         "inter_record_seconds": distribution(
-            [(b.recorded_at - a.recorded_at).total_seconds() for a, b in zip(records, records[1:])]
+            [
+                (b.recorded_at - a.recorded_at).total_seconds()
+                for a, b in zip(records, records[1:], strict=False)
+            ]
         ),
         "symbols": {
             s: {

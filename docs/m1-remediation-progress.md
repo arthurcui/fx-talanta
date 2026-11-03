@@ -1,8 +1,11 @@
 # M1 remediation: implemented changes and existing-record findings
 
-2026-11-03, isolated development branch. No new tests, broker/provider probes or
-campaigns executed. The new regression cases are authored but unrun. These changes
-are **unvalidated and not deployed**; no M1 acceptance is promoted.
+2026-11-03, isolated development branch. Initial remediation used existing records
+only. The owner subsequently authorized a bounded read-only EA quote comparison
+and its verification. Local regression passed: 334 tests, 119 PostgreSQL-dependent
+tests skipped. The diagnostic/provider changes are not deployed into collectors;
+only the separate read-only quote publisher is installed on FOREX for that bounded
+comparison. No new campaign or M1 acceptance is promoted.
 
 ## Delivered
 
@@ -59,13 +62,14 @@ per-sample clock uncertainty. UTC-hour bins are not inferred session classificat
 ## Remaining closure dependencies
 
 The [closure checklist](m1-closure-checklist.md) remains authoritative. B1 has
-implementation but no regression/live failure-capture evidence. B2 now has an
+implementation and regression coverage, but no new native CMC failure-capture evidence. B2 now has an
 actual retained-record report, but no proven cause or fresh qualification. Both
 broker campaigns retain their failed/stopped verdicts. Provider timestamp retention
 addresses future explainability, not the old JOLTS discrepancy or sixteen category
 coverage gaps. No broad-news source has been qualified by these edits.
 
-Required next validation is targeted regression and bounded read-only diagnostics
-under a reviewed plan; no indiscriminate 24-hour rerun. Current no-new-tests/campaigns
-restriction remains in force. Do not deploy these untested changes or represent
-M1 as complete. No code merge or new account balance can satisfy missing evidence.
+The separately authorized [EA quote-stream comparison](ea-quote-stream.md) measures
+transport and common-time quote age without changing entry policy. Its short result
+cannot replace sustained qualification, identify the old CMC failure, or close
+provider coverage. No new 24-hour run or M2 execution is authorized. No code merge
+or new account balance can satisfy missing evidence.
