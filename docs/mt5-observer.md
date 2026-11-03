@@ -1,5 +1,16 @@
 # Read-only MT5 adapter
 
+## Current design boundary
+
+This Python adapter stays read-only. The proposed [fixed EA boundary](ea-execution-boundary.md)
+is the sole future connected mutation path; do not add order functions to this
+observer or use its five-second readiness ceiling as the two-second entry gate.
+The [concluded broker results](broker-campaign-conclusion.md) supersede any
+earlier progress statement as acceptance status. No run is resumed by these
+reproduction instructions; old evidence, terminal bindings and campaign sources
+remain preserved.
+
+
 Implementation is available. On 2026-11-02 a connected CMC demo observation returned
 `HEALTHY / CURRENT` after explicit session clock qualification. The account reported
 CAD, hedging mode and build 6295; the selected symbols were EURUSD.a and USDJPY.a.

@@ -5,9 +5,9 @@ See the [README](../README.md) for current implementation status and the
 [documentation index](../README.md#documentation) for increment details and
 operating instructions. Maintain project requirements here through pull requests.
 
-**Build FX-Talanta as a fully autonomous forex trading system with a conversational advisor, automatic market-news monitoring, durable experience memory, a portable Python application core, isolated risk and execution gateways, and separate PAPER and LIVE accounts.** MT5 is the first broker connection. Normal trading, protective management, temporary-fault recovery, and qualified strategy deployment operate within fixed mandates without per-trade human approval.
+**Build FX-Talanta as a fully autonomous forex trading system with a conversational advisor, automatic market-news monitoring, durable experience memory, a portable Python application core, isolated backend risk/dispatch and fixed execution EAs, and separate PAPER and LIVE accounts.** MT5 is the first broker connection. Normal trading, protective management, temporary-fault recovery, and qualified strategy deployment operate within fixed mandates without per-trade human approval.
 
-**Planning baseline v0.3: 2 November 2026.** This specification includes natural-language user/advisor communication, automatic market-news search and evaluation, retained successes and failures, local/Docker/Codex-cloud execution profiles, and paper-first qualification followed by a separate live deployment. Numerical settings and strategy performance remain unvalidated. The first implementation increment is M0.
+**Design baseline v0.4: 3 November 2026.** This specification includes natural-language user/advisor communication, automatic market-news search and evaluation, retained successes and failures, local/Docker/Codex-cloud execution profiles, and paper-first qualification followed by a separate live deployment. Numerical settings and strategy performance remain unvalidated. M0A–M0C are implemented. The next proposed implementation slice is the offline EA contract/parity slice in [M2 handoff](m2-handoff.md); this design PR does not authorize its execution.
 
 The principal risk is that reliable automation can execute a losing strategy reliably. Engineering acceptance and evidence of a trading edge are separate gates.
 
@@ -18,7 +18,7 @@ The principal risk is that reliable automation can execute a losing strategy rel
 | Product and repository | **FX-Talanta**; repository **fx-talanta** |
 | Purpose | Analyze prices and market news, trade within fixed mandates, explain decisions to the user, retain all experience, and evaluate improvements |
 | Operating model | Single user; one dedicated PAPER account and one dedicated LIVE account; no per-trade confirmation |
-| First execution route | Official Python MT5 integration through a running terminal |
+| First execution route | One fixed, reviewed MQL5 execution EA per dedicated account terminal; Python observation remains read-only |
 | Broker portability | Strategy and risk interfaces are portable; each broker adapter and account mode must pass capability and execution tests |
 | AI development | Separate research environment may generate strategy code; the live decision process cannot modify production code or risk limits |
 | Success criteria | Correct execution, account isolation, durable experience, portable operation, and independently evaluated net trading performance |
@@ -59,12 +59,12 @@ Distinguish the execution venue from the account environment. PAPER can use SIMU
 | Execution access | Paper-only credentials and endpoint | Live-only credentials and endpoint |
 | Persistence | Dedicated paper database and role | Dedicated live database and role |
 | Risk history | Own reservations, loss limits, and drawdown | Own persistent reservations, loss limits, and drawdown |
-| MT5 connection | Separate demo terminal installation, data directory, and gateway worker | Separate real terminal installation, data directory, and gateway worker |
+| MT5 connection | Separate demo terminal installation, data directory, and fixed execution EA | Separate real terminal installation, data directory, and fixed execution EA |
 | Strategy | Incumbent qualification and challenger experiments | Exact qualified release within the live mandate |
 
 Both databases may share a PostgreSQL server. Shared market data and research summaries retain account/environment provenance; a research view has no permission to write live orders or alter live risk history.
 
-Each gateway is permanently bound to an environment, dealer/server, account login, terminal executable/data path, and expected broker trade mode. Validate those bindings at startup, after reconnection, and immediately before a mutation. Reject mismatches. The gateway endpoint and its credentials determine the permitted account; a model-supplied account field cannot redirect it.
+Each backend dispatch route and receiving EA are permanently bound to an environment, dealer/server, account login, terminal executable/data path, and expected broker trade mode. Validate those bindings at startup, after reconnection, and immediately before a mutation. Reject mismatches. The authenticated dispatch route and independently pinned EA identity determine the permitted account; a model-supplied account field cannot redirect it.
 
 MetaQuotes requires simultaneous terminal copies to use separate installation directories. Use distinct processes and data directories and never switch demo/live by logging a shared terminal into another account. [MT5 platform instances](https://www.metatrader5.com/en/terminal/help/start_advanced/start).
 
@@ -84,7 +84,7 @@ The release controller may activate a small live allocation automatically within
 
 4. The designated live account, allowed instruments, capital allocation, and loss limits are already configured.
 
-5. The live gateway confirms its account identity, current broker state, required market/calendar/news health, and protective capabilities.
+5. The live EA independently confirms its account identity, current broker state, required market/calendar/news health, and protective capabilities.
 
 6. No live daily-loss pause or persistent halt is active; activation cannot increase capital or relax risk.
 
@@ -96,34 +96,56 @@ After activation, retain a paper comparison of the live version and evaluate can
 
 # System architecture
 
-Use a small modular application with **two runtime trust boundaries**: the decision/research core and the trusted execution gateway. Instantiate the gateway separately for PAPER and LIVE. Shared strategy artifacts do not imply shared execution authority.
+Use separate collection, proposal, backend authorization, fixed EA execution, and
+research/release identities. **Only the fixed EA may mutate a connected broker
+account.** The existing Python gateway mutates its simulator only. An approved
+proposal is a bounded allowance, never a command that can compel the EA to trade.
+See [ADR-001](adr/001-fixed-ea-execution.md) for the authority decision and
+[the protocol/runbook](ea-execution-boundary.md) for its operational contract.
 
 ```mermaid
-flowchart TD
-    D["Prices, calendar, news, and lessons"] --> A["Decision core"]
-    A --> P["Paper risk gateway"]
-    A --> L["Live risk gateway"]
-    P --> PA["Paper account"]
-    L --> LA["Live account"]
-    PA --> E["Experience history"]
-    LA --> E
-    E --> R["Research and validation"]
-    R -->|"Qualified release"| A
+flowchart LR
+    B[Broker account] --> O[Read-only Windows observer]
+    F[Approved calendar and news] --> C[Python collectors]
+    O --> J[Immutable evidence / PostgreSQL]
+    C --> J
+    J --> S[Scheduler / B01 / bounded decision worker]
+    S --> G[Backend risk / reservation / dispatch]
+    U[Authenticated advisor and controls] --> G
+    G --> Q[Account-bound prepared-work endpoint]
+    Q -->|EA-initiated bounded pull| E[Fixed versioned execution EA]
+    E -->|sole application mutation path| B
+    E --> L[Durable EA journal]
+    L --> J
+    J --> U
+    J --> R[Research / qualified lessons]
+    R --> V[Evaluated release controller]
+    V -->|separate authorized deployment| E
+    G --> X[Python simulator: offline reference only]
 ```
 
-**Decision worker.** Builds point-in-time market context, evaluates registered candidates, calls the model when needed, and submits a typed intent. It has no broker password, terminal access, shell tool, arbitrary SQL authority, risk-policy write permission, or production deployment permission.
+| Component | Owns | Authority and failure behavior |
+| --- | --- | --- |
+| Collectors and watchdog | Broker snapshots, calendar revisions, news metadata, independent health evidence | Read only; unavailable/uncertain required data blocks affected entries; cannot self-certify coverage |
+| Scheduler and decision worker | Once-per-completed-M15 candidate generation, H1 context, bounded AI selection | ENTER/HOLD/CLOSE/TIGHTEN_STOP proposals; no broker secrets, native tools, shell, SQL writes to execution ledgers or policy/deploy permissions; invalid/late/over-budget entry response records HOLD |
+| Backend risk and dispatch | Eligibility, schema/account checks, atomic account-wide reservation, expiring authorized work | Veto or narrow only; no connected broker mutation; outage closes new dispatch and leaves local protection independent |
+| Fixed MQL5 EA | Fresh account/quote/specification checks, final size, preflight, submission, protection and broker reconciliation | Sole connected writer; independently rejects stale approval, wrong binding/build or excess risk; preserves uncertainty and journals before mutations |
+| Python simulator | Durable synthetic broker ledger, risk/recovery behavioral reference | SIMULATOR only; cannot be relabeled as broker-demo execution |
+| Advisor/dashboard | Authenticated bilingual evidence queries and explicit administrative requests | Typed reads and narrow command route; view changes never route commands; model outage leaves deterministic controls available |
+| Research/memory/release | Counterexamples, regressions, challenger evaluation, compatible immutable manifests | Cannot rewrite the running EA or risk mandate; deploy only the exact evaluated release inside separately authorized capital/identity limits |
 
-**News collector.** Read-only feed and search adapters collect source material outside the decision model's tool authority. They maintain immutable evidence versions and independently checked health records. The model cannot rewrite those records or mark a failed feed healthy; the trusted gateway evaluates configured freshness gates before allowing new risk.
+PostgreSQL remains the account-bound application evidence and reservation store.
+The EA owns a durable local submission/protection/emergency journal, mirrored
+idempotently into PostgreSQL. Broker state is authoritative for actual fills and
+positions; neither an HTTP acknowledgment nor a database intent is a fill. Preserve
+all ledger identities and migrations. Shared read-only research cannot pool
+account capital or acquire execution authority.
 
-**Conversational advisor.** Authenticates the owner, reads permitted account/evidence records, and translates explicit administrative requests into a separate typed command contract. It runs without broker credentials or risk-policy write access. The gateway validates each command and account binding; conversation history never substitutes for authoritative account state.
-
-**Trusted gateway.** Owns deterministic risk checks, position sizing, atomic risk reservations, the sole broker mutation path, protective management, and reconciliation. Keep risk validation and sending within this same trusted process so a remote approval cannot become stale permission to trade.
-
-**Persistence.** Use PostgreSQL from M0, supplied by Docker Compose locally and an isolated PostgreSQL service in Codex tasks when Docker is unavailable. Maintain separate PAPER and LIVE databases and runtime roles. Persist intentions, reservations, account state, execution evidence, experience cases, and release records. Research can read permitted evidence and write its own candidate records but cannot modify live ledgers. Versioned market/evidence files use persistent storage outside container images.
-
-**Isolation.** Separate operating-system identities or equivalent process isolation enforce the boundary. Prompt instructions alone are insufficient. The live AI receives only narrowly scoped market-reading and intent-submission capabilities.
-
-**Single writer.** Maintain one gateway writer per account, with distinct PAPER and LIVE processes and bindings. A watchdog may restart a confirmed-dead process. Concurrent paper and live execution is allowed; a second host for the same account cannot activate while the predecessor may still submit orders. A database lease alone does not fence broker access.
+One dedicated terminal/data directory/EA writer is permitted per account. A
+database lease fences the existing simulator, not a disconnected terminal. A
+replacement remains disabled until the old writer is fenced at the host/terminal
+and broker state is reconciled. OS/service identities, network controls and
+credential isolation enforce these boundaries outside model instructions.
 
 # Technology and deployment
 
@@ -131,37 +153,47 @@ flowchart TD
 | --- | --- |
 | Trading and risk domain | Python with typed models and decimal-safe monetary calculations |
 | API and command validation | FastAPI and Pydantic; authenticated advisor queries and typed administrative commands |
-| Execution | Windows-only MetaTrader5 dependency inside each isolated MT5 gateway |
+| Execution | Fixed reviewed MQL5 EA in a dedicated Windows terminal; Python MetaTrader5 dependency confined to read-only observers |
 | Storage | PostgreSQL from M0, separate PAPER/LIVE databases; durable event/evidence storage and backups |
 | News and calendar | Provider interfaces, approved sources, scheduled collection/search, immutable evidence, and independent health checks |
 | Model access | Provider interface with OpenAI API first; credentials supplied through environment or secret configuration |
 | Other model providers | Gemini or Claude adapters later; each provider/model change needs its own evaluation |
 | Testing | Pytest, scripted DecisionSource, fake clock, broker simulator, fault injection, and cross-profile contract tests |
 | Monitoring interface | Small React/TypeScript monitoring and conversational interface after the core loop works |
-| Deployment | Portable native/Docker core, Windows MT5 gateways, and a Codex-cloud development/test profile |
+| Deployment | Portable native/Docker core, Windows MT5 terminals/EAs, and a Codex-cloud development/test profile |
 
-The official Python package exchanges data with the MT5 terminal and exposes account, quote, history, and trading functions. A custom EA is not required for this execution route. [MT5 Python integration](https://www.mql5.com/en/docs/python_metatrader5) and [Python order_send](https://www.mql5.com/en/docs/python_metatrader5/mt5ordersend_py).
-
-Use **native Windows for the first gateway**, with the terminal and Python adapter on the same machine. The currently published package files are Windows x86-64 wheels. This is a deployment choice based on the supported distribution, not a claim that every compatibility workaround is impossible. [Published package files](https://pypi.org/project/metatrader5/#files).
+The official Python package remains the implemented observation/diagnostic edge.
+Its order functions are excluded from production runtime capability. All future
+connected mutations use the fixed EA; no decision-time code generation, compilation,
+chart attachment or script invocation is permitted. Native compilation and Strategy
+Tester belong to isolated research/release environments.
 
 Unattended MT5 operation includes a named terminal-supervision work item: an external watchdog, supervised native-call worker, explicit account checks, build-change detection, and reboot/session/update recovery drills. The built-in updater cannot be permanently disabled; hold new entries after a build change until compatibility checks and reconciliation pass. A full Windows host supplies the terminal environment; MetaTrader's built-in EA/chart virtual hosting does not host the entire Python application. [Live Update](https://www.metatrader5.com/en/terminal/help/start_advanced/autoupdate) and [virtual-hosting migration](https://www.metatrader5.com/en/terminal/help/virtual_hosting/virtual_hosting_migration).
 
-**MCP is optional.** Calendar data may come through a restricted read-only MCP adapter, a tested MQL5 bridge, or another qualified provider; the documented Python API does not expose calendar functions directly. MetaTrader also documents news access, including `marketdata_symbol_news`; confirm actual forex coverage, timestamps, retention rights, and tool availability before selecting it as a news provider. Expose only the specific read operations through the collector, with native trading, shell, and editor tools unavailable to the live model. Use development tools in isolated research. [Official MCP capabilities](https://www.metatrader5.com/en/terminal/help/mcp_and_ai/capabilities).
+**MCP is a qualified read interface, not execution authority.** The implemented
+Python native calendar adapter has bounded CMC import/replay evidence. Its six-tool
+positive allowlist is enforced by the client; credential/network isolation must
+also prevent a production model from bypassing the client. Broker quote/history,
+calendar and news tools require purpose-specific qualification. MetaEditor, chart
+mutation, order tools, shell and arbitrary filesystem access are excluded. Public
+market-data prices cannot replace executable broker bid/ask. The earlier MQL5
+calendar service and automatic ICS downloader remain retired; an execution EA
+does not collect external news or run inference. [Native MCP evidence](mt5-mcp-qualification.md).
 
 ## Supported deployment profiles
 
-Use the same versioned application package and configuration schema across environments. Container images carry application code and dependencies; account state, evidence, credentials, and risk history live outside the image.
+These are target deployment profiles; M0C implements offline portability only. Use the same versioned application package and configuration schema across environments. Container images carry application code and dependencies; account state, evidence, credentials, and risk history live outside the image.
 
 | Target | Application core | Execution and persistence | Supported purpose |
 | --- | --- | --- | --- |
-| Local native | Python services on the user's machine | Local PostgreSQL; Windows MT5 gateways where broker execution is enabled | Development, PAPER, and qualified LIVE |
-| Local Docker | Linux core containers under Docker Desktop or another compatible engine | Persistent PostgreSQL volumes; native Windows MT5 gateways reached through a private authenticated connection | Reproducible local runtime |
-| Cloud Docker | The same core images on an always-on cloud host | Persistent or managed PostgreSQL, durable evidence storage, and a Windows MT5 gateway host | Continuous PAPER and qualified LIVE |
-| Codex cloud | Repository setup runs the same Python package, application commands, and tests; image workflows where supported | Isolated test databases and fixture/paper adapters; export required results to durable storage | Development, replay, failure tests, application smoke tests, and task-scoped paper runs |
+| Local native | Python services on the user's machine | Local PostgreSQL; Windows MT5 terminals/EAs where broker execution is enabled | Development, PAPER, and qualified LIVE |
+| Local Docker | Linux core containers under Docker Desktop or another compatible engine | Persistent PostgreSQL volumes; native Windows MT5 terminals/EAs reached through a private authenticated connection | Reproducible local runtime |
+| Cloud Docker | The same core images on an always-on cloud host | Persistent or managed PostgreSQL, durable evidence storage, and a Windows terminal/EA host | Continuous PAPER and qualified LIVE |
+| Codex cloud | Repository setup runs the same Python package, application commands, and tests; image workflows where supported | Isolated test databases and fixture/replay adapters; no LIVE credentials/endpoints; export artifacts | Development, fixture/replay and failure tests; demo access separately provisioned and authorized |
 
-**MT5 boundary.** Keep the MetaTrader5 package as a Windows-gateway dependency; importing the Linux core must not import it. The trusted gateway contains the authoritative risk governor and protective manager. A cloud core disconnection stops new exposure but does not remove the gateway's existing protective rules.
+**MT5 boundary.** Keep the MetaTrader5 package in the Windows read-only observer; importing the portable core must not import it. The backend checks eligibility; the fixed EA independently enforces trusted risk and protection using fresh broker state. A core disconnection blocks entries while feasible local protection continues.
 
-The MT5 terminal and its Python integration remain together on the selected Windows host. Do not promise that the initial MT5 production stack fits inside one Linux container. A later broker adapter with an appropriate direct API can enable an all-Linux runtime after its own qualification.
+The MT5 terminal, fixed EA and optional read-only Python observer reside on the selected Windows host. Do not promise that the initial MT5 production stack fits inside one Linux container. A later broker adapter with an appropriate direct API can enable an all-Linux runtime after its own qualification.
 
 **Codex cloud boundary.** Official documentation describes isolated task workspaces and saved task state; it does not establish an always-on trading-host guarantee. This plan therefore supports running and testing the application during Codex tasks while assigning continuous trading to the persistent deployment. [Codex cloud environments](https://learn.chatgpt.com/docs/environments/cloud-environments).
 
@@ -169,9 +201,9 @@ Provide a checked setup script and explicit run/test commands for Codex. Use Pos
 
 ## Persistence and moving hosts
 
-Retain the paper and live journals, evidence snapshots, lessons, deployment records, and risk histories through container restarts, image upgrades, and local/cloud migration. Use persistent database/storage volumes and separate backups, including the gateway emergency journal. Test restoring both histories without resetting limits or losing unknown operations.
+Retain the paper and live journals, evidence snapshots, lessons, deployment records, and risk histories through container restarts, image upgrades, and local/cloud migration. Use persistent database/storage volumes and separate backups, including the EA emergency journal. Test restoring both histories without resetting limits or losing unknown operations.
 
-For a core-only move, keep the authoritative gateway and revoke the old core's writer authority before issuing the new identity. For a gateway move, pause entries, resolve uncertain operations, verify protection, back up state, stop and disable the old writer, restore the destination with trading disabled, then reconcile before resuming. If the old writer may still trade, the new gateway stays halted. Running local PAPER and cloud LIVE is permitted; two independent deployments cannot write to the same live account.
+For a core-only move, keep the authoritative EA and revoke the old core's dispatch authority before issuing the new identity. For a terminal/EA move, pause entries, resolve uncertain operations, verify protection, back up both journals, stop and fence the old host/terminal writer, restore the destination with trading disabled, then reconcile before resuming. If the old writer may still trade, the replacement EA stays halted. Running local PAPER and cloud LIVE is permitted; two independent deployments cannot write to the same live account. See the [deployment and restore design](ea-execution-boundary.md#deployment-release-and-restore-runbook-design).
 
 A container image or a Codex workspace cache is not the experience database. An unreconciled or stale restore must block new exposure rather than silently discard incidents, drawdown, or reservations.
 
@@ -201,7 +233,7 @@ Initial configurable scheduling targets are **60-second feed checks** and **15-m
 
 Track connection health separately from content health: last successful check, provider cursor/watermark where available, timestamps, coverage/pagination, expected scheduled releases, and independent source checks. HTTP success or repeated old results cannot establish current coverage. Session-aware rules must also distinguish a legitimately quiet feed from a failed one. Provider-specific maximum check age, release-lateness tolerance, and recovery criteria are versioned configuration required before the live gate; unknown health is not healthy.
 
-Declare required and optional sources in the qualified release. Failure or unverifiable freshness of required coverage blocks new entries through the trusted gateway and records an incident; deterministic protection and exits continue. An optional source may degrade only under the predeclared policy. The model cannot silently substitute a provider, remove a requirement, or bypass a calendar blackout. News retrieval runs outside the order-send and protective-management path.
+Declare required and optional sources in the qualified release. Failure or unverifiable freshness of required coverage blocks new entries through the fixed execution EA and records an incident; deterministic protection and exits continue. An optional source may degrade only under the predeclared policy. The model cannot silently substitute a provider, remove a requirement, or bypass a calendar blackout. News retrieval runs outside the order-send and protective-management path.
 
 ## Evidence and permitted decisions
 
@@ -211,7 +243,7 @@ Record every scheduled fetch and search, including the query/filter, result IDs,
 
 The AI returns a typed interpretation: evidence IDs, affected currencies, event category, factual summary, directional hypothesis if any, relevance expiry, uncertainty/conflicts, and a short rationale. Facts and inference remain distinguishable. Retrieved articles are untrusted data: embedded instructions cannot call tools, choose an account, change policy, or release capital.
 
-At the scheduled decision cycle, news may support accepting or skipping an existing eligible setup, HOLD, or a registered early-close/tighter-stop proposal. It does not create headline-only entries or relax size, stop, expiry, exposure, loss, or scheduled-event limits. Uncertain evidence produces the configured conservative outcome. The gateway still validates current prices, account state, input health, and permitted actions.
+At the scheduled decision cycle, news may support accepting or skipping an existing eligible setup, HOLD, or a registered early-close/tighter-stop proposal. It does not create headline-only entries or relax size, stop, expiry, exposure, loss, or scheduled-event limits. Uncertain evidence produces the configured conservative outcome. Backend eligibility and independent EA checks still validate current prices, account state, input health, and permitted actions.
 
 ## Learning and qualification
 
@@ -242,13 +274,13 @@ The app may add concise in-app updates for executed trades, confirmed exits, mat
 
 Questions and commands use separate contracts. An authenticated, explicit command may request **PAUSE_ENTRIES**, **RESUME_ENTRIES**, **CLOSE_OWNED_POSITION**, or **FLATTEN_OWNED_AND_HALT** within the configured mandate. For example, “Pause LIVE entries” or “Close LIVE position 12345” identifies the target. The current dashboard view never chooses the destination of a mutation.
 
-For an interpreted action, the server assembles a typed administrative request containing authenticated user identity, original message/conversation IDs, unique request ID, target environment/account, action, exact owned position where applicable, expiry, and expected state version. Authentication/account scope is assigned by the server, not accepted from model output. An account-bound command router and the existing trusted gateway enforce authorization, ownership, fresh state, policy, and durable idempotency. All broker mutations use the existing sole execution path and reconciliation.
+For an interpreted action, the server assembles a typed administrative request containing authenticated user identity, original message/conversation IDs, unique request ID, target environment/account, action, exact owned position where applicable, expiry, and expected state version. Authentication/account scope is assigned by the server, not accepted from model output. An account-bound command router and the backend and fixed EA enforce authorization, ownership, fresh state, policy, and durable idempotency. All connected broker mutations go through the fixed EA and its reconciliation lifecycle; the existing Python mutation path remains simulator-only.
 
 Clear authorized requests execute without a second routine approval step. If intent, account, or position is ambiguous, ask a focused clarification and submit no command. Questions, hypotheticals, quotations, and retrieved material do not authorize mutations. A negated action such as “do not close” must never be inverted into a close command. A clarification timeout never becomes consent. Autonomous protective management continues throughout.
 
 RESUME_ENTRIES may clear an administrative entry pause only after health and reconciliation checks; every other trading gate still applies. It cannot clear a loss pause, persistent halt, unknown execution, or missing live qualification. A close uses the actual owned position and remaining volume and cannot create a reversal. Requests to change strategy, capital, risk limits, credentials, or code become explicit configuration/research proposals governed by the existing mandate and release process. Natural-language preferences cannot silently alter a live policy. Initial commands are immediate; conditional instructions such as “close after tomorrow’s release if it disappoints” require a separately specified, persistent, evaluated rule.
 
-Report command status precisely: interpreted, accepted or rejected, submitted, outcome unknown, or broker-confirmed completion. “Close requested” is distinct from “position closed.” Duplicate submissions, refreshed browser pages, and repeated delivery of the same message retain one request identity; reloading conversation history never re-executes commands. Uncertain broker results follow OUTCOME_UNKNOWN rather than a blind resend. Serialize administrative state changes with autonomous order checks inside the gateway so an accepted pause blocks subsequent entries; any request already submitted remains subject to reconciliation.
+Report command status precisely: interpreted, accepted or rejected, submitted, outcome unknown, or broker-confirmed completion. “Close requested” is distinct from “position closed.” Duplicate submissions, refreshed browser pages, and repeated delivery of the same message retain one request identity; reloading conversation history never re-executes commands. Uncertain broker results follow OUTCOME_UNKNOWN rather than a blind resend. Serialize administrative state changes with autonomous order checks at backend dispatch and again inside the EA so an EA-acknowledged pause blocks subsequent entries; any request already submitted remains subject to reconciliation.
 
 ## Audit and availability
 
@@ -260,9 +292,11 @@ M0 defines conversation/command records and fixtures only. M4 implements evidenc
 
 # Decision and execution contracts
 
+The complete [worked decision trace, message ownership, lost-acknowledgment sequence and action matrix](ea-execution-boundary.md) are normative details of this boundary.
+
 ## Autonomous decision cycle
 
-1. Capture broker account state, bid/ask quotes, completed bars, symbol specifications, calendar data, and the news evidence/health snapshot available by the decision cutoff. Collection runs independently of this trading cycle.
+1. Trigger once per newly available completed M15 bar (deduplicate account/strategy/bar identity). Capture broker account state, bid/ask quotes, completed bars, symbol specifications, calendar data, and the news evidence/health snapshot available by the decision cutoff. Collection runs independently of this trading cycle.
 
 2. Check that inputs are complete and fresh. Build candidates using the frozen strategy template.
 
@@ -270,15 +304,15 @@ M0 defines conversation/command records and fixtures only. M4 implements evidenc
 
 4. Validate the response schema, references, strategy version, and expiry.
 
-5. In the trusted gateway, refresh quote and account state, calculate executable size, and reserve exposure atomically.
+5. In the backend, validate scoped health and account evidence and reserve maximum exposure atomically. Dispatch expiring work with the same reservation ID.
 
-6. Persist the intended broker request before sending. Run broker preflight, recheck conditions, then send through the only execution path.
+6. The fixed EA persists received work, refreshes broker/account/quote state, narrows size, journals SUBMITTING before calling OrderSend, and independently applies trusted policy and preflight.
 
 7. Reconcile acknowledgments, orders, deals, fills, positions, and stops. A request acceptance is not sufficient evidence of a fill.
 
 8. Continue deterministic management until the position is confirmed closed. Append realized results, costs, operational/compliance labels, and lessons or research links without erasing earlier attempts.
 
-MT5's order-check and send results must be interpreted separately; a successful preliminary check or request acceptance does not establish completed execution. [order_check](https://www.mql5.com/en/docs/python_metatrader5/mt5ordercheck_py) and [OrderSend semantics](https://www.mql5.com/en/docs/trading/ordersend).
+MT5's order-check and send results must be interpreted separately; a successful preliminary check or request acceptance does not establish completed execution. [OrderCheck](https://www.mql5.com/en/docs/trading/ordercheck) and [OrderSend semantics](https://www.mql5.com/en/docs/trading/ordersend).
 
 ## Intent schema
 
@@ -292,9 +326,9 @@ MT5's order-check and send results must be interpreted separately; a successful 
 | Evidence | Market/calendar/news snapshot IDs and health record, news interpretation version, qualified lesson IDs and activation times, decision cutoff, short rationale |
 | Model trace | Provider, requested/returned model identifiers, snapshot when available, prompt/configuration version, request ID, latency, usage |
 
-The gateway calculates final volume. A model's confidence score is not a calibrated probability or position-sizing input. Prices, symbol names, and evidence references must resolve against the captured data rather than being accepted because the model supplied them.
+The backend reserves a maximum size/risk allowance; the EA computes the final size from fresh broker state and may only reduce it or reject. A model's confidence score is not a calibrated probability or position-sizing input. Prices, symbol names, and evidence references must resolve against the captured data rather than being accepted because the model supplied them.
 
-Conversational administrative requests are distinct from strategy intents. They carry authenticated user/message identity and an explicit account target, pass the command contract above, and enter the same gateway validation and broker lifecycle. The advisor cannot bypass risk checks by classifying a request as a user command.
+Conversational administrative requests are distinct from strategy intents. They carry authenticated user/message identity and an explicit account target, pass the command contract above, and enter the same backend validation and EA broker lifecycle. The advisor cannot bypass risk checks by classifying a request as a user command.
 
 ## Order lifecycle
 
@@ -307,6 +341,31 @@ Internal IDs and broker correlation tags support deduplication and matching; the
 Handle partial fills as actual filled exposure plus reserved remaining exposure without double counting. Recalculate risk from actual fill prices and volumes; a material breach triggers the predefined reduce-or-close procedure rather than a silent budget increase. A stale close command must not reverse a net position or open a new hedge. Read account mode, allowed fill policies, volume steps, stop distances, and freeze constraints from the broker. In particular, Market Execution does not permit the immediate-order RETURN filling policy. [Account modes](https://www.metatrader5.com/en/terminal/help/trading/general_concept) and [symbol properties](https://www.mql5.com/en/docs/constants/environment_state/marketinfoconstants).
 
 # Risk policy
+
+## Current evidence and risk parity
+
+Baseline inspected: `main` at `adc864017d29eca0b3dd1769164171a2a26b0fd9` after
+PRs #13 and #14 merged. No PRs were open when this design began. The handoff's
+`c9b2e435` main / draft #13 `0d011cb3` snapshot is superseded. All campaigns are
+concluded: CMC halted with INVALID_DATA (441 records, exact trigger unknown),
+FOREX was user-stopped after about 14h20m (1,720 records), and the eight-feed
+provider campaign was user-stopped at 166/288 polls per source. No 24-hour
+acceptance passed. Frozen checkouts, private evidence and original deadlines
+remain untouched. See [broker conclusions](broker-campaign-conclusion.md) and
+[provider conclusion](provider-campaign-conclusion.md).
+
+The Python `Policy` matches the numerical PAPER limits below. Its USD 10,000
+capital and five-second protection timer are fixture settings, not deployment
+defaults. `Market` and `risk/governor.py` currently enforce USD-only conversion;
+the observed Canadian demos are CAD/hedging. CAD requires explicit point-in-time
+conversion, broker tick value, commission currency, margin and downward rounding
+vectors for both pairs, checked against the actual target terminal before orders.
+Do not remove the USD guard without a versioned extension and parity evidence.
+Backend and EA share reason codes, units, policy digest and golden vectors; any
+disagreement takes the more restrictive result and blocks new entries until reconciled.
+The proposed alternative 1% aggregate / 2% daily / 8% drawdown / three-position
+profile is unapproved research and is not adopted. LIVE requires a separate mandate.
+
 
 These are **uncalibrated PAPER/demo defaults**, applied independently to that account. LIVE has a separately configured capital allocation, policy, loss baselines, and stricter initial qualification limits. Promotion never copies paper profits or loss history into live risk capacity. These figures are not validated live settings or guarantees of maximum loss.
 
@@ -333,7 +392,7 @@ The smallest applicable limit wins. Size from the lower of current equity and th
 
 ## Sizing
 
-Estimate loss from executable entry to protective exit **in the account currency**, including applicable commission, financing allowance, and conservative slippage. Use coherent bid/ask assumptions so spread is not counted twice. MT5's profit-calculation function returns an estimate in the account currency. [order_calc_profit](https://www.mql5.com/en/docs/python_metatrader5/mt5ordercalcprofit_py).
+Estimate loss from executable entry to protective exit **in the account currency**, including applicable commission, financing allowance, and conservative slippage. Use coherent bid/ask assumptions so spread is not counted twice. MT5's profit-calculation function returns an estimate in the account currency. [OrderCalcProfit](https://www.mql5.com/en/docs/trading/ordercalcprofit).
 
 Calculate the maximum permitted size under trade, aggregate, currency, notional, margin, and remaining loss-budget constraints. Current daily losses plus existing current-to-stop exposure, outstanding reservations, the proposed trade, and cost buffers must fit the remaining daily loss mandate. Round **down** to the valid volume increment. If the minimum lot exceeds any limit, return HOLD; never round up or automatically add capital.
 
@@ -349,13 +408,15 @@ At the daily limit, stop entries, cancel risk-increasing pending orders, and att
 
 ## Protection and execution limits
 
-Support two broker-qualified protection flows: submit the opening request with SL where accepted, or enter PROTECTION_PENDING after a confirmed fill and immediately attach SL through the trusted gateway. MetaQuotes documents server-dependent restrictions on initial SL/TP and no API property that reliably identifies them in advance. Never strip protection and blindly resubmit an unexplained rejection. The fill-then-protect mode must be explicitly configured, measure the potential unprotected interval from submission, block further entries, and invoke bounded repair/controlled closure when its deadline or risk conditions fail. Verify protection after every fill and relevant modification. [Broker-dependent stop placement](https://www.mql5.com/en/book/automation/experts/experts_market_buy_sell).
+Support two broker-qualified protection flows: submit the opening request with SL where accepted, or enter PROTECTION_PENDING after a confirmed fill and immediately attach SL through the fixed execution EA. MetaQuotes documents server-dependent restrictions on initial SL/TP and no API property that reliably identifies them in advance. Never strip protection and blindly resubmit an unexplained rejection. The fill-then-protect mode must be explicitly configured, measure the potential unprotected interval from submission, block further entries, and invoke bounded repair/controlled closure when its deadline or risk conditions fail. Verify protection after every fill and relevant modification. [Broker-dependent stop placement](https://www.mql5.com/en/book/automation/experts/experts_market_buy_sell).
 
 Broker-side SL/TP remains at the server when the local application fails. A terminal-computed trailing stop does not continue recalculating while its terminal is offline. [Server-side stops](https://www.metatrader5.com/en/terminal/help/trading/performing_deals).
 
 Stops and account thresholds are control triggers, not guaranteed loss caps. A market gap, unavailable liquidity, disconnected terminal, or rejected close can prevent execution at the intended level. Keep the actual unresolved exposure visible.
 
 # Recovery and operating states
+
+The detailed [action matrix](ea-execution-boundary.md#action-matrix-and-precedence) specifies cancellation, tightening, reduction, close and resume permissions. Owner entry-pause is an independent persisted flag; states compose using the most restrictive applicable gate.
 
 | State | New entries | Position handling | Automatic transition |
 | --- | --- | --- | --- |
@@ -381,7 +442,7 @@ Stops and account thresholds are control triggers, not guaranteed loss caps. A m
 
 **Hard drawdown or corrupted state:** stop automatically and persist the halt. Trading does not wait for a human response. Any later reactivation requires a separate deployment/mandate change; the decision model cannot grant itself that authority.
 
-Alerts identify the account/environment, fault, limit, exposure, and recovery. They are informational, not approval requests. Administrative PAUSE_ENTRIES and FLATTEN_OWNED_AND_HALT commands reach the trusted gateway independently of the AI; disable entries first, reconcile cancellations/closures, and preserve unknown outcomes. A requested flatten is not proof that the account is flat.
+Alerts identify the account/environment, fault, limit, exposure, and recovery. They are informational, not approval requests. Administrative PAUSE_ENTRIES and FLATTEN_OWNED_AND_HALT commands reach backend dispatch and the fixed EA independently of the AI; disable entries first, reconcile cancellations/closures, and preserve unknown outcomes. A requested flatten is not proof that the account is flat.
 
 # Strategy research and validation
 
@@ -494,10 +555,11 @@ Keep development authority separate from trading authority.
 | --- | --- | --- |
 | Research | Generate Python or MQL5 candidates; compile; replay; backtest; compare; demo-test isolated candidates | Live credentials, production policy edits, unrestricted production deployment |
 | Live decision worker | Read supplied data; select registered candidates; request permitted entry/exit actions | Shell, source editing, direct MT5 orders, risk-limit changes |
-| Trusted gateway | Size, validate, reserve, send, reconcile, protect, enforce halts | Model-directed policy overrides |
+| Backend risk/dispatch | Validate, reserve and dispatch an expiring allowance | Connected broker mutation or policy override |
+| Fixed EA | Independently size, preflight, send, reconcile, protect and enforce halts | Inference, research, self-modification or expanding the backend allowance |
 | Release process | Deploy immutable, versioned artifacts after required gates | Altering risk/capital authority merely because a candidate reports good returns |
 
-An EA is optional later when a concrete requirement calls for terminal-resident strategy logic. At that point the development workflow can produce MQL5 source, compile it, run MT5 tests, and validate it on demo. It must still preserve the single execution and risk boundary.
+A fixed execution EA is the required connected mutation boundary. Reviewed source, compiler/terminal build, EX5 hash, policy, protocol/schema, strategy, model/prompt, provider and lesson versions form one compatible release manifest. Research-generated code cannot be compiled, attached or triggered by a runtime decision. Native tests and qualified demo E2E are separate release gates.
 
 The first increment records experience and implements the release contract without enabling real deployment. By live qualification, the release controller can automatically deploy the exact paper-qualified artifact within the configured live mandate. Continuous learning produces hypotheses, regression cases, and tested candidates; bounded parameter or registered-strategy promotion is added only after the required evaluation controls are implemented. Arbitrary generated code cannot rewrite the running live process, risk governor, or capital limits. Promotion cannot clear a halt or retrospectively change evaluation criteria.
 
@@ -530,17 +592,21 @@ Routine output should be concise: new trade or exit, price/time, position size, 
 
 Run **P0 broker/interface feasibility** alongside broker-neutral M0 and complete it before broker-specific M1 integration. Subsequent phases follow their technical and evidence dependencies. Record experience from the beginning and validate local, Docker, and Codex-task operation before relying on portability. Live activation depends on the configured paper period and independent qualification gates.
 
-| Phase | Deliverable | Exit gate |
-| --- | --- | --- |
-| **P0 Feasibility** | Exact Canadian dealer/BC eligibility, permitted MT5 Python/data use, two account types, execution/calendar routes, and viable news/search sources and rights | A viable account/interface is identified before M1; deployment constraints and unresolved items are explicit |
-| **M0 Foundation** | Typed contracts, distinct PAPER/LIVE account namespaces, PostgreSQL setup, fixture broker, scripted decision/news/chat inputs, durable event/experience records, native/Docker/Codex setup | Offline decision-to-reconciliation demo passes, all tested outcomes are recorded, restart preserves history, and wrong-environment requests are rejected without credentials |
-| **M1 Broker and news observation** | Read-only demo connection, account/symbol discovery, calendar/news ingestion and search, feed-health checks, terminal supervisor, immutable snapshots | Account bindings, feed silence/staleness, late/revised news, deduplication, blocked calls, build changes, reboot/reconnect behavior, and account isolation are validated |
-| **M2 Protected execution** | Account-bound gateway, sizing/reservations, both required protection flows, controlled exits, recovery, PAPER demo orders | Lost-response, partial-fill, unprotected-window, duplicate, stale-close, and account-mismatch fault tests pass |
-| **M3 Strategy and replay** | Frozen baseline, cost-aware replay, session records, failure-derived regression cases, experiment registry | Reproducible data/accounting, no future lessons in historical decisions, and explicit evidence/uncertainty classification |
-| **M4 Bounded AI and memory** | Provider abstraction, schema controls, bounded news interpretation, evidence-backed advisor queries/command interpretation, qualified-lesson retrieval, frozen model/prompt versions, timeout/spend limits | Invalid, injected, late, or unavailable responses cannot change risk; news and retrieved experience are available by the decision cutoff |
-| **M5 Forward PAPER and learning** | Configured paper period, no-LLM and matched no-news comparisons, durable success/failure analysis, candidate evaluation, dashboard chat and paper command controls | Operational and economic gates pass separately; conservative trading costs plus news/search/model costs remain in evaluation regardless of favorable demo fills |
-| **M6 Separate LIVE activation** | Exact validated release on the configured live account, independent live capital/limits/history, continuing paper comparison | Activation gates pass without copying paper state; real fill/cost evidence and automatic live halts remain within the fixed mandate |
-| **M7 Controlled evolution** | Bounded automatic strategy/parameter promotion, further adapters or strategies, qualified migration/deployment | Each candidate passes safety and prospective evaluation; retain failed experiments; never expand live risk authority |
+The [milestone acceptance matrix](design-migration.md#milestone-acceptance)
+distinguishes implemented, evidenced, failed/open and planned work. Phase numbers
+remain P0/M0–M7; completion of this design is not completion of those gates.
+
+| Phase | Deliverable and exit gate |
+| --- | --- |
+| P0 | Account/dealer/BC permissions, retained-data rights and deployment constraints explicitly evidenced per broker; selection alone is insufficient |
+| M0A/B/C | Preserve existing records, USD simulator risk/recovery, account isolation and profile/archive parity; additive contracts must keep those regressions green |
+| M1A/B/C | Read-only observations, provider integration and independent end-to-end qualification; preserve failed/stopped evidence, source gaps, quote readiness and zero orders |
+| M2 | Offline protocol/golden vectors → native EA build/Tester → isolated read-only shadow → explicitly provisioned, qualified demo execution; both protection flows, reconciliation and account fencing pass |
+| M3 | Frozen B01, point-in-time event replay, calibrated costs, experiment registry and cross-language parity; reproducible holdout and uncertainty |
+| M4 | Bounded AI and memory, bilingual evidence advisor and simulated commands; no model route to broker mutation, policy or deployment |
+| M5 | Unattended forward PAPER, dashboard/admin commands, matched AI/no-AI and news/no-news arms; at least 8 weeks AND 100 closed trades plus predeclared operational/economic gates |
+| M6 | Exact evaluated release on separately authorized capped LIVE account; no copied PAPER balances/orders/risk history; tested rollback and ongoing PAPER comparison |
+| M7 | Independently qualified challengers/adapters, retained failed experiments, audited promotion/rejection; no expansion of risk authority |
 
 ## Mandatory fault tests
 
@@ -562,7 +628,7 @@ Run **P0 broker/interface feasibility** alongside broker-neutral M0 and complete
 
 9. Database and network loss preserve explicit uncertainty; resumed operation reconciles emergency actions.
 
-10. A second writer cannot trade the same account while its predecessor may still execute; independent PAPER and LIVE gateways may run concurrently.
+10. A second writer cannot trade the same account while its predecessor may still execute; independent PAPER and LIVE EAs may run concurrently.
 
 11. Session closures, rollover, DST conversion, clock drift, and missing calendar data trigger the correct restricted state.
 
@@ -570,7 +636,7 @@ Run **P0 broker/interface feasibility** alongside broker-neutral M0 and complete
 
 13. PAPER credentials, commands, cached signals, or a dashboard view change cannot route orders to LIVE or alter live risk history.
 
-14. Both account gateways may operate concurrently, but only one writer per broker account remains authoritative across a local/cloud move.
+14. Both account EAs may operate concurrently, but only one writer per broker account remains authoritative across a local/cloud move.
 
 15. Every exercised success, HOLD, rejection, malformed/expired response, failed execution, and recovery creates linked durable evidence with the correct environment/account.
 
@@ -604,7 +670,7 @@ Run **P0 broker/interface feasibility** alongside broker-neutral M0 and complete
 
 30. RESUME_ENTRIES cannot clear loss/integrity halts, unresolved orders, or live qualification gates; chat/model outages leave deterministic protection and independent administrative controls operational.
 
-31. A pause racing with an autonomous entry uses serialized gateway checks; chat-history replay cannot re-execute a command, and unsupported conditional instructions cannot install a trading rule.
+31. A pause racing with an autonomous entry uses serialized backend and EA checks; chat-history replay cannot re-execute a command, and unsupported conditional instructions cannot install a trading rule.
 
 32. Equivalent English and Chinese requests pass the same read/command contracts and safety tests; unsupported or uncertain interpretation requests clarification without mutation.
 
@@ -612,96 +678,31 @@ Passing the software suite establishes engineering readiness only. Live qualific
 
 # Codex implementation handoff
 
-Give Codex the full specification for context and complete M0 in three bounded increments. **Start with M0A**, then proceed after its checks pass.
-
-- **M0A Records and account contracts:** PostgreSQL setup, PAPER/LIVE identities, typed interfaces including news evidence/version and conversation/command records, append-only event/experience records, scripted decisions, and simple fixture scenarios.
-
-- **M0B Offline execution and recovery:** deterministic risk/reservations, simulator order state machine, protection/unknown-outcome recovery, restart and account-isolation tests.
-
-- **M0C Deployment parity:** application image and Compose profiles, checked Codex setup, same migrations/commands, persistent export/restore and cross-profile acceptance.
-
-M0 completes when the full offline loop and portability requirements pass. Broker-specific work waits for P0 and M1.
-
-Recommended repository modules:
-
-| Directory | Responsibility |
-| --- | --- |
-| src/fx_talanta/domain | Typed account, instrument, intent, order, deal, position, and policy models |
-| src/fx_talanta/strategy | Frozen candidate rules and position-management templates |
-| src/fx_talanta/agent | Context construction, decision policy, and provider adapters |
-| src/fx_talanta/advisor | Authenticated conversation, evidence queries, bounded command interpretation, audit, and status responses |
-| src/fx_talanta/risk | Deterministic sizing, limits, currency exposure, and reservations |
-| src/fx_talanta/gateway | Sole execution path, order lifecycle, reconciliation, protective management |
-| src/fx_talanta/brokers | Broker protocol, fixture implementation, and later MT5 adapter |
-| src/fx_talanta/data | Market/calendar/news ingestion, bounded source search, health checks, deduplication, and point-in-time snapshots |
-| src/fx_talanta/research | Replay, cost/fill simulation, experiment registry, comparisons |
-| src/fx_talanta/experience | Append-only cases, outcome classification, evidence retrieval, and qualified lessons |
-| src/fx_talanta/releases | Frozen artifacts, promotion gates, account binding, and rollback |
-| deploy and scripts | Docker/Compose manifests, native and Codex setup, database bootstrap, run and restore commands |
-| src/fx_talanta/storage | Migrations, repositories, audit events, recovery state |
-| apps/dashboard | Later monitoring interface |
-| tests | Domain invariants, fixture integration, and failure scenarios |
-| docs | Architecture, policy definitions, operating procedures, and release records |
+M0A–M0C are complete as offline increments. Do not rebuild the repository or
+reinterpret simulator evidence as connected execution acceptance. The next
+**proposed**, separately authorized code increment is defined exactly in
+[M2 handoff](m2-handoff.md): additive versioned EA messages, shared USD/CAD
+vectors and an offline validation/replay harness with submission absent/disabled.
+No EA deployment, broker action, campaign restart, model invocation or configuration
+change is part of this design PR.
 
 ```text
-Implement M0A only of FX-Talanta. Read the full specification for context.
-
-Create a portable single-user Python repository and typed contracts for
-account identities, decision attempts, risk evaluations, execution events,
-experience cases, lessons, strategy artifacts, and promotion evidence.
-Include typed news item/revision, availability, source-health, and evidence-link
-records with fixture inputs; real ingestion and external search belong to M1.
-Define conversation and administrative-command records with authenticated
-actor, message/request IDs, explicit account target, expiry, and outcome.
-Use scripted chat fixtures only; actual advisor/model/UI work belongs later.
-
-Use PostgreSQL from day one. Provide local database Compose configuration
-and migrations. Model separate PAPER/LIVE databases and roles; LIVE starts
-disabled. Account/environment identity is immutable in stored commands.
-Do not place credentials or state inside a future application image.
-
-Implement append-only event and experience repositories. Preserve successes,
-failures, HOLDs, rejected or invalid decisions, unresolved outcomes, recovery
-events, and superseding corrections. Separate operational result, policy
-compliance, and economic outcome. Retain evidence/availability timestamps,
-account scope, component/strategy/model/prompt versions, costs, and references.
-
-Add a scripted DecisionSource, fake clock, and a BrokerAdapter protocol with
-fixture inputs, including news published earlier but first observed later.
-Demonstrate recorded valid, HOLD, malformed, expired, and
-unknown-then-reconciled scenarios without any broker or LLM credentials.
-
-Test record durability across restart, immutable corrections, database-role
-boundaries, account-scoped identities, and rejection of paper-to-live routing.
-Check exact news-version links and preservation of original/corrected records.
-Verify chat fixture records retain actor, account, request identity, and status;
-ambiguous or read-only requests must not create execution commands.
-Keep the MetaTrader5 import out of the portable core. No live broker access,
-production UI, autonomous code deployment, or real paper-to-live activation.
-
-Document native setup and M0A commands. Preserve clear interfaces for M0B
-risk/execution/recovery and M0C application-image/Codex-cloud parity.
-Do not implement later increments in this task.
+When separately authorized, implement only the offline EA contract/parity slice
+in docs/m2-handoff.md. Reuse the existing Python simulator and append-only records.
+Preserve all existing migrations and evidence. Add additive contracts, shared
+golden vectors and a fixture-fed MQL5 validation harness with no broker submission.
+Keep native compilation/Tester evidence separate and explicitly unrun when absent.
+Do not implement a production Python broker writer, deploy/attach an EA, change
+terminal permissions, restart campaigns, invoke paid inference or send orders.
 ```
 
-## Configuration and qualification prerequisites
+The [migration map and acceptance matrix](design-migration.md) identify actual
+modules versus proposed additions. The [EA boundary/runbook](ea-execution-boundary.md)
+defines protocol, ownership, outage handling and deployment design. These are
+subordinate to this canonical specification, not alternative master plans.
 
-M0 runs with fixtures while P0 resolves broker and interface feasibility. Complete broker eligibility and account-specific permissions before M1; complete live capital and promotion configuration before M6.
-
-- Exact Canadian dealer and BC eligibility, supported MT5 Python/data access, demo and live account/server identities, trade/position modes, and fees.
-
-- Separate paper/live account currencies, capital and risk policies, minimum sizes, margin rules, cash-flow histories, and persistent loss mandates.
-
-- A qualified calendar route with schedule coverage, refresh/completeness checks, normalized timestamps, and paper/live provenance.
-
-- Qualified news/search providers and source allowlist; USD/EUR/JPY coverage, retention rights, timestamps/revisions, required/optional classification, polling/request budgets, explicit staleness/release-lateness thresholds, and recovery rules before decision use.
-
-- Local and cloud core profiles, Windows gateway instances, terminal supervision, durable backups, writer handoff, and checked Codex task setup.
-
-- Model/provider versioning, evidence-retention policy, measured latency, daily cost limit, and permitted learning/promotion change types.
-
-- Advisor owner authentication, read/command permissions, explicit account targeting, language fixtures, conversation retention, in-app notification preferences, and independent administrative controls.
-
-- Minimum paper period, predeclared strategy/cost/evidence criteria and news/no-news experiment, exact release artifacts, and automatic live-activation checks.
-
-The immediate implementation target is **M0: a complete offline decision-to-reconciliation loop**, not a live trading connection.
+Configuration remains incomplete for broker permissions, source rights/coverage,
+CAD conversion and account capability parity, production protection deadlines,
+model/search budgets, owner authentication, LIVE capital, evaluated releases and
+host fencing/restore. Missing qualification keeps the corresponding entry path
+closed; changing documentation cannot authorize execution.

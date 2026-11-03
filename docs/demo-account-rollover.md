@@ -1,5 +1,18 @@
 # Demo account lifecycle and replacement
 
+## Fixed EA ownership at a future execution rollover
+
+The expiry tracker is implemented; trading rollover remains planned. Under the
+[fixed EA design](ea-execution-boundary.md), retire/fence the old terminal/EA,
+drain and reconcile pending/unknown work, archive PostgreSQL plus its EA journal,
+then provision a new immutable demo binding and verify the replacement artifact
+and capabilities. A database lease alone cannot stop the previous terminal.
+Do not activate the successor while the old writer could still execute. Preserve
+campaign loss restrictions, failures, original deadlines and any evidence gap;
+a new virtual deposit is not profit or an increase in risk authority. No account
+is switched, closed or provisioned by this design PR.
+
+
 Accepted requirement, 2026-11-02: CMC Markets Canada is primary; FOREX.com Canada
 is secondary. FX-Talanta must support replacing an expiring FOREX.com demo while
 retaining project evidence and qualification history. This document specifies

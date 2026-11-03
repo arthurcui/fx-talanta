@@ -1,5 +1,22 @@
 # M1 implementation handoff
 
+## Current status and execution handoff (2026-11-03)
+
+The broker and provider campaigns are concluded without sustained acceptance; see
+[broker results](broker-campaign-conclusion.md) and [provider results](provider-campaign-conclusion.md).
+Manual BLS import/reminders and optional native MCP calendar shadow import now
+exist. USD/EUR/JPY category delivery, rights, timestamps and recovery qualification
+remain open. No new campaign is authorized here. Preserve old evidence and freeze
+any future active collector checkout while developing elsewhere.
+
+The revised [architecture](architecture-plan.md) retains M1 as read-only. Python
+will not become a connected order writer: a fixed reviewed EA is the planned sole
+broker mutator, reached via backend validation/reservation and EA-initiated pull.
+[M2's first slice](m2-handoff.md) is offline-only; native/shadow/demo stages remain
+separate, with P0/M1 prerequisites before connected execution. The retired MQL5
+calendar service and automatic browser downloader remain retired.
+
+
 Status: M0C and the MT5 adapter are merged; connected CMC demo observation works.
 The [CMC read-only milestone](cmc-readonly.md) tracks the runner and remaining
 sustained acceptance. Broader [P0 qualification](p0-feasibility.md) remains open. Preserve the
