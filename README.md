@@ -215,6 +215,7 @@ references; project requirements and procedures are recorded here.
 | [Architecture and implementation plan](docs/architecture-plan.md) | Full planning baseline, system design, milestones and acceptance criteria |
 | [FOREX.com onboarding](docs/forex-onboarding.md) | Secondary demo preparation, expiry tracking and durable alerts |
 | [Provider qualification](docs/provider-qualification.md) | Free-first calendar/news preflight, measured endpoint checks and remaining gates |
+| [Required provider acceptance](docs/provider-acceptance.md) | USD/EUR/JPY coverage inventory, expanded official feeds and prospective delivery checks |
 | [Calendar/news filtering](docs/calendar-news-filter.md) | Fixture-based blackouts, coverage gates and point-in-time evidence |
 | [Calendar/news integration](docs/calendar-news-integration.md) | Broker-independent collection, durable journal and qualification gaps |
 | [Manual BLS upload](docs/manual-bls-upload.md) | File chooser, preserved calendars and on-demand review reminders |

@@ -3,8 +3,11 @@
 The integration now connects bounded public collection, durable metadata storage,
 point-in-time normalization, blackout assessment and the offline gateway's entry
 checks. It runs independently of MT5 and does not change broker runs or databases.
-PR #10 remains unmerged. This completes the implemented **shadow integration**;
+PR #10 is merged. This completes the implemented **shadow integration**;
 required live-provider qualification remains incomplete and entries stay blocked.
+
+The [current qualification campaign](provider-acceptance.md) tracks the exact
+coverage gaps and prospective delivery evidence separately from this integration.
 
 ## Sources and actual verification
 

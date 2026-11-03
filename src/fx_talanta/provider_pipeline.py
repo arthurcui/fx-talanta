@@ -36,6 +36,17 @@ SOURCES = {
     "fed": ("https://www.federalreserve.gov/feeds/press_monetary.xml", "USD"),
     "ecb": ("https://www.ecb.europa.eu/rss/press.html", "EUR"),
     "boj": ("https://www.boj.or.jp/en/rss/whatsnew.xml", "JPY"),
+    "bls_jobs": ("https://www.bls.gov/feed/empsit.rss", "USD"),
+    "bls_cpi": ("https://www.bls.gov/feed/cpi.rss", "USD"),
+    "bls_ppi": ("https://www.bls.gov/feed/ppi.rss", "USD"),
+    "bls_jolts": ("https://www.bls.gov/feed/jolts.rss", "USD"),
+    "eurostat": (
+        "https://ec.europa.eu/eurostat/en/search?"
+        "_estatsearchportlet_WAR_estatsearchportlet_collection=CAT_PREREL&"
+        "p_p_id=estatsearchportlet_WAR_estatsearchportlet&p_p_lifecycle=2&"
+        "p_p_mode=view&p_p_resource_id=atom&p_p_state=maximized",
+        "EUR",
+    ),
     "bls": (bls.URL, "USD"),
 }
 LIMIT = 2 * 1024 * 1024
@@ -339,7 +350,7 @@ class Journal:
                                 },
                             )
                         )
-                elif source in {"fed", "ecb", "boj"}:
+                elif source in SOURCES and source != "bls":
                     candidates = [(item["item_id"], item) for item in result["payload"]]
                 for identity, candidate in candidates:
                     previous = self.conn.execute(

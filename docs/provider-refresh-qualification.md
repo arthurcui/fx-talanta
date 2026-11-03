@@ -1,5 +1,8 @@
 # Bounded provider refresh qualification
 
+Historical short probes. See [current qualification](provider-acceptance.md) for
+the expanded release feeds, frozen coverage inventory and prospective campaign.
+
 On November 2, 2026, three Windows collection passes separated by at least one
 minute each retrieved fresh FRED API dates and public-calendar times. All three
 matched five events in the manual BLS reference across the four supported release
