@@ -726,6 +726,10 @@ heartbeats with an old quote still show the unchanged two-second entry block and
 its reason. Multiple channels are not independent broker feeds; no automatic
 fallback is implied.
 
+The [M2B implementation report](m2b-fixed-ea.md) records the delivered Tester-only
+gateway, native artifacts and remaining connected-operation gates. Its bounded
+results do not change the M1 verdicts or qualify M2C/M2D.
+
 Milestone ownership: M2A defines the read-only telemetry contract and fixtures;
 M2B supplies channel telemetry; M2C tests stale quotes with healthy heartbeats,
 disconnections, recovery and missing metrics; M4 exposes authenticated advisor/read

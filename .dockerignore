@@ -15,11 +15,17 @@
 !mql5/readonly/QuoteStream.mq5
 !mql5/offline/
 !mql5/offline/ProtocolReference.mq5
+!mql5/gateway/
+!mql5/gateway/*.mq5
+!mql5/gateway/*.mqh
 !configs/
 !configs/news-filter.example.json
 !configs/news-filter.fixture.json
 !deploy/
 !deploy/**
+!docs/
+!docs/evidence/
+!docs/evidence/m2b-native-20261103.json
 !README.md
 **/__pycache__/
 **/*.pyc

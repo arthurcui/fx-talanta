@@ -1,6 +1,7 @@
 # Fixed EA execution boundary and operating design
 
-Status: **proposed, not deployed**, 2026-11-03. Subordinate to the
+Status: **connected design not deployed; bounded M2B native implementation exists**, 2026-11-03. See
+[actual M2B scope and evidence](m2b-fixed-ea.md). Subordinate to the
 [canonical architecture](architecture-plan.md) and [ADR-001](adr/001-fixed-ea-execution.md).
 This describes future execution; the current Python gateway remains simulator-only.
 No instruction here authorizes changing a terminal, running an order test or restarting

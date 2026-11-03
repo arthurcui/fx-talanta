@@ -145,6 +145,8 @@ those integrations in isolated services and build both containers. The test imag
 includes only the new MQL5 source for static checks; the runtime image has no new
 terminal/deployment path.
 
-M2A's Python/source deliverables are implemented. Native parity, M2B execution,
-M2C deterministic safety and M2D connected acceptance remain pending. M1 failures
+M2A's Python/source deliverables are implemented. The later
+[M2B native gateway](m2b-fixed-ea.md) adds actual canonical request/journal and
+order-simulator evidence; it does not retroactively qualify this risk-reference
+harness. Full native risk parity, M2C safety and M2D connected acceptance remain pending. M1 failures
 and provider coverage gaps are neither erased nor reclassified by this increment.

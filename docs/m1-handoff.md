@@ -21,7 +21,8 @@ The owner authorized [M2A intent/EA protocol](m2-handoff.md) on November 3 after
 accepting the bounded read-only quote stream. Carry M1 evidence gaps explicitly;
 offline protocol work does not require another soak. Failed/stopped campaign
 verdicts remain unchanged and connected orders remain disabled.
-Then M2B implements the fixed EA with connected submission disabled, M2C proves
+The [M2B native increment](m2b-fixed-ea.md) now implements the fixed EA with
+connected submission disabled. M2C proves
 deterministic safety, and M2D accepts connected PAPER execution. Native/Tester and
 read-only shadow remain evidence gates within M2B/M2C; all prerequisites must pass
 before connected orders. The retired MQL5
