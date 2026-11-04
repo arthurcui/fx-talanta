@@ -1,0 +1,103 @@
+{
+  "schema": "m2-gate-preflight/1",
+  "source_commit": "50c1685a2f3148e99a7af0b960265d5f65dc2aba",
+  "broker": "FOREX.com demo",
+  "attempts": [
+    {
+      "attempt": 1,
+      "conversion_symbol": null,
+      "returncode": 0,
+      "status": "CAPTURED_DATA_HOLD",
+      "phase": "COMPLETE",
+      "reason": null,
+      "host_error_bound_ms": 52,
+      "missing": {
+        "EURUSD": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "CAD_CONVERSION",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ],
+        "USDJPY": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "CAD_CONVERSION",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ]
+      },
+      "original_binding_unchanged": true,
+      "timestamp_mapping_qualified": false,
+      "entry_eligibility": false
+    },
+    {
+      "attempt": 2,
+      "conversion_symbol": "USDCAD",
+      "returncode": 0,
+      "status": "BLOCKED",
+      "phase": "BROKER_INPUT_CAPTURE",
+      "reason": "READER_FAILED",
+      "host_error_bound_ms": null,
+      "missing": null,
+      "original_binding_unchanged": true,
+      "entry_eligibility": false
+    },
+    {
+      "attempt": 3,
+      "conversion_symbol": "USDCAD.",
+      "returncode": 0,
+      "status": "CAPTURED_DATA_HOLD",
+      "phase": "COMPLETE",
+      "reason": null,
+      "host_error_bound_ms": 53,
+      "missing": {
+        "EURUSD": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ],
+        "USDJPY": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ]
+      },
+      "original_binding_unchanged": true,
+      "entry_eligibility": false
+    }
+  ],
+  "history_summary": {
+    "captured_at": "2026-11-04T15:39:15.927443+00:00",
+    "account_currency": "CAD",
+    "position_count": 0,
+    "pending_order_count": 0,
+    "historical_deal_count": 1,
+    "trade_deal_count": 0,
+    "cashflow_record_count": 1,
+    "algo_trading_enabled": false,
+    "history_artifact_sha256": "17e22db8c465a5ae045ff3ce469db901f28f14fadcb0754e0848f148b27877c5",
+    "production_day_baseline_qualified": false
+  },
+  "verdict": "HOLD",
+  "execution_enabled": false,
+  "broker_order_calls": 0,
+  "timestamp_mapping_qualified": false,
+  "operating_context_loaded": false,
+  "normalization_interpretation": "The capture tool intentionally supplies no operator fact context. Missing context is not proof that no qualifying source exists. Empirical timestamp consistency is explicitly not UTC-mapping qualification.",
+  "acceptance_scope_changed": false,
+  "m1_gaps_preserved": true,
+  "new_campaign_started": false,
+  "cmc_modified": false,
+  "activation_implemented": false
+}

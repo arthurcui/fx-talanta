@@ -144,3 +144,49 @@ closed-market exit. Retain all native witness journals, reports and checkpoints
 for independent reconstruction. Preserve every original M1 failure/provider gap.
 These are actual-order acceptance gates, not another 24-hour campaign. PR #23
 remains unmerged pending review.
+
+## November 4 order-gate preflight
+
+The [retained preflight report](evidence/m2-gate-preflight-20261104.json)
+records a new bounded, read-only FOREX.com check against the existing demo account.
+It is **HOLD**, not actual-order acceptance. Algo Trading stayed off, no order API
+was called, no campaign was started, and CMC was not modified.
+
+The final capture had a 53 ms host-clock uncertainty bound. The account uses CAD;
+the broker conversion symbol is `USDCAD.`. An earlier attempt using `USDCAD`
+returned `READER_FAILED` and remains recorded. The corrected capture resolves the
+missing CAD-conversion input. A separate read-only history query found one funding
+record, zero trade deals, zero positions and zero pending orders. These observations
+do not constitute a qualified production day-loss baseline.
+
+The capture helper deliberately supplies no operating context. Its remaining
+MANDATE, COSTS, BASELINE_AND_EXPOSURE, SESSION and PROVIDERS missing groups therefore
+mean that facts were not supplied to this capture, not that every fact is necessarily
+unobtainable. The helper explicitly marks broker timestamp mapping unqualified;
+short empirical consistency cannot be relabelled as a qualified UTC mapping.
+The original private binding was preserved in every capture.
+
+### Proposed bounded execution-only acceptance scope
+
+This proposal awaits an explicit scope decision; it does not change the existing
+acceptance gates or authorize deployment. It would distinguish execution validation
+from the unresolved M1 strategy/provider qualification and keep strategy entries
+blocked. Proposed limits are two entry attempts, at most 0.02 lot per entry,
+one position at a time, C$5 planned virtual risk per entry and C$10 in aggregate.
+Those are prospective limits, not a claim that an activation controller exists or
+that planned loss is a guaranteed loss cap.
+
+Before any order, implement and test a durable, account-bound activation controller
+that charges attempted/uncertain submissions once, cannot reset its budget after a
+restart, and rejects entries after its finite entry window. Retain the two-second
+entry rule, qualified timestamp/clock checks, ownership checks, native final risk
+validation and independent broker reconciliation. Unknown results forbid resending;
+management authority must remain narrow enough to resolve only already-owned risk.
+A deadline cannot be reported as successful shutdown with unresolved exposure.
+
+Archive private native witnesses and independently reconstruct each observed order,
+deal and position against the backend journal. Restore Algo Trading off after
+confirmed flatness. Retain fixture-only, unavailable and unobserved fault scenarios
+as such: partial close is not partial fill; a short normal fill does not establish
+closed-market recovery or any broader provider qualification. No gate is marked
+passed by this preflight or this proposed scope.
