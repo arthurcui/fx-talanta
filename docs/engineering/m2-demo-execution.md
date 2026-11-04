@@ -106,7 +106,7 @@ The public session report contains sanitized outcomes; private manifests, comple
 broker audits, native journals, hash chains and checkpoints remain under `.local`.
 Credentials, account identifiers, ticket numbers and raw prices are not published.
 
-Final verification: 938 Python/PostgreSQL tests and 125 native checks passed.
+PR #23 verification: 938 Python/PostgreSQL tests and 125 native checks passed.
 Two earlier regression runs hit the original database container's shared-memory
 limit; their failures are retained. Final tests used a separate loopback-only
 PostgreSQL instance, without restarting or modifying the broker-evidence database.
@@ -121,6 +121,90 @@ restarts during real exposure remain fixture-only or unobserved unless explicitl
 captured. A normal entry/close does not qualify the full live fault matrix or M1.
 CMC and the owner-reported third AvaTrade demo remain untouched and unqualified
 by these FOREX-only tests. PR #23 was merged after CI passed; its recorded execution limits remain unchanged.
+
+### Closeout verification
+
+This increment verifies the final-state path with synthetic native and backend
+inputs. It does not reopen a broker campaign, change trading permissions, replenish
+the consumed demo budget or qualify M1.
+
+#### Completed work
+
+The native lifecycle now runs through one `DemoKernel`: entry receipt/ACK, positive
+protected-position reconciliation, controlled close, positive entry/exit history,
+empty-position fingerprint, durable `CLOSED` report, report ACK and successful drain.
+No gateway restart or separate recovery build is used in that synthetic flow.
+A missing ACK keeps the report pending and blocks drain; retransmission is identical;
+a wrong ACK is rejected. The fake port records exactly one entry and one close.
+The real native submission port remains disabled throughout the fixture.
+
+The actual captured native `CLOSED` payload is then replayed through the Python
+backend. Restart plus a lost response yields the same ACK and one durable state
+record. Receipt of that report does not make it independently broker-verified,
+release reserved risk or enable trading.
+
+The [native evidence](../evidence/m2-native-closeout-20261104.json) records **142
+passing checks**: all 125 prior activation checks plus 17 closeout checks. Compilation
+had zero errors and warnings. The first attempt had one failed assertion because the
+new test expected `CLOSED` instead of the existing `CLOSED_CONFIRMED` return value.
+Its check file and source are retained; the runtime return value was not changed.
+
+#### Evidence validation fix
+
+`tools.fixtures.demo_execution_fixtures.compare` previously accepted any 20 passing
+rows and collapsed duplicate names into a dictionary. A truncated check file, or a
+failed row overwritten by a duplicate passing row, could therefore appear successful.
+
+It now requires a predeclared check manifest. Missing, additional, duplicate,
+malformed and failing rows are rejected. Native completeness is established against
+the entire declared set, not a count. Historical manifests/results are not regenerated.
+A historical check set can be verified by explicitly supplying that version's names;
+never derive the required set from the output being verified.
+
+```python
+import json
+from pathlib import Path
+from tools.fixtures.demo_execution_fixtures import compare
+
+fixture = Path("tests/fixtures/demo-closeout")
+manifest = json.loads((fixture / "required-checks.json").read_text())
+report = compare(fixture, required_checks=manifest["checks"])
+```
+
+#### Acceptance boundaries
+
+| Gate | Evidence now available | Remaining boundary |
+| --- | --- | --- |
+| Actual demo entry, protection and exit | PR #23 broker audit, independently verified | Original final delivery required read-only recovery; retain that qualification |
+| Integrated close/report/ACK/drain | Current synthetic native lifecycle and backend replay | Not a connected first-pass broker result |
+| Lost response and duplicates | Native pending report, incorrect ACK rejection, backend restart/replay; existing send-uncertainty fixtures | No automatic broker resend is authorized |
+| Partial fill, rejected protection and closed-market exit | Existing native/fixture cases retained in the 142-check manifest | Fixture evidence is not an observed broker fault; applicable connected acceptance remains open |
+| Database/network loss and writer fencing | Existing backend/HTTPS/PostgreSQL tests | No new live fault injection performed |
+| Risk and time | Existing percentage budget and clock/freshness checks retained | Two-second entry and 100 ms clock ceilings unchanged |
+| M1 qualification | Original failed/stopped reports | Still unqualified and separate from this execution-only work |
+
+#### Prepared bounded connected verification — not activated
+
+The previous authority is retired and both entry reservations are consumed. A fresh
+owner authorization is required before any further broker order. The proposed next
+check uses the existing FOREX.com demo account, one entry reservation, at most 0.01
+lot, one position at a time and at most **0.10% of eligible equity** planned risk
+(per-entry and cumulative). The percentage calculation and conservative equity basis
+remain enforced; volume is reduced or the entry is refused if necessary.
+
+Use a new isolated manifest and journals, never reset the old budget. After approval,
+perform fresh identity, flatness, clock/mapping, protective-order and authority checks.
+Set a fixed 30-second entry window and a bounded management/reporting window, with no
+extension or extra attempt. The exact UTC boundaries must be pinned before activation.
+Require a fresh original and native quote within two seconds and clock uncertainty
+within 100 ms. Preserve broker-confirmed SL/TP and the existing one-shot controlled
+close/reconciliation behavior; no blind resend or refund after an uncertain outcome.
+
+Success requires an independently verified entry/exit history, flat account, the same
+running EA's `CLOSED` report and ACK, and completed drain without a recovery attachment.
+Retire authority and disable trading afterward. Failure preserves all evidence and
+requires reconciliation; it never silently starts another attempt. This is a short
+execution-only check, not a 24-hour campaign, a complete fault-matrix pass or M1 acceptance.
 
 ## Historical implementation stages
 

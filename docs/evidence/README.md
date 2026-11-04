@@ -7,6 +7,7 @@ See [current status](../product/status.md) for what the product may claim today.
 | Evidence | What it establishes | What it does not establish |
 | --- | --- | --- |
 | [Bounded demo, November 4](m2-bounded-demo-20261104.json) | Actual demo entry, protection, controlled close and independent read-only recovery | Unattended first-pass success, complete M2 fault acceptance or M1 qualification |
+| [Native closeout](m2-native-closeout-20261104.json) | Complete synthetic native close/report/ACK/drain and preserved first assertion failure | Connected first-pass broker acceptance or M1 qualification |
 | [Native activation](m2-bounded-activation.json) | Recorded native checks and regression results for the pinned source | A fresh result for source modified after that build |
 | [Broker campaign conclusion](broker-campaign-final-20261103.json) | Preserved failed/stopped CMC and FOREX outcomes | A passed sustained qualification |
 | [Provider campaign conclusion](provider-campaign-final-20261103.json) | Actual polling/delivery evidence and remaining gaps | Complete USD/EUR/JPY category coverage or broader-news qualification |

@@ -1,5 +1,6 @@
 """Bounded synthetic demo-dispatch inputs; no broker connection or order capability."""
 
+import re
 from pathlib import Path
 
 from fx_talanta.demo.projection import project
@@ -57,14 +58,47 @@ def export(folder):
     )
 
 
-def compare(folder):
-    checks = dict(
-        line.split("\t") for line in (Path(folder) / "demo-checks.tsv").read_text().splitlines()
-    )
-    if len(checks) < 20 or any(value != "1" for value in checks.values()):
-        raise ValueError("NATIVE_FAILURE:" + str([k for k, v in checks.items() if v != "1"]))
+def compare(folder, *, required_checks=None):
+    """Verify a predeclared check set, never infer completeness from row count."""
+    if required_checks is None:
+        raise ValueError("REQUIRED_CHECK_MANIFEST_MISSING")
+    if isinstance(required_checks, (str, bytes)):
+        raise ValueError("INVALID_REQUIRED_CHECK_MANIFEST")
+    required = tuple(required_checks)
+    if (
+        not required
+        or any(
+            not isinstance(name, str) or re.fullmatch(r"[A-Za-z0-9_-]+", name) is None
+            for name in required
+        )
+        or len(set(required)) != len(required)
+    ):
+        raise ValueError("INVALID_REQUIRED_CHECK_MANIFEST")
+    checks = {}
+    for line in (Path(folder) / "demo-checks.tsv").read_text(encoding="ascii").splitlines():
+        fields = line.split("\t")
+        if len(fields) != 2 or re.fullmatch(r"[A-Za-z0-9_-]+", fields[0]) is None:
+            raise ValueError("MALFORMED_NATIVE_CHECK")
+        name, value = fields
+        if name in checks:
+            raise ValueError("DUPLICATE_NATIVE_CHECK:" + name)
+        if value not in {"0", "1"}:
+            raise ValueError("INVALID_NATIVE_CHECK_VALUE:" + name)
+        checks[name] = value
+    if set(checks) != set(required):
+        raise ValueError(
+            "NATIVE_CHECK_SET_MISMATCH:missing="
+            + str(sorted(set(required) - checks.keys()))
+            + ";unexpected="
+            + str(sorted(checks.keys() - set(required)))
+        )
+    failures = [name for name, value in checks.items() if value != "1"]
+    if failures:
+        raise ValueError("NATIVE_FAILURE:" + str(failures))
     return dict(
         checks=checks,
+        required_check_count=len(required),
+        check_set_complete=True,
         synthetic=True,
         execution_enabled=False,
         broker_orders_sent=0,
