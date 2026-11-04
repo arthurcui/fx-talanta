@@ -168,6 +168,10 @@
     {
       "stage": "native-demo-completion-05",
       "outcome": "69 native checks passed, including all four action reconciliation paths and protective overlap; two programs compiled with zero errors/warnings"
+    },
+    {
+      "stage": "CI 41793223013 on 2d1010e",
+      "outcome": "Host suite passed all 844 tests; container passed 843 and failed the historical-evidence test because its Dockerfile omitted the preserved initial report. Added the explicit COPY; no test was removed or skipped."
     }
   ],
   "regression": {
