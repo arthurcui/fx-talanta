@@ -258,6 +258,33 @@ int OnInit()
    Check("known-unprotected-not-inflight",!overlap.MutationPending(first.id));
    overlap.Arm(first.id,"ATTACH_STOP_ONCE",150,boot,"local-repair");
    Check("inflight-protection-blocks-management",overlap.MutationPending(first.id));overlap.Close();
+   DemoAcceptanceBudget cap;FxWork limited=first;limited.currency="CAD";limited.volume=1000000;limited.max_risk=5;
+   long budget_start=1767614400000,budget_end=budget_start+300000;
+   string plan_hash=FxHash("bounded-demo-fixture"),cap_scope=FxScope(limited);
+   Check("budget-open",cap.Open("acceptance.budget",cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,true,""));
+   string original_tip=cap.Tip();
+   Check("budget-refuse-not-flat",!cap.Charge(limited,budget_start,false) && cap.Tip()==original_tip);
+   Check("budget-charge",cap.Charge(limited,budget_start,true) && cap.Charged()==1);
+   string charged_tip=cap.Tip();cap.Close();
+   Check("budget-stale-checkpoint",!cap.Open("acceptance.budget",cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,false,original_tip));
+   Check("budget-restore",cap.Open("acceptance.budget",cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,false,charged_tip));
+   Check("budget-no-duplicate",!cap.Charge(limited,budget_start+1,true));
+   FxWork second_limited=limited;second_limited.id="10000000-0000-4000-8000-000000000002";second_limited.digest=FxHash("second");
+   Check("budget-unknown-blocks-second",!cap.Charge(second_limited,budget_start+1,true));
+   FxEntry done;ZeroMemory(done);done.work=limited;done.state="CLOSED";done.filled=1000000;
+   Check("budget-no-absence-closure",!cap.ConfirmClosed(done,budget_start+2,FxHash("closed"),false,true));
+   Check("budget-positive-closure",cap.ConfirmClosed(done,budget_start+2,FxHash("closed"),true,true));
+   Check("budget-second-charge",cap.Charge(second_limited,budget_start+3,true));
+   done.work=second_limited;
+   Check("budget-post-expiry-reconcile",cap.ConfirmClosed(done,budget_end+1,FxHash("second-close"),true,true));
+   charged_tip=cap.Tip();cap.Close();
+   Check("budget-two-restored-no-refund",cap.Open("acceptance.budget",cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,false,charged_tip) && cap.Charged()==2);
+   cap.Close();
+   Check("budget-expiry-open",cap.Open("expiry.budget",cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,true,""));
+   Check("budget-expired-entry",!cap.Charge(limited,budget_end,true));
+   string expiry_tip=cap.Tip();cap.Close();
+   Check("budget-expiry-restored",cap.Open("expiry.budget",cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,false,expiry_tip));
+   Check("budget-expiry-never-reopens",!cap.Charge(limited,budget_end-1,true));cap.Close();
    FileClose(checks);return INIT_SUCCEEDED;
 }
 void OnTick(){ TesterStop(); }

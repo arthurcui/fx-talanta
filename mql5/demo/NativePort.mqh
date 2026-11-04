@@ -1,6 +1,7 @@
 #ifndef FX_DEMO_NATIVE_PORT
 #define FX_DEMO_NATIVE_PORT
 #include "Runtime.mqh"
+#include "AcceptanceBudget.mqh"
 #include "../connected/HighResolutionClock.mqh"
 #include "../gateway/Broker.mqh"
 // Hard release gate. Neither request, input setting nor Algo Trading can enable it.
@@ -15,15 +16,16 @@ private:
    ShHighResolutionClock *clock;
    long valid_until;
    DemoProtectionStore *protection;
+   DemoAcceptanceBudget *budget;
    string boot,armed_before_send;
    long repair_delay,exit_delay;
 public:
-   DemoNativePort(){ protection=NULL; boot=""; repair_delay=0;exit_delay=0; mapped=false; now_ms=0; error_ms=1000; state=NULL; clock=NULL; valid_until=0; paused=true; halted=true; session=false; }
+   DemoNativePort(){ budget=NULL; protection=NULL; boot=""; repair_delay=0;exit_delay=0; mapped=false; now_ms=0; error_ms=1000; state=NULL; clock=NULL; valid_until=0; paused=true; halted=true; session=false; }
    void Bind(string b,string s,string l,string r,string p,string eur,string jpy,FxGateway *journal,ShHighResolutionClock *verified_clock)
    { broker=b; server=s; login=l; release=r; policy=p; eurusd=eur; usdjpy=jpy; state=journal; clock=verified_clock; }
    void Observe(long now,int error,long qualified_offset,bool mapping_qualified,bool open,bool owner_pause,bool hard_halt,long evidence_until)
    { now_ms=now; error_ms=error; offset_ms=qualified_offset; mapped=mapping_qualified; session=open; paused=owner_pause; halted=hard_halt; valid_until=evidence_until; }
-   virtual bool Enabled(){ return FX_DEMO_SUBMISSION_AUTHORIZED && !MQLInfoInteger(MQL_TESTER) &&
+   virtual bool Enabled(){ return FX_DEMO_SUBMISSION_AUTHORIZED && budget!=NULL && budget.Healthy() && !MQLInfoInteger(MQL_TESTER) &&
       AccountInfoInteger(ACCOUNT_TRADE_MODE)==ACCOUNT_TRADE_MODE_DEMO && TerminalInfoInteger(TERMINAL_TRADE_ALLOWED); }
    virtual bool Context(const FxWork &w,FxContext &c)
    {
@@ -112,9 +114,11 @@ public:
       StringSplit(SHADOW_FIELDS,'\t',k);
       return SV(k,v,"quote_age_ms")+at-SV(k,v,"measured_at_ms")+MathMax(error,SV(k,v,"clock_error_ms"))<=2000;
    }
+   void BindBudget(DemoAcceptanceBudget *value){budget=value;}
    virtual bool BeforeMutation(const FxWork &w)
    {
       if(protection==NULL || (w.action=="ENTER" && protection.HardHalt())) return false;
+      if(w.action=="ENTER" && (budget==NULL || !budget.Charge(w,now_ms,PositionsTotal()==0 && OrdersTotal()==0)))return false;
       // Immutable local deadlines start before submission, never after its reply.
       if(w.action=="ENTER"){bool ok=protection.Begin(w.id,(long)GetTickCount64(),boot,repair_delay,exit_delay);if(ok)armed_before_send=w.id;return ok;}
       return true; // Owned risk reduction still has the gateway's durable SUBMITTING fence.

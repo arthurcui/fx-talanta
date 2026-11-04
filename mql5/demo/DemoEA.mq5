@@ -17,6 +17,9 @@ input string JournalFile="disabled-gateway.journal";
 input int DurationSeconds=180;
 DemoKernel kernel;
 DemoNativePort native_port;
+DemoAcceptanceBudget native_budget;
+input string BudgetPlanHash="",RetainedBudgetTip="";
+input long BudgetStartsMs=0,BudgetExpiresMs=0;
 DemoNativeHistory history;
 DemoReconciler reconciler;
 input string RetainedExecutionTip="",RetainedOutcomeTip="",RetainedBrokerStateTip="";
@@ -38,10 +41,10 @@ bool Identity()
       AccountInfoInteger(ACCOUNT_TRADE_MODE)==ACCOUNT_TRADE_MODE_DEMO &&
       AccountInfoInteger(ACCOUNT_LOGIN)==ExpectedLogin && AccountInfoString(ACCOUNT_SERVER)==ExpectedServer;
 }
-void Stop(){ EventKillTimer(); kernel.Close(); protection.Close(); bounded_clock.Reset(); dg_secret=""; ExpertRemove(); }
+void Stop(){ EventKillTimer(); kernel.Close(); protection.Close(); native_budget.Close(); bounded_clock.Reset(); dg_secret=""; ExpertRemove(); }
 int OnInit()
 {
-   EventKillTimer(); kernel.Close(); protection.Close(); bounded_clock.Reset(); dg_secret="";
+   EventKillTimer(); kernel.Close(); protection.Close(); native_budget.Close(); bounded_clock.Reset(); dg_secret="";
    started=GetTickCount64(); due=0; synced=0; dg_counter=0; backoff=250;
    if(!EnableDisabledGateway || MQLInfoInteger(MQL_TESTER) || !Identity() || ExpectedLogin<=0 ||
       DurationSeconds<1 || DurationSeconds>300 || StringFind(Endpoint,"https://")!=0 ||
@@ -56,14 +59,18 @@ int OnInit()
    if(!kernel.Open(JournalFile,Scope,Client,Release,Policy,dg_secret,BootstrapNewJournal,RetainedJournalTip,RetainedExecutionTip,RetainedOutcomeTip,RetainedBrokerStateTip)) return INIT_FAILED;
    native_incarnation=FxHash(Client+IntegerToString((long)GetMicrosecondCount())+IntegerToString((long)GetTickCount64()));
    if(!protection.Open(JournalFile+".protection",Scope,BootstrapNewJournal,RetainedProtectionTip)) { kernel.Close(); return INIT_FAILED; }
+   if(!native_budget.Open(JournalFile+".budget",Scope,Release,Policy,BudgetPlanHash,
+      BudgetStartsMs,BudgetExpiresMs,BootstrapNewJournal,RetainedBudgetTip))
+   {kernel.Close();protection.Close();return INIT_FAILED;}
+   native_port.BindBudget(GetPointer(native_budget));
    native_port.BindProtection(GetPointer(protection),native_incarnation,QualifiedRepairDelayMs,QualifiedExitDelayMs);
    native_port.Bind(Broker,ExpectedServer,IntegerToString(ExpectedLogin),Release,Policy,EURUSDSymbol,USDJPYSymbol,kernel.State(),GetPointer(bounded_clock));
-   if(!EventSetMillisecondTimer(250)){ kernel.Close(); return INIT_FAILED; }
+   if(!EventSetMillisecondTimer(250)){ kernel.Close();protection.Close();native_budget.Close();return INIT_FAILED; }
    return INIT_SUCCEEDED;
 }
 void OnTimer()
 {
-   if(!protection.Healthy() || !Identity() || GetTickCount64()-started>=(ulong)DurationSeconds*1000){ Stop(); return; }
+   if(!protection.Healthy() || !native_budget.Healthy() || !Identity() || GetTickCount64()-started>=(ulong)DurationSeconds*1000){ Stop(); return; }
    long observed=0;int observed_error=0;
    bool clock_ok=bounded_clock.NowUs((long)GetMicrosecondCount(),observed,observed_error);
    native_port.Observe(observed,observed_error,QuoteOffsetMs,clock_ok && QualifiedQuoteMapping,QualifiedSessionOpen,false,false,OperatingEvidenceUntilMs);
@@ -79,6 +86,9 @@ void OnTimer()
       bool positive=completed && history.Valid() && reconciler.Confirmed(i);
       if(positive && clock_ok && !kernel.PublishState(entry,observed,observed_error,reconciler.Proof(i),true)) { Stop();return; }
       if(entry.work.action!="ENTER")continue;
+      // A native closure witness does not replace the separate backend audit.
+      if(positive && clock_ok && entry.state=="CLOSED" && entry.filled>0)
+         native_budget.ConfirmClosed(entry,observed,reconciler.Proof(i),true,PositionsTotal()==0 && OrdersTotal()==0);
       SProtection saved;
       if(!protection.Read(entry.work.id,saved))continue;
       if(reconciling && (saved.phase=="PROTECTED" || saved.phase=="CLOSED"))continue;
@@ -103,7 +113,7 @@ void OnTimer()
    int bytes=StringToCharArray(request,data,0,WHOLE_ARRAY,CP_UTF8)-1; ArrayResize(data,bytes);
    int status=WebRequest("POST",Endpoint,"Content-Type: application/octet-stream\r\nConnection: close\r\n",1500,data,result,headers);
    long received=(long)GetMicrosecondCount(),rtt=received-sent,now=0; int uncertainty=0;
-   if(!protection.Healthy() || !Identity() || GetTickCount64()-started>=(ulong)DurationSeconds*1000){ Stop(); return; }
+   if(!protection.Healthy() || !native_budget.Healthy() || !Identity() || GetTickCount64()-started>=(ulong)DurationSeconds*1000){ Stop(); return; }
    bool current=bounded;
    if(sync) now=bounded ? utc+rtt/1000 : (long)TimeGMT()*1000;
    else current=bounded_clock.NowUs(received,now,uncertainty);
@@ -128,7 +138,7 @@ void OnTimer()
    backoff=ok ? 250 : (int)MathMin(backoff*2,5000); due=GetTickCount64()+backoff;
    if(!ok) Print("DISABLED_GATEWAY_EXCHANGE_REFUSED");
 }
-void OnDeinit(const int reason){ EventKillTimer(); kernel.Close(); protection.Close(); bounded_clock.Reset(); dg_secret=""; }
+void OnDeinit(const int reason){ EventKillTimer(); kernel.Close(); protection.Close(); native_budget.Close(); bounded_clock.Reset(); dg_secret=""; }
 
 void OnTradeTransaction(const MqlTradeTransaction &transaction,const MqlTradeRequest &request,const MqlTradeResult &result)
 { history.Invalidate(); reconciler.Invalidate(); reconciling=false; }

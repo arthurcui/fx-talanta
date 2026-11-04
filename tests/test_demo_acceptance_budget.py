@@ -156,3 +156,34 @@ def test_lost_journal_and_valid_prefix_rollback_refuse(tmp_path):
     b.store.path.unlink()
     with pytest.raises(ValueError, match="MISSING_JOURNAL"):
         b.status(NOW)
+
+
+def test_expiry_is_durable_and_cannot_be_reopened(tmp_path):
+    b = make(tmp_path)
+    assert not b.status(PLAN.expires_ms)["entry_window_open"]
+    b = AcceptanceBudget(b.store, ACCOUNT, PLAN, expected_tip=b.tip)
+    with pytest.raises(ValueError, match="TIME_REGRESSION"):
+        b.reserve("b" * 64, "EURUSD", 1_000_000, 500, PLAN.expires_ms - 1)
+    with pytest.raises(ValueError, match="WINDOW_CLOSED"):
+        b.reserve("b" * 64, "EURUSD", 1_000_000, 500, PLAN.expires_ms + 1)
+
+
+def test_current_native_budget_evidence_and_original_entry_ceiling():
+    import hashlib
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    report = json.loads((root / "docs/evidence/m2-native-budget.json").read_text())
+    for name, expected in report["native_dependency_sha256"].items():
+        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected
+    raw = (root / "tests/fixtures/demo-budget/demo-checks.tsv").read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == report["checks_sha256"]
+    rows = [line.split("\t") for line in raw.decode().splitlines()]
+    assert len(rows) == len(dict(rows)) == report["check_count"]
+    assert all(value == "1" for _, value in rows)
+    assert not report["execution_enabled"] and not report["demo_order_acceptance"]
+    port = (root / "mql5/demo/NativePort.mqh").read_text()
+    assert "const bool FX_DEMO_SUBMISSION_AUTHORIZED=false;" in port
+    assert "budget.Charge(w,now_ms,PositionsTotal()==0 && OrdersTotal()==0)" in port
+    assert "at+error-c.tick_ms>2000" in port

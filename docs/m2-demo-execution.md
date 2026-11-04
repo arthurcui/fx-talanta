@@ -230,3 +230,42 @@ budget/publication checks. Lint and formatting passed. The regression used separ
 fixture databases, verified unchanged Python sources and the original environment,
 and made no broker calls. Native sources were unchanged; the earlier 69 native
 checks remain evidence for their original source rather than this new Python budget.
+
+## Native budget integration and resumed gate checks
+
+The [native budget evidence](evidence/m2-native-budget.json) records **85 native
+Tester checks**, compilation of both native programs with zero errors/warnings,
+and **882 full Python/PostgreSQL/loopback HTTPS tests passing with zero skips**.
+These are offline/software results; no broker order was sent.
+
+`AcceptanceBudget.mqh` gives the EA its own exclusive, hash-chained journal bound
+to account scope, release, policy, backend plan fingerprint and entry window.
+The disabled host opens it with an explicit retained checkpoint and binds it to
+the native port. Before an entry mutation, the native port charges the original
+request's maximum volume/risk and requires a flat account. Native limits are two
+entries, 0.02 lot each, C$5 planned risk each, C$10 total and a five-minute maximum
+entry window. No refund or retry follows an unknown result. Positive deal
+reconciliation is required to clear an unresolved charge; backend independent
+audit remains a separate prerequisite for publishing another entry.
+
+Expiry is now durably latched in both budget implementations. A restarted journal
+or backwards clock reading cannot reopen an expired entry window. Recording a
+positive closure after expiry remains allowed. Historical reports and source bytes
+are preserved; a failed intermediate regression against the older native source
+pin is retained rather than rewritten as a passing run.
+
+The resumed existing FOREX read-only capture completed with a 62 ms host-clock
+bound and unchanged original binding. Broker timestamp mapping remains explicitly
+unqualified. The capture helper still omits operator context by design; its missing
+provider group does not reinstate M1 qualification as a prerequisite for the
+owner-selected execution-only scope. Strategy/provider qualification remains open.
+
+**Activation is still incomplete.** The real submission constant remains false,
+and the host still enforces Algo Trading off. Enabling it requires an order-capable
+host with reviewed entry-window/drain behavior, source-backed execution-only inputs
+and qualified timestamp mapping, followed by actual independent broker evidence.
+The current disabled host's bounded stop behavior must not be used to abandon an
+open position. These budget controls alone are not a deployable order-capable release.
+Desktop inspection also failed before initialization because the Windows helper
+could not write its kernel assets, including after reset. No broker terminal settings
+were changed. There was no new qualification campaign or strategy enablement.

@@ -241,7 +241,7 @@ def test_actual_native_receipt_matches_independent_python_risk(tmp_path):
     assert c.status(NOW)["native_execution_results"][0]["reason"] == "TRADING_DISABLED"
 
 
-def test_source_pinned_native_evidence_and_disabled_gate():
+def test_source_pinned_native_evidence_and_disabled_gate(historical_source):
     import hashlib
     import json
     from pathlib import Path
@@ -249,7 +249,7 @@ def test_source_pinned_native_evidence_and_disabled_gate():
     root = Path(__file__).resolve().parents[1]
     report = json.loads((root / "docs/evidence/m2-demo-execution.json").read_text())
     for name, expected in report["native_dependency_sha256"].items():
-        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected
+        assert hashlib.sha256(historical_source(name, expected)).hexdigest() == expected
     for name, expected in report["artifacts_sha256"].items():
         assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected
     assert report["native_check_count"] >= 30

@@ -91,6 +91,17 @@ class AcceptanceBudget:
         if type(now_ms) is not int or now_ms < last:
             raise ValueError("BUDGET_TIME_REGRESSION")
 
+    def _expired(self, now_ms):
+        with self.store.transaction() as events:
+            self._check(events, now_ms)
+            expired = any(e["kind"] == "demo_budget_expired" for e in events.records)
+            if now_ms >= self.plan.expires_ms and not expired:
+                events.append(dict(kind="demo_budget_expired", at_ms=now_ms))
+                expired = True
+            tip = events.tip
+        self.tip = tip
+        return expired
+
     def reserve(self, request_hash, symbol, lot_units, risk_cents, now_ms):
         if (
             not hex64(request_hash)
@@ -101,6 +112,8 @@ class AcceptanceBudget:
             or not 0 < risk_cents <= self.plan.per_entry_cents
         ):
             raise ValueError("BUDGET_ENTRY_INVALID")
+        if self._expired(now_ms):
+            raise ValueError("BUDGET_ENTRY_WINDOW_CLOSED")
         with self.store.transaction() as events:
             self._check(events, now_ms)
             if not self.plan.starts_ms <= now_ms < self.plan.expires_ms:
@@ -209,6 +222,7 @@ class AcceptanceBudget:
         return tip
 
     def status(self, now_ms):
+        self._expired(now_ms)
         with self.store.transaction() as events:
             self._check(events, now_ms)
             charges = [e for e in events.records if e["kind"] == "demo_budget_charge"]
