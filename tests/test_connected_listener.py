@@ -74,6 +74,23 @@ def connect(server, context):
     return context.wrap_socket(sock, server_hostname="127.0.0.1")
 
 
+def test_repeated_native_style_requests_explicitly_close_each_response(server):
+    server, context, calls = server
+    connection = http.client.HTTPSConnection(*server.server_address, context=context, timeout=2)
+    try:
+        for payload in (b"SYNC", b"PULL", b"REPORT"):
+            connection.request(
+                "POST", "/v1/connected-shadow", payload, headers={"Connection": "close"}
+            )
+            response = connection.getresponse()
+            assert response.status == 200 and response.getheader("Connection") == "close"
+            assert response.read() == b"OK"
+            assert connection.sock is None
+        assert calls == [b"SYNC", b"PULL", b"REPORT"]
+    finally:
+        connection.close()
+
+
 def test_clock_channel_disables_coalescing_on_the_actual_accepted_tls_socket(server):
     server, context, _ = server
     sock = connect(server, context)
@@ -132,3 +149,39 @@ def test_untrusted_certificate_is_rejected_and_plain_tcp_handshake_is_bounded(se
     finally:
         sock.close()
     assert calls == []
+
+
+@pytest.mark.parametrize(
+    "message, expected",
+    [
+        ("LEASE_EXPIRED", "LEASE_EXPIRED"),
+        ("private-account-or-secret-value", "VALIDATION_REJECTED"),
+    ],
+)
+def test_request_audit_records_only_allowlisted_rejection_codes(message, expected):
+    import io
+    from types import SimpleNamespace
+
+    from fx_talanta.shadow.backend import Application
+
+    def reject(*args):
+        raise ValueError(message)
+
+    audit = []
+    application = Application(
+        SimpleNamespace(exchange=reject), audit=lambda kind, **fields: audit.append((kind, fields))
+    )
+    codes = []
+    result = application(
+        {
+            "wsgi.url_scheme": "https",
+            "REQUEST_METHOD": "POST",
+            "PATH_INFO": "/v1/shadow",
+            "CONTENT_TYPE": "application/octet-stream",
+            "CONTENT_LENGTH": "1",
+            "wsgi.input": io.BytesIO(b"x"),
+        },
+        lambda code, headers: codes.append(code),
+    )
+    assert result == [b"REQUEST_REJECTED"] and codes == ["400 Bad Request"]
+    assert audit == [("APPLICATION_REJECTED", {"reason": expected})]

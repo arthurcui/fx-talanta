@@ -1,0 +1,235 @@
+{
+  "schema": "m2d-remediation-evidence/1",
+  "date_utc": "2026-11-04",
+  "scope": "Bounded two-symbol native no-order handoff and lifecycle remediation",
+  "entry_ceiling_ms": 2000,
+  "native_clock_ceiling_ms": 100,
+  "execution_enabled": false,
+  "campaign_started": false,
+  "market_data_qualified": false,
+  "connected_execution_accepted": false,
+  "no_order_handoff_verified": true,
+  "attempts": [
+    {
+      "attempt": "04",
+      "duration_seconds": 180,
+      "terminal_status": "INCOMPLETE",
+      "independent_status": "INDEPENDENT_INTEGRITY_VERIFIED",
+      "database_read_only": true,
+      "backend_records": 65,
+      "work_count": 2,
+      "receipt_count": 0,
+      "signed_acknowledgements": 0,
+      "native_acknowledged_receipt_count": 0,
+      "bounded_two_symbol_handoff_observed": false,
+      "receipt_facts": [],
+      "signed_clock_responses": 62,
+      "clock": {
+        "sample_count": 42,
+        "accepted_count": 42,
+        "rejected_count": 0,
+        "accepted_error_min_ms": 74,
+        "accepted_error_max_ms": 86,
+        "minimum_rtt_us": 19810,
+        "maximum_rtt_us": 44759,
+        "every_accepted_bound_within_100ms": true,
+        "hardware_accuracy_certified": false
+      },
+      "verification_sha256": "553b3763bd87ac456cb449c6c2551b696be588144eb5b73e44d75cdf9ae2fe30",
+      "session_report_sha256": "38eabecbe6eb4b4956dd471620ae3bb1fb0430b6adc15dffaff3556303985594",
+      "source_snapshot_sha256": "a760717c616b7ccf118243fc1d024d1fd458e0699ce74a78aea22675d6d7a3e5",
+      "source_sha256": {
+        "src/fx_talanta/connected_shadow/listener.py": "d6be508e77943fde0947f82c1ac62d541785716af3ab1aaa75f6a9c235a20daf",
+        "src/fx_talanta/shadow/store.py": "03ce5341747f12465899a65ad3626e5ecc3455f93880c523c06cabd8e888319e",
+        "scripts/connected_session.py": "aa28aa172d1fae93b9fe72881b66308b1ae124d2d72bc514ba384bf03f85d69c",
+        "mql5/connected/ConnectedEA.mq5": "1aaaf7e05475b544239ff1234c4bf374b936327fa3e5c9c38038bf4dba2c17a4"
+      },
+      "native_binary_sha256": "51126c07fdf2a9041e9e525499baa2aa5a817f79bad85f61e00007421476e037",
+      "execution_enabled": false
+    },
+    {
+      "attempt": "05",
+      "duration_seconds": 180,
+      "terminal_status": "COMPLETED",
+      "independent_status": "INDEPENDENT_INTEGRITY_VERIFIED",
+      "database_read_only": true,
+      "backend_records": 376,
+      "work_count": 2,
+      "receipt_count": 2,
+      "signed_acknowledgements": 2,
+      "native_acknowledged_receipt_count": 2,
+      "bounded_two_symbol_handoff_observed": true,
+      "receipt_facts": [
+        {
+          "symbol": "EURUSD",
+          "reason": "QUOTE_STALE",
+          "source_age_upper_ms": 2182,
+          "native_age_upper_ms": 1299,
+          "clock_error_ms": 84,
+          "execution_enabled": false
+        },
+        {
+          "symbol": "USDJPY",
+          "reason": "QUOTE_STALE",
+          "source_age_upper_ms": 4347,
+          "native_age_upper_ms": 1269,
+          "clock_error_ms": 84,
+          "execution_enabled": false
+        }
+      ],
+      "signed_clock_responses": 69,
+      "clock": {
+        "sample_count": 61,
+        "accepted_count": 61,
+        "rejected_count": 0,
+        "accepted_error_min_ms": 74,
+        "accepted_error_max_ms": 95,
+        "minimum_rtt_us": 23046,
+        "maximum_rtt_us": 61588,
+        "every_accepted_bound_within_100ms": true,
+        "hardware_accuracy_certified": false
+      },
+      "verification_sha256": "0850000854dc080e37c8fbd1c4014558ab88f80a2697633cbc2a1c8827744d10",
+      "session_report_sha256": "8ddb2ef7da2b1c03cc9ffb93ceeed54ab26d1a2b22e35c8454746060a6e31166",
+      "source_snapshot_sha256": "d2157813ab97e43f33f4c5dbb023779f95452727f2fa7f81183ea32c59b62eae",
+      "source_sha256": {
+        "src/fx_talanta/connected_shadow/listener.py": "fb61687a0982d9ddc45d80a86b4eba5846e89e59a0a920e8b74367fe94431eea",
+        "src/fx_talanta/shadow/store.py": "03ce5341747f12465899a65ad3626e5ecc3455f93880c523c06cabd8e888319e",
+        "scripts/connected_session.py": "7f1b84455a59d9c02da341bc3562b43deacc832c549fe0ca89455bfdd2f2cb34",
+        "mql5/connected/ConnectedEA.mq5": "388010ab9ce9b36ce1258fb36c19308146fe853a27c58f1e8986a0f5209b4860"
+      },
+      "native_binary_sha256": "7d0c89f84401cb1354711ff41aec8916d0401155e80a1ebd7bc1a853a078e670",
+      "execution_enabled": false
+    }
+  ],
+  "postcheck": {
+    "status": "CHECKED",
+    "algo_trading_disabled": true,
+    "positions_count": 0,
+    "orders_count": 0,
+    "counts_match_prior_capture": true,
+    "identity_verified": true,
+    "pinned_terminal_unchanged": true,
+    "order_api_called": false,
+    "original_and_session_files_unchanged": true
+  },
+  "postcheck_sha256": "4a74e9554e41f0256e1e2ac2fe02af45aef643ed4615ab708fee6ed7a2d30569",
+  "http_response_counts": {
+    "200": 371
+  },
+  "native_component_checks": {
+    "NativeHighResolutionClockTests": {
+      "passed": 52,
+      "failed": 0,
+      "sha256": "84be3ea0fcea9d88eedb77e842adabb767af0de018cfe56ab00d32eec63c0594"
+    },
+    "NativeLifecycleTests": {
+      "passed": 11,
+      "failed": 0,
+      "sha256": "dea449632848d7f183591e55ff08703b4218375bb58062779cc8c460c6d64a1b"
+    }
+  },
+  "native_compiler": {
+    "ConnectedEA": {
+      "errors": 0,
+      "warnings": 0,
+      "log_sha256": "f30e05a6c1d0ab45c4febe98c85ef0f6d411c314acad05cdede00a356a793d53",
+      "ex5_sha256": "51126c07fdf2a9041e9e525499baa2aa5a817f79bad85f61e00007421476e037"
+    },
+    "NativeHighResolutionClockTests": {
+      "errors": 0,
+      "warnings": 0,
+      "log_sha256": "a21c19cb97a89c51ee470955cfcf9919d8c8eeb540349a777ae2d685ca023295",
+      "ex5_sha256": "62184edda21c809e2804ad72dc1996d44b15125213bd03d8e070f9c82ce0a561"
+    },
+    "NativeLifecycleTests": {
+      "errors": 0,
+      "warnings": 0,
+      "log_sha256": "091d292d9386fb2e9525e2d9a033375a29fad3f1251365cbdd6526721522d2b9",
+      "ex5_sha256": "3bd306bbf0b0b5d735ee66da10bd4a5ecdb9741dc4460274672ae8afea4947b1"
+    },
+    "FixedGateway": {
+      "errors": 0,
+      "warnings": 0,
+      "log_sha256": "37bf088d718cd67505c8466c969bc9b1ec7dfb51fbfa045bf668cdb8e9a60a8f",
+      "ex5_sha256": "4228058ef81ec7eb7587beb58be9c8205a360a9424add64b8032c19b90d951d6"
+    },
+    "QuoteStream": {
+      "errors": 0,
+      "warnings": 0,
+      "log_sha256": "55711dfb2ff45359ece228eef3d8b372209703e11f3415c3619f5dfb9f3db055",
+      "ex5_sha256": "33ae8459fb766866c4095f0670af47ed6892fa6e3970499faf5d550771889eeb"
+    }
+  },
+  "transport_ea_compiler": {
+    "errors": 0,
+    "warnings": 0,
+    "log_sha256": "6e1aa028481b4f8c99116f12be05c4de03e75160d9d289b8ee5bf691307e028a",
+    "ex5_sha256": "7d0c89f84401cb1354711ff41aec8916d0401155e80a1ebd7bc1a853a078e670"
+  },
+  "implementation_sha256": {
+    "mql5/connected/ConnectedEA.mq5": "388010ab9ce9b36ce1258fb36c19308146fe853a27c58f1e8986a0f5209b4860",
+    "mql5/connected/HighResolutionClock.mqh": "122c305fde353cf3c7cb1ee54cf70e29c38b6a20687eb7a255bb7c86c8a38af2",
+    "mql5/connected/NativeHighResolutionClockTests.mq5": "3ede279ef9bde812c3fae766e3f2641dacfa2160a25ff988e5815554d52028c6",
+    "mql5/gateway/Broker.mqh": "275c46f72fef1365192b1aa8d7d9a042f4da94a470d6b00b4dea55b7bed0c36b",
+    "mql5/gateway/FixedGateway.mq5": "8676349d7789e678cfb3e8a5dca714e17afec612d883f88bd6a14d5aeebfa457",
+    "mql5/readonly/QuoteStream.mq5": "93f9d4e549a7b31d556f1693bc200347a4665cdaea8d6d84b933455a7b60e940",
+    "scripts/compare_quote_stream.py": "d24aa8d005f03e8fcef6f3311399b15e766b00b860e881aa0a377495843390c7",
+    "scripts/connected_session.py": "7f1b84455a59d9c02da341bc3562b43deacc832c549fe0ca89455bfdd2f2cb34",
+    "src/fx_talanta/connected_shadow/authority.py": "d2b13339873a369db7cf57d0da02b84d310b6b3839e4a65a2b6e15f76a91454b",
+    "src/fx_talanta/connected_shadow/listener.py": "fb61687a0982d9ddc45d80a86b4eba5846e89e59a0a920e8b74367fe94431eea",
+    "src/fx_talanta/observer/quote_stream.py": "8718608cedb816fe023e22c0d057ec39d8a40657c6a260cd10fb84b34158c001",
+    "src/fx_talanta/shadow/backend.py": "1dd985f94661e55f87efbd434f2b7fff45284567434beeb7e3d8d8e21ad3e881",
+    "src/fx_talanta/shadow/store.py": "03ce5341747f12465899a65ad3626e5ecc3455f93880c523c06cabd8e888319e",
+    "mql5/connected/NativeLifecycleTests.mq5": "9a942d89314a8dc115948986a97cac8b29f6f8c018e23084bc1cb6ae45b8cc07",
+    "mql5/connected/NativeGatewayLifecycleTests.mq5": "a863008c5a5e353d4521960bb470a0bb17866c5e19ee5b5a4079316f8ba63730"
+  },
+  "previous_evidence_sha256": {
+    "docs/evidence/m2d-connected-20261104-before-native-https.json": "fce3e1eb3ca03639494c45eb493c61d55358660326276197755ff3747263b9aa",
+    "docs/evidence/m2d-connected-20261104.json": "7d6a60f2bb195064e9b0c109787fbcda766d9760431a5779364eda43b4022135",
+    "docs/evidence/m2d-native-https-20261104.json": "40eb815f01946c2cc0e52c0ddd66238cf775c427a2cb21463c486a4fc388c41a",
+    "docs/evidence/m2d-no-order-20261103.json": "ab1ebbd02c13ee35d7bdae48d008be5445682790521c9cd631e79bf2bc6318fe",
+    "docs/evidence/m2d-shadow-20261103.json": "92084533b4d4dd4b3fd913dc04578b1443ca502ef6f31d038e33db658cdb0cbc"
+  },
+  "regression": {
+    "status": "PASSED",
+    "passed": 779,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "python_source_sha256": "8cf71892a2b148436966066b4bd62e21cd6068b57aa90cddb93587b68d33c703",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true,
+    "original_namespace_used": false,
+    "broker_access": false,
+    "junit_sha256": "5ee8be6ba5e980f2b946acba457289fa98c25ad4f843e8f61c63716eaeba67fa",
+    "excluded_files": [
+      "tests/test_connected_evidence.py"
+    ],
+    "evidence_checks": "separately verified",
+    "separate_evidence_tests_passed": 3,
+    "total_passed": 782,
+    "evidence_junit_sha256": "2907fed5a6c980f3fe05b72f86d9191724a358d35a605e04c42d326470b38f92"
+  },
+  "limitations": [
+    "No broker orders or connected PAPER execution acceptance",
+    "No production safety-state-machine integration or resumable history cursor",
+    "Terminal event coalescing, abrupt exit and real EA reinitialization not exhaustively exercised",
+    "Timestamp mapping, mandates, costs, exposure baseline, session and providers remain unqualified",
+    "Attempt 04 retained; attempt 05 verifier input-schema error retained before corrected read-only verification; attempt 04 postcheck setup error retained",
+    "Explicit connection closure fixed the observed handoff; exact internal MT5/Windows failure cause unproven"
+  ],
+  "native_gateway_handler_checks": {
+    "passed": 13,
+    "failed": 0,
+    "compiler_errors": 0,
+    "compiler_warnings": 0,
+    "checks_sha256": "8918a2a4762430c37943b10262f2b078b7ca7d9505ff34b7881887025f5061ee",
+    "source_sha256": "a863008c5a5e353d4521960bb470a0bb17866c5e19ee5b5a4079316f8ba63730",
+    "ex5_sha256": "f9273e3771fb1dc6e7c1b819db23aecb9b0293d281c79c8e9b26cb0803e86457",
+    "broker_access": false,
+    "order_dispatch_stubbed": true,
+    "real_terminal_lifecycle_qualified": false
+  },
+  "native_gateway_handler_summary_sha256": "1d96735c1fb12e8281b6d75d8f19ce5b13307270c15fcf189bbd3a0e9c05c935"
+}

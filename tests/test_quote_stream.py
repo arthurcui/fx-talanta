@@ -98,3 +98,16 @@ def test_publisher_contains_no_trading_or_network_interface():
         assert forbidden not in source
     assert "!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)" in source
     assert "ACCOUNT_TRADE_MODE_DEMO" in source
+
+
+def test_incomplete_stop_is_explicit_and_not_a_quote(tmp_path):
+    path = tmp_path / "stream.csv"
+    path.write_text(row(kind="STOP_INCOMPLETE", f5=0, f6=0, f7=0, f11=7))
+    tail = Tail(path, "test-token", "EURUSD.")
+    try:
+        stopped = tail.read()[0]
+        assert stopped.kind == "STOP_INCOMPLETE"
+        assert stopped.dropped == 7
+        assert stopped.tick_ms == 0
+    finally:
+        tail.close()

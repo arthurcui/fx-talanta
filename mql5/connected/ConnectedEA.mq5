@@ -46,6 +46,11 @@ bool CoEndpoint(string value)
 }
 int OnInit()
 {
+   EventKillTimer(); co_inbox.Close(); co_clock.Reset();
+   co_endpoint=""; co_scope=""; co_client=""; co_incarnation=""; co_epoch="";
+   co_server=""; co_binding=""; co_key=""; co_checkpoint="";
+   co_login=0; co_deadline=0; co_end=0; co_due=0; co_synced=0;
+   co_nonce_counter=0; co_backoff=1000; co_diagnostics=0;
    co_started=(long)GetTickCount64();
    if(!EnableConnected || MQLInfoInteger(MQL_TESTER) || !CoName(ConfigFile)) return INIT_FAILED;
    int file=FileOpen(ConfigFile,FILE_READ|FILE_TXT|FILE_ANSI,0,CP_UTF8);
@@ -74,8 +79,8 @@ void OnTimer()
 {
    long sent=(long)GetTickCount64(),utc=0; int error=0;
    if(sent>=co_end){ CoStop("DEADLINE_REACHED"); return; }
-   if(sent<co_due) return;
    if(!CoIdentity()){ CoStop("IDENTITY_OR_TRADING_GUARD"); return; }
+   if(sent<co_due) return;
    if(!TerminalInfoInteger(TERMINAL_CONNECTED))
    { CoLog("TERMINAL_DISCONNECTED"); co_due=sent+1000; return; }
    // GetTickCount64 controls scheduling only. The UTC clock receives raw
@@ -96,7 +101,7 @@ void OnTimer()
    char data[],result[]; string headers;
    int bytes=StringToCharArray(request,data,0,WHOLE_ARRAY,CP_UTF8)-1; ArrayResize(data,bytes);
    ResetLastError();
-   int status=WebRequest("POST",co_endpoint,"Content-Type: application/octet-stream\r\n",1500,data,result,headers);
+   int status=WebRequest("POST",co_endpoint,"Content-Type: application/octet-stream\r\nConnection: close\r\n",1500,data,result,headers);
    int network_error=GetLastError(); long received_us=(long)GetMicrosecondCount();
    long received=(long)GetTickCount64();
    if(received_us<sent_us){ CoStop("CLOCK_COUNTER_REGRESSION"); return; }

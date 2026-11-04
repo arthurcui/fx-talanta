@@ -30,11 +30,12 @@ private:
       utc=anchor_utc+elapsed/1000; return true;
    }
 public:
-   ShHighResolutionClock()
+   void Reset()
    {
       valid=false; anchor_utc=0; anchor_us=0; anchor_error=0;
       last_us=-1; last_utc=-1; last_sync_bound=-1; reason="CLOCK_UNVERIFIED";
    }
+   ShHighResolutionClock(){ Reset(); }
    string Reason(){ return reason; }
    int LastSyncBoundMs(){ return last_sync_bound; }
    bool SyncUs(long server_ms,int error_ms,long sent_us,long recv_us)

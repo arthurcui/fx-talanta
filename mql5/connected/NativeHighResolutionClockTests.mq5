@@ -20,6 +20,11 @@ int OnInit()
    Check("integer-projection",c.NowUs(1011000,utc,error) && utc==stamp+6 && error==82);
    Check("both-asymmetric-extremes",utc-error<=stamp-73+1 && utc+error>=stamp+73+10+1);
 
+   c.Reset();
+   Check("warm-reinit-invalidates-clock",!c.NowUs(1011001,utc,error) && utc==0 && error==0);
+   Check("warm-reinit-clears-diagnostics",c.LastSyncBoundMs()==-1 && c.Reason()=="CLOCK_UNVERIFIED");
+   Check("warm-reinit-requires-new-sync",c.SyncUs(stamp,10,100,1100));
+
    ShHighResolutionClock odd;
    Check("odd-microsecond-sync",odd.SyncUs(stamp,10,1000,11001));
    Check("odd-half-rtt-rounded-outward",odd.NowUs(11001,utc,error) && utc==stamp+5 && error==19);

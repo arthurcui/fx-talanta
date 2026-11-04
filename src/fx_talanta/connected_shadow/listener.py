@@ -9,7 +9,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from fx_talanta.shadow.wire import MAX_BODY
 
 
-def listener(application, cert, key, *, port=0, drop_response=None, request_timeout=2.0):
+def listener(
+    application, cert, key, *, port=0, drop_response=None, request_timeout=2.0, audit=None
+):
     if not 0.1 <= request_timeout <= 2:
         raise ValueError("INVALID_REQUEST_DEADLINE")
 
@@ -18,6 +20,13 @@ def listener(application, cert, key, *, port=0, drop_response=None, request_time
 
         def log_message(self, *args):
             pass  # Never log private frames, account IDs, credentials or prices.
+
+        def end_headers(self):
+            # This server's absolute deadline belongs to one accepted connection.
+            # Advertise closure explicitly to native clients that pool TLS sockets.
+            self.send_header("Connection", "close")
+            self.close_connection = True
+            super().end_headers()
 
         def do_POST(self):
             if (
@@ -34,6 +43,8 @@ def listener(application, cert, key, *, port=0, drop_response=None, request_time
                 self.send_error(400)
                 return
             captured = []
+            if audit is not None:
+                audit("HTTP_REQUEST_RECEIVED", body_bytes=length)
             body = application(
                 {
                     "wsgi.url_scheme": "https",
@@ -49,6 +60,8 @@ def listener(application, cert, key, *, port=0, drop_response=None, request_time
                 self.close_connection = True
                 return
             code, headers = captured[0]
+            if audit is not None:
+                audit("HTTP_RESPONSE", status=int(code.split()[0]))
             self.send_response(int(code.split()[0]))
             for name, value in headers:
                 self.send_header(name, value)

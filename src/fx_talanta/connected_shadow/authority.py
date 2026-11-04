@@ -10,8 +10,6 @@ from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from uuid import NAMESPACE_URL, uuid5
 
-import psycopg
-
 from fx_talanta.shadow.store import Events, PostgresStore, canonical
 from fx_talanta.shadow.wire import digest, hex64, integer
 from fx_talanta.shadow.work import parse_receipt, scope_for
@@ -121,13 +119,18 @@ class Lease:
 class PostgresAuthorityStore(PostgresStore):
     """Fixed stream and account lock; callers cannot select another lease stream."""
 
-    def __init__(self, dsn, account):
+    def __init__(self, dsn, account, *, reuse_connection=False):
         scope = scope_for(account)
-        super().__init__(dsn, account, uuid5(NAMESPACE_URL, "fx-shadow-authority/1/" + scope))
+        super().__init__(
+            dsn,
+            account,
+            uuid5(NAMESPACE_URL, "fx-shadow-authority/1/" + scope),
+            reuse_connection=reuse_connection,
+        )
 
     @contextmanager
     def transaction(self):
-        with psycopg.connect(self.dsn, connect_timeout=2) as db:
+        with self.connection() as db:
             db.execute("SET LOCAL statement_timeout='2000ms'")
             db.execute("SET LOCAL lock_timeout='1000ms'")
             row = db.execute("SELECT identity,execution_enabled FROM fx.account_binding").fetchone()

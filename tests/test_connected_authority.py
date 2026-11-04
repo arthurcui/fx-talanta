@@ -434,3 +434,26 @@ def test_paired_authority_and_backend_survive_guarded_database_archive(settings,
     with pytest.raises(ValueError, match="NOT_AUTHORITY_OWNER"):
         with restored.guard_receipt(CLIENT, INCARNATION, 1, lambda: NOW + 3):
             pytest.fail("retired owner reached restored receipt ingestion")
+
+
+@pytest.mark.integration
+def test_reused_connections_commit_independently_and_never_reconnect_after_loss(settings):
+    configured = replace(settings, namespace="fx_reuse_" + uuid4().hex[:10])
+    bootstrap(configured)
+    dsn = configured.runtime_dsn(Environment.PAPER)
+    store = PostgresAuthorityStore(dsn, ACCOUNT, reuse_connection=True)
+    try:
+        authority = Authority(store, ACCOUNT, bootstrap=True)
+        connection = store._connection
+        lease = authority.claim(CLIENT, INCARNATION, NOW)
+        assert store._connection is connection
+        independent = Authority(PostgresAuthorityStore(dsn, ACCOUNT), ACCOUNT)
+        assert independent.check(CLIENT, INCARNATION, 1, NOW + 1) == lease
+        connection.close()
+        with pytest.raises(psycopg.Error):
+            authority.check(CLIENT, INCARNATION, 1, NOW + 2)
+        with pytest.raises(ValueError, match="DATABASE_CONNECTION_CLOSED"):
+            authority.check(CLIENT, INCARNATION, 1, NOW + 3)
+        assert independent.check(CLIENT, INCARNATION, 1, NOW + 4) == lease
+    finally:
+        store.close()

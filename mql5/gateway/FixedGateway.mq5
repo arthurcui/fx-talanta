@@ -11,12 +11,17 @@ bool telemetry_ready=false;
 
 int OnInit()
 {
+   EventKillTimer(); fixed_gateway.Close();
+   if(work_file!=INVALID_HANDLE) FileClose(work_file);
+   work_file=INVALID_HANDLE; reconcile_needed=true; telemetry_ready=false;
+   ZeroMemory(telemetry_work);
    if(!MQLInfoInteger(MQL_TESTER)) { Print("FX_M2B_CONNECTED_EXECUTION_DISABLED"); return INIT_FAILED; }
    if(AccountInfoInteger(ACCOUNT_LOGIN)!=42 || !SymbolInfoInteger(_Symbol,SYMBOL_CUSTOM)) return INIT_FAILED;
    if(!fixed_gateway.Open("fx-m2b/fixture-42.journal")) return INIT_FAILED;
    work_file=FileOpen("m2b-work.tsv",FILE_READ|FILE_TXT|FILE_ANSI,0,CP_UTF8);
    if(work_file==INVALID_HANDLE) { fixed_gateway.Close(); return INIT_FAILED; }
-   EventSetTimer(1);
+   if(!EventSetTimer(1))
+   { FileClose(work_file); work_file=INVALID_HANDLE; fixed_gateway.Close(); return INIT_FAILED; }
    return INIT_SUCCEEDED;
 }
 
@@ -32,12 +37,9 @@ void FxPublishTelemetry()
 }
 void OnTimer()
 {
-   if(reconcile_needed) { FxReconcile(fixed_gateway); reconcile_needed=false; }
-   FxPublishTelemetry();
-}
-void OnTick()
-{
-   FxReconcile(fixed_gateway);
+   // Periodic authoritative reads cover missing/coalesced transaction notifications.
+   reconcile_needed=!FxReconcile(fixed_gateway);
+   if(reconcile_needed) return; // Failed or over-budget reads never authorize work.
    if(work_file!=INVALID_HANDLE && !FileIsEnding(work_file))
    {
       string frame=FileReadString(work_file);
@@ -50,7 +52,8 @@ void OnTick()
    }
    FxPublishTelemetry();
 }
+void OnTick(){ reconcile_needed=true; }
 void OnDeinit(const int reason)
 {
-   EventKillTimer(); if(work_file!=INVALID_HANDLE) FileClose(work_file); fixed_gateway.Close();
+   EventKillTimer(); if(work_file!=INVALID_HANDLE) FileClose(work_file); work_file=INVALID_HANDLE; fixed_gateway.Close();
 }

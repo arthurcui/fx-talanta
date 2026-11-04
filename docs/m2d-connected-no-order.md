@@ -5,7 +5,11 @@ PR. It implements a separate, explicitly bounded `connected_shadow` path and
 `mql5/connected/ConnectedEA.mq5`. Every result is a HOLD. Neither an observation,
 an authenticated exchange nor a successful test authorizes an order.
 
-## Current evidence
+## Current remediation
+
+See [lifecycle remediation](m2d-lifecycle-remediation.md) and its sanitized report for the later fixes and native no-order handoff. The earlier evidence below is retained unchanged; its test counts and failed attempts describe those earlier sources.
+
+## Earlier evidence
 
 The [November 4 evidence](evidence/m2d-connected-20261104.json) preserves the
 actual attempts, source hashes and native results. The Python/PostgreSQL

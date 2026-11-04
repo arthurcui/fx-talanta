@@ -2,6 +2,7 @@
 
 import json
 import sqlite3
+import threading
 from contextlib import contextmanager
 
 import psycopg
@@ -84,14 +85,54 @@ class SQLiteStore:
 class PostgresStore:
     """One disabled PAPER database; explicit experiment stream, bounded transactions."""
 
-    def __init__(self, dsn, account, stream):
+    def __init__(self, dsn, account, stream, *, reuse_connection=False):
         if account.environment.value != "PAPER":
             raise ValueError("PAPER_REQUIRED")
         self.dsn, self.account, self.stream = dsn, account, stream
+        self.reuse_connection = reuse_connection
+        self._connection = None
+        self._connection_lock = threading.Lock()
+        self._closed = False
+
+    @contextmanager
+    def connection(self):
+        if not self.reuse_connection:
+            with psycopg.connect(self.dsn, connect_timeout=2) as db:
+                yield db
+            return
+        if not self._connection_lock.acquire(timeout=2):
+            raise ValueError("DATABASE_CONNECTION_BUSY")
+        try:
+            if self._closed:
+                raise ValueError("DATABASE_CONNECTION_CLOSED")
+            if self._connection is None:
+                self._connection = psycopg.connect(self.dsn, connect_timeout=2)
+            # Keep a real transaction per operation. Reuse only the authenticated
+            # socket; binding, advisory locks and journal checks still run.
+            with self._connection.transaction():
+                yield self._connection
+        except BaseException:
+            # No transparent reconnect/retry after an uncertain commit.
+            self._closed = True
+            if self._connection is not None:
+                self._connection.close()
+            raise
+        finally:
+            self._connection_lock.release()
+
+    def close(self):
+        if not self._connection_lock.acquire(timeout=2):
+            raise ValueError("DATABASE_CONNECTION_BUSY")
+        try:
+            self._closed = True
+            if self._connection is not None:
+                self._connection.close()
+        finally:
+            self._connection_lock.release()
 
     @contextmanager
     def transaction(self):
-        with psycopg.connect(self.dsn, connect_timeout=2) as db:
+        with self.connection() as db:
             db.execute("SET LOCAL statement_timeout='2000ms'")
             db.execute("SET LOCAL lock_timeout='1000ms'")
             row = db.execute("SELECT identity,execution_enabled FROM fx.account_binding").fetchone()

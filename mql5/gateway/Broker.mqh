@@ -141,25 +141,30 @@ string FxDispatch(FxGateway &gateway,const string frame)
    return accepted ? "ACKNOWLEDGED" : "OUTCOME_UNKNOWN";
 }
 
-void FxReconcile(FxGateway &gateway)
+bool FxReconcile(FxGateway &gateway)
 {
-   if(!MQLInfoInteger(MQL_TESTER) || !HistorySelect(0,TimeCurrent()+60)) return;
+   ulong cutoff=GetTickCount64()+20;
+   if(!MQLInfoInteger(MQL_TESTER) || !HistorySelect(0,TimeCurrent()+60)) return false;
+   // Cooperative bounds: a single terminal query cannot be preempted. Oversized
+   // fixture histories fail closed, retaining dirty state and unresolved risk.
+   if(gateway.Count()>1024 || HistoryOrdersTotal()>10000 || HistoryDealsTotal()>10000) return false;
    for(int n=0;n<gateway.Count();n++)
    {
+      if(GetTickCount64()>=cutoff) return false;
       FxEntry e=gateway.At(n);
       if(e.state=="READY" || e.state=="REJECTED" || e.state=="CLOSED") continue;
       if(e.work.action=="TIGHTEN_STOP")
       {
          if(PositionSelectByTicket(e.work.position) && PositionGetInteger(POSITION_MAGIC)==(long)FX_MAGIC &&
             MathAbs(PositionGetDouble(POSITION_SL)-(double)e.work.stop/100000000)<0.000000005)
-            gateway.Reconcile(n,true,0,0,0,0,e.work.position,0,true);
+            if(!gateway.Reconcile(n,true,0,0,0,0,e.work.position,0,true)) return false;
          continue;
       }
       if(e.work.action=="CANCEL")
       {
          if(HistoryOrderSelect(e.work.order) && HistoryOrderGetInteger(e.work.order,ORDER_STATE)==ORDER_STATE_CANCELED)
-            gateway.Reconcile(n,true,0,0,0,e.work.order,0,0,true);
-         HistorySelect(0,TimeCurrent()+60);
+            if(!gateway.Reconcile(n,true,0,0,0,e.work.order,0,0,true)) return false;
+         if(!HistorySelect(0,TimeCurrent()+60)) return false;
          continue;
       }
       ulong order=e.order;
@@ -168,6 +173,7 @@ void FxReconcile(FxGateway &gateway)
          int matches=0;
          for(int i=0;i<HistoryOrdersTotal();i++)
          {
+            if(GetTickCount64()>=cutoff) return false;
             ulong candidate=HistoryOrderGetTicket(i);
             if(HistoryOrderGetInteger(candidate,ORDER_MAGIC)==(long)FX_MAGIC && HistoryOrderGetString(candidate,ORDER_COMMENT)==FxComment(e.work) && HistoryOrderGetString(candidate,ORDER_SYMBOL)==e.work.broker_symbol)
             { order=candidate; matches++; }
@@ -177,6 +183,7 @@ void FxReconcile(FxGateway &gateway)
       long filled=0; ulong identifier=0;
       for(int i=0;i<HistoryDealsTotal();i++)
       {
+         if(GetTickCount64()>=cutoff) return false;
          ulong deal=HistoryDealGetTicket(i);
          if((ulong)HistoryDealGetInteger(deal,DEAL_ORDER)==order && HistoryDealGetInteger(deal,DEAL_MAGIC)==(long)FX_MAGIC)
          {
@@ -198,7 +205,8 @@ void FxReconcile(FxGateway &gateway)
          long balance=0;
          for(int i=0;i<HistoryDealsTotal();i++)
          {
-            ulong deal=HistoryDealGetTicket(i);
+            if(GetTickCount64()>=cutoff) return false;
+         ulong deal=HistoryDealGetTicket(i);
             if(identifier!=0 && (ulong)HistoryDealGetInteger(deal,DEAL_POSITION_ID)==identifier)
             {
                long volume=(long)MathRound(HistoryDealGetDouble(deal,DEAL_VOLUME)*100000000);
@@ -214,6 +222,7 @@ void FxReconcile(FxGateway &gateway)
          }
          for(int i=0;i<PositionsTotal();i++)
          {
+            if(GetTickCount64()>=cutoff) return false;
             ulong ticket=PositionGetTicket(i);
             if(identifier!=0 && (ulong)PositionGetInteger(POSITION_IDENTIFIER)==identifier)
             { position=ticket; open_volume=(long)MathRound(PositionGetDouble(POSITION_VOLUME)*100000000); stop=PositionGetDouble(POSITION_SL); }
@@ -221,7 +230,8 @@ void FxReconcile(FxGateway &gateway)
          // Absence of a position alone is not positive closure evidence.
          if(balance!=open_volume || balance<0) contaminated=true;
       }
-      if(!contaminated) gateway.Reconcile(n,true,filled,open_volume,pending,order,position,stop,final_order);
+      if(!contaminated) if(!gateway.Reconcile(n,true,filled,open_volume,pending,order,position,stop,final_order)) return false;
    }
+   return GetTickCount64()<cutoff;
 }
 #endif

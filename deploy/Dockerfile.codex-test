@@ -22,6 +22,7 @@ COPY docs/evidence/m2d-shadow-20261103.json ./docs/evidence/m2d-shadow-20261103.
 COPY docs/evidence/m2d-connected-20261104.json ./docs/evidence/m2d-connected-20261104.json
 COPY docs/evidence/m2d-connected-20261104-before-native-https.json ./docs/evidence/m2d-connected-20261104-before-native-https.json
 COPY docs/evidence/m2d-native-https-20261104.json ./docs/evidence/m2d-native-https-20261104.json
+COPY docs/evidence/m2d-remediation-20261104.json ./docs/evidence/m2d-remediation-20261104.json
 COPY configs/news-filter.example.json configs/news-filter.fixture.json ./configs/
 RUN python3 -m venv .venv \
     && .venv/bin/python -m pip install --no-cache-dir -c requirements.lock -e '.[dev]'

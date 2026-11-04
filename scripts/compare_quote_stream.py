@@ -49,7 +49,10 @@ def poll(binding_path, output, stop):
             terminal, _ = validate_terminal(api, binding)
             if terminal.trade_allowed:
                 raise ValueError("terminal trading enabled")
-            if api.call("positions_get") or api.call("orders_get"):
+            positions, orders = api.call("positions_get"), api.call("orders_get")
+            if positions is None or orders is None:
+                raise ValueError("account state unavailable")
+            if positions or orders:
                 raise ValueError("account is not flat")
             SDKClock(binding).check(datetime.now(UTC))
             rows = []
@@ -86,14 +89,16 @@ def run(args):
         for s in binding.symbols
     }
     cache = {"EA": {}, "POLL": {}}
+    baseline = {symbol: set() for symbol in tails}
     last_heartbeat = {}
     for symbol, tail in tails.items():
         for row in tail.read():
             if row.kind in {"INITIAL", "TICK"}:
                 cache["EA"][symbol] = row.tick_ms
+                baseline[symbol].add((row.tick_ms, row.bid, row.ask))
             if row.kind == "HEARTBEAT":
                 last_heartbeat[symbol] = row.captured_ms
-            if row.kind == "STOP" or row.dropped or not row.connected:
+            if row.kind in {"STOP", "STOP_INCOMPLETE"} or row.dropped or not row.connected:
                 raise ValueError("publisher is stopped/disconnected or has dropped records")
     if any(uptime() - last_heartbeat.get(s, 0) > 2500 for s in tails):
         raise ValueError("publisher heartbeat missing/stale")
@@ -101,6 +106,38 @@ def run(args):
     output, stop = context.Queue(512), context.Event()
     worker = context.Process(target=poll, args=(str(args.binding), output, stop))
     worker.start()
+    try:
+        # Seed both caches before a common measurement boundary. Startup/cache
+        # discovery is not credited as prospective quote delivery.
+        initial = output.get(timeout=7)
+        if initial.get("kind") != "POLL":
+            raise ValueError("poller warmup failed")
+        for row in initial["rows"]:
+            symbol = row["symbol"]
+            if symbol not in tails or not (row["tick_ms"] > 0 and 0 < row["bid"] <= row["ask"]):
+                raise ValueError("invalid warmup quote")
+            cache["POLL"][symbol] = row["tick_ms"]
+            baseline[symbol].add((row["tick_ms"], row["bid"], row["ask"]))
+        for symbol, tail in tails.items():
+            for row in tail.read():
+                if row.kind in {"STOP", "STOP_INCOMPLETE"} or row.dropped or not row.connected:
+                    raise ValueError("publisher unavailable during warmup")
+                if row.kind in {"INITIAL", "TICK"}:
+                    cache["EA"][symbol] = row.tick_ms
+                    baseline[symbol].add((row.tick_ms, row.bid, row.ask))
+                if row.kind == "HEARTBEAT":
+                    last_heartbeat[symbol] = row.captured_ms
+        if any(symbol not in cache["POLL"] or symbol not in cache["EA"] for symbol in tails):
+            raise ValueError("incomplete warmup")
+    except BaseException:
+        stop.set()
+        worker.join(7)
+        if worker.is_alive():
+            worker.terminate()
+            worker.join(3)
+        for tail in tails.values():
+            tail.close()
+        raise
     start, started_epoch = time.monotonic(), time.time()
     deadline, next_assess = start + args.seconds, start
     latency = {s: [] for s in tails}
@@ -124,7 +161,11 @@ def run(args):
                         record(
                             {"path": "EA", **asdict(row), "receipt_ms": received, "epoch": epoch}
                         )
-                        if row.kind == "STOP" or row.dropped or not row.connected:
+                        if (
+                            row.kind in {"STOP", "STOP_INCOMPLETE"}
+                            or row.dropped
+                            or not row.connected
+                        ):
                             raise ValueError("publisher stopped/disconnected/dropped records")
                         if row.kind == "HEARTBEAT":
                             last_heartbeat[symbol] = row.captured_ms
@@ -133,14 +174,23 @@ def run(args):
                                 raise ValueError("uptime clocks are inconsistent")
                             cache["EA"][symbol] = row.tick_ms
                             key = (row.tick_ms, row.bid, row.ask)
-                            first["EA"][symbol].setdefault(key, received)
+                            if key not in baseline[symbol]:
+                                first["EA"][symbol].setdefault(key, received)
                             latency[symbol].append(received - row.captured_ms)
                 while True:
                     try:
                         event = output.get_nowait()
                     except queue.Empty:
                         break
-                    record({"path": "POLL", **event})
+                    received, received_epoch = uptime(), time.time()
+                    record(
+                        {
+                            "path": "POLL",
+                            **event,
+                            "ingested_ms": received,
+                            "ingested_epoch": received_epoch,
+                        }
+                    )
                     if event["kind"] == "ERROR":
                         raise ValueError("poller failed: " + event["class"])
                     read_seconds.append(event["read_seconds"])
@@ -150,7 +200,8 @@ def run(args):
                             raise ValueError("invalid polled quote")
                         cache["POLL"][symbol] = row["tick_ms"]
                         key = (row["tick_ms"], row["bid"], row["ask"])
-                        first["POLL"][symbol].setdefault(key, row["receipt_ms"])
+                        if key not in baseline[symbol]:
+                            first["POLL"][symbol].setdefault(key, received)
                 if not worker.is_alive():
                     raise ValueError("poller exited unexpectedly")
                 if any(uptime() - last_heartbeat[s] > 2500 for s in tails):
@@ -184,6 +235,7 @@ def run(args):
     except Exception as error:
         failure = str(error)
     finally:
+        collection_seconds = time.monotonic() - start
         stop.set()
         worker.join(7)
         if worker.is_alive():
@@ -197,7 +249,11 @@ def run(args):
         "failure": failure,
         "started_utc": datetime.fromtimestamp(started_epoch, UTC).isoformat(),
         "requested_seconds": args.seconds,
-        "collection_seconds": time.monotonic() - start,
+        "collection_seconds": collection_seconds,
+        "total_seconds_including_shutdown": time.monotonic() - start,
+        "receipt_boundary": "parent ingestion for both channels",
+        "warmup_policy": "both caches seeded; startup identities excluded",
+        "terminal_tick_completeness": "unmeasured",
         "poll_interval_seconds": 1,
         "assessment_interval_seconds": 0.1,
         "assessments": assessments,

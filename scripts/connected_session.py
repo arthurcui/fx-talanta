@@ -95,7 +95,10 @@ def check_runtime_dsn(dsn):
 
 def stores(dsn, account, stream):
     check_runtime_dsn(dsn)
-    return PostgresAuthorityStore(dsn, account), PostgresStore(dsn, account, stream)
+    return (
+        PostgresAuthorityStore(dsn, account, reuse_connection=True),
+        PostgresStore(dsn, account, stream, reuse_connection=True),
+    )
 
 
 def tls_material(cert, key):
@@ -260,12 +263,14 @@ def session(
     )
     server = server_thread = None
     events = (output / "private-events.jsonl").open("x", encoding="utf-8", newline="\n")
+    event_lock = threading.Lock()
 
     def event(kind, **details):
         row = dict(event=kind, **details)
-        events.write(json.dumps(row, allow_nan=False) + "\n")
-        events.flush()
-        os.fsync(events.fileno())
+        with event_lock:
+            events.write(json.dumps(row, allow_nan=False) + "\n")
+            events.flush()
+            os.fsync(events.fileno())
 
     original = None
     service = None
@@ -316,7 +321,9 @@ def session(
         if lease.epoch != service.epoch:
             raise ValueError("INITIAL_AUTHORITY_EPOCH_REQUIRED")
         event("EXPLICIT_INITIAL_CLAIM", epoch=lease.epoch, upper_ms=claimed_at)
-        server = runtime.listener(ConnectedApplication(service), cert, tls_key, port=port)
+        server = runtime.listener(
+            ConnectedApplication(service, audit=event), cert, tls_key, port=port, audit=event
+        )
         endpoint = f"https://127.0.0.1:{port}{PATH}"
         exclusive_bytes(
             output / names["config"],
@@ -484,6 +491,14 @@ def session(
             except Exception:
                 event("FINAL_BACKEND_CHECKPOINT_UNAVAILABLE")
                 summary.update(status="BLOCKED", reason="FINAL_BACKEND_CHECKPOINT_UNAVAILABLE")
+        if service is not None:
+            for store in (service.store, service.authority.store):
+                if hasattr(store, "close"):
+                    try:
+                        store.close()
+                    except Exception:
+                        summary.update(status="BLOCKED", reason="DATABASE_CLOSE_FAILED")
+                        event("DATABASE_CLOSE_FAILED")
         summary["last_observed_channel_state"] = summary.get("channel_state", "DISCONNECTED")
         summary["channel_state"] = "DISCONNECTED"
         event("LISTENER_STOPPED_LEASE_NOT_RETIRED")

@@ -182,9 +182,10 @@ class Application:
     Tests supply a real loopback TLS listener; this module starts no service.
     """
 
-    def __init__(self, backend, clock=None):
+    def __init__(self, backend, clock=None, *, audit=None):
         self.backend = backend
         self.clock = clock or (lambda: time.time_ns() // 1000000)
+        self.audit = audit
 
     def __call__(self, environ, start_response):
         code, data = "400 Bad Request", b"INVALID_REQUEST"
@@ -206,10 +207,30 @@ class Application:
                 raise ValueError("TRUNCATED_REQUEST")
             data = self.backend.exchange(raw, self.clock())
             code = "200 OK"
-        except ValueError:
+        except ValueError as error:
             code, data = "400 Bad Request", b"REQUEST_REJECTED"
+            if self.audit is not None:
+                allowed = {
+                    "LEASE_EXPIRED",
+                    "CLOCK_REGRESSION",
+                    "NOT_AUTHORITY_OWNER",
+                    "CONNECTED_ROUTE_MISMATCH",
+                    "INVALID_CONNECTED_REQUEST",
+                    "NATIVE_RECEIPT_MISMATCH",
+                    "INVALID_REQUEST",
+                    "INVALID_LENGTH",
+                    "TRUNCATED_REQUEST",
+                    "NONCE_CONFLICT",
+                    "SYNC_NONCE_REPLAY",
+                }
+                self.audit(
+                    "APPLICATION_REJECTED",
+                    reason=str(error) if str(error) in allowed else "VALIDATION_REJECTED",
+                )
         except Exception:
             code, data = "503 Service Unavailable", b"SHADOW_UNAVAILABLE"
+            if self.audit is not None:
+                self.audit("APPLICATION_UNAVAILABLE")
         start_response(
             code,
             [

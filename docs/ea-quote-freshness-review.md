@@ -1,5 +1,7 @@
 # EA quote freshness and latency review
 
+> Historical review: the subsequent [lifecycle remediation](m2d-lifecycle-remediation.md) records fixes and actual bounded test results. Findings below retain their original review context.
+
 Reviewed November 4, 2026 after the owner's challenge to the clock assumptions.
 This is a design review, not a changed acceptance policy or an additional run.
 Trading remains disabled. The two-second entry ceiling remains unchanged, and

@@ -391,14 +391,14 @@ def test_database_unavailable_returns_503_and_retains_local_receipt(settings, tm
     assert c.step(lambda raw: b.exchange(raw, NOW), lambda: NOW) == "ACK"
 
 
-def test_published_native_evidence_and_preserved_historical_artifacts():
+def test_published_native_evidence_and_preserved_historical_artifacts(historical_source):
     report = json.loads((ROOT / "docs/evidence/m2d-shadow-20261103.json").read_text())
     import hashlib
 
     for path, expected in report["source_sha256"].items():
-        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected
+        assert hashlib.sha256(historical_source(path, expected)).hexdigest() == expected
     for path, expected in report["historical_sha256"].items():
-        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected
+        assert hashlib.sha256(historical_source(path, expected)).hexdigest() == expected
     assert len(report["native"]["parity"]) == 60
     assert len(report["native"]["checks"]) == 80
     assert all(x == "PASS" for x in report["native"]["checks"].values())

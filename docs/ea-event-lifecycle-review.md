@@ -1,5 +1,7 @@
 # EA event lifecycle review
 
+> Historical review: the subsequent [lifecycle remediation](m2d-lifecycle-remediation.md) records fixes and actual bounded test results. Findings below retain their original review context.
+
 November 4, 2026. Source review of the read-only quote publisher, connected
 diagnostic EA, Tester-only gateway, and their evidence. No terminal lifecycle
 experiment or new campaign was started for this review. See the companion
