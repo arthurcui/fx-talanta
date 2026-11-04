@@ -1,5 +1,9 @@
 # M2D shadow delivery and durable receipts
 
+This page preserves the initial transport's November 3 scope and evidence.
+The separate [bounded connection extension](m2d-connected-no-order.md) records
+the subsequent real input, clock, authority and recovery work in the same PR.
+
 This increment implements a **no-order transport**, distinct from the M2B Tester
 order gateway. The Python backend and new `mql5/shadow/ShadowEA.mq5` exchange
 authenticated work projections and shadow receipts. Neither receipt nor merge

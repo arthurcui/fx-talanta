@@ -724,6 +724,11 @@ The [shadow delivery increment](m2d-shadow-transport.md) adds authenticated
 pull/receipt code, PostgreSQL shadow evidence and independent native parity.
 It keeps the sender unavailable and explicitly retains native HTTPS, current
 snapshot/clock, distributed fencing and connected acceptance gates.
+The separate [bounded connected observation path](m2d-connected-no-order.md)
+adds real FOREX capture, authenticated short-lived clock intervals and paired
+no-order journal recovery. Missing costs, loss baselines, providers and qualified
+broker UTC remain explicit HOLD reasons. Native HTTPS requires its own actual
+terminal evidence; synthetic/native clock tests cannot supply that evidence.
 
 ## Required quote-latency and channel-status UI
 

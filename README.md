@@ -33,6 +33,9 @@ M0A–M0C, unresolved M1 gaps and all failed or stopped evidence. New qualificat
 The [M2D shadow transport](docs/m2d-shadow-transport.md) now adds authenticated
 pull/receipt code, PostgreSQL persistence and native inbox parity. It is not
 deployed to broker terminals and does not complete connected PAPER acceptance.
+The [bounded connection extension](docs/m2d-connected-no-order.md) adds real
+FOREX input capture, conservative clock intervals, account authority and paired
+recovery checks. Native HTTPS remains pending terminal setup; all results HOLD.
 Use the [M1 closure checklist](docs/m1-closure-checklist.md) for the evidence gaps,
 prioritized remediation and conditions for proposing any new tests.
 Then follow M2A protocol → M2B fixed EA → M2C deterministic safety → M2D connected
