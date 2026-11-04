@@ -8,6 +8,9 @@ from fx_talanta.shadow.work import parse_receipt, parse_work, project, scope_for
 
 
 class Backend:
+    project_work = staticmethod(project)
+    binding_extension = {}
+
     def __init__(self, store, account, client, release, policy, key, *, bootstrap=False):
         if account.environment.value != "PAPER" or not all(
             hex64(v) for v in (client, release, policy)
@@ -24,6 +27,7 @@ class Backend:
             release=release,
             policy=policy,
             key_hash=digest(key.hex()),
+            **self.binding_extension,
             execution_enabled=False,
         )
         with store.transaction() as events:
@@ -40,7 +44,7 @@ class Backend:
 
     def publish(self, envelope, snapshot, now):
         """Trusted backend-only API. There is deliberately no HTTP enqueue route."""
-        work = project(envelope, snapshot)
+        work = self.project_work(envelope, snapshot)
         f, _ = parse_work(work)
         if (
             f[3:6] != [self.scope, self.binding["release"], self.binding["policy"]]

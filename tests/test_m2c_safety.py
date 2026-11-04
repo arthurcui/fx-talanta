@@ -292,13 +292,13 @@ def test_request_composes_persisted_state_and_native_disagreement():
     )
 
 
-def test_native_evidence_matches_checked_sources():
+def test_native_evidence_matches_checked_sources(historical_source):
     evidence = json.loads((ROOT / "docs/evidence/m2c-native-20261103.json").read_text())
     assert evidence["all_pass"] and evidence["shadow_compute_pass"] and evidence["hmac_parity"]
     assert len(evidence["results"]) == len(SOURCE["cases"])
     assert evidence["native_failures"] == 0
     for path, digest in evidence["source_sha256"].items():
-        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest, path
+        assert hashlib.sha256(historical_source(path, digest)).hexdigest() == digest, path
 
 
 def test_partial_exposure_remaining_reserve_and_unknowns():

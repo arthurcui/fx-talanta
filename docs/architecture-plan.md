@@ -611,7 +611,7 @@ remain P0/M0–M7; completion of this design is not completion of those gates.
 | M2A — Intent + EA protocol | Versioned DecisionIntent, ExecutionRequest, ExecutionAck, ExecutionState and ReconciliationResult; fixture validation/replay, no broker mutation |
 | M2B — Fixed EA execution | Account/quote/volume checks, order and SL/TP handling, OnTradeTransaction, order/deal/position reconciliation and duplicate protection; build/Tester evidence, connected execution still disabled |
 | M2C — Deterministic safety | Independent EA/backend trade/aggregate/loss/drawdown/margin/currency limits, blackout and stale-input veto; USD/CAD parity, state precedence, protection/fencing and measured shadow timing |
-| M2D — Connected PAPER acceptance | Explicit isolated demo authorization after M1 and M2A–C prerequisites; lost response, partial fill, rejected SL, restart, backend/DB loss, staleness, duplicates, wrong account, unexpected position and closed-market exit tests |
+| M2D — Connected PAPER acceptance | M2A–C prerequisites and explicit isolated demo authorization. The owner-approved bounded execution-only gate keeps M1 gaps separate; strategy PAPER remains blocked pending M1 and the complete fault matrix. Verify lost response, partial fill, rejected SL, restart, backend/DB loss, staleness, duplicates, wrong account, unexpected position and closed-market exits. |
 | M3 | Frozen B01, point-in-time event replay, calibrated costs, experiment registry and cross-language parity; reproducible holdout and uncertainty |
 | M4 | Bounded AI and memory, bilingual evidence advisor and simulated commands; no model route to broker mutation, policy or deployment |
 | M5 | Unattended forward PAPER, dashboard/admin commands, matched AI/no-AI and news/no-news arms; at least 8 weeks AND 100 closed trades plus predeclared operational/economic gates |
@@ -766,6 +766,15 @@ UI deliverables, not a claim that the dashboard exists today.
 The [M2 disabled-integration report](m2-disabled-integration.md) records the composed
 operating-input, durable loss/protection veto, account-fenced native assessment and
 receipt/checkpoint path. No order sender is available in that native host. The
-original FixedGateway remains Tester-only; actual demo execution integration and
-acceptance remain explicit M2D gates. Native assessment, source integrity and a
+original FixedGateway remains Tester-only. The subsequent
+[bounded demo execution integration](m2-demo-execution.md) carries full requests
+through the fixed dispatcher, native audit, local protective-action controller,
+and durable execution/broker-state reporting. Native claims retain their provenance
+and cannot release risk or substitute for independent acceptance. The default native
+build remains hard-disabled. A separate, locally armed demo-only build enforces finite
+entry windows and non-replenishing percentage budgets. The November 4 bounded test
+verified one entry, protection and controlled close; final CLOSED delivery required a
+fingerprint fix and separate read-only recovery. See the
+[actual session evidence](evidence/m2-bounded-demo-20261104.json). This is not an
+unattended first-pass result or completion of M1/the full M2 fault matrix. Native assessment, source integrity and a
 transport ACK are not provider qualification or broker execution evidence.

@@ -10,21 +10,12 @@ COPY scripts ./scripts
 COPY mql5/readonly/QuoteStream.mq5 ./mql5/readonly/QuoteStream.mq5
 COPY mql5/offline/ProtocolReference.mq5 ./mql5/offline/ProtocolReference.mq5
 COPY mql5/gateway ./mql5/gateway
-COPY docs/evidence/m2b-native-20261103.json ./docs/evidence/m2b-native-20261103.json
+COPY docs/evidence/ ./docs/evidence/
 COPY mql5/safety ./mql5/safety
 COPY mql5/shadow ./mql5/shadow
 COPY mql5/connected ./mql5/connected
 COPY mql5/integration ./mql5/integration
-COPY docs/evidence/m2-disabled-integration.json ./docs/evidence/m2-disabled-integration.json
-COPY docs/evidence/m2c-native-20261103.json ./docs/evidence/m2c-native-20261103.json
-COPY docs/evidence/broker-campaign-final-20261103.json ./docs/evidence/broker-campaign-final-20261103.json
-COPY docs/evidence/provider-campaign-final-20261103.json ./docs/evidence/provider-campaign-final-20261103.json
-COPY docs/evidence/m2d-no-order-20261103.json ./docs/evidence/m2d-no-order-20261103.json
-COPY docs/evidence/m2d-shadow-20261103.json ./docs/evidence/m2d-shadow-20261103.json
-COPY docs/evidence/m2d-connected-20261104.json ./docs/evidence/m2d-connected-20261104.json
-COPY docs/evidence/m2d-connected-20261104-before-native-https.json ./docs/evidence/m2d-connected-20261104-before-native-https.json
-COPY docs/evidence/m2d-native-https-20261104.json ./docs/evidence/m2d-native-https-20261104.json
-COPY docs/evidence/m2d-remediation-20261104.json ./docs/evidence/m2d-remediation-20261104.json
+COPY mql5/demo ./mql5/demo
 COPY configs/news-filter.example.json configs/news-filter.fixture.json ./configs/
 RUN python3 -m venv .venv \
     && .venv/bin/python -m pip install --no-cache-dir -c requirements.lock -e '.[dev]'

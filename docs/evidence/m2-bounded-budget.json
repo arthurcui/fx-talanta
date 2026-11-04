@@ -1,0 +1,50 @@
+{
+  "schema": "m2-bounded-budget-evidence/1",
+  "scope": "DISABLED_PUBLICATION_REHEARSAL",
+  "source_sha256": {
+    "src/fx_talanta/demo/acceptance_budget.py": "eec7718811dd0b4547a8bcd98551f5e79caef1bb91e0d78710d042e0ef11effe",
+    "src/fx_talanta/demo/bounded.py": "8f9fdb36307502086d29aa3329ff5ea70b11f7dbc8420fbda739e9dce783b941",
+    "src/fx_talanta/shadow/store.py": "99f988d0ad59f28a30078433ea094cff8cca71517d8fed6d494e7c1109f8d6c7",
+    "tests/test_demo_acceptance_budget.py": "4820bfa6d7029c05fffe9d8cea1849755aeb88e2f0433719d58957e969b9437c",
+    "tests/test_demo_bounded.py": "866e0f89b31e807f66213d376d7b2e3452ccd83da1a9653761e49522033affd4"
+  },
+  "regression": {
+    "exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 94.83874520007521,
+    "python_source_sha256": "55946f1481a07b257497a32e7a92a70289ca93e2404e23c77b945f1b32bf038b",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true,
+    "original_namespace_used": false,
+    "excluded_files": [],
+    "broker_access": false,
+    "stdout_sha256": "cd71a23a86d1c490046d3561c2a6477e458003ed8dc8bdd2574226ab380483a4",
+    "tests": 880,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 880,
+    "junit_sha256": "7d9db211699d55b0c76b0422bc15e7d73f0ee47f55cac2430ff948739ec15f9e",
+    "junit_file": "junit-2f6f78e723fa.xml",
+    "failed_test_names": [],
+    "status": "PASSED"
+  },
+  "focused_tests": 36,
+  "native_source_changed": false,
+  "broker_orders": 0,
+  "execution_enabled": false,
+  "full_m2_passed": false,
+  "preserved_m1_gaps": true,
+  "native_activation_complete": false,
+  "prior_attempts": [
+    {
+      "result": "9 passed; 23 fixture setup errors",
+      "cause": "sandbox default temporary directory unavailable"
+    },
+    {
+      "result": "31 passed; 1 failed",
+      "cause": "Windows open SQLite bootstrap handle prevented lost-journal test cleanup",
+      "resolution": "close bootstrap connection deterministically; retain original source"
+    }
+  ]
+}

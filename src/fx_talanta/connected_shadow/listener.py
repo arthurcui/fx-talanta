@@ -10,22 +10,45 @@ from fx_talanta.shadow.wire import MAX_BODY
 
 
 def listener(
-    application, cert, key, *, port=0, drop_response=None, request_timeout=2.0, audit=None
+    application,
+    cert,
+    key,
+    *,
+    port=0,
+    drop_response=None,
+    request_timeout=2.0,
+    audit=None,
+    keep_alive=False,
 ):
     if not 0.1 <= request_timeout <= 2:
         raise ValueError("INVALID_REQUEST_DEADLINE")
+    if type(keep_alive) is not bool:
+        raise ValueError("INVALID_KEEP_ALIVE")
 
     class Handler(BaseHTTPRequestHandler):
-        protocol_version = "HTTP/1.0"
+        protocol_version = "HTTP/1.1" if keep_alive else "HTTP/1.0"
+        requests_served = 0
+        successful_response = False
 
         def log_message(self, *args):
             pass  # Never log private frames, account IDs, credentials or prices.
 
+        def handle_one_request(self):
+            self.requests_served += 1
+            self.successful_response = False
+            super().handle_one_request()
+
         def end_headers(self):
-            # This server's absolute deadline belongs to one accepted connection.
-            # Advertise closure explicitly to native clients that pool TLS sockets.
-            self.send_header("Connection", "close")
-            self.close_connection = True
+            # Opt-in reuse avoids repeated local TLS handshakes. The original
+            # absolute connection deadline is NEVER reset by another request.
+            reuse = (
+                keep_alive
+                and self.successful_response
+                and self.requests_served < 4
+                and getattr(self, "headers", {}).get("Connection", "").lower() != "close"
+            )
+            self.send_header("Connection", "keep-alive" if reuse else "close")
+            self.close_connection = not reuse
             super().end_headers()
 
         def do_POST(self):
@@ -60,6 +83,7 @@ def listener(
                 self.close_connection = True
                 return
             code, headers = captured[0]
+            self.successful_response = code.startswith("200 ")
             if audit is not None:
                 audit("HTTP_RESPONSE", status=int(code.split()[0]))
             self.send_response(int(code.split()[0]))

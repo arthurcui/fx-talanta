@@ -21,12 +21,12 @@ ROOT = Path(__file__).resolve().parents[1]
 NOW = datetime(2026, 1, 5, 12, tzinfo=UTC)
 
 
-def test_published_evidence_matches_final_harness_and_retains_failures():
+def test_published_evidence_matches_final_harness_and_retains_failures(historical_source):
     evidence = json.loads((ROOT / "docs/evidence/m2d-no-order-20261103.json").read_text())
     for path, digest in evidence["final_harness_source_sha256"].items():
-        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+        assert hashlib.sha256(historical_source(path, digest)).hexdigest() == digest
     for path, digest in evidence["offline"]["historical_evidence_sha256"].items():
-        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+        assert hashlib.sha256(historical_source(path, digest)).hexdigest() == digest
     assert evidence["probes"]["cmc_first"]["report"]["status"] == "BLOCKED"
     for name in ("cmc_corrected", "forex", "cmc_final", "forex_final"):
         report = evidence["probes"][name]["report"]
@@ -36,7 +36,7 @@ def test_published_evidence_matches_final_harness_and_retains_failures():
         for symbol in report["symbols"].values():
             assert 0 <= symbol["fresh_for_two_second_entry"] <= symbol["samples"] == 30
         for path, digest in evidence["probes"][name].get("capture_source_sha256", {}).items():
-            assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+            assert hashlib.sha256(historical_source(path, digest)).hexdigest() == digest
     assert evidence["preservation"]["private_bindings_and_envs_unchanged"]
 
 

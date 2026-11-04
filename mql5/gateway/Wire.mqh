@@ -116,17 +116,17 @@ string FxCanonical(string &f[])
       ",\"target\":"+FxNullable(f[24])+",\"version\":\"ea-protocol/1\"}";
 }
 
-string FxDecode(const string frame,FxWork &w)
+string FxDecode(const string frame,FxWork &w,const bool demo=false)
 {
    if(StringLen(frame)>4096) return "SCHEMA_INVALID";
    string f[];
-   if(StringSplit(frame,'\t',f)!=28 || f[0]!="ea-file/1") return "SCHEMA_INVALID";
+   if(StringSplit(frame,'\t',f)!=28 || f[0]!=(demo ? "ea-demo/1" : "ea-file/1")) return "SCHEMA_INVALID";
    for(int i=0;i<28;i++) if(!FxSafe(f[i]) || f[i]=="") return "SCHEMA_INVALID";
    if(!FxUuid(f[2]) || !FxUuid(f[14]) || !FxHex(f[1],64)) return "SCHEMA_INVALID";
    for(int i=11;i<=15;i++) if(i!=14 && !FxHex(f[i],64)) return "SCHEMA_INVALID";
    if(FxHash(FxCanonical(f))!=f[1]) return "HASH_MISMATCH";
    if(!FxInteger(f[8]) || StringToInteger(f[8])<1 || (f[27]!="~" && (!FxInteger(f[27]) || StringToInteger(f[27])<1))) return "SCHEMA_INVALID";
-   if(f[3]!="PAPER" || f[7]!="SIMULATOR") return "ACCOUNT_MISMATCH";
+   if(f[3]!="PAPER" || f[7]!=(demo ? "BROKER_DEMO" : "SIMULATOR")) return "ACCOUNT_MISMATCH";
    if(f[17]!="EURUSD" && f[17]!="USDJPY") return "UNSUPPORTED_SYMBOL";
    if(f[19]!="USD" && f[19]!="CAD") return "UNSUPPORTED_CURRENCY";
    w.frame=frame; w.digest=f[1]; w.id=f[2]; w.environment=f[3]; w.broker=f[4]; w.server=f[5]; w.login=f[6]; w.venue=f[7];
@@ -153,5 +153,10 @@ string FxDecode(const string frame,FxWork &w)
    }
    else return "UNSUPPORTED_ACTION";
    return "OK";
+}
+string FxScope(const FxWork &w)
+{
+   return FxHash("{\"broker\":"+FxQ(w.broker)+",\"environment\":"+FxQ(w.environment)+
+      ",\"login\":"+FxQ(w.login)+",\"server\":"+FxQ(w.server)+",\"venue\":"+FxQ(w.venue)+"}");
 }
 #endif

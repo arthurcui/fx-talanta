@@ -1,0 +1,168 @@
+{
+  "schema": "m2-bounded-demo/1",
+  "status": "EXECUTION_ONLY_VERIFIED_WITH_READ_ONLY_RECOVERY",
+  "date_utc": "2026-11-04",
+  "broker": "FOREX.com Canada demo",
+  "scope": "One actual EURUSD entry, broker protection, one controlled close and independently verified read-only final-state recovery",
+  "unattended_first_pass": false,
+  "full_m2_acceptance": false,
+  "m1_qualified": false,
+  "strategy_trading_enabled": false,
+  "live_trading_enabled": false,
+  "new_24_hour_campaign": false,
+  "other_brokers_touched": false,
+  "authorization": {
+    "max_entry_reservations": 2,
+    "max_lots_per_entry": 0.02,
+    "max_simultaneous_positions": 1,
+    "per_entry_percent": 0.25,
+    "cumulative_percent": 0.5,
+    "actual_lots": 0.01,
+    "actual_percent_reserved_per_request": 0.1,
+    "consumed_entry_reservations": 2,
+    "cumulative_percent_reserved": 0.2,
+    "remaining_entry_reservations": 0,
+    "risk_refunded": false,
+    "entry_ceiling_ms": 2000,
+    "native_clock_ceiling_ms": 100
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "outcome": "LOCAL_PREPARATION_ERRORS",
+      "published": false,
+      "broker_entry_orders": 0
+    },
+    {
+      "attempt": 2,
+      "outcome": "NO_PUBLISHED_REQUEST; exclusive trigger unproven",
+      "published": false,
+      "broker_entry_orders": 0
+    },
+    {
+      "attempt": 3,
+      "outcome": "NATIVE_READINESS_CHANGED_BEFORE_PUBLICATION",
+      "published": false,
+      "broker_entry_orders": 0
+    },
+    {
+      "attempt": 4,
+      "outcome": "BUDGET_JOURNAL_CONSTRAINT_ROLLBACK",
+      "published": false,
+      "broker_entry_orders": 0
+    },
+    {
+      "attempt": 5,
+      "outcome": "NATIVE_PRE_SUBMISSION_CONVERSION_INCONSISTENT; independently verified no execution",
+      "published": true,
+      "broker_entry_orders": 0
+    },
+    {
+      "attempt": 6,
+      "outcome": "SETUP_MISSED_FIXED_WINDOW; global trading stayed off",
+      "published": false,
+      "broker_entry_orders": 0
+    },
+    {
+      "attempt": 7,
+      "outcome": "NATIVE_CLOCK_UNVERIFIED; no request published",
+      "published": false,
+      "broker_entry_orders": 0
+    },
+    {
+      "attempt": 8,
+      "outcome": "OWNED_ENTRY_PROTECTION_AND_CLOSE; final state recovered read-only",
+      "published": true,
+      "broker_entry_orders": 1
+    }
+  ],
+  "actual": {
+    "entry_window_from_utc": "2026-11-04T19:56:59.434000Z",
+    "entry_window_until_utc": "2026-11-04T19:57:29.434000Z",
+    "entry_window_extended": false,
+    "broker_entry_orders": 1,
+    "broker_exit_orders": 1,
+    "entry_deals": 1,
+    "exit_deals": 1,
+    "entry_and_exit_lots": 0.01,
+    "maximum_observed_positions": 1,
+    "owned_magic_and_request_comment_matched": true,
+    "stop_and_target_confirmed": true,
+    "controlled_close_attempts": 1,
+    "entry_quote_upper_age_ms": [
+      1631,
+      1633
+    ],
+    "native_entry_clock_error_ms": [
+      93,
+      93
+    ],
+    "original_native_final_state": "PROTECTED",
+    "original_native_closed_delivery": false,
+    "independent_closure_verified": true
+  },
+  "recovery": {
+    "status": "INDEPENDENTLY_VERIFIED_CLOSED_WITH_READ_ONLY_RECOVERY",
+    "original_attempt_native_closed_delivery": false,
+    "recovery_native_closed_delivery": true,
+    "native_closed_acknowledged": true,
+    "original_backend_prefix_unchanged": true,
+    "original_native_files_unchanged": true,
+    "recovery_added_submission_attempts": 0,
+    "recovery_added_protective_attempts": 0,
+    "broker_history_unchanged": true,
+    "account_flat": true,
+    "global_algo_enabled": false,
+    "authority_retired": true,
+    "closed_clock_error_ms": 94,
+    "protection_restart_halt_preserved": true
+  },
+  "postcheck": {
+    "positions": 0,
+    "pending_orders": 0,
+    "algo_trading_enabled": false,
+    "test_eas_detached": true,
+    "listeners_stopped": true,
+    "authority_retired": true,
+    "original_binding_unchanged": true
+  },
+  "artifacts": {
+    "deployed_bounded_binary_sha256": "07fe3ad1f669bbc57d0ac5f2f823ea12ca1beff3e5ba583050d72781e3a2a0b2",
+    "read_only_recovery_binary_sha256": "0147300ac5a4258e5674e00daae1fd371997a91ac7049bcec27f8cbb7a622f3b",
+    "original_closure_verification_sha256": "ecfd22a8b5d834e7b63779a432678ccbed94365bdf1111679a03e7acea66ee18",
+    "read_only_recovery_verification_sha256": "8b02da4d89af81c92ccd4a65ad42fcaa3db92e80b692f387f44c6532f0d1d4fd",
+    "recovery_retirement_sha256": "5c7434242ae516ae233f0c7a5d618dd1f3b16063fac4ab22f1a3914a94be9fdd"
+  },
+  "regression": {
+    "status": "PASSED",
+    "tests": 938,
+    "passed": 938,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "7e816c8c0e464c0f6977a379a72b44f5865d6105ecc1a69cb7af535e3bfdf237",
+    "python_source_sha256": "92938b85219d332f3281672d6781a252583d571a941849b304ed1d7b68364675",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true
+  },
+  "native_checks": 125,
+  "resource_failures_preserved": [
+    {
+      "attempt": 7,
+      "failures": 17,
+      "errors": 41
+    },
+    {
+      "attempt": 8,
+      "failures": 0,
+      "errors": 133
+    }
+  ],
+  "database_remediation": "Separate loopback-only PostgreSQL 17 instance with 256 MB shared memory; original 64 MB evidence instance unchanged",
+  "remaining_scope": [
+    "Full M1 broker/provider qualification remains separate",
+    "Partial fills, rejected protection, ambiguous broker replies, closed-market exits and restart during real exposure remain fixture-only or unobserved",
+    "Original session did not automatically deliver CLOSED; a tested fingerprint fix and separate receipt-only recovery were required",
+    "Read-only recovery preserves the restart protection halt; authority was explicitly retired rather than rearmed"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "source_revision": "f7a3831f2454db4b285db9818deb6c22a54f468e",
+  "purpose": "Preserve original source referenced by historical native and no-order evidence; not current-source acceptance",
+  "files": {
+    "mql5/gateway/Core.mqh": "0707e0dd42d0d0287fa4736ca34a1af5ce8a9d6d4093fe45cdcb60f8384cb58f",
+    "mql5/gateway/Wire.mqh": "3de5c0a65bc1b6e97bd0e77bd7821bfc395e0fce7f134c41effd34acdb8c6ebd",
+    "src/fx_talanta/acceptance/faults.py": "1afecb85736278779de6ac5456cdbde9d3d87e2126a05cca8ab430ae552dbea4",
+    "src/fx_talanta/integration/coordinator.py": "74128269dd70256355d1ebb9a14506b52da4b984a23facd0b044cf87a9496c01",
+    "src/fx_talanta/shadow/backend.py": "1dd985f94661e55f87efbd434f2b7fff45284567434beeb7e3d8d8e21ad3e881",
+    "tests/test_m2c_safety.py": "ab6e6dddf536df1c817ab1ef0b152ba3ebfd8525532834ee0205c5929d690cbb",
+    "tests/test_m2d_acceptance.py": "722d7a05de75136415978b6f79150edc146f6b631cfa25975e5e0fec99c52e2a"
+  }
+}

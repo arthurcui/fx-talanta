@@ -1,1 +1,9 @@
 * text=auto eol=lf
+tests/fixtures/demo-budget/*.tsv -text
+tests/fixtures/demo-percent/*.tsv -text
+
+tests/fixtures/demo-drain/*.tsv -text
+tests/fixtures/demo-activation/*.tsv -text
+tests/fixtures/demo-activation-pre-repricing/*.tsv -text
+tests/fixtures/demo-activation-pre-closure-fix/*.tsv -text
+tests/fixtures/source-archive/*.txt -text

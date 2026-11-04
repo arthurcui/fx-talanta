@@ -94,6 +94,10 @@ from synthetic tests.
 
 ## M2 completion gate
 
+The subsequent [demo execution integration](m2-demo-execution.md) adds a disabled
+full-request dispatcher and resumable reconciliation. This report retains the
+original PR #22 evidence; it does not certify those later sources.
+
 Before an order-capable M2D acceptance run, require all of the following together:
 
 1. Separately authorized existing demo binding and an explicit finite order/risk
@@ -112,3 +116,8 @@ Before an order-capable M2D acceptance run, require all of the following togethe
 
 This is one consolidated disabled-integration PR. It is not a request for another
 soak, a new broker account, automatic failover, or permission to execute orders.
+
+The follow-on [demo integration](m2-demo-execution.md) implements the fixed native
+request dispatcher, bounded resumable history cursor, protective-action wiring
+and broker-state reporting described above. Those are completed implementation
+items; reviewed activation and independent actual-order acceptance remain gates.

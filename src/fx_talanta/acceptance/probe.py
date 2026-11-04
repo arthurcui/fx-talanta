@@ -3,14 +3,14 @@
 import hashlib
 import json
 import math
-import subprocess
 import time
 from collections import Counter
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from fx_talanta.acceptance.clock_probe import probe as clock_probe
-from fx_talanta.observer.contracts import Binding, windows_path
+from fx_talanta.acceptance.windows_process import matching_pids
+from fx_talanta.observer.contracts import Binding
 from fx_talanta.observer.mt5 import ObservationFailure, SDKClock, validate_terminal
 
 METHODS = frozenset(
@@ -53,28 +53,7 @@ class ProbeSDK:
 
 
 def running_pids(binding):
-    # Constant read-only command: no account/secret values are interpolated into a shell.
-    command = (
-        "@(Get-CimInstance Win32_Process -Filter \"Name='terminal64.exe'\" | "
-        "Select-Object ProcessId,ExecutablePath) | ConvertTo-Json -Compress"
-    )
-    read = subprocess.run(
-        ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
-        capture_output=True,
-        text=True,
-        timeout=8,
-        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        check=True,
-    )
-    values = json.loads(read.stdout or "[]")
-    if isinstance(values, dict):
-        values = [values]
-    return sorted(
-        p["ProcessId"]
-        for p in values
-        if p.get("ExecutablePath")
-        and windows_path(p["ExecutablePath"]) == windows_path(binding.terminal_path)
-    )
+    return matching_pids(binding)
 
 
 def write_json(path, value):
