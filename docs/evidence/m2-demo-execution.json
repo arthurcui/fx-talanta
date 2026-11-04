@@ -1,0 +1,130 @@
+{
+  "schema": "m2-demo-disabled-execution/1",
+  "base_main": "f7a3831f2454db4b285db9818deb6c22a54f468e",
+  "execution_enabled": false,
+  "demo_order_acceptance": false,
+  "broker_orders_sent": 0,
+  "new_24_hour_campaign": false,
+  "terminal_deployed": false,
+  "native_check_count": 30,
+  "native_checks": {
+    "compiled-native-submission-disabled": "1",
+    "dispatch-ENTER": "1",
+    "replay-ENTER": "1",
+    "dispatch-CLOSE": "1",
+    "replay-CLOSE": "1",
+    "dispatch-TIGHTEN_STOP": "1",
+    "replay-TIGHTEN_STOP": "1",
+    "dispatch-CANCEL": "1",
+    "replay-CANCEL": "1",
+    "bootstrap": "1",
+    "disabled-before-submitting": "1",
+    "checkpoint-required": "1",
+    "checkpoint-restores-replay": "1",
+    "post-flush-stale-block": "1",
+    "refusal-recorded": "1",
+    "next-sequence-after-refusal": "1",
+    "partial-close-retains-larger-position": "1",
+    "uncertain-no-resend": "1",
+    "foreign-position-refused": "1",
+    "cursor-progress-partial-fill": "1",
+    "positive-final-reconciliation": "1",
+    "manual-contamination-refused": "1",
+    "protection-before-call-durable": "1",
+    "disabled-repair-not-sent": "1",
+    "deadline-sticky-halt": "1",
+    "protection-restart-retains-halt": "1",
+    "transport-full-request": "1",
+    "separate-native-outcome": "1",
+    "paired-restart-receipt": "1",
+    "ack-persisted": "1"
+  },
+  "native_compilations": [
+    {
+      "program": "NativeTests",
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "program": "DemoEA",
+      "errors": 0,
+      "warnings": 0
+    }
+  ],
+  "native_dependency_sha256": {
+    "mql5/connected/HighResolutionClock.mqh": "122c305fde353cf3c7cb1ee54cf70e29c38b6a20687eb7a255bb7c86c8a38af2",
+    "mql5/demo/DemoEA.mq5": "d1e2404933cd16fd79c43bd846240122c51989afc38480601781ec49e1e14bc0",
+    "mql5/demo/Kernel.mqh": "5d931c7e5fbaffdd5d5e9195241c60346c6758b11e4e8bc35fa0bccbc0505be7",
+    "mql5/demo/NativePort.mqh": "4468df773ee0e0279e6c013404c19ea22a4000e9e85c0086d7a8505bc67f7a3b",
+    "mql5/demo/NativeTests.mq5": "dac2812c7a408e4c99ade0b2f996fa125fd5d06e40c1299218256edfc0ba4015",
+    "mql5/demo/Protection.mqh": "337ff3c7552ea78b3df8a1b30b37dc09e97e473275295c461a91df7bc72f73cc",
+    "mql5/demo/Reconcile.mqh": "2d53bc2ca36f2aeb14526469d510e0e0ac697c7d1c31fa57f23c21875d61349a",
+    "mql5/demo/Runtime.mqh": "f6e9d03fc8f7798dd96c99c767e1d4ac953e8e64d2c92fe12d42e3bc44c4a1f4",
+    "mql5/gateway/Broker.mqh": "275c46f72fef1365192b1aa8d7d9a042f4da94a470d6b00b4dea55b7bed0c36b",
+    "mql5/gateway/Core.mqh": "2969182e560d3d2dbac002b707172ad05fb1c0a4a3e430fcbbfa4c0f4b92fab1",
+    "mql5/gateway/Wire.mqh": "ed54665a443e0ee92d3925fdb9ed9116363a9f2318c78524f9f3be75f3976dea",
+    "mql5/integration/DisabledKernel.mqh": "f87b90218663f9b2525d5574f30217baf8031120b9fdfedd44b871011e67094c",
+    "mql5/safety/Control.mqh": "6a356d4f7c4f51b6a3c08688089e7e589a5386cbea7b8c66949156d56b41b242",
+    "mql5/safety/Fence.mqh": "06024c335ab1a4f8261720dda2429f412422c83d42a0e3b92004bf56b71a754c",
+    "mql5/safety/Preflight.mqh": "fdda266458b3ac6460410353858483dc8e040bdf4397f09adaeea484fb8ce548",
+    "mql5/safety/Risk.mqh": "2e62685c22176f9e1ad1a55d7e3cc916991087dc6472023c4d442b2ad2c6d71d",
+    "mql5/shadow/Fields.mqh": "7df00f8a68efa6fc7e547148bf19edda6cc71678b0f3111838472c2be61d9f82",
+    "mql5/shadow/Protocol.mqh": "5e0be4d9f71da28f0c27a5621b493b60044d924b88bdd455f531af493cd420a5"
+  },
+  "artifacts_sha256": {
+    "tests/fixtures/demo/demo-checks.tsv": "f54cafa7b722bcfbc673e3b80ed69a0c65c1835b9a09cf57676349326353c03a",
+    "tests/fixtures/demo/demo-receipt.txt": "96a6d79f2512ebda5878c3452cbe0a92af0504916057f9bde69840bbbca43a6c"
+  },
+  "limitations": [
+    "Native execution calls use a Tester-only double; no broker order was placed.",
+    "Compiled disabled host was not deployed.",
+    "Risk reference receipt is separate from native execution result.",
+    "Protective mutations remain suppressed; real fill/SL/exit/recovery acceptance and reviewed activation are still required.",
+    "Historical M1 failures and qualification gaps remain unchanged."
+  ],
+  "attempts": [
+    {
+      "stage": "native-demo-01",
+      "outcome": "fixture compile errors corrected"
+    },
+    {
+      "stage": "native-demo-02",
+      "outcome": "local Tester agent authorization blocked by sandbox; no test output"
+    },
+    {
+      "stage": "native-demo-03 and 04",
+      "outcome": "27 checks passed on earlier revisions"
+    },
+    {
+      "stage": "native-demo-final",
+      "outcome": "30 checks passed before audit records added"
+    },
+    {
+      "stage": "native-demo-final-02",
+      "outcome": "30 checks passed on current pinned sources"
+    }
+  ],
+  "regression": {
+    "tests": 820,
+    "passed": 820,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 96.25500010000542,
+    "python_source_sha256": "648f834285091994e96c1587c172e32942f032f8a545996528735dd78ae8e402",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true,
+    "original_namespace_used": false,
+    "broker_access": false,
+    "stdout_sha256": "2b9ee23423b5cfb99d2e12e7f30613e76b4f86963727a4f7888cabffb6119711",
+    "junit_sha256": "b33d9a84fa410d8ce8f3cae58d3200b32da8aa6cef3175f296dfc9a5064318bd",
+    "status": "PASSED"
+  },
+  "preservation": {
+    "root": "834cb8b42199e1424de433a08afa1b808a4124ba",
+    "forex_readonly": "d761c2cd6e8898b6353c67997ea0a67cb186f01c",
+    "cmc_campaign": "c9b2e435859d324097c6ef9c2b8db3f4cef7420e",
+    "forex_campaign": "c9b2e435859d324097c6ef9c2b8db3f4cef7420e",
+    "provider_campaign": "007a17ad71adb58f16d5d2f7383b1123ed8ec527"
+  }
+}

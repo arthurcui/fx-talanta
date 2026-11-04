@@ -17,6 +17,9 @@ from fx_talanta.shadow.work import parse_work, project, scope_for
 
 
 class Coordinator:
+    backend_type = Backend
+    project_work = staticmethod(project)
+
     def __init__(
         self,
         store,
@@ -60,7 +63,7 @@ class Coordinator:
                     raise ValueError("JOURNAL_ALREADY_EXISTS")
                 if not bootstrap and events.tip != expected_tip:
                     raise ValueError("RETAINED_CHECKPOINT_CONFLICT")
-            self.backend = Backend(
+            self.backend = self.backend_type(
                 store, account, client, release, policy, key, bootstrap=bootstrap
             )
             with store.transaction() as events:
@@ -134,7 +137,7 @@ class Coordinator:
         if self.receipt_only:
             raise ValueError("RECEIPT_ONLY_RECOVERY")
         envelope = Envelope.model_validate(envelope.model_dump())
-        work = project(envelope, snapshot)
+        work = self.project_work(envelope, snapshot)
         _, value = parse_work(work)
         with self.lock, self._guard():
             with self.store.transaction() as events:

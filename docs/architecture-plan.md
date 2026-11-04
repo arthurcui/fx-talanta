@@ -766,6 +766,9 @@ UI deliverables, not a claim that the dashboard exists today.
 The [M2 disabled-integration report](m2-disabled-integration.md) records the composed
 operating-input, durable loss/protection veto, account-fenced native assessment and
 receipt/checkpoint path. No order sender is available in that native host. The
-original FixedGateway remains Tester-only; actual demo execution integration and
-acceptance remain explicit M2D gates. Native assessment, source integrity and a
+original FixedGateway remains Tester-only. The subsequent
+[disabled demo execution integration](m2-demo-execution.md) carries full requests
+through the fixed dispatcher, native audit and separately identified execution
+receipts. Its real submission gate and protective mutations remain disabled;
+reviewed activation and actual demo-order acceptance remain explicit M2D gates. Native assessment, source integrity and a
 transport ACK are not provider qualification or broker execution evidence.

@@ -1,5 +1,10 @@
 # Current M2 handoff
 
+PR #22 is merged after CI. The [disabled demo execution integration](m2-demo-execution.md)
+now carries full requests into the native dispatcher and separately journals native outcomes.
+The new host is compiled and fixture-tested, not deployed; broker submission and
+protective mutations stay disabled. Reviewed activation and demo-order acceptance remain.
+
 PR #21 completed the bounded native HOLD/ACK handoff and was merged after CI.
 The [consolidated disabled integration](m2-disabled-integration.md) now joins
 operating-evidence loading, durable safety state, fenced delivery, native risk

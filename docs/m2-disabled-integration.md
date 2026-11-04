@@ -94,6 +94,10 @@ from synthetic tests.
 
 ## M2 completion gate
 
+The subsequent [demo execution integration](m2-demo-execution.md) adds a disabled
+full-request dispatcher and resumable reconciliation. This report retains the
+original PR #22 evidence; it does not certify those later sources.
+
 Before an order-capable M2D acceptance run, require all of the following together:
 
 1. Separately authorized existing demo binding and an explicit finite order/risk

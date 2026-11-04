@@ -63,12 +63,12 @@ public:
    }
 };
 
-string FxValidate(const FxWork &w,const FxContext &c,long &volume)
+string FxValidate(const FxWork &w,const FxContext &c,long &volume,const bool demo=false)
 {
    volume=0;
    if(w.broker!=c.broker || w.server!=c.server || w.login!=c.login || w.currency!=c.currency) return "ACCOUNT_MISMATCH";
    if(w.release!=c.release || w.policy!=c.policy) return "RELEASE_POLICY_MISMATCH";
-   if(w.broker_symbol!=c.symbol || w.broker_symbol!="FXT_"+w.symbol) return "SYMBOL_MISMATCH";
+   if(w.broker_symbol!=c.symbol || (!demo && w.broker_symbol!="FXT_"+w.symbol)) return "SYMBOL_MISMATCH";
    if(c.clock_error_ms<0 || c.clock_error_ms>100) return "CLOCK_UNCERTAIN";
    if(w.created_ms>c.now_ms-c.clock_error_ms) return "FUTURE_MESSAGE";
    if(w.expires_ms<=c.now_ms+c.clock_error_ms) return "EXPIRED";
@@ -113,6 +113,8 @@ string FxValidate(const FxWork &w,const FxContext &c,long &volume)
 class FxGateway
 {
 private:
+   bool demo_mode;
+   string demo_scope;
    FxJournal journal;
    FxEntry entries[];
    bool healthy;
@@ -132,18 +134,41 @@ private:
       return true;
    }
 public:
-   FxGateway(){ healthy=false; request_sequence=0; }
+   FxGateway(){ demo_mode=false; demo_scope=""; healthy=false; request_sequence=0; }
    void Close(){ journal.Close(); healthy=false; }
-   bool Open(const string path)
+   bool Open(const string path,const bool demo=false,const string binding="",const bool bootstrap=false,const string retained_tip="")
    {
+      demo_mode=demo; demo_scope=binding;
+      if(demo && (!FxHex(binding,64) || (bootstrap ? (FileIsExist(path) || retained_tip!="") :
+         (!FileIsExist(path) || !FxHex(retained_tip,64))))) return false;
       healthy=false; request_sequence=0; ArrayResize(entries,0); string rows[];
       if(!journal.Open(path,rows)) return false;
-      for(int i=0;i<ArraySize(rows);i++)
+      int first=0;
+      if(demo)
       {
-         string f[]; if(StringSplit(rows[i],'\t',f)!=37) { journal.Close(); return false; }
+         if(bootstrap)
+         { if(ArraySize(rows)!=0 || !journal.Append("DEMO_BIND\t"+binding)) { journal.Close(); return false; } }
+         else
+         {
+            string prior="GENESIS",text="";
+            for(int j=0;j<ArraySize(rows);j++) { string body=IntegerToString(j+1)+"|"+prior+"|"+rows[j]; prior=FxHash(body); text+=body+"|"+prior+"\n"; }
+            if(ArraySize(rows)<1 || rows[0]!="DEMO_BIND\t"+binding || FxHash(text)!=retained_tip) { journal.Close(); return false; }
+         }
+         first=1;
+      }
+      for(int i=first;i<ArraySize(rows);i++)
+      {
+         string f[];
+         if(demo && StringFind(rows[i],"DEMO_CHECK\t")==0)
+         {
+            if(StringSplit(rows[i],'\t',f)!=5 || !FxUuid(f[1]) || !FxHex(f[2],64) || FxHash(f[4])!=f[3]) { journal.Close(); return false; }
+            int checked=Find(f[1]); if(checked<0 || entries[checked].work.digest!=f[2]) { journal.Close(); return false; }
+            continue;
+         }
+         if(StringSplit(rows[i],'\t',f)!=37) { journal.Close(); return false; }
          string frame=f[9]; for(int j=10;j<37;j++) frame+="\t"+f[j];
          FxEntry e;
-         if(FxDecode(frame,e.work)!="OK") { journal.Close(); return false; }
+         if(FxDecode(frame,e.work,demo_mode)!="OK" || (demo_mode && FxScope(e.work)!=demo_scope)) { journal.Close(); return false; }
          e.state=f[0]; e.reason=f[1]; e.version=StringToInteger(f[2]); e.filled=StringToInteger(f[3]); e.open_volume=StringToInteger(f[4]);
          e.remaining=StringToInteger(f[5]); e.order=(ulong)StringToInteger(f[6]); e.position=(ulong)StringToInteger(f[7]); e.accepted_stop=StringToDouble(f[8]);
          int index=Find(e.work.id);
@@ -165,20 +190,41 @@ public:
    string Admit(const string frame,const FxContext &context,int &index)
    {
       index=-1; if(!healthy) return "JOURNAL_UNAVAILABLE";
-      FxWork w; string decoded=FxDecode(frame,w); if(decoded!="OK") return decoded;
+      FxWork w; string decoded=FxDecode(frame,w,demo_mode); if(decoded!="OK") return decoded;
+      if(demo_mode && FxScope(w)!=demo_scope) return "ACCOUNT_MISMATCH";
       if(w.broker!=context.broker || w.server!=context.server || w.login!=context.login) return "ACCOUNT_MISMATCH";
       index=Find(w.id);
       if(index>=0) return entries[index].work.digest==w.digest ? "REPLAY" : "HASH_CONFLICT";
       if(w.sequence!=request_sequence+1) return "SEQUENCE_GAP";
       if(ArraySize(entries)>=1024) return "JOURNAL_CAPACITY";
       for(int i=0;i<ArraySize(entries);i++) if(entries[i].work.reservation==w.reservation) return "RESERVATION_CONFLICT";
-      long lots; string reason=FxValidate(w,context,lots);
+      long lots; string reason=FxValidate(w,context,lots,demo_mode);
       if(reason=="OK" && w.action=="ENTER" && Uncertain()) reason="OUTCOME_UNKNOWN";
       FxEntry e; e.work=w; e.state=reason=="OK" ? "READY" : "REJECTED"; e.reason=reason; e.version=1;
       e.filled=0; e.open_volume=0; e.remaining=reason=="OK" ? lots : 0; e.order=0; e.position=0; e.accepted_stop=0;
       if(!Store(e)) return "JOURNAL_UNAVAILABLE";
       request_sequence++; index=Find(w.id);
       return reason;
+   }
+   string Reject(const string frame,const string reason)
+   {
+      if(!healthy) return "JOURNAL_UNAVAILABLE";
+      FxWork w; string decoded=FxDecode(frame,w,demo_mode); if(decoded!="OK") return decoded;
+      if(demo_mode && FxScope(w)!=demo_scope) return "ACCOUNT_MISMATCH";
+      int i=Find(w.id); if(i>=0) return entries[i].work.digest==w.digest ? "REPLAY" : "HASH_CONFLICT";
+      if(w.sequence!=request_sequence+1) return "SEQUENCE_GAP";
+      if(Count()>=1024) return "JOURNAL_CAPACITY";
+      for(int j=0;j<Count();j++) if(entries[j].work.reservation==w.reservation) return "RESERVATION_CONFLICT";
+      FxEntry e; ZeroMemory(e); e.work=w; e.state="REJECTED"; e.reason=reason; e.version=1;
+      if(!Store(e)) return "JOURNAL_UNAVAILABLE";
+      request_sequence++; return reason;
+   }
+   bool Audit(const int index,string facts)
+   {
+      if(!healthy || !demo_mode || index<0 || index>=Count() || StringFind(facts,"\t")>=0 || StringFind(facts,"\n")>=0 || StringFind(facts,"\r")>=0) return false;
+      FxEntry e=entries[index];
+      if(!journal.Append("DEMO_CHECK\t"+e.work.id+"\t"+e.work.digest+"\t"+FxHash(facts)+"\t"+facts)) { healthy=false; return false; }
+      return true;
    }
    bool MarkSubmitting(const int index)
    {
@@ -202,10 +248,10 @@ public:
       if(index<0 || index>=Count() || !positive || !MathIsValidNumber(stop) || stop<0) return false;
       FxEntry e=entries[index];
       long retained=e.filled+e.remaining;
-      if(e.state=="READY" || e.state=="REJECTED" || filled<e.filled || filled<open_volume || open_volume<0 || pending<0 || filled+pending>retained) return false;
+      if(e.state=="READY" || e.state=="REJECTED" || filled<e.filled || (e.work.action=="ENTER" && filled<open_volume) || open_volume<0 || pending<0 || filled+pending>retained) return false;
       if(open_volume>0 && position==0) return false;
       double requested_stop=(double)e.work.stop/100000000;
-      bool protected_stop=stop>0 && (e.work.side=="BUY" ? stop>=requested_stop : stop<=requested_stop);
+      bool protected_stop=stop>0 && (e.work.action!="ENTER" || (e.work.side=="BUY" ? stop>=requested_stop : stop<=requested_stop));
       string state=open_volume>0 ? (protected_stop ? "PROTECTED" : "PROTECTION_PENDING") : (final_order ? "CLOSED" : "OUTCOME_UNKNOWN");
       long unfilled=retained-filled;
       long remaining=final_order ? pending : (pending>unfilled ? pending : unfilled);
