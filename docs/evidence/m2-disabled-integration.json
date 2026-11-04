@@ -1,0 +1,87 @@
+{
+  "schema": "disabled-integration-evidence/1",
+  "scope": "synthetic no-order composition",
+  "base_main": "2c156675036b210ecaf4ac263ee51a82c1fc47f3",
+  "execution_enabled": false,
+  "native": {
+    "synthetic": true,
+    "native_cases": 60,
+    "native_fault_checks": 12,
+    "execution_enabled": false,
+    "orders_sent": 0,
+    "broker_qualified": false,
+    "compiled": [
+      "NativeTests",
+      "DisabledEA"
+    ],
+    "source_sha256": {
+      "mql5/integration/DisabledEA.mq5": "eb9ea559aa7e5019d725d243d54c07f054d6db5562457a903cd5795b83c03218",
+      "mql5/integration/DisabledKernel.mqh": "f87b90218663f9b2525d5574f30217baf8031120b9fdfedd44b871011e67094c",
+      "mql5/integration/NativeTests.mq5": "f0b8966a62fbfa97a14ddda99db478b8459df6f3f345cee5587729b23bfb2c01"
+    }
+  },
+  "regression": {
+    "exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 75.27189279999584,
+    "python_source_sha256": "b0042aa934310704edcc6f210741b751e050a947b7ed5cc7e3971ce6cde8640c",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true,
+    "original_namespace_used": false,
+    "excluded_files": [],
+    "broker_access": false,
+    "stdout_sha256": "fbc3858792518c8b077c6f4a45db2cb41fdd95fed53171f0153ce02aac82a867",
+    "tests": 802,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 802,
+    "junit_sha256": "aff00a91c0793617e904d6db7e254842e6150c06bd77b69f697504e6bd8e3cc8",
+    "junit_file": "junit-c0d0c9559d4a.xml",
+    "failed_test_names": [],
+    "status": "PASSED"
+  },
+  "native_live_transport_run": false,
+  "new_broker_campaign": false,
+  "brokers_qualified": false,
+  "providers_qualified": false,
+  "full_m2_complete": false,
+  "remaining_gate": "authorized demo execution and acceptance prerequisites",
+  "earlier_attempts": [
+    {
+      "attempt": "native-integration-01",
+      "result": "compile warnings; test not run"
+    },
+    {
+      "attempt": "native-integration-02",
+      "result": "60 cases and 12 checks passed; superseded by checkpoint hardening"
+    }
+  ],
+  "artifacts": {
+    "tests/fixtures/integration/disabled-checks.tsv": "ede035179491150f1e8c167e4707ac3e21f04a211ac9c91c367300d9ab038785",
+    "tests/fixtures/integration/disabled-results.tsv": "e16d073db76fa649b3d253abea90a1c9dd268b5ae7b7541e9bdbb0fa3f58a2d4",
+    "tests/fixtures/integration/recovery.journal.txt": "4e66c2d7aa8f88c270e3704d2ec4799e966cf156b926370ed7ea0215e9d7c159"
+  },
+  "earlier_regression": {
+    "exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 76.57533230003901,
+    "python_source_sha256": "6eabb15479928d7ed814dae10ae275f512e9a72e39d6124b5d33caef64fcff03",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true,
+    "original_namespace_used": false,
+    "excluded_files": [],
+    "broker_access": false,
+    "stdout_sha256": "e89c223feb5fbf5f4ae6c5bf01905f3b8d0a3dc5d655ca646689c475f9dba104",
+    "tests": 797,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 797,
+    "junit_sha256": "920ec918f83170a7e79416fe8eaa75cede2d09ed6d1ad7e6adb5368069586e29",
+    "junit_file": "junit-f15020ccd037.xml",
+    "failed_test_names": [],
+    "status": "PASSED"
+  },
+  "public_evidence_check_correction": "Initial test referenced journal_tip instead of journal_hash; corrected before final 802-test run."
+}

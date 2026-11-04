@@ -92,11 +92,13 @@ Its PostgreSQL shadow journal and native receipt outbox do not qualify connected
 execution, production fencing, native HTTPS or current broker snapshot/clock sourcing.
 The [bounded no-order connection work](m2d-connected-no-order.md) adds actual FOREX
 inputs, conservative clock intervals and account-authority/paired-restore tests.
-Its real observations remain HOLD. Actual native HTTPS authentication succeeded,
-but the bounded attempts did not complete the receipt handoff: the native clock
-gate rejected the measured uncertainty. This is not evidence of broker quote
-lag; see the [EA freshness review](ea-quote-freshness-review.md). No broker
-execution or sustained campaign is authorized by this increment.
+Its real observations remain HOLD. Earlier attempts did not complete the receipt
+handoff; PR #21 subsequently completed two native HOLD receipts and two signed ACKs,
+with independent journal/database verification. The [remediation report](m2d-lifecycle-remediation.md)
+preserves the original failures. The [consolidated disabled integration](m2-disabled-integration.md)
+adds the composed safety/receipt/recovery route and retained operating artifacts.
+Neither increment qualifies broker execution, providers or source timestamp mapping.
+No broker execution or sustained campaign is authorized by these changes.
 M1A/B/C remain internal observation/provider/qualification workstreams under M1.
 M0A–M0C remain completed within their offline scope. The November 3 owner decision permits offline M2A while M1 evidence gaps remain;
 it does not turn old failures into passes or authorize connected orders.

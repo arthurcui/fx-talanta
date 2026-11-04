@@ -1,4 +1,15 @@
-# M2A: first implementation PR, intent + EA protocol
+# Current M2 handoff
+
+PR #21 completed the bounded native HOLD/ACK handoff and was merged after CI.
+The [consolidated disabled integration](m2-disabled-integration.md) now joins
+operating-evidence loading, durable safety state, fenced delivery, native risk
+assessment and receipt recovery. Connected execution remains disabled; full M2D
+still requires the explicitly authorized demo execution/acceptance gate.
+
+The M2A scope below is retained as historical implementation context, not a new
+instruction to repeat M2A or a claim that the later native handoff is unfinished.
+
+## Historical M2A: first implementation PR, intent + EA protocol
 
 **Owner-authorized on 3 November 2026; offline implementation delivered.** See
 the [M2A implementation and evidence](m2a-protocol.md). PRs #17 and #18 are merged;

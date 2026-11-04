@@ -1,0 +1,12 @@
+missing-journal-refused	1
+explicit-bootstrap	1
+receipt-durable	1
+bootstrap-cannot-overwrite	1
+checkpoint-required	1
+checkpoint-conflict	1
+restart-keeps-pending	1
+duplicate-work-refused	1
+wrong-ack-refused	1
+ack-persisted	1
+old-prefix-checkpoint-refused	1
+management-unsent-state-preserved	1

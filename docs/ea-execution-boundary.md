@@ -242,3 +242,13 @@ cloud coding environments run fixtures/replay only, with no LIVE credentials or
 endpoints. Broker-demo access requires separately provisioned authorization.
 The existing [M0C transfer procedure](m0c.md) proves offline archive behavior only;
 it does not back up or fence a future execution EA.
+
+
+### Consolidated disabled integration
+
+The [M2 disabled-integration report](m2-disabled-integration.md) records the composed
+operating-input, durable loss/protection veto, account-fenced native assessment and
+receipt/checkpoint path. No order sender is available in that native host. The
+original FixedGateway remains Tester-only; actual demo execution integration and
+acceptance remain explicit M2D gates. Native assessment, source integrity and a
+transport ACK are not provider qualification or broker execution evidence.
