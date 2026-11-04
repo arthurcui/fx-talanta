@@ -14,6 +14,8 @@ COPY docs/evidence/m2b-native-20261103.json ./docs/evidence/m2b-native-20261103.
 COPY mql5/safety ./mql5/safety
 COPY mql5/shadow ./mql5/shadow
 COPY mql5/connected ./mql5/connected
+COPY mql5/integration ./mql5/integration
+COPY docs/evidence/m2-disabled-integration.json ./docs/evidence/m2-disabled-integration.json
 COPY docs/evidence/m2c-native-20261103.json ./docs/evidence/m2c-native-20261103.json
 COPY docs/evidence/broker-campaign-final-20261103.json ./docs/evidence/broker-campaign-final-20261103.json
 COPY docs/evidence/provider-campaign-final-20261103.json ./docs/evidence/provider-campaign-final-20261103.json
