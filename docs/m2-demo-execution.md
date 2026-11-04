@@ -168,8 +168,9 @@ The original private binding was preserved in every capture.
 
 ### Proposed bounded execution-only acceptance scope
 
-This proposal awaits an explicit scope decision; it does not change the existing
-acceptance gates or authorize deployment. It would distinguish execution validation
+The owner selected a bounded execution-only demo gate, with M1 qualification gaps
+preserved and strategy trading blocked. This does not itself enable the native
+dispatcher or certify any broker/provider qualification. It would distinguish execution validation
 from the unresolved M1 strategy/provider qualification and keep strategy entries
 blocked. Proposed limits are two entry attempts, at most 0.02 lot per entry,
 one position at a time, C$5 planned virtual risk per entry and C$10 in aggregate.
@@ -190,3 +191,42 @@ confirmed flatness. Retain fixture-only, unavailable and unobserved fault scenar
 as such: partial close is not partial fill; a short normal fill does not establish
 closed-market recovery or any broader provider qualification. No gate is marked
 passed by this preflight or this proposed scope.
+
+## Bounded acceptance budget implementation
+
+`demo.acceptance_budget` implements a dedicated, checkpointed budget journal with
+at most two entries, 0.02 lot per entry, C$5 planned risk per entry and C$10 total.
+Its immutable account/plan binding permits an entry window of at most five minutes.
+No rejection, uncertain response, closure or restart refunds a charge. Lost journals,
+stale checkpoints, valid-prefix rollback and competing stale instances refuse.
+One unresolved charge blocks another entry. Positive independently audited entry
+and exit quantities, a flat account and no pending orders are required to record
+closure; position absence and EA-reported confirmation alone are insufficient.
+Reconciliation may be recorded after the entry window expires.
+
+`demo.bounded.BoundedDemoCoordinator` wires charging into the existing trusted
+publication path. Its immutable backend binding includes the budget fingerprint;
+restoring it as an ordinary unbudgeted coordinator fails. Quantities and risk are
+rounded upwards to native lot units and CAD cents. Charging precedes publication:
+a commit/response failure cannot refund or implicitly retry the charge. Existing
+risk, loss, ownership, quote-freshness and delivery checks remain in place.
+
+This is a **disabled publication rehearsal**, not completed native activation.
+There is no HTTP budget-reset or activation endpoint. The real native hard gate
+remains false. The independent-audit ingestion method is a trusted local boundary;
+it records a completed external audit and does not turn a hash or supplied fields
+into verified broker truth. Native budget enforcement/activation, qualified broker
+timestamp mapping and source-backed operating inputs still require completion
+before actual orders. M1/provider gaps and unobserved fault cases remain open.
+
+The budget tests exposed an open SQLite handle after bootstrap on Windows. Journal
+creation now closes its connection deterministically. The previous source bytes
+are archived for historical evidence verification. The actual results for this
+change are recorded separately from the prior native and regression evidence.
+
+[Budget integration evidence](evidence/m2-bounded-budget.json): **880 full
+Python/PostgreSQL/loopback HTTPS tests passed, zero skips**, including 36 new
+budget/publication checks. Lint and formatting passed. The regression used separate
+fixture databases, verified unchanged Python sources and the original environment,
+and made no broker calls. Native sources were unchanged; the earlier 69 native
+checks remain evidence for their original source rather than this new Python budget.

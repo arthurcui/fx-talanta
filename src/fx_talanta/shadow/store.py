@@ -3,7 +3,7 @@
 import json
 import sqlite3
 import threading
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 
 import psycopg
 
@@ -50,7 +50,7 @@ class SQLiteStore:
             raise ValueError("MISSING_JOURNAL")
         self.path = path
         if bootstrap:
-            with sqlite3.connect(path) as db:
+            with closing(sqlite3.connect(path)) as db, db:
                 db.execute(
                     "CREATE TABLE events (seq INTEGER PRIMARY KEY, body TEXT NOT NULL, "
                     "prior TEXT NOT NULL, hash TEXT NOT NULL)"
