@@ -40,8 +40,8 @@ the earlier failed attempt remains recorded and the observations remain HOLD. Th
 [EA quote-freshness review](docs/ea-quote-freshness-review.md) separates this local
 bridge result from broker quote lag and retains the two-second entry restriction.
 PR #22 is merged. The [disabled demo execution integration](docs/m2-demo-execution.md)
-adds full-request native dispatch and separate execution receipts, with trading
-still disabled and actual demo-order acceptance outstanding.
+adds full-request native dispatch, durable protective repair/exit and reconciled
+broker-state delivery. Trading stays disabled; actual demo-order acceptance is outstanding.
 Use the [M1 closure checklist](docs/m1-closure-checklist.md) for the evidence gaps,
 prioritized remediation and conditions for proposing any new tests.
 Then follow M2A protocol → M2B fixed EA → M2C deterministic safety → M2D connected

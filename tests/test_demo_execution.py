@@ -62,11 +62,11 @@ def restart(c):
     )
 
 
-def call(c, op="PULL", payload="", nonce="a" * 64):
-    raw = Frame("C2S", c.scope, CLIENT, nonce, NOW, NOW + 5000, op, payload).encode(KEY)
-    out = c.exchange(raw, NOW)
+def call(c, op="PULL", payload="", nonce="a" * 64, now=NOW):
+    raw = Frame("C2S", c.scope, CLIENT, nonce, now, now + 5000, op, payload).encode(KEY)
+    out = c.exchange(raw, now)
     return Frame.decode(
-        out, KEY, direction="S2C", scope=c.scope, client=CLIENT, now=NOW, nonce=nonce
+        out, KEY, direction="S2C", scope=c.scope, client=CLIENT, now=now, nonce=nonce
     )
 
 
@@ -220,6 +220,13 @@ def test_postgres_demo_native_receipt_and_recovery(settings):
     assert call(c, "REPORT", native, "c" * 64).payload == digest(native)
     assert len(c.status(NOW)["native_execution_results"]) == 1
     assert c.status(NOW)["native_execution_results"][0]["reason"] == "TRADING_DISABLED"
+    state = (Path(__file__).parent / "fixtures/demo/demo-state.txt").read_text().strip()
+    ack = call(c, "REPORT", state, "d" * 64, now=NOW + 30)
+    c = restart(c)
+    assert call(c, "REPORT", state, "d" * 64, now=NOW + 30) == ack
+    assert len(c.status(NOW + 30)["broker_states"]) == 1
+    with c.store.transaction() as events:
+        assert c._ledger(events).hard_halt
 
 
 def test_actual_native_receipt_matches_independent_python_risk(tmp_path):
@@ -280,7 +287,7 @@ def test_https_demo_receipt_lost_ack_and_restart(tmp_path, tls_material):
 
     c = make(tmp_path)
     c.publish(*example(), NOW)
-    app = Application(c, lambda: NOW)
+    app = Application(c, lambda: NOW + 30)
     drop = [False]
 
     def drop_once():
@@ -294,7 +301,7 @@ def test_https_demo_receipt_lost_ack_and_restart(tmp_path, tls_material):
     context = ssl.create_default_context(cafile=str(cert))
 
     def request(op, payload, nonce):
-        body = Frame("C2S", c.scope, CLIENT, nonce, NOW, NOW + 5000, op, payload).encode(KEY)
+        body = Frame("C2S", c.scope, CLIENT, nonce, NOW + 30, NOW + 5030, op, payload).encode(KEY)
         conn = http.client.HTTPSConnection(*server.server_address, context=context, timeout=2)
         try:
             conn.request("POST", "/v1/shadow", body, {"Content-Type": "application/octet-stream"})
@@ -302,7 +309,7 @@ def test_https_demo_receipt_lost_ack_and_restart(tmp_path, tls_material):
             data = response.read()
             assert response.status == 200
             return Frame.decode(
-                data, KEY, direction="S2C", scope=c.scope, client=CLIENT, now=NOW, nonce=nonce
+                data, KEY, direction="S2C", scope=c.scope, client=CLIENT, now=NOW + 30, nonce=nonce
             )
         finally:
             conn.close()
@@ -316,6 +323,13 @@ def test_https_demo_receipt_lost_ack_and_restart(tmp_path, tls_material):
         app.backend = restart(c)
         assert request("REPORT", native, "b" * 64).payload == digest(native)
         assert len(app.backend.status(NOW)["native_execution_results"]) == 1
+        state = (Path(__file__).parent / "fixtures/demo/demo-state.txt").read_text().strip()
+        drop[0] = True
+        with pytest.raises(http.client.RemoteDisconnected):
+            request("REPORT", state, "c" * 64)
+        app.backend = restart(app.backend)
+        assert request("REPORT", state, "c" * 64).payload == digest(state)
+        assert len(app.backend.status(NOW + 30)["broker_states"]) == 1
     finally:
         server.shutdown()
         server.server_close()

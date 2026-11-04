@@ -15,7 +15,7 @@ private:
    ShHighResolutionClock *clock;
    long valid_until;
    DemoProtectionStore *protection;
-   string boot;
+   string boot,armed_before_send;
    long repair_delay,exit_delay;
 public:
    DemoNativePort(){ protection=NULL; boot=""; repair_delay=0;exit_delay=0; mapped=false; now_ms=0; error_ms=1000; state=NULL; clock=NULL; valid_until=0; paused=true; halted=true; session=false; }
@@ -41,7 +41,7 @@ public:
       c.tick_ms=tick.time_msc-offset_ms; c.bid=tick.bid; c.ask=tick.ask;
       c.connected=TerminalInfoInteger(TERMINAL_CONNECTED); c.session_open=session;
       c.owner_pause=paused; c.loss_halt=halted || protection==NULL || protection.HardHalt();
-      c.unknown_exposure=protection==NULL || protection.Unresolved(); c.position_side="~";
+      c.unknown_exposure=protection==NULL || protection.Unresolved(w.action=="ENTER" && w.id==armed_before_send ? armed_before_send : ""); c.position_side="~";
       c.min_lot=(long)MathRound(SymbolInfoDouble(c.symbol,SYMBOL_VOLUME_MIN)*1e8);
       c.max_lot=(long)MathRound(SymbolInfoDouble(c.symbol,SYMBOL_VOLUME_MAX)*1e8);
       c.lot_step=(long)MathRound(SymbolInfoDouble(c.symbol,SYMBOL_VOLUME_STEP)*1e8);
@@ -71,6 +71,9 @@ public:
          { c.order=ticket; if(w.action=="CANCEL"){ c.owned=owned; for(int j=0;j<state.Count();j++){ FxEntry e=state.At(j); if(e.order==ticket) c.position_version=e.version; } } }
       }
       for(int i=0;i<state.Count();i++){ FxEntry e=state.At(i);
+         if(e.work.id!=w.id && e.work.action=="ENTER" && w.position!=0 && e.position==w.position &&
+            (protection==NULL || protection.MutationPending(e.work.id)))c.mutation_unknown=true;
+         if(e.work.id!=w.id && (e.remaining>0 || e.state=="READY" || e.state=="SUBMITTING" || e.state=="OUTCOME_UNKNOWN" || e.state=="PROTECTION_PENDING" || e.state=="ACKNOWLEDGED"))c.unknown_exposure=true;
          if(e.work.id!=w.id && (e.state=="SUBMITTING" || e.state=="OUTCOME_UNKNOWN" || e.state=="ACKNOWLEDGED") &&
             ((w.position!=0 && e.work.position==w.position) || (w.order!=0 && e.work.order==w.order))) c.mutation_unknown=true; }
       return true;
@@ -111,13 +114,16 @@ public:
    }
    virtual bool BeforeMutation(const FxWork &w)
    {
-      if(protection==NULL || protection.HardHalt()) return false;
+      if(protection==NULL || (w.action=="ENTER" && protection.HardHalt())) return false;
       // Immutable local deadlines start before submission, never after its reply.
-      if(w.action=="ENTER") return protection.Begin(w.id,(long)GetTickCount64(),boot,repair_delay,exit_delay);
+      if(w.action=="ENTER"){bool ok=protection.Begin(w.id,(long)GetTickCount64(),boot,repair_delay,exit_delay);if(ok)armed_before_send=w.id;return ok;}
       return true; // Owned risk reduction still has the gateway's durable SUBMITTING fence.
    }
+   virtual bool NoMutation(const FxWork &w)
+   {bool ok=w.action!="ENTER" || (protection!=NULL && protection.NoCall(w.id));armed_before_send="";return ok;}
    virtual bool Send(MqlTradeRequest &request,MqlTradeResult &result)
    {
+      armed_before_send="";
       if(!Enabled() || IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN))!=login ||
          AccountInfoString(ACCOUNT_SERVER)!=server) return false;
       return OrderSend(request,result);

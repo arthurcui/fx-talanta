@@ -3,6 +3,7 @@
 #include "Kernel.mqh"
 #include "NativePort.mqh"
 #include "Reconcile.mqh"
+#include "ProtectiveDispatch.mqh"
 #include "../connected/HighResolutionClock.mqh"
 input bool EnableDisabledGateway=false;
 input bool BootstrapNewJournal=false;
@@ -18,7 +19,7 @@ DemoKernel kernel;
 DemoNativePort native_port;
 DemoNativeHistory history;
 DemoReconciler reconciler;
-input string RetainedExecutionTip="",RetainedOutcomeTip="";
+input string RetainedExecutionTip="",RetainedOutcomeTip="",RetainedBrokerStateTip="";
 input string Broker="",EURUSDSymbol="EURUSD",USDJPYSymbol="USDJPY";
 input bool QualifiedQuoteMapping=false,QualifiedSessionOpen=false;
 input long QuoteOffsetMs=0,OperatingEvidenceUntilMs=0;
@@ -52,7 +53,7 @@ int OnInit()
    dg_secret=FileReadString(h); bool end=FileIsEnding(h); FileClose(h);
    if(!end || StringLen(dg_secret)<32 || StringLen(dg_secret)>64) return INIT_FAILED;
    for(int i=0;i<StringLen(dg_secret);i++) if(StringGetCharacter(dg_secret,i)<33 || StringGetCharacter(dg_secret,i)>126) return INIT_FAILED;
-   if(!kernel.Open(JournalFile,Scope,Client,Release,Policy,dg_secret,BootstrapNewJournal,RetainedJournalTip,RetainedExecutionTip,RetainedOutcomeTip)) return INIT_FAILED;
+   if(!kernel.Open(JournalFile,Scope,Client,Release,Policy,dg_secret,BootstrapNewJournal,RetainedJournalTip,RetainedExecutionTip,RetainedOutcomeTip,RetainedBrokerStateTip)) return INIT_FAILED;
    native_incarnation=FxHash(Client+IntegerToString((long)GetMicrosecondCount())+IntegerToString((long)GetTickCount64()));
    if(!protection.Open(JournalFile+".protection",Scope,BootstrapNewJournal,RetainedProtectionTip)) { kernel.Close(); return INIT_FAILED; }
    native_port.BindProtection(GetPointer(protection),native_incarnation,QualifiedRepairDelayMs,QualifiedExitDelayMs);
@@ -62,20 +63,30 @@ int OnInit()
 }
 void OnTimer()
 {
-   if(!Identity() || GetTickCount64()-started>=(ulong)DurationSeconds*1000){ Stop(); return; }
-   // History reconciliation progresses even when HTTP delivery is backed off.
-   if(reconciling) { string verdict=reconciler.Step(kernel.State(),history); if(verdict!="INCOMPLETE") reconciling=false; }
+   if(!protection.Healthy() || !Identity() || GetTickCount64()-started>=(ulong)DurationSeconds*1000){ Stop(); return; }
+   long observed=0;int observed_error=0;
+   bool clock_ok=bounded_clock.NowUs((long)GetMicrosecondCount(),observed,observed_error);
+   native_port.Observe(observed,observed_error,QuoteOffsetMs,clock_ok && QualifiedQuoteMapping,QualifiedSessionOpen,false,false,OperatingEvidenceUntilMs);
+   // Finish one pinned scan before beginning another. Partial scans never reset
+   // already-settled protection deadlines or authorize a mutation.
+   bool completed=false;
+   if(reconciling) { string verdict=reconciler.Step(kernel.State(),history); if(verdict!="INCOMPLETE"){ reconciling=false;completed=true; } }
    else if(history.Begin(IntegerToString(ExpectedLogin),ExpectedServer,0,TimeTradeServer())) { reconciler.Begin(); reconciling=true; }
    FxGateway *gateway=kernel.State();
    for(int i=0;i<gateway.Count();i++)
    {
-      FxEntry entry=gateway.At(i); if(entry.work.action!="ENTER" || !protection.Has(entry.work.id)) continue;
-      bool positive=history.Valid() && reconciler.Confirmed(i);
-      string action=protection.Step(entry.work.id,(long)GetTickCount64(),native_incarnation,
-         (bool)TerminalInfoInteger(TERMINAL_CONNECTED),positive,entry.state=="PROTECTED",entry.state=="CLOSED",
-         entry.state=="OUTCOME_UNKNOWN",false,false);
-      // In this release protective mutations are suppressed too; the journal
-      // retains the deadline/halt and never claims an unsent repair or exit.
+      FxEntry entry=gateway.At(i);
+      bool positive=completed && history.Valid() && reconciler.Confirmed(i);
+      if(positive && clock_ok && !kernel.PublishState(entry,observed,observed_error,reconciler.Proof(i),true)) { Stop();return; }
+      if(entry.work.action!="ENTER")continue;
+      SProtection saved;
+      if(!protection.Read(entry.work.id,saved))continue;
+      if(reconciling && (saved.phase=="PROTECTED" || saved.phase=="CLOSED"))continue;
+      bool attempted=false;
+      string action=DemoProtect(gateway,i,protection,native_port,(long)GetTickCount64(),native_incarnation,
+         (bool)TerminalInfoInteger(TERMINAL_CONNECTED),positive,attempted);
+      if(action=="PROTECTION_JOURNAL_UNAVAILABLE") {Stop();return;}
+      if(attempted){ history.Invalidate();reconciler.Invalidate();reconciling=false; }
    }
    if(GetTickCount64()<due) return;
    if(!TerminalInfoInteger(TERMINAL_CONNECTED)){ due=GetTickCount64()+1000; return; }
@@ -92,7 +103,7 @@ void OnTimer()
    int bytes=StringToCharArray(request,data,0,WHOLE_ARRAY,CP_UTF8)-1; ArrayResize(data,bytes);
    int status=WebRequest("POST",Endpoint,"Content-Type: application/octet-stream\r\nConnection: close\r\n",1500,data,result,headers);
    long received=(long)GetMicrosecondCount(),rtt=received-sent,now=0; int uncertainty=0;
-   if(!Identity() || GetTickCount64()-started>=(ulong)DurationSeconds*1000){ Stop(); return; }
+   if(!protection.Healthy() || !Identity() || GetTickCount64()-started>=(ulong)DurationSeconds*1000){ Stop(); return; }
    bool current=bounded;
    if(sync) now=bounded ? utc+rtt/1000 : (long)TimeGMT()*1000;
    else current=bounded_clock.NowUs(received,now,uncertainty);

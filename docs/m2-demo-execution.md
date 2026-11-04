@@ -15,8 +15,8 @@ is **not passed**: reviewed activation and actual demo-order acceptance remain.
 | Native admission | `DemoKernel` persists the reference receipt before dispatch. `DemoRuntime` validates the same full request and actual native context; gateway journals refusal or READY and native check facts | A refusal consumes its sequence; identical ID/hash replays; changed hash refuses. A crash between receipt intent and outcome reports INTERRUPTED and never silently dispatches |
 | Fixed dispatcher | Fixed native port prepares ENTER/CLOSE/TIGHTEN_STOP/CANCEL, persists SUBMITTING before a call, refreshes checks after journal/OrderCheck work, narrows volume, and checks clock/quote age immediately before the fixed call boundary | `FX_DEMO_SUBMISSION_AUTHORIZED=false`; no request, model output, terminal toggle or input can override this release gate. Ambiguous replies remain OUTCOME_UNKNOWN and cannot be resent |
 | Broker reconciliation | Resumable order/deal/position scan; positive order identity, owned deal history, position balance, cancellation or stop confirmation | Query failures, changed snapshots, ambiguous matches, manual contamination and incomplete history remain unresolved; no closure inferred from missing data |
-| Protection | Separately checkpointed monotonic state and sticky halt; final native evidence can settle protection/closure. Suppressed repair/exit recommendations preserve actual state | Disk/clock/restart problems block mutation. An unsent recommendation is never recorded as an executed repair/exit. Deadline qualification defaults to missing, not invented production values |
-| Backend receipt/read model | Reference risk result and native execution result are separate. Report intent is committed before processing; nonce reply and request-level result survive restart | Disabled release rejects claims of a submission/fill. Lost ACK replay returns the original response. Conflicting native results refuse; repeated identical reports do not duplicate the displayed outcome |
+| Protection | Separately checkpointed monotonic state and sticky halt; final native evidence can settle protection/closure. Fixed local repair/exit dispatch journals an attempt before calling the port and preserves actual state while disabled | Disk/clock/restart problems block mutation. An unsent recommendation is never recorded as an executed repair/exit. Deadline qualification defaults to missing, not invented production values |
+| Backend receipt/read model | Reference risk result and native execution result are separate. Report intent is committed before processing; nonce reply and request-level result survive restart | Submission-attempt receipts and positive broker-query states are separately recorded. Unexpected attempts/fills in this disabled release add a sticky halt. Lost ACK replay is idempotent; old revisions never replace newer state |
 
 A reference-risk ACCEPTED result is **not** execution authority. For management,
 that reference describes the supplied snapshot; native ownership, state version,
@@ -35,7 +35,7 @@ for an independently reconstructed M2A broker ExecutionState.
 ## Native lifecycle and safety
 
 `DemoEA.mq5` is a bounded, default-off host (maximum 300 seconds). OnInit binds
-account/client/release/policy and opens risk, execution, outcome and protection
+account/client/release/policy and opens risk, execution, outcome, broker-state outbox and protection
 journals with explicit bootstrap or separately retained checkpoints. Bootstrap
 requires a flat demo account. Incomplete bootstrap is not automatically reset.
 OnTimer drives HTTPS delivery and reconciliation; it does not depend on OnTick.
@@ -58,11 +58,13 @@ loss state, protection deadlines or current native facts cannot authorize entry.
 ## Validation
 
 [Source-pinned evidence](evidence/m2-demo-execution.json) includes the full native
-include dependency closure, native compiler results, 30 native fixture checks,
+include dependency closure, native compiler results, 69 native fixture checks,
 actual native receipt and test artifact hashes. The Tester-only port double
 exercises dispatch, replay, uncertain replies, post-flush stale quotes, ownership,
 partial fills, cursor progress, partial close, retained checkpoints and deadlines.
-The full Python/PostgreSQL/loopback HTTPS regression passed **820 tests with zero skips**.
+The full Python/PostgreSQL/loopback HTTPS regression passed **844 tests with zero
+skips**. The initial 820-test result is preserved separately and is not used to
+certify these changes.
 The real native port remains hard-disabled in those tests. No synthetic call count
 is presented as a broker-order count.
 
@@ -72,17 +74,73 @@ archived source files allow their original hashes to be verified after shared
 code changes. The old fault harness now explicitly identifies when its native
 reference is historical rather than a current-source certification.
 
+## Completed protective dispatch and state delivery
+
+The bounded host now invokes `DemoProtect` after positive reconciliation. It
+constructs only a local TIGHTEN_STOP or CLOSE derived from an owned original ENTER,
+with zero additional risk, its current state version and a short local expiry.
+It does not invent a new backend signature, reuse the entry expiry for a new
+entry, or consume another backend sequence. The original digest, derived action
+and native facts are journaled before the fixed call. Native preparation and
+post-persistence validation can narrow or veto it. The real port stays disabled.
+
+There is at most one repair attempt and one controlled-exit attempt per entry.
+A definite stop rejection can lead to the controlled exit; an ambiguous reply
+or crash after the durable attempt requires reconciliation and cannot resend.
+A broker acknowledgement does not settle protection or close the position.
+Positive broker queries must establish the result. Exit rejection is a sticky
+halt. A known final-barrier refusal settles the unsent entry protection record
+with NO_CALL rather than inventing an unresolved broker submission.
+
+A separate `.states` outbox records positive entry and management observations,
+including partial fill, open/remaining volume, accepted stop, order/position IDs,
+UTC observation and uncertainty, and a native broker-witness fingerprint. The
+private execution journal retains the matching order/deal/position witnesses.
+This outbox requires its own retained checkpoint on restore. It sends the
+original payload until acknowledged, prioritizes the execution receipt first,
+and prevents another work pull while reports are pending. Reconciliation after
+a crash can reconstruct a missing state report when a positive query is still
+available, including a closed entry. If a management confirmation can no longer
+be re-established (for example, the tightened position has subsequently closed),
+the native journal must be audited; absence is never promoted to confirmation.
+
+Backend REPORT handling atomically persists the authenticated native claim and
+canonical M2A `ExecutionState` / `ReconciliationResult`, linked to the original
+request/reservation and predecessor hashes. Entry observations carry both types;
+CLOSE, TIGHTEN_STOP and CANCEL confirmations carry a `ReconciliationResult` plus
+the actual observed position remainder. A partial close can leave a position
+larger than the amount closed; it is not forced into an entry-fill quantity model.
+A separate management request is blocked while the parent protective action is
+in flight or unknown. Conflicting revisions, future times,
+regressing fills and reopened closed executions refuse. An identical old revision
+receives an ACK without replacing the latest read model. Reservations are **not**
+released by this reporting path. An unexpected native attempt/fill adds a sticky
+entry halt in the disabled release.
+
+The report is labelled `EA_BROKER_RECONCILIATION` and
+`independently_verified=false`: a signed EA observation is not an independent
+acceptance audit. State reports are emitted on lifecycle changes; their timestamp
+is the last reported positive observation, not a fresh quote or a heartbeat.
+Transport health and original quote age remain separate indicators.
+
+The actual native synthetic attempt receipt and state report are checked in
+alongside the no-order receipt. Python independently decodes them. PostgreSQL
+and loopback HTTPS tests exercise durable delivery, lost replies and restart.
+The [initial PR evidence](evidence/m2-demo-execution-initial.json) remains intact;
+changed original source/artifact bytes are retained by hash for verification.
+
 ## Remaining M2D acceptance
 
-The disabled delivery/dispatch/recovery route is implemented. The current host
-intentionally reports no-order outcomes and suppresses protective dispatch. A
-separately reviewed activation must wire enabled protective actions and full broker
-state reporting through the same durable boundaries, with qualified operating
-inputs and an explicit finite demo order/risk budget. Merely changing the constant
-or turning on Algo Trading is not an activation procedure.
+Protective dispatch and broker-state delivery are implemented and fixture-tested;
+they are no longer deferred wiring tasks. Reviewed activation with qualified
+operating inputs and an explicit finite demo order/risk budget remains separate.
+Merely changing the compile-time constant or turning on Algo Trading is not an
+activation procedure, and this PR grants no order permission.
 
-Then independently verify actual demo fills/partials, SL rejection and bounded
-repair/exit, lost replies, duplicate requests, terminal/backend/database restart
-and loss, stale quotes, wrong account, unexpected positions and closed-market exit.
-Retain every original M1 failure/provider gap. These are actual-order acceptance
-gates, not another 24-hour campaign and not permission granted by this PR.
+Actual demo acceptance must independently verify fills/partials, SL rejection and
+bounded repair/exit, lost replies, duplicate requests, terminal/backend/database
+restart and loss, stale quotes, wrong account, unexpected positions and
+closed-market exit. Retain all native witness journals, reports and checkpoints
+for independent reconstruction. Preserve every original M1 failure/provider gap.
+These are actual-order acceptance gates, not another 24-hour campaign. PR #23
+remains unmerged pending review.

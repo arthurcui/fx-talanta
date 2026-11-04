@@ -768,7 +768,9 @@ operating-input, durable loss/protection veto, account-fenced native assessment 
 receipt/checkpoint path. No order sender is available in that native host. The
 original FixedGateway remains Tester-only. The subsequent
 [disabled demo execution integration](m2-demo-execution.md) carries full requests
-through the fixed dispatcher, native audit and separately identified execution
-receipts. Its real submission gate and protective mutations remain disabled;
+through the fixed dispatcher, native audit, local protective-action controller,
+and durable execution/broker-state reporting. Native claims retain their provenance
+and cannot release risk or substitute for independent acceptance. Its real submission
+gate and protective mutations remain disabled;
 reviewed activation and actual demo-order acceptance remain explicit M2D gates. Native assessment, source integrity and a
 transport ACK are not provider qualification or broker execution evidence.

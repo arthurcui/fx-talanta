@@ -23,7 +23,7 @@ def example(action="ENTER", sequence=1):
             target=None,
             position_id=None if action == "CANCEL" else "700",
             order_id="500" if action == "CANCEL" else None,
-            expected_state_version=3,
+            expected_state_version=4 if sequence == 2 else 3,
         )
     return Envelope.seal(ExecutionRequest.model_validate(data)), s
 
@@ -38,6 +38,9 @@ def export(folder):
         ("TIGHTEN_STOP", 1),
         ("CANCEL", 1),
         ("ENTER", 2),
+        ("CLOSE", 2),
+        ("TIGHTEN_STOP", 2),
+        ("CANCEL", 2),
     ]:
         e, s = example(action, sequence)
         frame = encode_request(e)

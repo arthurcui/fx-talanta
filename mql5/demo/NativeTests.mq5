@@ -4,13 +4,14 @@
 #include "Kernel.mqh"
 #include "NativePort.mqh"
 #include "Reconcile.mqh"
+#include "ProtectiveDispatch.mqh"
 int checks=INVALID_HANDLE;
 void Check(string name,bool ok){ FileWriteString(checks,name+"\t"+(ok ? "1" : "0")+"\r\n"); }
 class FixturePort : public DemoPort
 {
 public:
-   int sends,contexts; bool enabled,stale,uncertain,own;
-   FixturePort(){ sends=0; contexts=0; enabled=true; stale=false; uncertain=false; own=true; }
+   int sends,contexts;uint code;long expected_version;double current_stop; bool enabled,stale,uncertain,own;
+   FixturePort(){ sends=0;contexts=0;code=TRADE_RETCODE_DONE;expected_version=3;current_stop=1.098;enabled=true; stale=false; uncertain=false; own=true; }
    virtual bool Enabled(){ return MQLInfoInteger(MQL_TESTER) && enabled; }
    virtual bool Context(const FxWork &w,FxContext &c)
    {
@@ -19,7 +20,7 @@ public:
       c.now_ms=1767614400020+(stale && contexts>1 ? 2000 : 0);c.tick_ms=1767614399500;c.clock_error_ms=10;
       c.connected=true;c.session_open=true;c.bid=1.1;c.ask=1.1002;c.tick_size=0.00001;c.min_stop=0.0001;
       c.min_lot=1000000;c.max_lot=10000000000;c.lot_step=1000000;
-      c.owned=own;c.position_side="BUY";c.position_version=3;c.position_volume=9000000;c.accepted_stop=1.098;
+      c.owned=own;c.position_side="BUY";c.position_version=expected_version;c.position_volume=9000000;c.accepted_stop=current_stop;
       if(w.action!="ENTER"){ c.position=w.position;c.order=w.order; }
       return true;
    }
@@ -28,7 +29,19 @@ public:
    virtual bool Immediate(const FxWork &w,string risk,const FxContext &c){ return MQLInfoInteger(MQL_TESTER)!=0; }
    virtual bool BeforeMutation(const FxWork &w){ return MQLInfoInteger(MQL_TESTER)!=0; }
    virtual bool Send(MqlTradeRequest &r,MqlTradeResult &s)
-   { if(!Enabled()) return false; sends++; s.order=500;s.retcode=TRADE_RETCODE_DONE;return !uncertain; }
+   { if(!Enabled()) return false; sends++; s.order=500;s.retcode=code;return !uncertain; }
+};
+class LifecyclePort : public FixturePort
+{
+public:
+   DemoProtectionStore *protection;string boot,armed;bool refuse_final;
+   LifecyclePort(){protection=NULL;refuse_final=false;}
+   virtual bool Context(const FxWork &w,FxContext &c)
+   {if(!FixturePort::Context(w,c))return false;c.unknown_exposure=protection.Unresolved(armed);return true;}
+   virtual bool BeforeMutation(const FxWork &w)
+   {bool ok=protection.Begin(w.id,100,boot,100,200);if(ok)armed=w.id;return ok;}
+   virtual bool Immediate(const FxWork &w,string risk,const FxContext &c){return !refuse_final;}
+   virtual bool NoMutation(const FxWork &w){armed="";return protection.NoCall(w.id);}
 };
 class FixtureHistory : public DemoHistorySource
 {
@@ -44,6 +57,28 @@ public:
    { ZeroMemory(r);r.order=500;r.identifier=700;r.magic=contaminated ? 0 : (long)FX_MAGIC;r.volume=volume;r.entry=DEAL_ENTRY_IN;r.comment=comment;return true; }
    virtual bool Position(ulong id,DemoPosition &r){ r.ticket=700;r.volume=volume;r.stop=1.098;return true; }
 };
+class ManagementPort : public FixturePort
+{
+public:
+   virtual bool Send(MqlTradeRequest &r,MqlTradeResult &s)
+   {bool ok=FixturePort::Send(r,s);if(sends>1)s.order=600;return ok;}
+};
+class ManagementHistory : public DemoHistorySource
+{
+public:
+   string root_comment,child_comment,action;bool positive;
+   ManagementHistory(){positive=true;}
+   virtual bool Valid(){return MQLInfoInteger(MQL_TESTER) && positive;}
+   virtual int OrderCount(){return 2;}
+   virtual int DealCount(){return action=="CLOSE" ? 2 : 0;}
+   virtual bool Order(int i,DemoOrder &r)
+   {ZeroMemory(r);r.ticket=i==0 ? 500 : 600;r.magic=(long)FX_MAGIC;r.symbol="EURUSD";r.comment=i==0 ? root_comment : child_comment;r.final_order=true;r.cancelled=action=="CANCEL" && i==0;return true;}
+   virtual bool Deal(int i,DemoDeal &r)
+   {ZeroMemory(r);r.ticket=100+i;r.order=i==0 ? 500 : 600;r.identifier=700;r.magic=(long)FX_MAGIC;r.volume=i==0 ? 9000000 : 4000000;r.entry=i==0 ? DEAL_ENTRY_IN : DEAL_ENTRY_OUT;r.comment=i==0 ? root_comment : child_comment;return true;}
+   virtual bool Position(ulong id,DemoPosition &r){ZeroMemory(r);if(action=="CLOSE"){r.ticket=700;r.volume=5000000;r.stop=1.098;}return true;}
+   virtual bool ConfirmStop(ulong ticket,double stop,string comment,double &actual)
+   {actual=1.099;return positive && ticket==700 && comment==root_comment && actual>=stop;}
+};
 int OnInit()
 {
    if(!MQLInfoInteger(MQL_TESTER)) return INIT_FAILED;
@@ -52,8 +87,8 @@ int OnInit()
    checks=FileOpen("demo-checks.tsv",FILE_WRITE|FILE_TXT|FILE_ANSI,0,CP_UTF8);
    if(case_file==INVALID_HANDLE || binding==INVALID_HANDLE || checks==INVALID_HANDLE) return INIT_FAILED;
    string b[];StringSplit(FileReadString(binding),'\t',b);FileClose(binding);
-   string frames[],risks[],packets[]; ArrayResize(frames,5);ArrayResize(risks,5);ArrayResize(packets,5);
-   for(int i=0;i<5;i++){ string f[];if(StringSplit(FileReadString(case_file),'\t',f)!=4 || !ShUnhex(f[1],frames[i]) || !ShUnhex(f[2],risks[i]) || !ShUnhex(f[3],packets[i])) return INIT_FAILED; }
+   string frames[],risks[],packets[]; ArrayResize(frames,8);ArrayResize(risks,8);ArrayResize(packets,8);
+   for(int i=0;i<8;i++){ string f[];if(StringSplit(FileReadString(case_file),'\t',f)!=4 || !ShUnhex(f[1],frames[i]) || !ShUnhex(f[2],risks[i]) || !ShUnhex(f[3],packets[i])) return INIT_FAILED; }
    FileClose(case_file);
    SLoss ledger;ledger.day=20260105;ledger.start=10000;ledger.flows=0;ledger.units=10000;ledger.high=1;ledger.loss=0;ledger.paused=false;ledger.hard=false;ledger.owner=false;
    DemoNativePort real_port; Check("compiled-native-submission-disabled",!real_port.Enabled());
@@ -107,8 +142,122 @@ int OnInit()
    string pending=kernel.Pending();int receipt_file=FileOpen("demo-receipt.txt",FILE_WRITE|FILE_TXT|FILE_ANSI,0,CP_UTF8);FileWriteString(receipt_file,pending+"\r\n");FileClose(receipt_file);
    Check("separate-native-outcome",StringFind(pending,"\tTRADING_DISABLED\tREJECTED\t0")>0 && disabled.sends==0);
    kernel.Close();
-   Check("paired-restart-receipt",kernel.Open("kernel",b[0],b[1],b[2],b[3],b[4],false,DgFileTip("kernel.risk"),DgFileTip("kernel.execution"),DgFileTip("kernel.outcomes")) && kernel.Pending()==pending);
+   Check("paired-restart-receipt",kernel.Open("kernel",b[0],b[1],b[2],b[3],b[4],false,DgFileTip("kernel.risk"),DgFileTip("kernel.execution"),DgFileTip("kernel.outcomes"),DgFileTip("kernel.states")) && kernel.Pending()==pending);
    Check("ack-persisted",kernel.Ack(FxHash(pending)) && kernel.Pending()=="");kernel.Close();
+   // Fixed local protective dispatcher, no network/broker mutation port.
+   FixturePort repairs;runtime.Open("repair.execution",b[0],true,"");runtime.Dispatch(frames[0],risks[0],ledger,repairs);
+   runtime.State().Reconcile(0,true,9000000,9000000,0,500,700,0,true);
+   repairs.expected_version=runtime.State().At(0).version;repairs.current_stop=0;repairs.code=TRADE_RETCODE_INVALID_STOPS;
+   DemoProtectionStore repairs_store;repairs_store.Open("repairs.protection",b[0],true,"");repairs_store.Begin(first.id,100,boot,100,200);
+   bool attempted=false;
+   string repair_result=DemoProtect(runtime.State(),0,repairs_store,repairs,150,boot,true,true,attempted);
+   Check("stop-rejection-durable",repair_result=="PROTECTION_REJECTED" && attempted && repairs.sends==2);
+   repairs.code=TRADE_RETCODE_DONE;
+   Check("rejected-stop-controlled-exit",DemoProtect(runtime.State(),0,repairs_store,repairs,160,boot,true,true,attempted)=="PROTECTION_ACKNOWLEDGED" && attempted && repairs.sends==3);
+   Check("exit-ack-not-fill-no-resend",DemoProtect(runtime.State(),0,repairs_store,repairs,170,boot,true,false,attempted)=="ALERT_UNRESOLVED_NO_MUTATION" && !attempted && repairs.sends==3);
+   repairs_store.Close();
+   Check("protection-attempt-restart",repairs_store.Open("repairs.protection",b[0],false,DgFileTip("repairs.protection")) &&
+      DemoProtect(runtime.State(),0,repairs_store,repairs,180,boot,true,false,attempted)=="RECONCILE_NO_RESEND" && repairs.sends==3);
+   runtime.State().Reconcile(0,true,9000000,0,0,500,0,0,true);
+   DemoProtect(runtime.State(),0,repairs_store,repairs,190,boot,true,true,attempted);
+   SProtection reconciled;repairs_store.Read(first.id,reconciled);
+   Check("positive-close-settles-protection",reconciled.phase=="CLOSED" && !repairs_store.Unresolved());repairs_store.Close();runtime.Close();
+   for(int scenario=0;scenario<4;scenario++)
+   {
+      FixturePort fixture;string base="protect-fault-"+IntegerToString(scenario);
+      runtime.Open(base+".execution",b[0],true,"");runtime.Dispatch(frames[0],risks[0],ledger,fixture);
+      runtime.State().Reconcile(0,true,9000000,9000000,0,500,700,0,true);
+      fixture.expected_version=runtime.State().At(0).version;fixture.current_stop=0;
+      DemoProtectionStore ps;ps.Open(base+".protection",b[0],true,"");ps.Begin(first.id,100,boot,100,200);
+      if(scenario==0)fixture.enabled=false;
+      if(scenario==1)fixture.uncertain=true;
+      if(scenario==2){fixture.stale=true;fixture.contexts=0;}
+      if(scenario==3)fixture.own=false;
+      string outcome=DemoProtect(runtime.State(),0,ps,fixture,150,boot,true,true,attempted);
+      Check("protective-fault-"+IntegerToString(scenario),scenario==0 ? outcome=="TRADING_DISABLED" && fixture.sends==1 :
+         scenario==1 ? outcome=="PROTECTION_UNKNOWN" && fixture.sends==2 : scenario==2 ? outcome=="PROTECTION_NOT_SENT" && fixture.sends==1 : outcome=="NOT_OWNED" && fixture.sends==1);
+      if(scenario==1)Check("lost-protection-reply-no-resend",DemoProtect(runtime.State(),0,ps,fixture,160,boot,true,false,attempted)=="RECONCILE_NO_RESEND" && fixture.sends==2);
+      ps.Close();runtime.Close();
+   }
+   // Durable native observations survive lost ACKs and restart, with no PULL
+   // until the original payload has been acknowledged.
+   FixturePort reports;runtime.Open("reports.execution",b[0],true,"");runtime.Dispatch(frames[0],risks[0],ledger,reports);
+   FixtureHistory observed;observed.comment=FxComment(first);cursor.Begin();result="INCOMPLETE";
+   while(result=="INCOMPLETE")result=cursor.Step(runtime.State(),observed,2);
+   DemoStateOutbox outbox;outbox.Open("reports.states",b[0],true,"");e=runtime.State().At(0);
+   Check("state-needs-positive-query",!outbox.Publish(e,1767614400020,10,cursor.Proof(0),false));
+   Check("partial-fill-state-durable",outbox.Publish(e,1767614400020,10,cursor.Proof(0),cursor.Confirmed(0)) && outbox.Pending()!="");
+   string state=outbox.Pending();int states_file=FileOpen("demo-state.txt",FILE_WRITE|FILE_TXT|FILE_ANSI,0,CP_UTF8);FileWriteString(states_file,state+"\r\n");FileClose(states_file);
+   Check("same-version-no-duplicate",outbox.Publish(e,1767614400030,10,cursor.Proof(0),true) && outbox.Pending()==state);
+   outbox.Close();Check("state-restart-retained-tip",!outbox.Open("reports.states",b[0],false,"") && outbox.Open("reports.states",b[0],false,DgFileTip("reports.states")) && outbox.Pending()==state);
+   Check("state-ack-durable",outbox.Ack(FxHash(state)) && outbox.Pending()=="");outbox.Close();
+   Check("state-ack-restart",outbox.Open("reports.states",b[0],false,DgFileTip("reports.states")) && outbox.Pending()=="");outbox.Close();runtime.Close();
+   DemoKernel complete;FixturePort simulated;
+   Check("kernel-fixed-dispatch-complete",complete.Open("complete",b[0],b[1],b[2],b[3],b[4],true,"","","") && complete.Receive(packets[0],1767614400020,10,simulated) && simulated.sends==1);
+   string attempted_receipt=complete.Pending();
+   Check("attempt-receipt-not-no-order",StringFind(attempted_receipt,"demo-receipt/2\t")==0 && StringFind(attempted_receipt,"\tACKNOWLEDGED\tATTEMPTED")>0);
+   int attempt_file=FileOpen("demo-attempt.txt",FILE_WRITE|FILE_TXT|FILE_ANSI,0,CP_UTF8);FileWriteString(attempt_file,attempted_receipt+"\r\n");FileClose(attempt_file);
+   complete.Close();
+   Check("attempt-restart-no-resend",complete.Open("complete",b[0],b[1],b[2],b[3],b[4],false,DgFileTip("complete.risk"),DgFileTip("complete.execution"),DgFileTip("complete.outcomes"),DgFileTip("complete.states")) && complete.Pending()==attempted_receipt && simulated.sends==1);
+   FixtureHistory full_history;full_history.comment=FxComment(first);cursor.Begin();result="INCOMPLETE";
+   while(result=="INCOMPLETE")result=cursor.Step(complete.State(),full_history,2);
+   Check("kernel-reconciled-state-queued",complete.PublishState(complete.State().At(0),1767614400020,10,cursor.Proof(0),cursor.Confirmed(0)) && complete.Pending()==attempted_receipt);
+   Check("attempt-ack",complete.Ack(FxHash(attempted_receipt)) && StringFind(complete.Pending(),"demo-state/1\t")==0);
+   string full_state=complete.Pending();complete.Close();
+   Check("kernel-state-restart",complete.Open("complete",b[0],b[1],b[2],b[3],b[4],false,DgFileTip("complete.risk"),DgFileTip("complete.execution"),DgFileTip("complete.outcomes"),DgFileTip("complete.states")) && complete.Pending()==full_state && complete.Ack(FxHash(full_state)) && complete.Pending()=="");complete.Close();
+   DemoProtectionStore aborted;aborted.Open("not-sent.protection",b[0],true,"");aborted.Begin(first.id,100,boot,100,200);
+   Check("own-before-send-only-exemption",aborted.Unresolved() && !aborted.Unresolved(first.id));
+   Check("aborted-entry-settles-no-call",aborted.NoCall(first.id) && !aborted.Unresolved());aborted.Close();
+   Check("no-call-restart",aborted.Open("not-sent.protection",b[0],false,DgFileTip("not-sent.protection")) && !aborted.Unresolved());aborted.Close();
+   for(int i=0;i<2;i++)
+   {
+      string base="lifecycle-"+IntegerToString(i);DemoProtectionStore ps;ps.Open(base+".protection",b[0],true,"");
+      LifecyclePort port;port.protection=GetPointer(ps);port.boot=boot;port.refuse_final=i==1;
+      runtime.Open(base+".execution",b[0],true,"");string outcome=runtime.Dispatch(frames[0],risks[0],ledger,port);
+      Check("entry-protection-lifecycle-"+IntegerToString(i),i==0 ? outcome=="ACKNOWLEDGED" && port.sends==1 && ps.Unresolved() : outcome=="FINAL_BARRIER_REFUSED" && port.sends==0 && !ps.Unresolved());
+      runtime.Close();ps.Close();
+   }
+   for(int i=0;i<3;i++)
+   {
+      string base="protection-recovery-"+IntegerToString(i);FixturePort port;runtime.Open(base+".execution",b[0],true,"");runtime.Dispatch(frames[0],risks[0],ledger,port);
+      runtime.State().Reconcile(0,true,9000000,9000000,0,500,700,0,true);port.expected_version=runtime.State().At(0).version;port.current_stop=0;
+      DemoProtectionStore ps;ps.Open(base+".protection",b[0],true,"");ps.Begin(first.id,100,boot,100,200);
+      if(i==0)
+      {
+         ps.Arm(first.id,"ATTACH_STOP_ONCE",150,boot,"crash-before-call");ps.Close();ps.Open(base+".protection",b[0],false,DgFileTip(base+".protection"));
+         Check("pre-call-crash-no-resend",DemoProtect(runtime.State(),0,ps,port,160,boot,true,true,attempted)=="RECONCILE_NO_RESEND" && port.sends==1);
+      }
+      else if(i==1)
+      {
+         port.code=TRADE_RETCODE_REJECT;
+         Check("exit-rejection-hard-halt",DemoProtect(runtime.State(),0,ps,port,310,boot,true,true,attempted)=="PROTECTION_REJECTED" && ps.HardHalt() && port.sends==2);
+         Check("rejected-exit-never-retried",DemoProtect(runtime.State(),0,ps,port,320,boot,true,true,attempted)=="ALERT_EXIT_REJECTED" && port.sends==2);
+      }
+      else
+      {
+         DemoProtect(runtime.State(),0,ps,port,150,boot,true,true,attempted);
+         runtime.State().Reconcile(0,true,9000000,9000000,0,500,700,1.098,true);
+         Check("repair-positive-query-required",DemoProtect(runtime.State(),0,ps,port,160,boot,true,true,attempted)=="PROTECTED_CONFIRMED" && port.sends==2 && !ps.Unresolved());
+      }
+      ps.Close();runtime.Close();
+   }
+   for(int i=5;i<8;i++)
+   {
+      string base="management-"+IntegerToString(i);ManagementPort port;runtime.Open(base+".execution",b[0],true,"");runtime.Dispatch(frames[0],risks[0],ledger,port);
+      runtime.State().Reconcile(0,true,9000000,9000000,0,500,700,1.098,true);port.expected_version=4;
+      FxWork child;FxDecode(frames[i],child,true);
+      Check("management-dispatch-"+child.action,runtime.Dispatch(frames[i],risks[i],ledger,port)=="ACKNOWLEDGED");
+      ManagementHistory source;source.root_comment=FxComment(first);source.child_comment=FxComment(child);source.action=child.action;
+      cursor.Begin();result="INCOMPLETE";while(result=="INCOMPLETE")result=cursor.Step(runtime.State(),source,2);
+      DemoStateOutbox box;box.Open(base+".states",b[0],true,"");
+      Check("management-reconciled-"+child.action,cursor.Confirmed(1) && box.Publish(runtime.State().At(1),1767614400020,10,cursor.Proof(1),true) && box.Pending()!="");
+      int file=FileOpen("demo-state-"+child.action+".txt",FILE_WRITE|FILE_TXT|FILE_ANSI,0,CP_UTF8);FileWriteString(file,box.Pending()+"\r\n");FileClose(file);
+      box.Close();runtime.Close();
+   }
+   DemoProtectionStore overlap;overlap.Open("overlap.protection",b[0],true,"");overlap.Begin(first.id,100,boot,100,200);
+   Check("known-unprotected-not-inflight",!overlap.MutationPending(first.id));
+   overlap.Arm(first.id,"ATTACH_STOP_ONCE",150,boot,"local-repair");
+   Check("inflight-protection-blocks-management",overlap.MutationPending(first.id));overlap.Close();
    FileClose(checks);return INIT_SUCCEEDED;
 }
 void OnTick(){ TesterStop(); }

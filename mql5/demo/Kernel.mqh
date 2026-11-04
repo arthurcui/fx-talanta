@@ -1,20 +1,22 @@
 #ifndef FX_DEMO_KERNEL
 #define FX_DEMO_KERNEL
 #include "Runtime.mqh"
+#include "StateOutbox.mqh"
 class DemoKernel
 {
 private:
    DgKernel reference;
    DemoRuntime runtime;
    FxJournal outcomes;
+   DemoStateOutbox broker_states;
    string ids[],reasons[],states[];
    bool loaded;
 public:
    DemoKernel(){ loaded=false; }
-   void Close(){ reference.Close(); runtime.Close(); outcomes.Close(); loaded=false; }
+   void Close(){ reference.Close(); runtime.Close(); outcomes.Close();broker_states.Close(); loaded=false; }
    FxGateway *State(){ return runtime.State(); }
    bool Open(string base,string scope,string client,string release,string policy,string key,bool bootstrap,
-             string reference_tip,string execution_tip,string outcome_tip)
+             string reference_tip,string execution_tip,string outcome_tip,string state_tip="")
    {
       Close(); ArrayResize(ids,0); ArrayResize(reasons,0); ArrayResize(states,0);
       string path=base+".outcomes",binding="DEMO_OUTCOME_BIND\t"+scope+"\t"+client+"\t"+release+"\t"+policy;
@@ -34,19 +36,30 @@ public:
          }
          loaded=true;
       }
+      if(loaded && !broker_states.Open(base+".states",scope,bootstrap,state_tip)) {Close();return false;}
       return loaded;
    }
+   bool PublishState(const FxEntry &entry,long at,int error,string proof,bool positive)
+   {return loaded && broker_states.Publish(entry,at,error,proof,positive);}
    string Pending()
    {
-      string receipt=reference.Pending(); if(receipt=="") return "";
+      string receipt=reference.Pending(); if(receipt=="") return broker_states.Pending();
       string f[]; StringSplit(receipt,'\t',f); string reason="INTERRUPTED",state="INTERRUPTED";
       for(int i=0;i<ArraySize(ids);i++) if(ids[i]==f[1]){ reason=reasons[i]; state=states[i]; }
+      if(state=="INTERRUPTED")
+      {FxGateway *g=runtime.State();for(int i=0;i<g.Count();i++){FxEntry e=g.At(i);if(e.work.id==f[1] && (e.filled>0 || e.state=="SUBMITTING" || e.state=="OUTCOME_UNKNOWN" || e.state=="ACKNOWLEDGED"))state="OUTCOME_UNKNOWN";}}
+      if(state=="ACKNOWLEDGED" || state=="SUBMITTING" || state=="OUTCOME_UNKNOWN")
+         return "demo-receipt/2\t"+ShHex(receipt)+"\t"+reason+"\t"+state+"\t"+(state=="ACKNOWLEDGED" ? "ATTEMPTED" : "UNKNOWN");
       return "demo-receipt/1\t"+ShHex(receipt)+"\t"+reason+"\t"+state+"\t0";
    }
-   bool Ack(string hash){ return loaded && Pending()!="" && hash==FxHash(Pending()) && reference.Ack(FxHash(reference.Pending())); }
+   bool Ack(string hash)
+   {
+      if(!loaded || Pending()=="" || hash!=FxHash(Pending()))return false;
+      return reference.Pending()!="" ? reference.Ack(FxHash(reference.Pending())) : broker_states.Ack(hash);
+   }
    bool Receive(string packet,long now,int error,DemoPort &port)
    {
-      if(!loaded || Pending()!="" || port.Enabled()) return false; // This host is fixed no-order.
+      if(!loaded || Pending()!="") return false; // The native release gate remains in the fixed port.
       string f[],frame,disabled,risk,d[];
       if(StringSplit(packet,'\t',f)!=3 || f[0]!="demo-execution/1" || !ShUnhex(f[1],frame) || !ShUnhex(f[2],disabled) ||
          StringSplit(disabled,'\t',d)!=11 || !ShUnhex(d[1],risk)) return false;

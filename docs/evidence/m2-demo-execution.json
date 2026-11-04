@@ -1,12 +1,12 @@
 {
-  "schema": "m2-demo-disabled-execution/1",
+  "schema": "m2-demo-disabled-execution/2",
   "base_main": "f7a3831f2454db4b285db9818deb6c22a54f468e",
   "execution_enabled": false,
   "demo_order_acceptance": false,
   "broker_orders_sent": 0,
   "new_24_hour_campaign": false,
   "terminal_deployed": false,
-  "native_check_count": 30,
+  "native_check_count": 69,
   "native_checks": {
     "compiled-native-submission-disabled": "1",
     "dispatch-ENTER": "1",
@@ -37,7 +37,46 @@
     "transport-full-request": "1",
     "separate-native-outcome": "1",
     "paired-restart-receipt": "1",
-    "ack-persisted": "1"
+    "ack-persisted": "1",
+    "stop-rejection-durable": "1",
+    "rejected-stop-controlled-exit": "1",
+    "exit-ack-not-fill-no-resend": "1",
+    "protection-attempt-restart": "1",
+    "positive-close-settles-protection": "1",
+    "protective-fault-0": "1",
+    "protective-fault-1": "1",
+    "lost-protection-reply-no-resend": "1",
+    "protective-fault-2": "1",
+    "protective-fault-3": "1",
+    "state-needs-positive-query": "1",
+    "partial-fill-state-durable": "1",
+    "same-version-no-duplicate": "1",
+    "state-restart-retained-tip": "1",
+    "state-ack-durable": "1",
+    "state-ack-restart": "1",
+    "kernel-fixed-dispatch-complete": "1",
+    "attempt-receipt-not-no-order": "1",
+    "attempt-restart-no-resend": "1",
+    "kernel-reconciled-state-queued": "1",
+    "attempt-ack": "1",
+    "kernel-state-restart": "1",
+    "own-before-send-only-exemption": "1",
+    "aborted-entry-settles-no-call": "1",
+    "no-call-restart": "1",
+    "entry-protection-lifecycle-0": "1",
+    "entry-protection-lifecycle-1": "1",
+    "pre-call-crash-no-resend": "1",
+    "exit-rejection-hard-halt": "1",
+    "rejected-exit-never-retried": "1",
+    "repair-positive-query-required": "1",
+    "management-dispatch-CLOSE": "1",
+    "management-reconciled-CLOSE": "1",
+    "management-dispatch-TIGHTEN_STOP": "1",
+    "management-reconciled-TIGHTEN_STOP": "1",
+    "management-dispatch-CANCEL": "1",
+    "management-reconciled-CANCEL": "1",
+    "known-unprotected-not-inflight": "1",
+    "inflight-protection-blocks-management": "1"
   },
   "native_compilations": [
     {
@@ -53,13 +92,15 @@
   ],
   "native_dependency_sha256": {
     "mql5/connected/HighResolutionClock.mqh": "122c305fde353cf3c7cb1ee54cf70e29c38b6a20687eb7a255bb7c86c8a38af2",
-    "mql5/demo/DemoEA.mq5": "d1e2404933cd16fd79c43bd846240122c51989afc38480601781ec49e1e14bc0",
-    "mql5/demo/Kernel.mqh": "5d931c7e5fbaffdd5d5e9195241c60346c6758b11e4e8bc35fa0bccbc0505be7",
-    "mql5/demo/NativePort.mqh": "4468df773ee0e0279e6c013404c19ea22a4000e9e85c0086d7a8505bc67f7a3b",
-    "mql5/demo/NativeTests.mq5": "dac2812c7a408e4c99ade0b2f996fa125fd5d06e40c1299218256edfc0ba4015",
-    "mql5/demo/Protection.mqh": "337ff3c7552ea78b3df8a1b30b37dc09e97e473275295c461a91df7bc72f73cc",
-    "mql5/demo/Reconcile.mqh": "2d53bc2ca36f2aeb14526469d510e0e0ac697c7d1c31fa57f23c21875d61349a",
-    "mql5/demo/Runtime.mqh": "f6e9d03fc8f7798dd96c99c767e1d4ac953e8e64d2c92fe12d42e3bc44c4a1f4",
+    "mql5/demo/DemoEA.mq5": "922375b26a28eff2b4bf303e1b2e6cdaca2ab964cfcfac8a28e129c8445da590",
+    "mql5/demo/Kernel.mqh": "8ec601767404468fbf8212400007547448ed03abe56b4787482df9516f062b9d",
+    "mql5/demo/NativePort.mqh": "e0d1d23f880149b95bb71e291a075ef2ad5f92fb57f3df6c80cc0ace3e5d80d7",
+    "mql5/demo/NativeTests.mq5": "b04ea56353568f889ec088b09d11d49618a8750b69b319dccb64bb0478525409",
+    "mql5/demo/Protection.mqh": "2923c80509292e656cc8c4e2829eaa685f6b535949e6351fc934fac04211749e",
+    "mql5/demo/ProtectiveDispatch.mqh": "7fbb02b2c678f600d9e55423e65bde0e274881adc437d0c5ae84e9030ee45c6a",
+    "mql5/demo/Reconcile.mqh": "3f795ab3b3c5f17ac24f2b43474b58b072601b240ba3d2fd4e51e22205f559ed",
+    "mql5/demo/Runtime.mqh": "b59ed933a1f2cf71093165ba73e29e1771d7cd86d043cb12033b0935ae5c291a",
+    "mql5/demo/StateOutbox.mqh": "45b54443dfee7c6a09aa059a9f0d228fcd264fc1ed6aef8712f7a07c71962dfb",
     "mql5/gateway/Broker.mqh": "275c46f72fef1365192b1aa8d7d9a042f4da94a470d6b00b4dea55b7bed0c36b",
     "mql5/gateway/Core.mqh": "2969182e560d3d2dbac002b707172ad05fb1c0a4a3e430fcbbfa4c0f4b92fab1",
     "mql5/gateway/Wire.mqh": "ed54665a443e0ee92d3925fdb9ed9116363a9f2318c78524f9f3be75f3976dea",
@@ -72,15 +113,20 @@
     "mql5/shadow/Protocol.mqh": "5e0be4d9f71da28f0c27a5621b493b60044d924b88bdd455f531af493cd420a5"
   },
   "artifacts_sha256": {
-    "tests/fixtures/demo/demo-checks.tsv": "f54cafa7b722bcfbc673e3b80ed69a0c65c1835b9a09cf57676349326353c03a",
-    "tests/fixtures/demo/demo-receipt.txt": "96a6d79f2512ebda5878c3452cbe0a92af0504916057f9bde69840bbbca43a6c"
+    "tests/fixtures/demo/demo-attempt.txt": "3848a2a57ceadf4501c5fb5a500155da04637ce19ac2925429534819af0a896e",
+    "tests/fixtures/demo/demo-checks.tsv": "4ec2b1bc70b3d240386ba5e8a127f2d6c311f3b9c52e14ff4d54e5a771d6f2ae",
+    "tests/fixtures/demo/demo-receipt.txt": "96a6d79f2512ebda5878c3452cbe0a92af0504916057f9bde69840bbbca43a6c",
+    "tests/fixtures/demo/demo-state-CANCEL.txt": "6e5a8067fcd90bebc9c34555890a7d197b5f42e25c32036b1bb8c274eb0058c5",
+    "tests/fixtures/demo/demo-state-CLOSE.txt": "d5e02d2d90fdacc1d3b41b283fc8132ca9e8c4accbbf9eef1520a1fbf0a14263",
+    "tests/fixtures/demo/demo-state-TIGHTEN_STOP.txt": "8f95cea032a7249bd29beed20c9b46a37086f49d22008ab1a2227f5a733d04fb",
+    "tests/fixtures/demo/demo-state.txt": "37e89204200aca69773f3f61e5ed6b53459c0b371d45f2a07da8642e288c9c57"
   },
   "limitations": [
-    "Native execution calls use a Tester-only double; no broker order was placed.",
-    "Compiled disabled host was not deployed.",
-    "Risk reference receipt is separate from native execution result.",
-    "Protective mutations remain suppressed; real fill/SL/exit/recovery acceptance and reviewed activation are still required.",
-    "Historical M1 failures and qualification gaps remain unchanged."
+    "Native sends use a Tester-only double; real native sender remains hard-disabled. No broker order was placed.",
+    "Compiled bounded disabled host was not deployed.",
+    "Native signed state and reconciliation claims are not independent broker acceptance. Risk is not released by claims.",
+    "Reviewed finite-budget activation and actual demo-order acceptance are still required.",
+    "Historical M1 failures and provider gaps are unchanged."
   ],
   "attempts": [
     {
@@ -102,23 +148,50 @@
     {
       "stage": "native-demo-final-02",
       "outcome": "30 checks passed on current pinned sources"
+    },
+    {
+      "stage": "native-demo-completion-01",
+      "outcome": "sandbox local-agent connection blocked; no native result"
+    },
+    {
+      "stage": "native-demo-completion-02",
+      "outcome": "two recovery assertions failed; restart phase coercion and pending-query expectation corrected"
+    },
+    {
+      "stage": "native-demo-completion-03",
+      "outcome": "53 checks passed on preceding revision"
+    },
+    {
+      "stage": "native-demo-completion-04",
+      "outcome": "61 checks passed on pinned source; two programs compiled with zero errors/warnings"
+    },
+    {
+      "stage": "native-demo-completion-05",
+      "outcome": "69 native checks passed, including all four action reconciliation paths and protective overlap; two programs compiled with zero errors/warnings"
     }
   ],
   "regression": {
-    "tests": 820,
-    "passed": 820,
-    "failures": 0,
-    "errors": 0,
-    "skipped": 0,
-    "elapsed_seconds": 96.25500010000542,
-    "python_source_sha256": "648f834285091994e96c1587c172e32942f032f8a545996528735dd78ae8e402",
+    "exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 93.79237280017696,
+    "python_source_sha256": "b7a0188990bd63c7f94ba063da7949e1c89c297ab782bcd43a064ea3963350cb",
     "python_source_unchanged": true,
     "root_env_unchanged": true,
     "original_namespace_used": false,
+    "excluded_files": [],
     "broker_access": false,
-    "stdout_sha256": "2b9ee23423b5cfb99d2e12e7f30613e76b4f86963727a4f7888cabffb6119711",
-    "junit_sha256": "b33d9a84fa410d8ce8f3cae58d3200b32da8aa6cef3175f296dfc9a5064318bd",
-    "status": "PASSED"
+    "stdout_sha256": "b71a723f1a84a94f81f6b6182a2563edbae46a65e70009b357328b1bad755714",
+    "tests": 844,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 844,
+    "junit_sha256": "1d2bf96cea3c68c85a1a07f7f33d808955e3994cf6c5fe2a1d690f524d6b3475",
+    "status": "PASSED",
+    "python_source_hash_excludes": [
+      "tests/test_connected_evidence.py"
+    ],
+    "test_selection": "Complete suite, including PostgreSQL and loopback HTTPS; no test exclusions or skips."
   },
   "preservation": {
     "root": "834cb8b42199e1424de433a08afa1b808a4124ba",
@@ -126,5 +199,29 @@
     "cmc_campaign": "c9b2e435859d324097c6ef9c2b8db3f4cef7420e",
     "forex_campaign": "c9b2e435859d324097c6ef9c2b8db3f4cef7420e",
     "provider_campaign": "007a17ad71adb58f16d5d2f7383b1123ed8ec527"
+  },
+  "initial_evidence_sha256": "0d7b5fe74812dceb9079926d5a677286feebeb13237cbaeb3e9c5d2b355b6799",
+  "preceding_completion_regression": {
+    "exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 93.11167440004647,
+    "python_source_sha256": "d9fbbae43182e49286d09200f2f57beeb7a922fbf37c836a63258b07cbdea27e",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true,
+    "original_namespace_used": false,
+    "excluded_files": [],
+    "broker_access": false,
+    "stdout_sha256": "95eff0ac6ea305c1253f0bccf1fb1ded8b4ea290d19fdccdab1cc9ea79fb09d9",
+    "tests": 841,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 841,
+    "junit_sha256": "d7aa2685d28bc33ef461bf586d2168e2e021340f7ba033a010715340eeae277c",
+    "status": "PASSED"
+  },
+  "native_compile_log_sha256": {
+    "NativeTests": "71e2dfe7016dcf29e01f0a81166b332e56f2ee8ccf6eecc89f5e09b0a16e0c98",
+    "DemoEA": "0cc0f3cccda39eb48de0b28ba344e87039d2e538b9f321fc7c45f8c94168aca5"
   }
 }

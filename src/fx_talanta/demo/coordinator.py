@@ -2,6 +2,7 @@
 
 import re
 from dataclasses import replace
+from decimal import Decimal
 
 from fx_talanta.demo.projection import project
 from fx_talanta.demo.wire import encode_request
@@ -30,9 +31,17 @@ class DemoCoordinator(Coordinator):
         frame = Frame.decode(
             raw, self.backend.key, direction="C2S", scope=self.scope, client=self.client, now=now
         )
+        if frame.operation == "REPORT" and frame.payload.startswith("demo-state/1\t"):
+            return self._broker_state(frame, raw, now)
         with self.lock:
             with self.store.transaction() as events:
                 self._check(events)
+                if any(
+                    e.get("nonce") == frame.nonce
+                    and e["kind"] in {"demo_broker_state", "demo_broker_state_ack"}
+                    for e in events.records
+                ):
+                    raise ValueError("NONCE_CONFLICT")
                 prior = next(
                     (
                         e
@@ -58,13 +67,21 @@ class DemoCoordinator(Coordinator):
             original = raw
             if frame.operation == "REPORT":
                 parts = frame.payload.split("\t")
-                if (
-                    len(parts) != 5
-                    or parts[0] != "demo-receipt/1"
-                    or parts[4] != "0"
-                    or not re.fullmatch(r"[A-Z0-9_]{1,80}", parts[2])
-                    or parts[3] not in {"NOT_ADMITTED", "REJECTED", "READY", "INTERRUPTED"}
-                ):
+                no_order = (
+                    len(parts) == 5
+                    and parts[0] == "demo-receipt/1"
+                    and parts[4] == "0"
+                    and parts[3] in {"NOT_ADMITTED", "REJECTED", "READY", "INTERRUPTED"}
+                )
+                attempted = (
+                    len(parts) == 5
+                    and parts[0] == "demo-receipt/2"
+                    and (
+                        (parts[3] == "ACKNOWLEDGED" and parts[4] == "ATTEMPTED")
+                        or (parts[3] in {"SUBMITTING", "OUTCOME_UNKNOWN"} and parts[4] == "UNKNOWN")
+                    )
+                )
+                if not (no_order or attempted) or not re.fullmatch(r"[A-Z0-9_]{1,80}", parts[2]):
                     raise ValueError("DISABLED_EXECUTION_RECEIPT_REQUIRED")
                 reference = bytes.fromhex(parts[1]).decode("ascii")
                 if len(reference.split("\t")) != 10:
@@ -116,9 +133,13 @@ class DemoCoordinator(Coordinator):
                 result = replace(response, payload=digest(frame.payload)).encode(self.backend.key)
                 with self._guard(receipt=True), self.store.transaction() as events:
                     self._check(events)
+                    ledger = self._ledger(events)
+                    if attempted:
+                        ledger = ledger.model_copy(update={"hard_halt": True})
                     events.append(
                         dict(
                             kind="demo_report",
+                            ledger=ledger.model_dump(mode="json"),
                             nonce=frame.nonce,
                             request_hash=digest(original.decode()),
                             request_id=request_id,
@@ -147,20 +168,142 @@ class DemoCoordinator(Coordinator):
                 result = replace(response, payload=payload).encode(self.backend.key)
             return result
 
+    def _broker_state(self, frame, raw, now):
+        from fx_talanta.demo.state import decode_state, reconcile_claim
+
+        with self.lock, self._guard(receipt=True):
+            with self.store.transaction() as events:
+                self._check(events)
+                for event in events.records:
+                    if event.get("nonce") == frame.nonce and "request_hash" in event:
+                        if event["kind"] not in {
+                            "demo_broker_state",
+                            "demo_broker_state_ack",
+                        } or event["request_hash"] != digest(raw.decode()):
+                            raise ValueError("NONCE_CONFLICT")
+                        return event["response"].encode()
+                fields = frame.payload.split("\t")
+                if len(fields) != 14:
+                    raise ValueError("INVALID_BROKER_STATE")
+                request_id = fields[1]
+                work = next(
+                    (
+                        e
+                        for e in events.records
+                        if e["kind"] == "work" and e["work"].split("\t")[1] == request_id
+                    ),
+                    None,
+                )
+                if work is None:
+                    raise ValueError("UNKNOWN_WORK")
+                prior = [
+                    e
+                    for e in events.records
+                    if e["kind"] == "demo_broker_state" and e["request_id"] == request_id
+                ]
+                same = next(
+                    (e for e in prior if str(e["state"]["payload"]["sequence"]) == fields[3]), None
+                )
+                if same and same["report"] != frame.payload:
+                    raise ValueError("BROKER_STATE_REVISION_CONFLICT")
+                previous = prior[-1] if prior else None
+                if same:
+                    state = Envelope.model_validate(same["state"])
+                    remaining, error = same["remaining_volume"], same["clock_error_ms"]
+                else:
+                    state, remaining, error = decode_state(
+                        frame.payload, Envelope.model_validate(work["envelope"]), now, previous
+                    )
+                response = Frame(
+                    "S2C",
+                    self.scope,
+                    self.client,
+                    frame.nonce,
+                    now,
+                    now + 5000,
+                    "ACK",
+                    digest(frame.payload),
+                ).encode(self.backend.key)
+                # A report is evidence, never permission. In this disabled release,
+                # any claimed fill is an anomaly that adds a sticky entry veto.
+                ledger = self._ledger(events)
+                if (
+                    state.payload.filled_volume > 0
+                    or work["envelope"]["payload"]["action"] != "ENTER"
+                ):
+                    ledger = ledger.model_copy(update={"hard_halt": True})
+                if same:
+                    events.append(
+                        dict(
+                            kind="demo_broker_state_ack",
+                            nonce=frame.nonce,
+                            request_hash=digest(raw.decode()),
+                            request_id=request_id,
+                            response=response.decode(),
+                        )
+                    )
+                else:
+                    events.append(
+                        dict(
+                            kind="demo_broker_state",
+                            nonce=frame.nonce,
+                            request_hash=digest(raw.decode()),
+                            request_id=request_id,
+                            report=frame.payload,
+                            state=state.model_dump(mode="json"),
+                            reconciliation=reconcile_claim(state).model_dump(mode="json"),
+                            remaining_volume=str(remaining),
+                            observed_position_volume=str(Decimal(fields[6]) / Decimal(100000000)),
+                            action=work["envelope"]["payload"]["action"],
+                            clock_error_ms=error,
+                            received_at_ms=now,
+                            response=response.decode(),
+                            ledger=ledger.model_dump(mode="json"),
+                            source="EA_BROKER_RECONCILIATION",
+                            independently_verified=False,
+                            execution_enabled=False,
+                        )
+                    )
+                next_tip = events.tip
+            self.tip = next_tip
+            return response
+
     def status(self, now):
         result = super().status(now)
         with self.lock, self.store.transaction() as events:
             self._check(events)
+            states = {
+                e["request_id"]: e for e in events.records if e["kind"] == "demo_broker_state"
+            }
+            result["broker_states"] = [
+                dict(
+                    state=e["state"],
+                    remaining_volume=e["remaining_volume"],
+                    action=e["action"],
+                    observed_position_volume=e["observed_position_volume"],
+                    observation_age_ms=now
+                    - int(
+                        Envelope.model_validate(e["state"]).payload.created_at.timestamp() * 1000
+                    ),
+                    clock_error_ms=e["clock_error_ms"],
+                    source=e["source"],
+                    independently_verified=False,
+                )
+                for e in states.values()
+            ]
             unique = {e["request_id"]: e for e in events.records if e["kind"] == "demo_report"}
             result["native_execution_results"] = [
                 dict(
                     request_id=e["request_id"],
                     reason=e["receipt"].split("\t")[2],
                     state=e["receipt"].split("\t")[3],
-                    orders_sent=0,
+                    orders_sent=0 if e["receipt"].split("\t")[0] == "demo-receipt/1" else None,
+                    mutation_attempt=e["receipt"].split("\t")[4],
                 )
                 for e in unique.values()
             ]
+        if any(e["orders_sent"] is None for e in result["native_execution_results"]):
+            result["orders_sent"] = None
         result["integration"] = "DEMO_EXECUTION_DISABLED"
         result["channels"]["EA"]["capability"] = "DEMO_EXECUTION_DISABLED"
         return result

@@ -15,6 +15,7 @@ public:
    virtual bool RefreshRisk(const FxWork &w,string &keys[],string &values[]){ return false; }
    virtual bool Immediate(const FxWork &w,string risk,const FxContext &c){ return false; }
    virtual bool BeforeMutation(const FxWork &w){ return false; }
+   virtual bool NoMutation(const FxWork &w){return true;}
    virtual bool Send(MqlTradeRequest &r,MqlTradeResult &s){ return false; }
 };
 string DemoSafety(const FxWork &w,string risk,const SLoss &ledger,const FxContext &c,long &lots,DemoPort &port)
@@ -95,7 +96,7 @@ public:
       lots=(long)MathMin(lots,retained);
       if(reason=="OK" && !gateway.Audit(index,DemoFacts(c,lots,risk))) return "JOURNAL_UNAVAILABLE";
       if(reason!="OK" || !port.Immediate(w,risk,c) || !port.Enabled())
-      { string why=reason!="OK" ? reason : "FINAL_BARRIER_REFUSED"; gateway.AbortBeforeCall(index,why); return why; }
+      { string why=reason!="OK" ? reason : "FINAL_BARRIER_REFUSED"; gateway.AbortBeforeCall(index,why); if(!port.NoMutation(w))return "PROTECTION_JOURNAL_UNAVAILABLE";return why; }
       request.volume=(double)lots/1e8;
       if(w.action=="TIGHTEN_STOP") request.tp=c.accepted_target;
       MqlTradeResult result={}; bool sent=port.Send(request,result);
