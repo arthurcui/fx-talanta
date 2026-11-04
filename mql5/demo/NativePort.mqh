@@ -2,10 +2,15 @@
 #define FX_DEMO_NATIVE_PORT
 #include "Runtime.mqh"
 #include "AcceptanceBudget.mqh"
+#include "Activation.mqh"
 #include "../connected/HighResolutionClock.mqh"
 #include "../gateway/Broker.mqh"
 // Hard release gate. Neither request, input setting nor Algo Trading can enable it.
+#ifdef FX_BOUNDED_DEMO_RELEASE
+const bool FX_DEMO_SUBMISSION_AUTHORIZED=true;
+#else
 const bool FX_DEMO_SUBMISSION_AUTHORIZED=false;
+#endif
 class DemoNativePort : public DemoPort
 {
 private:
@@ -17,16 +22,18 @@ private:
    long valid_until;
    DemoProtectionStore *protection;
    DemoAcceptanceBudget *budget;
+   DemoActivationPermit *activation;
    string boot,armed_before_send;
    long repair_delay,exit_delay;
    ulong entry_deadline_mono;
 public:
-   DemoNativePort(){ entry_deadline_mono=0; budget=NULL; protection=NULL; boot=""; repair_delay=0;exit_delay=0; mapped=false; now_ms=0; error_ms=1000; state=NULL; clock=NULL; valid_until=0; paused=true; halted=true; session=false; }
+   DemoNativePort(){ activation=NULL; entry_deadline_mono=0; budget=NULL; protection=NULL; boot=""; repair_delay=0;exit_delay=0; mapped=false; now_ms=0; error_ms=1000; state=NULL; clock=NULL; valid_until=0; paused=true; halted=true; session=false; }
    void Bind(string b,string s,string l,string r,string p,string eur,string jpy,FxGateway *journal,ShHighResolutionClock *verified_clock)
    { broker=b; server=s; login=l; release=r; policy=p; eurusd=eur; usdjpy=jpy; state=journal; clock=verified_clock; }
    void Observe(long now,int error,long qualified_offset,bool mapping_qualified,bool open,bool owner_pause,bool hard_halt,long evidence_until)
    { now_ms=now; error_ms=error; offset_ms=qualified_offset; mapped=mapping_qualified; session=open; paused=owner_pause; halted=hard_halt; valid_until=evidence_until; }
-   virtual bool Enabled(){ return FX_DEMO_SUBMISSION_AUTHORIZED && budget!=NULL && budget.Healthy() && !MQLInfoInteger(MQL_TESTER) &&
+   virtual bool Enabled(){ return FX_DEMO_SUBMISSION_AUTHORIZED && activation!=NULL && activation.Armed() && MQLInfoInteger(MQL_TRADE_ALLOWED) &&
+      AccountInfoInteger(ACCOUNT_TRADE_ALLOWED) && AccountInfoInteger(ACCOUNT_TRADE_EXPERT) && budget!=NULL && budget.Healthy() && !MQLInfoInteger(MQL_TESTER) &&
       AccountInfoInteger(ACCOUNT_TRADE_MODE)==ACCOUNT_TRADE_MODE_DEMO && TerminalInfoInteger(TERMINAL_TRADE_ALLOWED); }
    virtual bool Context(const FxWork &w,FxContext &c)
    {
@@ -116,6 +123,7 @@ public:
       StringSplit(SHADOW_FIELDS,'\t',k);
       return SV(k,v,"quote_age_ms")+at-SV(k,v,"measured_at_ms")+MathMax(error,SV(k,v,"clock_error_ms"))<=2000;
    }
+   void BindActivation(DemoActivationPermit *permit){activation=permit;}
    void BindBudget(DemoAcceptanceBudget *value,ulong deadline){budget=value;entry_deadline_mono=deadline;}
    virtual bool BeforeMutation(const FxWork &w)
    {

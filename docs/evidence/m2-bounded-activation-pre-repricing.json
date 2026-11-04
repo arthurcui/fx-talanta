@@ -1,0 +1,45 @@
+{
+  "schema": "m2-bounded-activation/1",
+  "status": "OFFLINE_VERIFIED_NOT_BROKER_ACCEPTED",
+  "native_check_count": 117,
+  "checks_sha256": "07a90fe5197a712c8a17daab666bebb4d790990f2d7ae0e5a1617b2097e315a2",
+  "native_dependency_sha256": {
+    "mql5/demo/AcceptanceBudget.mqh": "bf4bcbe37b910a1518ab9c54521f8b5186da8187dd899e835c2425d0c20a5122",
+    "mql5/demo/Activation.mqh": "ba4bad344921aa79b0505f5b5554d985a6b3a4757056d7c7d133d65032cdb330",
+    "mql5/demo/BoundedDemoEA.mq5": "bb27a7e46b9f48bbbcc67becc7ae77595648b09eebf99015ce41e7af0d26d5eb",
+    "mql5/demo/DemoEA.mq5": "5d5aef4cc21eb6a66c236d6763dbaec7ed4fdff0695680b3ec88a997eba2ca31",
+    "mql5/demo/Drain.mqh": "7bda18cdc3aa3cc44cea401c019fdc6b7c6183972c189f306591beaa214be81d",
+    "mql5/demo/Kernel.mqh": "8ec601767404468fbf8212400007547448ed03abe56b4787482df9516f062b9d",
+    "mql5/demo/NativePort.mqh": "5e8ef2496f6f877a9dd0838226eee39ccebe6e76b4c7aecff0d5df039109619f",
+    "mql5/demo/NativeTests.mq5": "03019131b58a10fb979527f548aebe1e56b5421d41d61fd5e6237ce9c0f8bf7c",
+    "mql5/demo/Protection.mqh": "fb62ff12b05d0882d754c20c1a92e619d7018628589e93b5b32102036f640d02",
+    "mql5/demo/ProtectiveDispatch.mqh": "5938e0423af1f0db940cf8b289ac227687a1be45707f69e93714a9cd9d210a3a",
+    "mql5/demo/Reconcile.mqh": "3f795ab3b3c5f17ac24f2b43474b58b072601b240ba3d2fd4e51e22205f559ed",
+    "mql5/demo/Runtime.mqh": "b59ed933a1f2cf71093165ba73e29e1771d7cd86d043cb12033b0935ae5c291a",
+    "mql5/demo/StateOutbox.mqh": "45b54443dfee7c6a09aa059a9f0d228fcd264fc1ed6aef8712f7a07c71962dfb"
+  },
+  "compiled": [
+    "NativeTests",
+    "DemoEA",
+    "BoundedDemoEA"
+  ],
+  "native_compile_errors": 0,
+  "native_compile_warnings": 0,
+  "native_runtime": "isolated portable offline tester; default release and mock broker only",
+  "bounded_binary_deployed": false,
+  "execution_enabled": false,
+  "broker_orders_sent": 0,
+  "demo_order_acceptance": false,
+  "strategy_trading_enabled": false,
+  "m1_gaps_preserved": true,
+  "new_24_hour_campaign": false,
+  "entry_ceiling_ms": 2000,
+  "per_entry_bps": 25,
+  "cumulative_bps": 50,
+  "max_entries": 2,
+  "max_lot_units": 2000000,
+  "mapping_status": "Independent same-day calendar/native-clock offset evidence obtained; finite per-attempt policies, no M1 qualification",
+  "regression": {
+    "status": "PENDING"
+  }
+}

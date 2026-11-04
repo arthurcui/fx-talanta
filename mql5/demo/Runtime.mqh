@@ -29,10 +29,19 @@ string DemoSafety(const FxWork &w,string risk,const SLoss &ledger,const FxContex
    MqlDateTime dt; if(!TimeToStruct((datetime)(c.now_ms/1000),dt) || ledger.day!=dt.year*10000+dt.mon*100+dt.day) return "LOSS_DAY_UNRECONCILED"; // Ownership/version and no-loosening checks above apply even during a halt.
    if(SText(k,v,"side")!=w.side || MathAbs(SV(k,v,"stop")-(double)w.stop/1e8)>1e-10) return "SNAPSHOT_REQUEST_MISMATCH";
    if(!port.RefreshRisk(w,k,v)) return "BROKER_RISK_UNAVAILABLE";
-   SSet(k,v,"bid",DoubleToString(c.bid,8)); SSet(k,v,"ask",DoubleToString(c.ask,8));
    SSet(k,v,"clock_error_ms",IntegerToString((long)MathMax(c.clock_error_ms,SV(k,v,"clock_error_ms"))));
    double volume=0,loss=0,gross=0,margin=0;
+   // Validate the original conversion relationship before deriving anything.
+   // A refreshed quote must not repair an invalid authenticated snapshot.
    reason=SPreflight(k,v,ledger,c.now_ms-(long)SV(k,v,"measured_at_ms"),(double)w.volume/1e8,w.max_risk,true,true,volume,loss,gross,margin);
+   if(reason!="ACCEPTED") return reason;
+   double source_volume=volume,usd=SV(k,v,"usd_to_account");
+   SSet(k,v,"bid",DoubleToString(c.bid,8)); SSet(k,v,"ask",DoubleToString(c.ask,8));
+   // Only the symbol-price-derived legs change. The USD/account observation,
+   // its age, original quote age and original source hash remain unchanged.
+   SSet(k,v,"base_to_account",DoubleToString(w.symbol=="EURUSD" ? c.bid*usd : usd,16));
+   SSet(k,v,"quote_to_account",DoubleToString(w.symbol=="EURUSD" ? usd : usd/c.bid,16));
+   reason=SPreflight(k,v,ledger,c.now_ms-(long)SV(k,v,"measured_at_ms"),source_volume,w.max_risk,true,true,volume,loss,gross,margin);
    if(reason!="ACCEPTED") return reason;
    lots=((long)MathMin(lots,MathFloor(volume*1e8+0.000001))/c.lot_step)*c.lot_step;
    return lots>=c.min_lot ? "OK" : "MINIMUM_LOT";

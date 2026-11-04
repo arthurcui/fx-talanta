@@ -44,6 +44,20 @@ public:
    virtual bool Immediate(const FxWork &w,string risk,const FxContext &c){return !refuse_final;}
    virtual bool NoMutation(const FxWork &w){armed="";return protection.NoCall(w.id);}
 };
+class RepricePort : public FixturePort
+{
+public:
+   double shift;
+   RepricePort(){shift=0.00001;}
+   virtual bool Context(const FxWork &w,FxContext &c)
+   {if(!FixturePort::Context(w,c))return false;c.bid+=shift;c.ask+=shift;return true;}
+};
+string ChangedRiskField(string risk,string name,string value)
+{
+   string f[],k[];StringSplit(risk,'\t',f);StringSplit(SHADOW_FIELDS,'\t',k);
+   for(int i=0;i<ArraySize(k);i++)if(k[i]==name)f[9+i]=value;
+   string result=f[0];for(int i=1;i<ArraySize(f);i++)result+="\t"+f[i];return result;
+}
 class FixtureHistory : public DemoHistorySource
 {
 public:
@@ -113,6 +127,13 @@ int OnInit()
       runtime.Close();
    }
    DemoRuntime runtime;FixturePort fake;
+   RepricePort repriced;FxWork repriced_work;FxDecode(frames[0],repriced_work,true);FxContext repriced_context;repriced.Context(repriced_work,repriced_context);long repriced_lots=0;
+   Check("changed-native-price-rederives-conversion",DemoSafety(repriced_work,risks[0],ledger,repriced_context,repriced_lots,repriced)=="OK" && repriced_lots<=repriced_work.volume);
+   Check("repricing-does-not-heal-invalid-source",DemoSafety(repriced_work,ChangedRiskField(risks[0],"base_to_account","1.10001"),ledger,repriced_context,repriced_lots,repriced)=="CONVERSION_INCONSISTENT");
+   Check("repricing-does-not-refresh-source-quote-age",DemoSafety(repriced_work,ChangedRiskField(risks[0],"quote_age_ms","1999"),ledger,repriced_context,repriced_lots,repriced)=="QUOTE_STALE");
+   Check("repricing-does-not-refresh-conversion-age",DemoSafety(repriced_work,ChangedRiskField(risks[0],"conversion_age_ms","1999"),ledger,repriced_context,repriced_lots,repriced)=="CONVERSION_STALE");
+   repriced.shift=0.001;repriced.Context(repriced_work,repriced_context);
+   Check("repricing-retains-adverse-cost-limit",DemoSafety(repriced_work,risks[0],ledger,repriced_context,repriced_lots,repriced)=="COST_LIMIT");
    Check("bootstrap",runtime.Open("main.execution",b[0],true,""));
    fake.enabled=false;
    Check("disabled-before-submitting",runtime.Dispatch(frames[0],risks[0],ledger,fake)=="TRADING_DISABLED" && fake.sends==0 && runtime.State().At(0).state=="REJECTED");
@@ -321,6 +342,9 @@ int OnInit()
    Check("drain-empty-no-positive-query",!DemoDrainComplete(runtime.State(),cursor,false,true,true,false,false));
    runtime.Dispatch(frames[0],risks[0],ledger,drain_port);
    Check("drain-ack-not-flat-proof",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));
+   Check("empty-position-snapshot-valid",FxHex(DemoPositionsFingerprint(""),64));
+   Check("empty-position-snapshot-repeatable",DemoPositionsFingerprint("")==DemoPositionsFingerprint(""));
+   Check("empty-position-snapshot-distinct",DemoPositionsFingerprint("")!=DemoPositionsFingerprint("1:0.01000000:1.00000000:2.00000000;"));
    ClosedHistory closing;closing.comment=FxComment(first);cursor.Begin();result="INCOMPLETE";
    while(result=="INCOMPLETE")result=cursor.Step(runtime.State(),closing,2);
    Check("drain-positive-close",cursor.Confirmed(0) && DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));
@@ -330,6 +354,30 @@ int OnInit()
    Check("drain-protection-unknown",!DemoDrainComplete(runtime.State(),cursor,true,true,true,true,false));
    cursor.Invalidate();
    Check("drain-invalidated-scan",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));runtime.Close();
+   FixturePort campaign_port;runtime.Open("campaign-close.execution",b[0],true,"");runtime.Dispatch(frames[0],risks[0],ledger,campaign_port);
+   runtime.State().Reconcile(0,true,9000000,9000000,0,500,700,1.098,true);
+   campaign_port.expected_version=runtime.State().At(0).version;
+   DemoProtectionStore campaign_ps;campaign_ps.Open("campaign-close.protection",b[0],true,"");campaign_ps.Begin(first.id,100,boot,100,200);
+   Check("campaign-close-positive-query-required",DemoProtect(runtime.State(),0,campaign_ps,campaign_port,150,boot,true,false,attempted,true)=="ALERT_UNRESOLVED_NO_MUTATION" && campaign_port.sends==1);
+   Check("campaign-close-protected-position",DemoProtect(runtime.State(),0,campaign_ps,campaign_port,160,boot,true,true,attempted,true)=="PROTECTION_ACKNOWLEDGED" && attempted && campaign_port.sends==2);
+   Check("campaign-close-no-resend",DemoProtect(runtime.State(),0,campaign_ps,campaign_port,170,boot,true,true,attempted,true)=="CAMPAIGN_EXIT_RECONCILE_NO_RESEND" && campaign_port.sends==2);
+   campaign_ps.Close();campaign_ps.Open("campaign-close.protection",b[0],false,DgFileTip("campaign-close.protection"));
+   Check("campaign-close-restart-no-resend",DemoProtect(runtime.State(),0,campaign_ps,campaign_port,180,boot,true,true,attempted,true)=="CAMPAIGN_EXIT_RECONCILE_NO_RESEND" && campaign_port.sends==2);
+   runtime.State().Reconcile(0,true,9000000,0,0,500,700,0,true);
+   Check("campaign-close-positive-final",DemoProtect(runtime.State(),0,campaign_ps,campaign_port,190,boot,true,true,attempted,true)=="CLOSED_CONFIRMED" && !campaign_ps.Unresolved());
+   runtime.Close();campaign_ps.Close();
+   DemoActivationPermit permit;
+   string permit_text="BOUNDED_DEMO_ACTIVATION_1\t"+cap_scope+"\t"+limited.release+"\t"+limited.policy+"\t"+plan_hash+"\t"+FxHash("broker-declaration")+"\t"+FxHash("operating-inputs")+"\t"+IntegerToString(budget_start)+"\t"+IntegerToString(budget_end)+"\t7200000\t"+IntegerToString(budget_end+60000);
+   Check("activation-explicit-manifest",!permit.Armed() && permit.Load(permit_text,FxHash(permit_text),cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,7200000,budget_end+60000));
+   Check("activation-wrong-budget",!permit.Load(permit_text,FxHash(permit_text),cap_scope,limited.release,limited.policy,FxHash("other-plan"),budget_start,budget_end,7200000,budget_end+60000) && !permit.Armed());
+   Check("activation-wrong-offset",!permit.Load(permit_text,FxHash(permit_text),cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,0,budget_end+60000));
+   Check("activation-wrong-hash",!permit.Load(permit_text,FxHash("changed"),cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,7200000,budget_end+60000));
+   ShHighResolutionClock exchange_clock;long exchange_now=0;int exchange_error=0;
+   exchange_clock.SyncUs(1000000,10,1000,2000);exchange_clock.NowUs(10000,exchange_now,exchange_error);
+   exchange_clock.NowUs(21000,exchange_now,exchange_error);
+   Check("sync-late-deadline-watermark-refuses",!exchange_clock.SyncUs(1000010,10,10000,20000) && exchange_clock.Reason()=="CLOCK_REGRESSION");
+   exchange_clock.Reset();exchange_clock.SyncUs(1000000,10,1000,2000);exchange_clock.NowUs(10000,exchange_now,exchange_error);
+   Check("sync-before-deadline-clock-read",exchange_clock.SyncUs(1000010,10,10000,20000) && exchange_clock.NowUs(21000,exchange_now,exchange_error) && exchange_error<=100);
    FileClose(checks);return INIT_SUCCEEDED;
 }
 void OnTick(){ TesterStop(); }

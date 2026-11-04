@@ -74,6 +74,81 @@ def connect(server, context):
     return context.wrap_socket(sock, server_hostname="127.0.0.1")
 
 
+@pytest.fixture
+def reusable_server(tls_material):
+    cert, key = tls_material
+    calls = []
+
+    def app(environ, respond):
+        calls.append(environ["wsgi.input"].read(int(environ["CONTENT_LENGTH"])))
+        respond("200 OK", [("Content-Length", "2")])
+        return [b"OK"]
+
+    server = listener(app, cert, key, request_timeout=0.4, keep_alive=True)
+    thread = threading.Thread(
+        target=server.serve_forever, kwargs={"poll_interval": 0.02}, daemon=True
+    )
+    thread.start()
+    yield server, ssl.create_default_context(cafile=str(cert)), calls
+    server.shutdown()
+    server.server_close()
+    thread.join(timeout=2)
+    assert not thread.is_alive() and not server.deadlines
+
+
+def test_opt_in_reuse_is_limited_to_four_requests(reusable_server):
+    server, context, calls = reusable_server
+    c = http.client.HTTPSConnection(*server.server_address, context=context, timeout=2)
+    try:
+        c.connect()
+        original = c.sock
+        for i in range(4):
+            c.request("POST", "/v1/shadow", b"x")
+            response = c.getresponse()
+            assert response.status == 200 and response.read() == b"OK"
+            assert response.getheader("Connection") == ("keep-alive" if i < 3 else "close")
+            assert c.sock is original if i < 3 else c.sock is None
+        assert calls == [b"x"] * 4
+    finally:
+        c.close()
+
+
+def test_reuse_does_not_reset_absolute_connection_deadline(reusable_server):
+    server, context, _ = reusable_server
+    c = http.client.HTTPSConnection(*server.server_address, context=context, timeout=2)
+    try:
+        c.request("POST", "/v1/shadow", b"x")
+        assert c.getresponse().read() == b"OK"
+        with server.deadline_lock:
+            timer = next(iter(server.deadlines.values()))[1]
+        time.sleep(0.12)
+        c.request("POST", "/v1/shadow", b"x")
+        assert c.getresponse().read() == b"OK"
+        with server.deadline_lock:
+            assert next(iter(server.deadlines.values()))[1] is timer
+        timer.join(timeout=0.8)
+        assert not timer.is_alive()
+        c.sock.settimeout(0.5)
+        assert c.sock.recv(1) == b""
+    finally:
+        c.close()
+
+
+def test_reuse_closes_on_protocol_error(reusable_server):
+    server, context, _ = reusable_server
+    c = http.client.HTTPSConnection(*server.server_address, context=context, timeout=2)
+    try:
+        c.request("POST", "/v1/shadow", b"x")
+        assert c.getresponse().read() == b"OK"
+        c.request("GET", "/v1/shadow")
+        response = c.getresponse()
+        assert response.status == 501
+        response.read()
+        assert c.sock is None
+    finally:
+        c.close()
+
+
 def test_repeated_native_style_requests_explicitly_close_each_response(server):
     server, context, calls = server
     connection = http.client.HTTPSConnection(*server.server_address, context=context, timeout=2)

@@ -10,7 +10,7 @@ bool DemoDefiniteReject(uint code)
       code==TRADE_RETCODE_MARKET_CLOSED || code==TRADE_RETCODE_NO_MONEY || code==TRADE_RETCODE_INVALID_FILL;
 }
 string DemoProtect(FxGateway &gateway,int index,DemoProtectionStore &store,DemoPort &port,
-                   long mono,string boot,bool broker,bool confirmed,bool &attempted)
+                   long mono,string boot,bool broker,bool confirmed,bool &attempted,bool campaign_close=false)
 {
    attempted=false;
    if(index<0 || index>=gateway.Count()) return "INVALID_PARENT";
@@ -19,6 +19,16 @@ string DemoProtect(FxGateway &gateway,int index,DemoProtectionStore &store,DemoP
    string action=store.Step(entry.work.id,mono,boot,broker,confirmed,entry.state=="PROTECTED",
       entry.state=="CLOSED",entry.state=="OUTCOME_UNKNOWN",false,false);
    if(action=="JOURNAL_UNAVAILABLE" || action=="STORAGE_OR_STATE_MISSING")return "PROTECTION_JOURNAL_UNAVAILABLE";
+   if(campaign_close && confirmed && broker && entry.state=="PROTECTED" && entry.open_volume>0)
+   {
+      // A positive protected position may be closed at campaign end. The same
+      // retained one-shot exit fence covers both emergency and planned closure.
+      if(store.ExitAttempted(entry.work.id))return "CAMPAIGN_EXIT_RECONCILE_NO_RESEND";
+      SProtection current;
+      if(!store.Read(entry.work.id,current) || current.boot!=boot || mono<current.last ||
+         store.MutationPending(entry.work.id))return "CAMPAIGN_EXIT_UNRESOLVED";
+      action="CONTROLLED_EXIT_ONCE";
+   }
    if(action!="ATTACH_STOP_ONCE" && action!="CONTROLLED_EXIT_ONCE") return action;
    if(!port.Enabled()) return "TRADING_DISABLED";
    if(!confirmed || entry.position==0 || entry.open_volume<=0) return "RECONCILE_NO_MUTATION";

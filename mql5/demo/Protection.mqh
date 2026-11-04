@@ -99,6 +99,7 @@ public:
    bool Read(string id,SProtection &value){int i=Find(id);if(!loaded || i<0)return false;value=states[i];return true;}
    bool MutationPending(string id)
    {int i=Find(id);return !loaded || (i>=0 && (states[i].phase=="REPAIRING" || states[i].phase=="EXITING" || states[i].phase=="UNKNOWN"));}
+   bool ExitAttempted(string id){int i=Find(id);return !loaded || i<0 || exits[i];}
    bool Healthy(){return loaded;}
    bool Has(string id){ return loaded && Find(id)>=0; }
    bool HardHalt(){ if(!loaded) return true; for(int i=0;i<ArraySize(states);i++) if(states[i].hard) return true; return false; }

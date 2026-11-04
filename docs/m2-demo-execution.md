@@ -1,4 +1,132 @@
-# Disabled demo execution integration
+# Bounded demo execution integration
+
+## Current implementation and acceptance boundary — November 4
+
+PR #23 adds an explicitly armed, demo-only execution build alongside the
+hard-disabled default build. Strategy and live trading remain blocked. M1 broker
+and provider gaps remain separate and unchanged. No new 24-hour campaign ran.
+The actual bounded-order verdict is **verified with read-only recovery**, recorded
+in the [sanitized session report](evidence/m2-bounded-demo-20261104.json): one
+0.01-lot EURUSD entry, broker-confirmed protection and one controlled close.
+The backend received and the native outbox acknowledged the final `CLOSED` state
+after the recovery described below. The original session was not an unattended
+first-pass success. All test EAs/listeners are stopped, the account is flat,
+Algo Trading is off and the original authority is retired.
+Full M1 and the full M2 fault matrix remain unqualified;
+compilation, a reference-risk acceptance and a native ACK are not substitutes for
+independently verified broker fills and closure.
+
+### Activation and authority
+
+`DemoEA.mq5` retains its hard-disabled release. `BoundedDemoEA.mq5` selects a
+separate compiled release that also requires a local, exact-hash activation
+manifest, pinned account/demo identity, release/policy/budget fingerprints,
+qualified finite timestamp policy, healthy journals and terminal/EA permissions.
+A terminal toggle alone cannot authorize it. There is no HTTP activation,
+budget-reset or model-selected execution endpoint.
+
+The backend remains incapable of broker submission (`execution_enabled=false`).
+It records native authorization separately, requires a recent authenticated
+readiness report, and charges the dedicated percentage budget before publishing.
+Readiness and publication are serialized; a readiness hold before admission does
+not consume a reservation. A committed reservation is never refunded or replayed.
+The native port independently validates identity, source and current quote age,
+loss/exposure limits, volume, protection and the fixed submission boundary.
+
+The owner-authorized maximum remains two entry reservations, 0.02 lot per entry,
+one position at a time, 0.25% planned risk per entry and 0.50% cumulative planned
+risk. The actual test uses stricter 0.01-lot requests and 0.10% reservations.
+Starting/current/prior eligible-equity minima and conservative integer rounding
+apply. A later isolated window carries prior consumed entries and risk forward;
+new files or a new process do not replenish authorization. Original expired
+windows are never reopened or extended.
+
+A verified closure requires positive entry/exit deal witnesses and a flat broker
+account. A separate no-execution settlement requires a complete independent audit
+of the authenticated definite rejection, native journal with no submission,
+unchanged broker order/deal history and flatness. Neither settlement refunds the
+charge; missing positions, a hash alone, an EA claim or an uncertain result cannot
+settle it. Both are trusted local audit boundaries, not network operations.
+
+### Time, prices and controlled close
+
+A same-day FOREX terminal Calendar export places the ISM services release at
+17:00 server time; the official release schedule places it at 15:00 UTC.
+Market Watch independently corroborated the two-hour server offset. Each test
+pins that evidence to a finite +7,200-second mapping. It does not establish broker
+clock accuracy, sustained timeliness, another broker's mapping or M1 acceptance.
+Original captures/bindings remain unchanged; normalized captures retain source
+fingerprints. No host clock was adjusted.
+
+The native high-resolution clock consumes a synchronization interval before any
+later read advances its monotonic watermark. Its 100 ms uncertainty limit and
+full measured RTT accounting remain unchanged. The two-second entry ceiling is
+checked against both the original observation and current native quote, including
+a final post-persistence check. A newer tick never rejuvenates the source packet.
+
+Native repricing first validates the original snapshot and conversion relations.
+It then derives only the symbol-price-dependent conversion legs from the current
+bid and the still-fresh original USD/account observation. Original timestamps,
+conversion age and source hash remain unchanged; approved volume cannot increase.
+This fixes the observed `CONVERSION_INCONSISTENT` refusal without accepting
+inconsistent source data or relaxing adverse-price checks.
+
+Expiry persistently closes entry admission. Reconciliation, report delivery and
+one-shot owned-risk management continue. A positively reconciled protected
+position can receive one controlled-close attempt at campaign end, through the
+same journal, ownership, final checks and fixed native send boundary. Ambiguous
+results never resend. Successful drain requires positive reconciliation, flatness,
+no unresolved protection and an empty outbox; a stopped listener is not completion.
+
+The actual close exposed an empty-account fingerprint defect: native hashing of
+an empty data array returned an empty string, so a flat snapshot looked unavailable.
+The fixed fingerprint includes a domain prefix. A separate hard-disabled build
+replayed copies of the retained journals and positively reconciled the actual
+entry/exit history. Its authenticated `CLOSED` report and native ACK were verified
+against the backend and unchanged broker history. Receipt-only recovery used the
+expired original owner without renewing its lease or entry window. Original
+journals and the incomplete first result remain preserved. The restart protection
+halt remains sticky; closure and explicit authority retirement do not rearm it.
+
+The local TLS listener optionally reuses a connection for at most four successful
+requests while retaining its original absolute two-second connection deadline,
+four-worker limit, certificate validation and authenticated frames. Errors close
+the connection. The default listener behavior still explicitly closes responses.
+This reduces handshake overhead; it does not subtract RTT or enlarge clock limits.
+Windows terminal identification now uses read-only native process APIs with exact
+resolved executable matching, avoiding three PowerShell startups per capture.
+Unverifiable candidate terminal processes fail closed.
+
+### Evidence and remaining scope
+
+[Current native/regression evidence](evidence/m2-bounded-activation.json) separates
+offline tests from actual broker observations. Prior reports and source bytes are
+retained, including the [pre-repricing native fixture](evidence/m2-bounded-activation-pre-repricing.json).
+The public session report contains sanitized outcomes; private manifests, complete
+broker audits, native journals, hash chains and checkpoints remain under `.local`.
+Credentials, account identifiers, ticket numbers and raw prices are not published.
+
+Final verification: 938 Python/PostgreSQL tests and 125 native checks passed.
+Two earlier regression runs hit the original database container's shared-memory
+limit; their failures are retained. Final tests used a separate loopback-only
+PostgreSQL instance, without restarting or modifying the broker-evidence database.
+Both allowed entry reservations are consumed: one definite pre-submission refusal
+and one actual entry. Total reserved risk is 0.20% of eligible equity, with no
+refunds. Entry quote-age bounds were 1.631/1.633 seconds and native clock bounds
+were 93 ms; the ceilings remain two seconds and 100 ms.
+
+Only actually observed outcomes may pass the bounded normal-order gate. Partial
+fills, rejected protection, ambiguous broker replies, closed-market exits and
+restarts during real exposure remain fixture-only or unobserved unless explicitly
+captured. A normal entry/close does not qualify the full live fault matrix or M1.
+CMC and the owner-reported third AvaTrade demo remain untouched and unqualified
+by these FOREX-only tests. PR #23 remains unmerged for review.
+
+## Historical implementation stages
+
+The following notes describe earlier versions and their retained evidence. Their
+statements that activation was absent or trading was never enabled apply to those
+historical stages, not the current explicitly authorized bounded build above.
 
 PR #22 was merged after its exact-head CI passed. This increment carries the
 complete M2A request through the authenticated backend and native dispatcher.

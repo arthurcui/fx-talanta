@@ -2,7 +2,8 @@
 
 Use a dedicated journal and retain its checkpoint outside that journal. Charges
 are conservative: refusals and uncertain calls never refund an entry or risk.
-An independently verified closure is required before another entry reservation.
+An independently verified closure or definite no-execution audit is required
+before another entry reservation. Neither outcome refunds the original charge.
 Native dispatch, source qualification and the two-second rule remain separate.
 """
 
@@ -94,7 +95,9 @@ class AcceptanceBudget:
     def _check(self, events, now_ms):
         if events.tip != self.tip or events.records[0] != self.binding:
             raise ValueError("BUDGET_CHECKPOINT_MISMATCH")
-        last = max(e.get("at_ms", self.plan.starts_ms) for e in events.records)
+        # A future plan can be inspected during disabled warm-up. Only recorded
+        # events establish a monotonic watermark; the entry start is not an event.
+        last = max(e.get("at_ms", 0) for e in events.records)
         if type(now_ms) is not int or now_ms < last:
             raise ValueError("BUDGET_TIME_REGRESSION")
 
@@ -103,7 +106,9 @@ class AcceptanceBudget:
             self._check(events, now_ms)
             expired = any(e["kind"] == "demo_budget_expired" for e in events.records)
             if now_ms >= self.plan.expires_ms and not expired:
-                events.append(dict(kind="demo_budget_expired", at_ms=now_ms))
+                events.append(
+                    dict(kind="demo_budget_expired", at_ms=now_ms, execution_enabled=False)
+                )
                 expired = True
             tip = events.tip
         self.tip = tip
@@ -134,7 +139,9 @@ class AcceptanceBudget:
                 # Idempotent bookkeeping must not become permission to dispatch twice.
                 raise ValueError("BUDGET_ALREADY_CHARGED")
             closed = {
-                e["request_hash"] for e in events.records if e["kind"] == "demo_budget_closed"
+                e["request_hash"]
+                for e in events.records
+                if e["kind"] in {"demo_budget_closed", "demo_budget_no_execution"}
             }
             if any(e["request_hash"] not in closed for e in charges):
                 raise ValueError("BUDGET_OUTCOME_UNRESOLVED")
@@ -159,6 +166,7 @@ class AcceptanceBudget:
                     risk_cents=risk_cents,
                     equity_basis_cents=basis,
                     at_ms=now_ms,
+                    execution_enabled=False,
                 )
             )
             tip = events.tip
@@ -222,7 +230,7 @@ class AcceptanceBudget:
                 or audit["entry_units"] > charge["lot_units"]
                 or audit["observed_at_ms"] < charge["at_ms"]
                 or any(
-                    e["kind"] == "demo_budget_closed"
+                    e["kind"] in {"demo_budget_closed", "demo_budget_no_execution"}
                     and (
                         e["request_hash"] == request_hash
                         or e["audit"]["evidence_sha256"] == audit["evidence_sha256"]
@@ -234,7 +242,99 @@ class AcceptanceBudget:
             # Allowed after entry expiry: expiry must not strand reconciliation.
             events.append(
                 dict(
-                    kind="demo_budget_closed", request_hash=request_hash, audit=audit, at_ms=now_ms
+                    kind="demo_budget_closed",
+                    request_hash=request_hash,
+                    audit=audit,
+                    at_ms=now_ms,
+                    execution_enabled=False,
+                )
+            )
+            tip = events.tip
+        self.tip = tip
+        return tip
+
+    def record_verified_no_execution(self, request_hash, audit, now_ms):
+        """Record a trusted local audit of a durable pre-submission rejection.
+
+        Position absence alone is insufficient. The auditor must independently
+        validate the authenticated native receipt, complete native journal and
+        unchanged broker order/deal history. This is not a network operation or
+        permission to replay the request. Keep all underlying evidence privately.
+        """
+        fields = {
+            "scope",
+            "request_hash",
+            "source",
+            "evidence_sha256",
+            "observed_at_ms",
+            "native_receipt_sha256",
+            "native_journal_tip",
+            "native_state",
+            "native_mutation_attempts",
+            "native_submission_started",
+            "broker_history_unchanged",
+            "open_positions",
+            "pending_orders",
+        }
+        if (
+            not isinstance(audit, dict)
+            or set(audit) != fields
+            or audit["scope"] != self.binding["scope"]
+            or audit["request_hash"] != request_hash
+            or audit["source"] != "INDEPENDENT_NO_EXECUTION_AUDIT"
+            or any(
+                not hex64(audit[k])
+                for k in ("evidence_sha256", "native_receipt_sha256", "native_journal_tip")
+            )
+            or any(
+                type(audit[k]) is not int
+                for k in (
+                    "observed_at_ms",
+                    "native_mutation_attempts",
+                    "open_positions",
+                    "pending_orders",
+                )
+            )
+            or type(now_ms) is not int
+            or not 0 <= now_ms - audit["observed_at_ms"] <= 2000
+            or audit["native_state"] != "REJECTED"
+            or audit["native_mutation_attempts"] != 0
+            or audit["native_submission_started"] is not False
+            or audit["broker_history_unchanged"] is not True
+            or audit["open_positions"] != 0
+            or audit["pending_orders"] != 0
+        ):
+            raise ValueError("POSITIVE_NO_EXECUTION_AUDIT_REQUIRED")
+        with self.store.transaction() as events:
+            self._check(events, now_ms)
+            charge = next(
+                (
+                    e
+                    for e in events.records
+                    if e["kind"] == "demo_budget_charge" and e["request_hash"] == request_hash
+                ),
+                None,
+            )
+            if (
+                charge is None
+                or audit["observed_at_ms"] < charge["at_ms"]
+                or any(
+                    e["kind"] in {"demo_budget_closed", "demo_budget_no_execution"}
+                    and (
+                        e["request_hash"] == request_hash
+                        or e["audit"]["evidence_sha256"] == audit["evidence_sha256"]
+                    )
+                    for e in events.records
+                )
+            ):
+                raise ValueError("BUDGET_CLOSURE_CONFLICT")
+            events.append(
+                dict(
+                    kind="demo_budget_no_execution",
+                    request_hash=request_hash,
+                    audit=audit,
+                    at_ms=now_ms,
+                    execution_enabled=False,
                 )
             )
             tip = events.tip
@@ -247,7 +347,9 @@ class AcceptanceBudget:
             self._check(events, now_ms)
             charges = [e for e in events.records if e["kind"] == "demo_budget_charge"]
             closed = {
-                e["request_hash"] for e in events.records if e["kind"] == "demo_budget_closed"
+                e["request_hash"]
+                for e in events.records
+                if e["kind"] in {"demo_budget_closed", "demo_budget_no_execution"}
             }
             return dict(
                 entries_charged=len(charges),

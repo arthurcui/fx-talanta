@@ -4,6 +4,9 @@
 struct DemoOrder { ulong ticket; long magic; string symbol,comment; bool final_order,cancelled; long pending; };
 struct DemoDeal { ulong ticket,order,identifier;long time_ms; long magic,volume,entry,reason; string comment; };
 struct DemoPosition { ulong ticket; long volume; double stop; };
+// CryptEncode does not produce a digest for a zero-length MQL5 data array.
+// A flat account is a valid snapshot, distinct from an unavailable snapshot.
+string DemoPositionsFingerprint(string positions){return FxHash("demo-positions/1\n"+positions);}
 class DemoHistorySource
 {
 public:
@@ -142,7 +145,7 @@ private:
          DoubleToString(PositionGetDouble(POSITION_SL),8)+":"+DoubleToString(PositionGetDouble(POSITION_TP),8)+";"; }
       for(int i=0;i<OrdersTotal();i++){ ulong t=OrderGetTicket(i); if(t==0) return "";
          text+=IntegerToString((long)t)+":"+DoubleToString(OrderGetDouble(ORDER_VOLUME_CURRENT),8)+";"; }
-      return FxHash(text);
+      return DemoPositionsFingerprint(text);
    }
 public:
    DemoNativeHistory(){ valid=false; }

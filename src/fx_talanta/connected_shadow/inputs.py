@@ -106,13 +106,17 @@ def capture_once(
     clock_error_ms,
     clock_evidence_sha256,
     conversion_symbol=None,
+    demo_activation=None,
+    demo_budget=None,
     process_check=running_pids,
     now_ms=clock_time_ms,
 ):
     """One bounded demo read; caller supervises this in a short-lived child process.
 
     NTP validation is the caller's responsibility. Only an already-running pinned
-    terminal is used, with global algorithmic trading disabled. MT5 initialize
+    terminal is used. Global algorithmic trading must be disabled unless a local
+    bounded-demo activation and its durable budget authorize read-only capture.
+    This adapter never gains an order API. MT5 initialize
     still has a process-check race; this is not an atomic terminal lifecycle lock.
     USDCAD must be explicitly named and already visible; no symbol is selected.
     """
@@ -144,14 +148,38 @@ def capture_once(
         raise ObservationFailure("RUNNING_TERMINAL_REQUIRED")
     symbols = (*binding.symbols, *((conversion_symbol,) if conversion_symbol else ()))
     api = ProbeSDK(module, symbols)
+    activation_hash = None
+    if demo_activation is not None or demo_budget is not None:
+        from fx_talanta.demo.activation import DemoActivation
+
+        if not isinstance(demo_activation, DemoActivation):
+            raise ValueError("BOUNDED_DEMO_READ_AUTHORITY_REQUIRED")
+        activation_hash = demo_activation.validate(
+            demo_budget, demo_activation.release, demo_activation.policy
+        )
+        if (
+            demo_activation.scope != scope_for(binding.account)
+            or demo_activation.time_policy.offset_ms != binding.sdk_time_offset_seconds * 1000
+        ):
+            raise ValueError("BOUNDED_DEMO_READ_SCOPE_OR_MAPPING")
+
+    def validate_read_permission(terminal):
+        enabled = getattr(terminal, "trade_allowed", None)
+        if activation_hash is None:
+            if enabled is not False:
+                raise ObservationFailure("ALGORITHMIC_TRADING_MUST_BE_DISABLED")
+        elif type(enabled) is not bool or not demo_activation.entry_open(
+            now_ms(), clock_error_ms + 5
+        ):
+            raise ObservationFailure("BOUNDED_DEMO_READ_EXPIRED")
+
     try:
         if process_check(binding) != pids:
             raise ObservationFailure("TERMINAL_PROCESS_CHANGED")
         if not api.call("initialize", binding.terminal_path, timeout=5000):
             raise ObservationFailure("DISCONNECTED")
         terminal, account = validate_terminal(api, binding)
-        if getattr(terminal, "trade_allowed", None) is not False:
-            raise ObservationFailure("ALGORITHMIC_TRADING_MUST_BE_DISABLED")
+        validate_read_permission(terminal)
         before = (_positions(api.call("positions_get")), _positions(api.call("orders_get"), True))
         quotes, specifications, calculations = {}, {}, {}
         for symbol in binding.symbols:
@@ -230,8 +258,7 @@ def capture_once(
             conversion["selected"] = "ask"
             conversion["rule"] = "CONSERVATIVE_USD_LIABILITY_IN_CAD"
         terminal, account = validate_terminal(api, binding)
-        if getattr(terminal, "trade_allowed", None) is not False:
-            raise ObservationFailure("ALGORITHMIC_TRADING_MUST_BE_DISABLED")
+        validate_read_permission(terminal)
         after = (_positions(api.call("positions_get")), _positions(api.call("orders_get"), True))
         if after != before:
             raise ObservationFailure("EXTERNAL_ACCOUNT_CHANGE")
@@ -275,6 +302,12 @@ def capture_once(
             execution_enabled=False,
             qualified_for_trading=False,
         )
+        if activation_hash is not None:
+            result.update(
+                bounded_read_activation_sha256=activation_hash,
+                terminal_algo_enabled=terminal.trade_allowed,
+                qualification_scope="BOUNDED_EXECUTION_ONLY",
+            )
     finally:
         api.call("shutdown")
     result["sdk_calls"] = dict(api.calls)

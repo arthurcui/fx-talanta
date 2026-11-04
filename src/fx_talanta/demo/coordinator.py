@@ -24,6 +24,7 @@ class DemoBackend(Backend):
 
 
 class DemoCoordinator(Coordinator):
+    native_execution_authorized = False
     backend_type = DemoBackend
     project_work = staticmethod(project)
 
@@ -114,7 +115,8 @@ class DemoCoordinator(Coordinator):
                                 request_id=request_id,
                                 request_hash=digest(original.decode()),
                                 receipt=frame.payload,
-                                execution_enabled=False,
+                                execution_enabled=False,  # Backend has no broker sender.
+                                native_execution_authorized=self.native_execution_authorized,
                             )
                         )
                 self._advance()
@@ -134,7 +136,9 @@ class DemoCoordinator(Coordinator):
                 with self._guard(receipt=True), self.store.transaction() as events:
                     self._check(events)
                     ledger = self._ledger(events)
-                    if attempted:
+                    if attempted and (
+                        not self.native_execution_authorized or parts[4] == "UNKNOWN"
+                    ):
                         ledger = ledger.model_copy(update={"hard_halt": True})
                     events.append(
                         dict(
@@ -145,7 +149,8 @@ class DemoCoordinator(Coordinator):
                             request_id=request_id,
                             receipt=frame.payload,
                             response=result.decode(),
-                            execution_enabled=False,
+                            execution_enabled=False,  # Backend has no broker sender.
+                            native_execution_authorized=self.native_execution_authorized,
                         )
                     )
                 self._advance()
@@ -227,7 +232,7 @@ class DemoCoordinator(Coordinator):
                 # A report is evidence, never permission. In this disabled release,
                 # any claimed fill is an anomaly that adds a sticky entry veto.
                 ledger = self._ledger(events)
-                if (
+                if not self.native_execution_authorized and (
                     state.payload.filled_volume > 0
                     or work["envelope"]["payload"]["action"] != "ENTER"
                 ):
@@ -261,7 +266,8 @@ class DemoCoordinator(Coordinator):
                             ledger=ledger.model_dump(mode="json"),
                             source="EA_BROKER_RECONCILIATION",
                             independently_verified=False,
-                            execution_enabled=False,
+                            execution_enabled=False,  # Backend has no broker sender.
+                            native_execution_authorized=self.native_execution_authorized,
                         )
                     )
                 next_tip = events.tip
@@ -304,6 +310,13 @@ class DemoCoordinator(Coordinator):
             ]
         if any(e["orders_sent"] is None for e in result["native_execution_results"]):
             result["orders_sent"] = None
-        result["integration"] = "DEMO_EXECUTION_DISABLED"
-        result["channels"]["EA"]["capability"] = "DEMO_EXECUTION_DISABLED"
+        capability = (
+            "BOUNDED_DEMO_EXECUTION"
+            if self.native_execution_authorized
+            else "DEMO_EXECUTION_DISABLED"
+        )
+        result["integration"] = capability
+        result["channels"]["EA"]["capability"] = capability
+        result["native_execution_authorized"] = self.native_execution_authorized
+        result["strategy_trading_enabled"] = False
         return result

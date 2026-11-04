@@ -7,6 +7,9 @@
 #include "ProtectiveDispatch.mqh"
 #include "../connected/HighResolutionClock.mqh"
 input bool EnableDisabledGateway=false;
+input bool EnableBoundedExecution=false;
+input string ActivationFile="",ActivationHash="";
+DemoActivationPermit activation_permit;
 input bool BootstrapNewJournal=false;
 input string RetainedJournalTip="";
 input string Endpoint="";
@@ -41,7 +44,7 @@ ulong started=0,due=0,synced=0,dg_counter=0;
 int backoff=250;
 bool Identity()
 {
-   return !TerminalInfoInteger(TERMINAL_TRADE_ALLOWED) &&
+   return (FX_DEMO_SUBMISSION_AUTHORIZED ? EnableBoundedExecution : !TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) &&
       AccountInfoInteger(ACCOUNT_TRADE_MODE)==ACCOUNT_TRADE_MODE_DEMO &&
       AccountInfoInteger(ACCOUNT_LOGIN)==ExpectedLogin && AccountInfoString(ACCOUNT_SERVER)==ExpectedServer;
 }
@@ -55,6 +58,17 @@ int OnInit()
       StringSubstr(Endpoint,StringLen(Endpoint)-10)!="/v1/shadow" ||
       StringFind(Endpoint,"?")>=0 || StringFind(Endpoint,"#")>=0 || StringFind(Endpoint,"@")>=0 ||
       (BootstrapNewJournal && (PositionsTotal()!=0 || OrdersTotal()!=0))) return INIT_FAILED;
+   if(FX_DEMO_SUBMISSION_AUTHORIZED)
+   {
+      if(!EnableBoundedExecution || !QualifiedQuoteMapping || !QualifiedSessionOpen ||
+         QualifiedRepairDelayMs<=0 || QualifiedExitDelayMs<=QualifiedRepairDelayMs || QualifiedExitDelayMs>60000)return INIT_FAILED;
+      int permit_file=FileOpen(ActivationFile,FILE_READ|FILE_TXT|FILE_ANSI,0,CP_UTF8);
+      if(permit_file==INVALID_HANDLE)return INIT_FAILED;
+      string text=FileReadString(permit_file);bool complete=FileIsEnding(permit_file);FileClose(permit_file);
+      if(!complete || !activation_permit.Load(text,ActivationHash,Scope,Release,Policy,BudgetPlanHash,
+          BudgetStartsMs,BudgetExpiresMs,QuoteOffsetMs,OperatingEvidenceUntilMs))return INIT_FAILED;
+      native_port.BindActivation(GetPointer(activation_permit));
+   }
    int h=FileOpen(KeyFile,FILE_READ|FILE_TXT|FILE_ANSI,0,CP_UTF8);
    if(h==INVALID_HANDLE) return INIT_FAILED;
    dg_secret=FileReadString(h); bool end=FileIsEnding(h); FileClose(h);
@@ -110,7 +124,7 @@ void OnTimer()
       if(reconciling && (saved.phase=="PROTECTED" || saved.phase=="CLOSED"))continue;
       bool attempted=false;
       string action=DemoProtect(gateway,i,protection,native_port,(long)GetTickCount64(),native_incarnation,
-         (bool)TerminalInfoInteger(TERMINAL_CONNECTED),positive,attempted);
+         (bool)TerminalInfoInteger(TERMINAL_CONNECTED),positive,attempted,native_budget.Draining());
       if(action=="PROTECTION_JOURNAL_UNAVAILABLE") {Hold("PROTECTION_PERSISTENCE");return;}
       if(attempted){ history.Invalidate();reconciler.Invalidate();reconciling=false; }
    }
@@ -127,15 +141,17 @@ void OnTimer()
    string pending=kernel.Pending();
    string op=sync ? "PULL" : (pending!="" ? "REPORT" : "PULL");
    string payload=sync ? "disabled-sync/1" : pending;
+   if(sync && FX_DEMO_SUBMISSION_AUTHORIZED)
+      payload="bounded-sync/1\t"+ActivationHash+"\t"+((bounded && native_port.Enabled()) ? "1" : "0");
    string nonce=FxHash(Client+IntegerToString(utc)+IntegerToString(sent)+IntegerToString((long)GetTickCount64())+IntegerToString((long)++dg_counter));
    string request=ShEncode(dg_secret,"C2S",Scope,Client,nonce,utc,op,payload);
    char data[],result[]; string headers;
    int bytes=StringToCharArray(request,data,0,WHOLE_ARRAY,CP_UTF8)-1; ArrayResize(data,bytes);
-   int status=WebRequest("POST",Endpoint,"Content-Type: application/octet-stream\r\nConnection: close\r\n",1500,data,result,headers);
+   string connection=FX_DEMO_SUBMISSION_AUTHORIZED ? "keep-alive" : "close";
+   int status=WebRequest("POST",Endpoint,"Content-Type: application/octet-stream\r\nConnection: "+connection+"\r\n",1500,data,result,headers);
    long received=(long)GetMicrosecondCount(),rtt=received-sent,now=0; int uncertainty=0;
    if(host_fault)return;
    if(!protection.Healthy() || !native_budget.Healthy() || !Identity()){Hold("IDENTITY_OR_STORAGE");return;}
-   if(!EntryDeadline())return;
    bool current=bounded;
    if(sync) now=bounded ? utc+rtt/1000 : (long)TimeGMT()*1000;
    else current=bounded_clock.NowUs(received,now,uncertainty);
@@ -150,15 +166,19 @@ void OnTimer()
          bounded_clock.SyncUs(StringToInteger(f[1]),(int)StringToInteger(f[2]),sent,received);
       if(ok) synced=GetTickCount64();
    }
-   else if(ok && pending!="") ok=response_op=="ACK" && kernel.Ack(response);
-   else if(ok && response_op=="WORK")
+   // SyncUs must consume its send/receive interval before another NowUs call
+   // advances the clock's monotonic watermark. No mutation precedes this guard.
+   if(!EntryDeadline())return;
+   if(!sync && ok && pending!="") ok=response_op=="ACK" && kernel.Ack(response);
+   else if(!sync && ok && response_op=="WORK")
    {
       ok=bounded_clock.NowUs((long)GetMicrosecondCount(),now,uncertainty);
       if(ok) { native_port.Observe(now,uncertainty,QuoteOffsetMs,QualifiedQuoteMapping,QualifiedSessionOpen,false,false,OperatingEvidenceUntilMs); ok=kernel.Receive(response,now,uncertainty,native_port); }
    }
-   else if(ok) ok=response_op=="EMPTY" && response=="";
+   else if(!sync && ok) ok=response_op=="EMPTY" && response=="";
    backoff=ok ? 250 : (int)MathMin(backoff*2,5000); due=GetTickCount64()+backoff;
-   if(!ok) Print("DISABLED_GATEWAY_EXCHANGE_REFUSED");
+   if(!ok) PrintFormat("DEMO_EXCHANGE_REFUSED:status=%d;sync=%d;rtt_us=%I64d;clock=%s;sync_bound_ms=%d",
+      status,(int)sync,rtt,bounded_clock.Reason(),bounded_clock.LastSyncBoundMs());
 }
 void OnDeinit(const int reason){ EventKillTimer(); kernel.Close(); protection.Close(); native_budget.Close(); bounded_clock.Reset(); dg_secret=""; }
 
