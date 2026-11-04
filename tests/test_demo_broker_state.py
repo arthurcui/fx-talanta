@@ -4,9 +4,9 @@ import pytest
 
 from fx_talanta.domain.ea_protocol import Envelope
 from fx_talanta.shadow.wire import digest
-from scripts.demo_execution_fixtures import example
-from scripts.shadow_fixtures import NOW
 from tests.test_demo_execution import call, make, restart
+from tools.fixtures.demo_execution_fixtures import example
+from tools.fixtures.shadow_fixtures import NOW
 
 
 def report(
@@ -169,7 +169,7 @@ def test_actual_native_attempt_and_query_are_separate(tmp_path):
         assert c._ledger(events).hard_halt
 
 
-def test_initial_proof_remains_verifiable():
+def test_initial_proof_remains_verifiable(historical_source):
     import hashlib
     import json
     from pathlib import Path
@@ -177,10 +177,7 @@ def test_initial_proof_remains_verifiable():
     root = Path(__file__).resolve().parents[1]
     report = json.loads((root / "docs/evidence/m2-demo-execution-initial.json").read_text())
     for name, expected in (report["native_dependency_sha256"] | report["artifacts_sha256"]).items():
-        current = root / name
-        if hashlib.sha256(current.read_bytes()).hexdigest() != expected:
-            current = root / "tests/fixtures/source-archive" / (expected + ".txt")
-        assert hashlib.sha256(current.read_bytes()).hexdigest() == expected
+        assert hashlib.sha256(historical_source(name, expected)).hexdigest() == expected
 
 
 @pytest.mark.parametrize("action", ["CLOSE", "TIGHTEN_STOP", "CANCEL"])

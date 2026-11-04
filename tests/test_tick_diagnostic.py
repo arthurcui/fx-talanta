@@ -10,7 +10,7 @@ from test_mt5 import NOW, FakeSDK
 
 spec = importlib.util.spec_from_file_location(
     "capture_forex_diagnostics",
-    Path(__file__).resolve().parents[1] / "scripts/capture_forex_diagnostics.py",
+    Path(__file__).resolve().parents[1] / "tools/qualification/capture_forex_diagnostics.py",
 )
 diagnostic = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(diagnostic)

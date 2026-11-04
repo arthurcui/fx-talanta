@@ -9,9 +9,9 @@ import pytest
 from fx_talanta.clock import FakeClock
 from fx_talanta.domain.models import Environment
 from fx_talanta.observer.contracts import Binding
-from fx_talanta.observer.fixtures import FixtureReader
 from fx_talanta.observer.runner import Evidence, RunnerPlan, read_status, run_observer, status_lock
 from fx_talanta.observer.supervisor import Observer
+from fx_talanta.research.observer import FixtureReader
 from fx_talanta.storage.config import fixture_account
 from fx_talanta.storage.offline import WriterBusy
 

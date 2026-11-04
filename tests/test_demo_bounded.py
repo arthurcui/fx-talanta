@@ -7,9 +7,9 @@ from fx_talanta.demo.bounded import BoundedDemoCoordinator
 from fx_talanta.domain.ea_protocol import Envelope
 from fx_talanta.shadow.store import SQLiteStore
 from fx_talanta.shadow.work import snapshot_hash
-from scripts.demo_execution_fixtures import ACCOUNT, example
-from scripts.shadow_fixtures import CLIENT, KEY, NOW, POLICY, RELEASE
 from tests.test_demo_execution import INC, make, restart
+from tools.fixtures.demo_execution_fixtures import ACCOUNT, example
+from tools.fixtures.shadow_fixtures import CLIENT, KEY, NOW, POLICY, RELEASE
 
 
 def bounded(tmp_path):

@@ -12,10 +12,10 @@ from fx_talanta.domain.models import Environment, ObservationHealth, TerminalObs
 from fx_talanta.domain.offline import Policy
 from fx_talanta.observer.acceptance import SeparatedEvidence
 from fx_talanta.observer.contracts import Binding
-from fx_talanta.observer.fixtures import FixtureReader
 from fx_talanta.observer.runner import RunnerPlan, run_observer
 from fx_talanta.observer.supervisor import Observer, assess
-from fx_talanta.offline_fixtures import market_at
+from fx_talanta.research.observer import FixtureReader
+from fx_talanta.research.offline import market_at
 from fx_talanta.risk.governor import health_reason
 from fx_talanta.storage.config import fixture_account
 from fx_talanta.storage.repository import Repository

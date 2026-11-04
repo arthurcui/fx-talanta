@@ -22,9 +22,9 @@ checks trusted policy and fresh broker state, journals before sending, may narro
 or veto, reconciles and protects. Keep `gateway/offline.py` as the simulator oracle.
 No runtime model receives broker mutation, shell, compilation or deployment tools.
 
-The detailed [canonical architecture](../architecture-plan.md),
-[boundary/runbook](../ea-execution-boundary.md) and
-[migration gates](../design-migration.md) define this decision. A local relay is
+The detailed [canonical architecture](../architecture/specification.md),
+[boundary/runbook](../architecture/execution-boundary.md) and
+[migration gates](../architecture/design-migration.md) define this decision. A local relay is
 transport only. PostgreSQL locking alone cannot fence a disconnected terminal;
 writer replacement requires old-host fencing and reconciliation.
 

@@ -6,8 +6,8 @@ import pytest
 
 from fx_talanta.domain.models import Environment, ObservationDiagnostic, TerminalObservation
 from fx_talanta.observer.contracts import Binding
-from fx_talanta.observer.fixtures import FixtureReader
 from fx_talanta.observer.supervisor import assess
+from fx_talanta.research.observer import FixtureReader
 from fx_talanta.storage.config import fixture_account
 
 

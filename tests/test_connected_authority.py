@@ -21,7 +21,7 @@ from fx_talanta.shadow.wire import digest
 from fx_talanta.shadow.work import scope_for
 from fx_talanta.storage.bootstrap import bootstrap
 from fx_talanta.storage.config import fixture_account
-from scripts.shadow_fixtures import ACCOUNT, CLIENT, KEY, NOW, POLICY, RELEASE, work
+from tools.fixtures.shadow_fixtures import ACCOUNT, CLIENT, KEY, NOW, POLICY, RELEASE, work
 
 INCARNATION = "1" * 64
 OTHER = "2" * 64

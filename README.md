@@ -1,267 +1,96 @@
 # FX-Talanta
 
-M0A–M0C implement the portable Python offline foundation from the
-[architecture plan](docs/architecture-plan.md).
-It records scripted decisions, news revisions, conversations, execution observations,
-experience, lessons, artifacts, and promotion evidence in PostgreSQL. M0B adds
-deterministic risk sizing, reservations, a durable simulated broker, protective
-management and restart reconciliation. M0C adds the application image, isolated
-task setup, and verified two-account export/restore.
+**A forex trading system designed to make every decision explainable, risk-bounded and auditable.**
 
-**Current implementation:** M0A–M0C offline foundation, read-only CMC/FOREX
-observers, manual BLS calendar upload/reminders, provider journal/filtering and
-bounded native MCP calendar import. Broker execution and LIVE remain disabled.
-The `demo` and `offline-demo` commands use fixtures/SIMULATOR only.
+FX-Talanta is being built to analyze markets and news, execute trades within defined
+risk limits, and improve decisions using recorded outcomes and failures. Separate
+paper/live environments and a conversational advisor are part of that design.
 
-**Qualification concluded without a pass:** CMC halted; FOREX and the provider
-campaign were stopped at the owner's request. See the
-[broker conclusions](docs/broker-campaign-conclusion.md) and
-[provider conclusion](docs/provider-campaign-conclusion.md). No campaign is
-restarted by this plan; historical evidence remains unchanged.
+**Today:** the offline foundation, market-data and calendar tooling, deterministic
+risk controls and fixed MT5 execution gateway are implemented. A bounded FOREX.com
+**demo** trade was opened, protected and closed, with independent broker verification
+and a separate read-only closure recovery. Full connected acceptance is unfinished;
+live and unattended strategy trading are **not enabled**.
 
-**Design direction:** Python proposes, deterministic backend risk reserves an
-allowance, and one fixed reviewed EA per account would independently authorize,
-execute, protect and reconcile connected orders. The [M2B native EA](docs/m2b-fixed-ea.md)
-is implemented and tested in Strategy Tester; connected execution is disabled and
-it is not deployed to broker terminals. The existing Python gateway stays simulator-only. See the
-[migration and milestone gates](docs/design-migration.md),
-[decision trace and EA boundary](docs/ea-execution-boundary.md) and
-[ADR-001](docs/adr/001-fixed-ea-execution.md).
+[Try the offline demo](docs/guides/getting-started.md) ·
+[Technical documentation](docs/README.md) ·
+[Current status](docs/product/status.md) ·
+[Roadmap](docs/product/roadmap.md)
 
-**Current: M2A–M2C merged; [M2D no-order preparation](docs/m2d-no-order-acceptance.md) implemented**, preserving completed
-M0A–M0C, unresolved M1 gaps and all failed or stopped evidence. New qualification work still needs its own plan/authorization.
-The [M2D shadow transport](docs/m2d-shadow-transport.md) now adds authenticated
-pull/receipt code, PostgreSQL persistence and native inbox parity. It is not
-deployed to broker terminals and does not complete connected PAPER acceptance.
-The [bounded connection extension](docs/m2d-connected-no-order.md) adds real
-FOREX input capture, conservative clock intervals, account authority and paired
-recovery checks. PR #21 completed a bounded native HOLD/ACK handoff after clock remediation;
-the earlier failed attempt remains recorded and the observations remain HOLD. The
-[EA quote-freshness review](docs/ea-quote-freshness-review.md) separates this local
-bridge result from broker quote lag and retains the two-second entry restriction.
-PR #22 is merged. The [disabled demo execution integration](docs/m2-demo-execution.md)
-adds full-request native dispatch, durable protective repair/exit and reconciled
-broker-state delivery. Trading stays disabled; actual demo-order acceptance is outstanding.
-Use the [M1 closure checklist](docs/m1-closure-checklist.md) for the evidence gaps,
-prioritized remediation and conditions for proposing any new tests.
-Then follow M2A protocol → M2B fixed EA → M2C deterministic safety → M2D connected
-PAPER acceptance, followed by M3 baseline/replay, M4 AI/advisor, M5 unattended
-PAPER, M6 capped LIVE and M7 evaluated evolution.
+## What it does
 
-The [M2A offline implementation](docs/m2a-protocol.md) delivers the first authorized [intent/EA protocol scope](docs/m2-handoff.md): additive
-contracts, reference vectors and a fixture-only harness, with broker submission
-absent. Native/Tester and read-only shadow remain evidence gates within M2B/M2C;
-they are not separate milestone names. M2B cannot enable connected orders before
-M2C safety and M1 prerequisites pass. This progression authorizes offline protocol implementation, but no
-connected order execution, services or campaigns. The separately authorized M2D
-short read-only captures and fault harness are documented in its evidence report.
+- **Observe markets and events:** MT5 quote channels, calendar imports and news
+  records retain provenance, timestamps and revisions.
+- **Constrain execution:** deterministic sizing and percentage-based risk budgets
+  sit between a proposed decision and a fixed, reviewed Expert Advisor (EA).
+- **Recover safely:** durable journals, idempotent messages and broker reconciliation
+  distinguish a lost response from an order that never happened.
+- **Make outcomes inspectable:** decisions, risk reservations, execution observations
+  and corrections are recorded so explanations can point to evidence.
 
-CMC remains first and FOREX.com the independent comparison, with no automatic
-failover. [P0 feasibility](docs/p0-feasibility.md), [M1 handoff](docs/m1-handoff.md)
-and [demo rollover](docs/demo-account-rollover.md) retain unresolved permissions,
-source qualification and operational prerequisites.
+Production AI strategy selection, the conversational advisor and evaluated learning
+are roadmap work. Scripted demonstrations are not autonomous intelligence.
 
-## Quick start on Windows
+## How it works
 
-Requirements: Python 3.11+ and Docker Desktop with Linux containers, or an isolated
-native PostgreSQL 17 instance. Run these commands from the repository directory:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\python -m pip install -c requirements.lock -e '.[dev]'
-.venv\Scripts\fx-talanta init-local
-docker compose up -d --wait postgres
-.venv\Scripts\fx-talanta migrate
-.venv\Scripts\fx-talanta demo
-.venv\Scripts\fx-talanta offline-demo
-.venv\Scripts\fx-talanta observer-demo
-.venv\Scripts\python -m pytest --integration -q
-.venv\Scripts\ruff check src tests scripts
-.venv\Scripts\ruff format --check src tests scripts
+```mermaid
+flowchart LR
+    A[Quotes, calendar and news] --> B[Python decision pipeline]
+    B --> C[Deterministic risk checks]
+    C --> D[Fixed MT5 EA]
+    D --> E[Broker]
+    E --> F[Reconciliation and journal]
+    F --> B
+    F -. planned .-> G[Advisor and evaluated learning]
 ```
 
-`init-local` generates three different local database passwords in ignored `.env`
-and refuses to overwrite an existing file. The fixture container listens only on
-`127.0.0.1:55432`, uses the Compose project `fx-talanta-m0a`, and stores data in its
-own named volume. It does not use another project's database.
+Python proposes; risk controls may veto; the EA independently checks authority,
+freshness and protection before execution. Broker evidence determines the outcome.
+The [architecture walkthrough](docs/architecture/overview.md) explains each boundary
+and what happens when a component fails.
 
-If a restricted host prevents `venv` from installing pip, use the host pip to target
-the environment: `python -m pip --python .venv install -c requirements.lock -e '.[dev]'`. Installing
-dependencies and accessing Docker/PostgreSQL may require host network permissions.
+## Safety boundary
 
-## Native setup and Unix shells
+Trading is disabled by default. An explicitly authorized, bounded **demo** test is
+separate from strategy trading and from LIVE activation. The two-second entry
+freshness ceiling remains intact; a connected channel does not prove a fresh quote.
+Historical qualification failures remain visible and do not become passes when
+implementation code is merged. There is no automatic broker failover.
 
-For native application execution, Compose can supply PostgreSQL. On Linux/macOS:
+## Current status and roadmap
 
-```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -c requirements.lock -e '.[dev]'
-.venv/bin/fx-talanta init-local
-docker compose up -d --wait postgres
-.venv/bin/fx-talanta migrate
-.venv/bin/fx-talanta demo
-.venv/bin/fx-talanta offline-demo
-.venv/bin/python -m pytest --integration -q
-```
-
-For native PostgreSQL, skip `docker compose`, use an isolated local PostgreSQL 17
-cluster, and set `FX_DB_HOST`, `FX_DB_PORT`, `FX_DB_ADMIN_USER`, and
-`FX_DB_ADMIN_PASSWORD` in `.env` to match it. Preserve the independently generated
-`FX_PAPER_PASSWORD` and `FX_LIVE_PASSWORD`. Then run `migrate`. Administrative setup
-requires permission to create databases and roles; runtime repositories use the
-limited writer credentials. Bootstrap accepts loopback hosts (plus the `postgres`
-service in the explicit Docker profile). It creates `fx_paper` and `fx_live` by
-default; `FX_DB_NAMESPACE` selects an isolated pair with matching separate roles.
-It never substitutes SQLite.
-
-The package supports Python 3.11+. The acceptance profiles use Windows/Python 3.14,
-the Python 3.14 application image, and Linux/Python 3.11 with native PostgreSQL 17.
-All profiles use `requirements.lock`, the same package, commands, migrations and tests.
-
-## Application container and task profile
-
-After `init-local`, run the package inside its image:
-
-```sh
-docker compose build app
-docker compose up -d --wait postgres
-docker compose run --rm admin migrate
-docker compose run --rm app offline-demo
-```
-
-`app` has only the PAPER database password, runs as a nonroot user on a read-only
-filesystem, and uses an internal network. `admin` is the separate migration and
-archive tool with both fixture database credentials. Images contain code and
-dependencies; the existing `fx-talanta-m0a_postgres_data` volume retains history.
-No UI or externally connected broker is included.
-
-For a Linux Codex task with Python/venv and native PostgreSQL 17 available:
-
-```sh
-python3 scripts/codex_setup.py
-python3 scripts/codex_run.py test
-python3 scripts/codex_run.py offline-demo
-```
-
-Setup chooses Docker when available and otherwise starts a private native
-PostgreSQL cluster. It creates fresh fixture credentials under ignored
-`.local/codex`, and the runner excludes inherited credentials. See
-[M0C setup, restore and acceptance](docs/m0c.md) for cloud environment installation,
-startup, archive transfer, and the offline test harness.
-
-## Repeatable demo and inspection
-
-For an existing M0A/M0B installation, run `fx-talanta migrate` to apply migrations 003–004
-without resetting records or replacing the database volume. Then run
-`fx-talanta offline-demo` for the M0B loop: reserve risk, lose a simulated send
-response, restart the gateway, discover the fill, verify its stop, and close at
-the holding cutoff. The JSON summary includes the simulation ID, states, retained
-reservation, entry-submission count and realized net P&L. Each invocation creates
-a separate synthetic research ledger. See [M0B details](docs/m0b.md).
-
-```powershell
-.venv\Scripts\fx-talanta demo --run-id 6fc5695e-880f-4be9-af32-fdbb16409c20
-.venv\Scripts\fx-talanta history --run-id 6fc5695e-880f-4be9-af32-fdbb16409c20
-.venv\Scripts\fx-talanta history --environment LIVE
-```
-
-The demo records **31 records**, including VALID, HOLD, MALFORMED, EXPIRED and
-REJECTED decisions; a scripted risk evaluation and execution rejection; an
-unknown execution followed by a recorded reconciliation observation; original,
-late-observed and corrected news; and English/Chinese chat fixtures. Two exact
-pause messages produce INTERPRETED command records. No command is executed.
-
-Run the same ID again to exercise idempotent delivery. Omitting `--run-id` creates
-a new run. Every record contains its account, provenance, timestamps, versions,
-correlation ID, costs and exact evidence references. All fixture times are fixed
-at and after 2026-01-05 12:00 UTC; they are not current market observations.
-
-`history` returns the original records and all superseding corrections. The
-unknown-to-reconciled fixture discovers an open synthetic fill, so its economic
-outcome remains UNKNOWN rather than inventing realized P&L.
-
-## Tests and persistence
-
-`pytest --integration` runs the complete suite against the configured local
-PostgreSQL cluster and fails if it is unavailable. Plain `pytest` runs contract
-tests and explicitly skips PostgreSQL tests. Tests append uniquely scoped fixture
-records and do not delete history. Re-running migrations preserves data and
-verifies applied SQL checksums.
-
-The suite checks fresh-process durability, account/database isolation, append-only
-privileges, corrections, concurrent duplicate delivery, atomic rollback, exact
-news versions and historical availability, and safe conversation recording.
-To verify a database-service restart manually:
-
-```powershell
-docker compose restart postgres
-docker compose up -d --wait postgres
-.venv\Scripts\fx-talanta history --run-id 6fc5695e-880f-4be9-af32-fdbb16409c20
-```
-
-`docker compose stop postgres` stops the local service while retaining its volume.
-Keep `.env` with the corresponding local volume; generating new passwords does
-not change passwords in an existing PostgreSQL cluster. `export`, `restore`, and
-`verify-restore` transfer both histories into an empty destination without copying
-credentials. Restore initially blocks runtime writes and execution. Follow the
-[handoff procedure](docs/m0c.md#export-and-restore) before releasing that guard.
-
-## Implementation map
-
-| Path | Responsibility |
+| Area | Status |
 | --- | --- |
-| `src/fx_talanta/domain/models.py` | Immutable, validated contracts and separate outcome axes |
-| `src/fx_talanta/storage/` | Account-bound repository, privileged bootstrap and SQL migrations |
-| `src/fx_talanta/agent/scripted.py` | DecisionSource, scripted responses and durable attempts |
-| `src/fx_talanta/brokers/protocol.py` | BrokerAdapter observation interface and fixture playback |
-| `src/fx_talanta/brokers/simulator.py` | Durable simulated orders, fills, positions and costs |
-| `src/fx_talanta/gateway/offline.py` | Sole offline mutation path, protection and reconciliation |
-| `src/fx_talanta/risk/governor.py` | Decimal-safe sizing, exposure, cash-flow and loss accounting |
-| `src/fx_talanta/storage/offline.py` | Session-fenced append-only simulator/gateway checkpoints |
-| `src/fx_talanta/storage/archive.py` | Checksummed two-account snapshots and blocked, resumable restore |
-| `Dockerfile`, `compose.yaml` | Application image, private runtime network and persistent PostgreSQL |
-| `scripts/codex_setup.py`, `scripts/codex_run.py` | Isolated task service setup and shared commands |
-| `scripts/profile_acceptance.py` | Native/container/task archive-transfer acceptance |
-| `src/fx_talanta/advisor/fixtures.py` | Exact scripted chat interpretation and command records |
-| `src/fx_talanta/clock.py` | Injected clock interface and deterministic fake clock |
-| `src/fx_talanta/fixtures.py` | End-to-end M0A recording demonstration |
-| `tests/` | Contract and actual PostgreSQL acceptance tests |
-| `docs/m0a.md` | Storage guarantees, trust boundaries and next-increment interfaces |
-| `docs/architecture-plan.md` | Architecture and implementation plan |
+| Python/PostgreSQL foundation and isolated paper/live records | Implemented |
+| Offline simulation, deterministic risk and restart recovery | Implemented and tested |
+| Broker and USD/EUR/JPY news/calendar qualification (M1) | Incomplete; campaigns concluded without full qualification |
+| Fixed EA and bounded demo execution (M2) | Real demo execution verified with read-only recovery; final acceptance remains |
+| Strategy baseline, production AI/advisor and trading dashboard | Planned |
+| Unattended PAPER, capped LIVE and evaluated evolution | Later gated milestones |
 
-The portable core does not import MetaTrader5. Provider ingestion is implemented
-with qualification gaps; production model access, owner authentication, the
-trading dashboard and live activation remain later work. The manual BLS tool
-already has a local desktop file chooser. GitHub's required `M0A checks` job name
-is retained for branch-protection compatibility and now runs the entire suite.
+See the [roadmap and acceptance boundaries](docs/product/roadmap.md). The dashboard
+will show quote latency and the status of EA, Python-package and MCP channels.
 
-## Documentation
+## Engineering behind the product
 
-Project specifications, implementation notes and operating instructions are maintained
-in this repository and reviewed alongside code changes. No private page or chat is
-required to understand or run the project. External links provide public vendor
-references; project requirements and procedures are recorded here.
+The project emphasizes failure behavior as well as the successful path:
 
-| Document | Purpose |
-| --- | --- |
-| [Architecture and implementation plan](docs/architecture-plan.md) | Full planning baseline, system design, milestones and acceptance criteria |
-| [Fixed EA decision](docs/adr/001-fixed-ea-execution.md) | Dated authority decision and alternatives |
-| [EA boundary and operating design](docs/ea-execution-boundary.md) | Worked decision, protocol, lost acknowledgment, state/actions and deployment/restore |
-| [Design migration](docs/design-migration.md) | Actual baseline, old-to-new map, milestone gates and boundary test matrix |
-| [First M2 implementation slice](docs/m2-handoff.md) | Exact offline-only scope; no deployment or broker execution |
-| [FOREX.com onboarding](docs/forex-onboarding.md) | Secondary demo preparation, expiry tracking and durable alerts |
-| [Provider qualification](docs/provider-qualification.md) | Free-first calendar/news preflight, measured endpoint checks and remaining gates |
-| [Required provider acceptance](docs/provider-acceptance.md) | USD/EUR/JPY coverage inventory, expanded official feeds and prospective delivery checks |
-| [Calendar/news filtering](docs/calendar-news-filter.md) | Fixture-based blackouts, coverage gates and point-in-time evidence |
-| [Calendar/news integration](docs/calendar-news-integration.md) | Broker-independent collection, durable journal and qualification gaps |
-| [Native MCP calendar](docs/native-mcp-calendar.md) | Optional Python ingestion, atomic cursor replay and actual CMC shadow evidence |
-| [Manual BLS upload](docs/manual-bls-upload.md) | File chooser, preserved calendars and on-demand review reminders |
-| [M0A](docs/m0a.md) | Records, storage and account contracts |
-| [M0B](docs/m0b.md) | Offline execution, risk and reconciliation |
-| [M0C](docs/m0c.md) | Portable deployment profiles and archive transfer |
-| [Broker and data feasibility](docs/p0-feasibility.md) | Broker selection, evidence and outstanding qualification |
-| [M1 handoff](docs/m1-handoff.md) | Read-only observation scope and acceptance gates |
-| [Observer foundation](docs/observer-foundation.md) | Synthetic observer behavior and recovery checks |
-| [MT5 observer](docs/mt5-observer.md) | Windows setup, account binding, permissions and observation commands |
-| [CMC read-only milestone](docs/cmc-readonly.md) | Supervised run, recovery, clock policy and 24-hour acceptance |
-| [Demo account rollover](docs/demo-account-rollover.md) | FOREX.com expiry and replacement-account requirements |
+- Append-only PostgreSQL records, separate account credentials and checked migrations.
+- Deterministic risk decisions and a fixed execution boundary, independent of a model.
+- Journaled retries, lost-acknowledgment recovery and broker-confirmed closure.
+- Native MQL5 checks, Python/PostgreSQL integration tests and isolated container profiles.
+- Preserved [engineering evidence](docs/evidence/README.md), including failed and stopped runs.
+
+Start with the [repository map](docs/architecture/repository-layout.md),
+[development guide](docs/guides/development.md) or
+[fixed-EA design decision](docs/adr/001-fixed-ea-execution.md).
+
+## Run it locally
+
+Use the [offline quick start](docs/guides/getting-started.md) for Windows or Unix.
+It needs Python 3.11+ and an isolated PostgreSQL 17 database (Docker is supported).
+The demo uses synthetic observations and simulated orders; no broker credentials
+or AI subscription are required.
+
+All product specifications, operating guides and evidence are in this repository.
+No private chat or external project page is needed to understand the design.

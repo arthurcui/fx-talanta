@@ -13,10 +13,10 @@ from fx_talanta.connected_shadow.service import hold_receipt
 from fx_talanta.observer.contracts import Binding
 from fx_talanta.shadow.store import SQLiteStore
 from fx_talanta.shadow.wire import Frame
-from scripts import connected_session
-from scripts.connected_session import ClockSlot, Runtime, session, startup_renew
 from tests.test_connected_capture import AdvancingSDK, Timer
 from tests.test_connected_inputs import binding
+from tools.qualification import connected_session
+from tools.qualification.connected_session import ClockSlot, Runtime, session, startup_renew
 
 
 def test_status_reader_conflict_preserves_old_snapshot_until_atomic_replacement(

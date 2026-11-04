@@ -13,9 +13,9 @@ from psycopg.types.json import Jsonb
 from fx_talanta.clock import FakeClock
 from fx_talanta.domain.models import Environment
 from fx_talanta.domain.offline import BrokerRequest, Fault, Policy, Position
-from fx_talanta.fixtures import START
 from fx_talanta.gateway.offline import Gateway, SimulatedCrash
-from fx_talanta.offline_fixtures import make_intent, market_at, warmup
+from fx_talanta.research.offline import make_intent, market_at, warmup
+from fx_talanta.research.records import START
 from fx_talanta.risk.governor import exposure
 from fx_talanta.storage.config import fixture_account
 from fx_talanta.storage.offline import WriterBusy
@@ -496,7 +496,7 @@ from fx_talanta.clock import FakeClock
 from fx_talanta.domain.models import Environment
 from fx_talanta.storage.config import Settings, fixture_account
 from fx_talanta.gateway.offline import Gateway
-from fx_talanta.offline_fixtures import market_at
+from fx_talanta.research.offline import market_at
 clock = FakeClock(datetime.fromisoformat(sys.argv[2]))
 g = Gateway(Settings.load().runtime_dsn(Environment.PAPER), fixture_account(Environment.PAPER),
             UUID(sys.argv[1]), clock)

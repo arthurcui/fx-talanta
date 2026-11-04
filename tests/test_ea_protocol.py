@@ -387,7 +387,7 @@ def test_missing_and_future_ticks_are_not_fresh_and_latency_requires_samples():
 
 
 def test_fixture_native_source_has_no_external_or_trading_capabilities():
-    path = Path(__file__).resolve().parents[1] / "mql5/offline/ProtocolReference.mq5"
+    path = Path(__file__).resolve().parents[1] / "tests/native/offline/ProtocolReference.mq5"
     source = path.read_text(encoding="utf-8")
     for forbidden in (
         "OrderSend",

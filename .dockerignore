@@ -1,5 +1,5 @@
-# Allowlist: secrets, journals, backups, worktrees and local caches never enter
-# the build context. Runtime Dockerfile only copies package inputs.
+# Allowlist: private state, journals, worktrees and caches never enter the context.
+# The runtime Dockerfile copies only package inputs; the acceptance image uses tests/docs/tools.
 *
 !Dockerfile
 !pyproject.toml
@@ -8,42 +8,20 @@
 !src/**
 !tests/
 !tests/**
-!scripts/
-!scripts/**
+!tools/
+!tools/**
 !mql5/
-!mql5/readonly/
-!mql5/readonly/QuoteStream.mq5
-!mql5/offline/
-!mql5/offline/ProtocolReference.mq5
-!mql5/gateway/
-!mql5/gateway/*.mq5
-!mql5/gateway/*.mqh
-!mql5/safety/
-!mql5/safety/*.mq5
-!mql5/safety/*.mqh
-!mql5/shadow/
-!mql5/shadow/*.mq5
-!mql5/shadow/*.mqh
-!mql5/connected/
-!mql5/connected/*.mq5
-!mql5/connected/*.mqh
+!mql5/**
 !configs/
 !configs/news-filter.example.json
-!configs/news-filter.fixture.json
 !deploy/
 !deploy/**
 !docs/
-!docs/evidence/
-!docs/evidence/m2b-native-20261103.json
-!docs/evidence/m2c-native-20261103.json
-!docs/evidence/broker-campaign-final-20261103.json
-!docs/evidence/provider-campaign-final-20261103.json
-!docs/evidence/m2d-no-order-20261103.json
-!docs/evidence/m2d-shadow-20261103.json
-!docs/evidence/m2d-connected-20261104.json
-!docs/evidence/m2d-connected-20261104-before-native-https.json
-!docs/evidence/m2d-native-https-20261104.json
+!docs/**
 !README.md
+!CONTRIBUTING.md
 **/__pycache__/
 **/*.pyc
 **/*.egg-info/
+**/*.ex5
+**/*.log

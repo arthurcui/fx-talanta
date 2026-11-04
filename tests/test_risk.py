@@ -14,8 +14,8 @@ from fx_talanta.domain.offline import (
     Position,
     Reservation,
 )
-from fx_talanta.fixtures import START
-from fx_talanta.offline_fixtures import market_at
+from fx_talanta.research.offline import market_at
+from fx_talanta.research.records import START
 from fx_talanta.risk.governor import exposure, losses, size
 from fx_talanta.storage.config import fixture_account
 

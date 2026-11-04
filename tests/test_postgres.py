@@ -10,7 +10,6 @@ import pytest
 from psycopg.conninfo import make_conninfo
 from psycopg.types.json import Jsonb
 
-from fx_talanta.advisor.fixtures import record_chat
 from fx_talanta.clock import FakeClock
 from fx_talanta.domain.models import (
     AdministrativeCommand,
@@ -19,7 +18,8 @@ from fx_talanta.domain.models import (
     ExperienceCase,
     Record,
 )
-from fx_talanta.fixtures import START, run_demo
+from fx_talanta.research.advisor import record_chat
+from fx_talanta.research.records import START, run_demo
 from fx_talanta.storage.bootstrap import bootstrap
 from fx_talanta.storage.config import fixture_account
 from fx_talanta.storage.repository import AccountMismatch, RecordConflict, Repository
@@ -295,7 +295,7 @@ def test_portable_core_does_not_import_metatrader():
         [
             sys.executable,
             "-c",
-            "import fx_talanta.fixtures, sys; "
+            "import fx_talanta.research.records, sys; "
             "assert not any('metatrader' in n.lower() for n in sys.modules)",
         ],
         capture_output=True,

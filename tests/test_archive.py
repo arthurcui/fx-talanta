@@ -12,9 +12,9 @@ from psycopg import sql
 from fx_talanta.clock import FakeClock
 from fx_talanta.domain.models import Environment, ExperienceCase, Record
 from fx_talanta.domain.offline import Fault
-from fx_talanta.fixtures import START, run_demo
 from fx_talanta.gateway.offline import Gateway
-from fx_talanta.offline_fixtures import make_intent, market_at, warmup
+from fx_talanta.research.offline import make_intent, market_at, warmup
+from fx_talanta.research.records import START, run_demo
 from fx_talanta.storage import archive
 from fx_talanta.storage.bootstrap import bootstrap
 from fx_talanta.storage.config import fixture_account

@@ -7,7 +7,7 @@ import pytest
 
 spec = importlib.util.spec_from_file_location(
     "probe_required_sources",
-    Path(__file__).resolve().parents[1] / "scripts/probe_required_sources.py",
+    Path(__file__).resolve().parents[1] / "tools/qualification/probe_required_sources.py",
 )
 probe = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(probe)

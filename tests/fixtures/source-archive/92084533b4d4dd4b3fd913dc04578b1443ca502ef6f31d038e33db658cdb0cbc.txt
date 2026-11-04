@@ -1,0 +1,530 @@
+{
+  "schema": "m2d-shadow-evidence/1",
+  "recorded_at": "2026-11-03T23:52:31.327426+00:00",
+  "source_sha256": {
+    "src/fx_talanta/shadow/backend.py": "792e6b50283f2163d9fb3f9038b288d10f730ee8215686e02a4f1c92d76e2b01",
+    "src/fx_talanta/shadow/client.py": "7d994747921484556c09d91a1ea8aca8e6ec8401c0700212356e792cdc82c16f",
+    "src/fx_talanta/shadow/store.py": "3e1fd10db64f188a948214424d51bfdbdea70a57daae86d5b8b93c2e60e43367",
+    "src/fx_talanta/shadow/wire.py": "f58e6f46a17b44b4385908b588fbdb8e1cc854a2e519e5788495f5c64cbd5d69",
+    "src/fx_talanta/shadow/work.py": "f2ff6d1461a2c24653d892af6af1813960788211b8e97e611864e47e68b07dcc",
+    "src/fx_talanta/shadow/__init__.py": "33b873b2d81a7edc7d8d79daf4a37ae1769e3d857a764f0e682d8edd90a54f59",
+    "mql5/shadow/Fields.mqh": "7df00f8a68efa6fc7e547148bf19edda6cc71678b0f3111838472c2be61d9f82",
+    "mql5/shadow/Inbox.mqh": "e3673254686150015b12f5c017b466f8fdc1afa753121f1e0618f50946ec1c06",
+    "mql5/shadow/NativeTests.mq5": "50020b9139448f051d544ef9bb66b825ad439af263d53399f4da2bb4b0ff6d84",
+    "mql5/shadow/Protocol.mqh": "5e0be4d9f71da28f0c27a5621b493b60044d924b88bdd455f531af493cd420a5",
+    "mql5/shadow/ShadowEA.mq5": "95b8231ed62bb15259ee4f3aaed5e467cd81d615e42b3aabb0a6cf0653c7b6bf",
+    "src/fx_talanta/storage/migrations/007_shadow_transport.sql": "224dbbf6e6affd31541842b2cbbb13f81fa1b81d3f8a0f2f05f298389b14c678",
+    "src/fx_talanta/storage/bootstrap.py": "05dea956f0975958bb0b9f986b069daa2a4c2df18944db75057f7ada4558ec33",
+    "scripts/shadow_fixtures.py": "3f6c52c385e5e9ee726b84d97cfccacaf79fe1fa8943bc0f018053a0a9d6be93",
+    "tests/test_shadow.py": "e29e250f8495fdff08d35738a24b6e4a10332b4798ab2e57bcbb61f9b1c6d65a",
+    "src/fx_talanta/storage/archive.py": "6a51321482a509aeaba19eb45bfaa35a38e90e55f131e660be20d18092efc661"
+  },
+  "historical_sha256": {
+    "docs/evidence/broker-campaign-final-20261103.json": "4944e6c62990dc349fa39d4af83aac6326fdf406fd5b69948bb3af7b842f39c7",
+    "docs/evidence/provider-campaign-final-20261103.json": "9c9c317fae1406000b933705ba3bff53ae24da628e8feb8585c32a7932cee67f",
+    "docs/evidence/m2b-native-20261103.json": "1d9be6be713f0a578b5dcbb29b02e137ee686ee54853f9d9b54a17a3fee259d2",
+    "docs/evidence/m2c-native-20261103.json": "011b6226599d0ad38bf666618ad27c20a53fed9e41cde70b635692b6cecfb1e4",
+    "docs/evidence/m2d-no-order-20261103.json": "ab1ebbd02c13ee35d7bdae48d008be5445682790521c9cd631e79bf2bc6318fe"
+  },
+  "compiler": {
+    "ShadowEA": {
+      "errors": 0,
+      "warnings": 0,
+      "log_sha256": "15eae31d0204d68cafa49bdc779c7ab276a4b503804e033a3b10e93d43e7daf2",
+      "ex5_sha256": "0ea5479c2e597b9365f6a098c80358348ac4137111afe9463bf00e56ade8360e"
+    },
+    "NativeTests": {
+      "errors": 0,
+      "warnings": 0,
+      "log_sha256": "cff18e17aa810630d976616169e58271a6b83bd9792dabc40400e57d476cffbe",
+      "ex5_sha256": "e24a83fa0d47b29d9d7de92709759ba8455656b1f044d53bf124b4c66f764f4b"
+    }
+  },
+  "native": {
+    "scope": "Synthetic native codec/risk/inbox; no broker or native HTTPS execution",
+    "parity": [
+      {
+        "id": "usd-eurusd-buy",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "usd-eurusd-sell",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "cad-eurusd-buy",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "cad-eurusd-sell",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "cad-account-costs",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "usd-usdjpy-buy",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "usd-usdjpy-sell",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "cad-usdjpy-buy",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "cad-usdjpy-sell",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "quote-boundary",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "quote-over",
+        "reason": "QUOTE_STALE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "quote-future",
+        "reason": "QUOTE_STALE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "uncertain-future",
+        "reason": "QUOTE_STALE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "clock",
+        "reason": "CLOCK_UNVERIFIED",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "expiry",
+        "reason": "EXPIRED",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "conversion-old",
+        "reason": "CONVERSION_STALE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "missing-rate",
+        "reason": "CONVERSION_MISSING",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "wrong-rate",
+        "reason": "CONVERSION_INCONSISTENT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "cost-currency",
+        "reason": "CONVERSION_INCONSISTENT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "unknown-flow",
+        "reason": "UNKNOWN_CASHFLOW",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "missing-news",
+        "reason": "REQUIRED_INPUTS",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "blackout",
+        "reason": "BLACKOUT_OR_SESSION",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "closed-session",
+        "reason": "BLACKOUT_OR_SESSION",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "slot-two",
+        "reason": "POSITION_LIMIT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "same-symbol",
+        "reason": "POSITION_LIMIT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "daily-breach",
+        "reason": "LOSS_PAUSE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "stop-wrong-side",
+        "reason": "INVALID_SPECIFICATION",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "off-tick-stop",
+        "reason": "INVALID_SPECIFICATION",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "lot-grid",
+        "reason": "INVALID_SPECIFICATION",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "wide-spread",
+        "reason": "COST_LIMIT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "adverse-buy",
+        "reason": "COST_LIMIT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "adverse-sell",
+        "reason": "COST_LIMIT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "reserved-risk",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "unknown-reservation",
+        "reason": "OUTCOME_UNKNOWN",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "reserved-margin",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "reserved-gross",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "currency-leg",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "other-currency",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "daily-remaining",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "stopout-stress",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "small-capital",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "backend-risk-small",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "broker-loss-larger",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "broker-margin-larger",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "financing-cost",
+        "reason": "MINIMUM_LOT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "budget-exhausted",
+        "reason": "COMPUTE_BUDGET",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "rounded-reservation",
+        "reason": "ACCEPTED",
+        "volume": "0.08",
+        "passed": true
+      },
+      {
+        "id": "partial-plus-reserve",
+        "reason": "ACCEPTED",
+        "volume": "0.08",
+        "passed": true
+      },
+      {
+        "id": "state-1",
+        "reason": "HARD_HALT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "state-2",
+        "reason": "LOSS_PAUSE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "state-8",
+        "reason": "PROTECTION_PENDING",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "state-16",
+        "reason": "STARTUP_RECONCILE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "state-32",
+        "reason": "DEGRADED_PROTECT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "state-64",
+        "reason": "OWNER_PAUSED",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "state-127",
+        "reason": "HARD_HALT",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "state-126",
+        "reason": "LOSS_PAUSE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "age-boundary",
+        "reason": "ACCEPTED",
+        "volume": "0.09",
+        "passed": true
+      },
+      {
+        "id": "age-over",
+        "reason": "QUOTE_STALE",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "expired",
+        "reason": "EXPIRED",
+        "volume": "0",
+        "passed": true
+      },
+      {
+        "id": "unverified-local-clock",
+        "reason": "CLOCK_UNVERIFIED",
+        "volume": "0",
+        "passed": true
+      }
+    ],
+    "checks": {
+      "case-frame-0": "PASS",
+      "case-frame-1": "PASS",
+      "case-frame-2": "PASS",
+      "case-frame-3": "PASS",
+      "case-frame-4": "PASS",
+      "case-frame-5": "PASS",
+      "case-frame-6": "PASS",
+      "case-frame-7": "PASS",
+      "case-frame-8": "PASS",
+      "case-frame-9": "PASS",
+      "case-frame-10": "PASS",
+      "case-frame-11": "PASS",
+      "case-frame-12": "PASS",
+      "case-frame-13": "PASS",
+      "case-frame-14": "PASS",
+      "case-frame-15": "PASS",
+      "case-frame-16": "PASS",
+      "case-frame-17": "PASS",
+      "case-frame-18": "PASS",
+      "case-frame-19": "PASS",
+      "case-frame-20": "PASS",
+      "case-frame-21": "PASS",
+      "case-frame-22": "PASS",
+      "case-frame-23": "PASS",
+      "case-frame-24": "PASS",
+      "case-frame-25": "PASS",
+      "case-frame-26": "PASS",
+      "case-frame-27": "PASS",
+      "case-frame-28": "PASS",
+      "case-frame-29": "PASS",
+      "case-frame-30": "PASS",
+      "case-frame-31": "PASS",
+      "case-frame-32": "PASS",
+      "case-frame-33": "PASS",
+      "case-frame-34": "PASS",
+      "case-frame-35": "PASS",
+      "case-frame-36": "PASS",
+      "case-frame-37": "PASS",
+      "case-frame-38": "PASS",
+      "case-frame-39": "PASS",
+      "case-frame-40": "PASS",
+      "case-frame-41": "PASS",
+      "case-frame-42": "PASS",
+      "case-frame-43": "PASS",
+      "case-frame-44": "PASS",
+      "case-frame-45": "PASS",
+      "case-frame-46": "PASS",
+      "case-frame-47": "PASS",
+      "case-frame-48": "PASS",
+      "case-frame-49": "PASS",
+      "case-frame-50": "PASS",
+      "case-frame-51": "PASS",
+      "case-frame-52": "PASS",
+      "case-frame-53": "PASS",
+      "case-frame-54": "PASS",
+      "case-frame-55": "PASS",
+      "case-frame-56": "PASS",
+      "case-frame-57": "PASS",
+      "case-frame-58": "PASS",
+      "case-frame-59": "PASS",
+      "python-auth": "PASS",
+      "native-auth": "PASS",
+      "wrong-key": "PASS",
+      "wrong-direction": "PASS",
+      "expired": "PASS",
+      "response-nonce": "PASS",
+      "tampered": "PASS",
+      "missing-inbox": "PASS",
+      "bootstrap": "PASS",
+      "second-writer": "PASS",
+      "durable-receipt": "PASS",
+      "duplicate-not-reevaluated": "PASS",
+      "restart-retains-outbox": "PASS",
+      "wrong-ack": "PASS",
+      "ack": "PASS",
+      "restart-retains-ack": "PASS",
+      "backend-rollback-blocked": "PASS",
+      "same-id-new-sequence-rejected": "PASS",
+      "wrong-binding": "PASS",
+      "no-bootstrap-reset": "PASS"
+    },
+    "execution_enabled": false,
+    "connected_acceptance": false
+  },
+  "native_https_tested": false,
+  "execution_enabled": false,
+  "connected_acceptance": false,
+  "broker_terminals_deployed": false,
+  "campaign_started": false,
+  "native_compiler_inputs": {
+    "mql5/shadow/Fields.mqh": {
+      "sha256": "8bbf06f923c1058c33f427e7cfa8afbcd38bacdfd4926d42d9d01f1a708d9ea4",
+      "git_lf_sha256": "7df00f8a68efa6fc7e547148bf19edda6cc71678b0f3111838472c2be61d9f82"
+    },
+    "mql5/shadow/Inbox.mqh": {
+      "sha256": "e3673254686150015b12f5c017b466f8fdc1afa753121f1e0618f50946ec1c06",
+      "git_lf_sha256": "e3673254686150015b12f5c017b466f8fdc1afa753121f1e0618f50946ec1c06"
+    },
+    "mql5/shadow/NativeTests.mq5": {
+      "sha256": "5b3920f4607fab4f37c87c9dba0b4a5734779a0c78f5452532028e3bd829fb6b",
+      "git_lf_sha256": "50020b9139448f051d544ef9bb66b825ad439af263d53399f4da2bb4b0ff6d84"
+    },
+    "mql5/shadow/Protocol.mqh": {
+      "sha256": "5e0be4d9f71da28f0c27a5621b493b60044d924b88bdd455f531af493cd420a5",
+      "git_lf_sha256": "5e0be4d9f71da28f0c27a5621b493b60044d924b88bdd455f531af493cd420a5"
+    },
+    "mql5/shadow/ShadowEA.mq5": {
+      "sha256": "30d6e2f2f1b80f7f14990fe37b2d8be5a3fdd82f43c4cb82d4e53ad637e77f52",
+      "git_lf_sha256": "95b8231ed62bb15259ee4f3aaed5e467cd81d615e42b3aabb0a6cf0653c7b6bf"
+    }
+  },
+  "validation": {
+    "completed_at_utc": "2026-11-03T23:59:17.703905+00:00",
+    "python": "3.14.7",
+    "platform": "Windows",
+    "command": "python -m pytest --integration -q",
+    "passed": 653,
+    "failed": 0,
+    "skipped": 0,
+    "junit_sha256": "be6fbb043297b99ebcec02d10b3300a8f83a2865117096f028709aa15eec6757",
+    "source_line_endings": "Git LF; compiler input hashes above retain original bytes. Only CRLF/LF differs."
+  }
+}

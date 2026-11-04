@@ -1,0 +1,35 @@
+# Historical reports and investigations
+
+Preserved milestone snapshots, failed/stopped campaigns and retired approaches. These are not the current deployment guide. Dates and negative results remain part of the engineering record.
+
+Return to the [documentation index](../README.md).
+
+- [Retired MT5 calendar deployment](automatic-calendar.md)
+- [BLS ICS importer and refresh investigation](bls-calendar-importer.md)
+- [Broker campaign conclusions — November 3, 2026](broker-campaign-conclusion.md)
+- [CMC read-only milestone](cmc-readonly.md)
+- [EA event lifecycle review](ea-event-lifecycle-review.md)
+- [EA quote freshness and latency review](ea-quote-freshness-review.md)
+- [FOREX.com read-only qualification](forex-readonly.md)
+- [FRED calendar adapter (qualification only)](fred-calendar-adapter.md)
+- [FRED public-calendar time qualification](fred-public-calendar.md)
+- [Free alternative to the blocked BLS calendar](free-calendar-alternative.md)
+- [M0A: records and account contracts](m0a.md)
+- [M0B: offline execution and recovery](m0b.md)
+- [M0C: deployment parity and durable transfer](m0c.md)
+- [M1 implementation handoff](m1-handoff.md)
+- [M1 remediation: implemented changes and existing-record findings](m1-remediation-progress.md)
+- [M2 consolidated integration with trading disabled](m2-disabled-integration.md)
+- [Current M2 handoff](m2-handoff.md)
+- [M2D lifecycle and no-order remediation](m2d-lifecycle-remediation.md)
+- [M2D no-order preparation](m2d-no-order-acceptance.md)
+- [M2D shadow delivery and durable receipts](m2d-shadow-transport.md)
+- [Manual BLS Windows acceptance](manual-bls-windows-verification.md)
+- [Market-data acceptance design review](market-data-acceptance-review.md)
+- [Historical MT5 calendar capture and offline validation](mt5-calendar-bridge.md)
+- [Native MT5 MCP qualification](mt5-mcp-qualification.md)
+- [M1A observer foundation](observer-foundation.md)
+- [P0: broker and data feasibility](p0-feasibility.md)
+- [Provider campaign conclusion — user-requested early stop](provider-campaign-conclusion.md)
+- [Real calendar/news provider qualification](provider-qualification.md)
+- [Bounded provider refresh qualification](provider-refresh-qualification.md)

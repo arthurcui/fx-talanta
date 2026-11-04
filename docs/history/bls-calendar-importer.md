@@ -1,0 +1,162 @@
+# BLS ICS importer and refresh investigation
+
+The read-only `fx_talanta.bls_calendar` module imports the official BLS calendar
+and reconciles the jobs, CPI, PPI and JOLTS schedule with a FRED snapshot. It does
+not connect to brokers, databases, the live observers or execution. PR #10 stays
+unmerged.
+
+## Verified on November 2, 2026
+
+The user downloaded the [official ICS](https://www.bls.gov/schedule/news_release/bls.ics)
+through their browser. The 80,672-byte file has 313 total events and a latest event
+date of December 30, 2026. The importer retains the four selected release types;
+the full downloaded file remains private local evidence, outside Git.
+
+A fresh authenticated FRED snapshot and the BLS file agreed on all five dates in
+the November 2–December 2 window:
+
+| Release | Date | BLS Eastern time | UTC |
+| --- | --- | --- | --- |
+| JOLTS | November 3 | 10:00 | 15:00 |
+| Employment Situation | November 6 | 08:30 | 13:30 |
+| CPI | November 10 | 08:30 | 13:30 |
+| PPI | November 13 | 08:30 | 13:30 |
+| JOLTS | December 1 | 10:00 | 15:00 |
+
+[Sanitized evidence](../evidence/bls-import-20261102.json) retains the file hash,
+matched events, snapshot references and actual assessment. BLS supplies the exact
+times; FRED independently corroborates dates, **not times**. This does not mint
+the FRED adapter's separate two-source exact-time evidence contract.
+
+## Automatic refresh result
+
+The implemented one-shot HTTPS refresh and a separate Windows HTTPS request both
+returned HTTP 403. Normal certificate/hostname verification remained enabled.
+The requests used the official URL and an identified application User-Agent;
+there were no cookies, browser impersonation, redirect bypasses or retries.
+The browser download demonstrates user access, not working unattended access.
+The cause of the different responses is not established by these probes.
+
+Consequently **automatic refresh remains unverified**. No periodic downloader was
+installed. A manual file has `provenance=MANUAL_FILE` and `fetched_at=null`; its
+import time or filesystem modification time is never treated as source freshness.
+Re-importing it cannot clear `BLS_MANUAL_REFRESH_UNVERIFIED`. Refresh failures
+produce a blocked assessment and never reuse old evidence as a fresh success.
+
+The next qualification gate is successful direct HTTPS retrieval followed by
+repeated refresh, schedule-change and freshness evidence. A single HTTP 200 would
+still not prove reliable refresh or complete calendar coverage. Until then, manual
+imports are useful for offline schedule checks only. BLS API registration is not
+assumed to grant access to this separate ICS URL.
+
+Subsequent [FRED public-calendar tests](fred-public-calendar.md) automatically
+retrieved all five exact times twice and agreed with this BLS snapshot. This is
+a promising alternative for time retrieval, but does not make the static BLS
+snapshot fresh or establish sustained refresh qualification.
+
+### Browser download trial — November 2, 2026
+
+Browser automation successfully downloaded the official ICS link from an open
+BLS schedule page in the user's Chrome session at approximately 21:48 UTC.
+The resulting file was 80,672 bytes, parsed to 92 events in the four selected
+release types, and had SHA-256
+`92a350111ace106deaab5584e4084366bd367b594a0d0bad116008d82d63e501`,
+identical to the earlier user-supplied file. A private copy was retained as
+`.local/bls-browser-first.ics`; the original `.local/bls.ics` was not overwritten.
+
+Direct file navigation through the browser automation interface first returned
+`net::ERR_BLOCKED_BY_CLIENT`; downloading the actual page link succeeded instead.
+A repeated link-download action then timed out after 20 seconds. A normal link
+click with a download-event wait also timed out after 20 seconds. No additional
+completed BLS file appeared in Downloads during these checks. The page remained
+unchanged, and the cause of the repeat failures was not established.
+
+This proves one browser-mediated automated acquisition, **not reliable repeated
+refresh or unattended operation**. It depends on the user's Chrome session; no
+headless/cloud-browser test, scheduler, cookie export or browser security-setting
+change was performed. Browser acquisition has not been wired into the collector
+or promoted to verified feed freshness. The existing fail-closed rules remain.
+
+### Repeat-download blocker identified and resolved
+
+The user confirmed Chrome displayed a multiple-download permission prompt.
+A fresh page's first download succeeded, but a second download in that same
+page timed out even with a 45-second bound. After the user selected **Allow**,
+three consecutive automated downloads from the same November BLS schedule tab
+succeeded in 320, 233 and 206 milliseconds. All three files parsed successfully:
+80,672 bytes, 92 selected release events and the identical source hash above.
+[Sanitized repeat evidence](../evidence/bls-browser-repeat-20261102.json) records
+these outcomes. The permission prompt explains the observed repeat-download
+blocker; simply extending the timeout did not resolve it.
+
+The repeatable browser workflow for this user session is:
+
+1. Open an official BLS schedule page and locate its HTTPS `bls.ics` file link,
+   not the `webcal:` subscription link.
+2. Use the browser's documented link-download action and wait for its returned
+   completed local path, with a bounded timeout. Never infer completion from a
+   click alone or choose an older matching filename from Downloads.
+3. Validate the returned bytes with the strict ICS importer, record the acquisition
+   time and SHA-256, preserve earlier snapshots and reconcile against FRED dates.
+4. If Chrome prompts for multiple downloads, require the user to handle the
+   permission. Do not bypass it with new tabs, change browser security settings
+   automatically or silently reuse a previous file as fresh evidence.
+5. On timeout, permission loss, parse failure or disagreement, retain the failure
+   and keep entries blocked; a permission change should be followed by another
+   same-tab repeat test before treating browser acquisition as operational.
+
+Chrome's internal Downloads page could not be inspected because the browser
+tool blocks non-HTTP(S) URLs; no alternate route was used to inspect that page.
+The user handled the permission, and local validation inspected only the actual
+download paths returned by the browser. The original BLS file was not overwritten.
+
+This resolves the observed immediate repetition issue in the existing Chrome
+session. It does not establish browser-restart persistence, unattended/cloud
+operation, cache revalidation or sustained refresh. No scheduler, cookie export
+or trading-health integration was installed. Direct Python/Windows HTTPS remains
+a separately failing path; browser success does not change its recorded HTTP 403.
+
+## Commands
+
+From the isolated checkout, set `PYTHONPATH` to its `src` directory and use the
+project Python environment. Create a fresh FRED snapshot using the
+[FRED adapter](fred-calendar-adapter.md), then:
+
+```powershell
+python -m fx_talanta.bls_calendar --ics C:/SideProjects/fx-talanta/.local/bls.ics --fred .local/fred-snapshot-001.json --output .local/bls-import-001.json
+python -m fx_talanta.bls_calendar --refresh --fred .local/fred-snapshot-001.json --output .local/bls-refresh-001.json
+```
+
+Each output is exclusive-create JSON containing the snapshot and assessment.
+`--previous .local/bls-import-001.json` links to the previous snapshot hash and
+checks event UID/SEQUENCE history. Keep the earlier files. Sequence regression or
+changed content at the same sequence is rejected, not silently overwritten.
+An increased sequence preserves the new revision; moved or missing dates must
+still reconcile with FRED. Disappearance is not inferred to be a cancellation.
+Explicit cancelled/tentative events block rather than count as confirmed matches.
+
+Exit 0 means import succeeded, not permission to trade. Check the assessment.
+The live manual-import assessment matches all five dates but still blocks entries.
+
+## Fail-closed scope
+
+This deliberately supports the observed nonrecurring BLS ICS format, not every
+iCalendar extension. It unfolds content lines, checks component balance,
+UIDs, sequences and statuses, accepts explicit UTC or Eastern zoned timestamps,
+and verifies the known embedded US-Eastern DST rules before mapping to IANA
+`America/New_York`. Unknown timezone definitions, floating/all-day times,
+ambiguous/nonexistent civil times, recurrence, duplicate properties/UIDs, malformed
+or oversized files are rejected. The file/response bound is 2 MiB; the network
+timeout is 15 seconds per socket operation, not a whole-job deadline.
+
+Reconciliation compares both directions within the FRED window: absent dates,
+extra BLS dates, multiple matching events or incomplete release inventory block.
+Freshness defaults to 120 seconds for both sources; future/unavailable evidence
+and insufficient date windows block. Verified events veto entries inclusively
+for 30 minutes before/after release. Four USD release types never establish full
+calendar/news coverage, and every result keeps execution disabled.
+
+Tests cover unfolding, DST, UTC timestamps, blackout boundaries, stale/future
+snapshots, revisions, cancellation/rescheduling, malformed files, immutable
+output and mocked refresh success/403/429/500 failures. Real refresh failure is
+reported separately from mocked success. Neither broker's 24-hour run was changed.
