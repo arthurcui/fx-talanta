@@ -41,6 +41,8 @@
 !docs/evidence/m2d-no-order-20261103.json
 !docs/evidence/m2d-shadow-20261103.json
 !docs/evidence/m2d-connected-20261104.json
+!docs/evidence/m2d-connected-20261104-before-native-https.json
+!docs/evidence/m2d-native-https-20261104.json
 !README.md
 **/__pycache__/
 **/*.pyc
