@@ -8,5 +8,6 @@ tests/fixtures/demo-activation-pre-repricing/*.tsv -text
 tests/fixtures/demo-activation-pre-closure-fix/*.tsv -text
 tests/fixtures/source-archive/*.txt -text
 
-tests/fixtures/demo-closeout/*.tsv -text
+tests/fixtures/demo-closeout/*.tsv -text whitespace=cr-at-eol
 tests/fixtures/demo-closeout/*.txt -text
+tests/fixtures/demo-closeout/required-checks.json -text whitespace=cr-at-eol
