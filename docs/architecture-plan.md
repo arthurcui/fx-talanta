@@ -727,8 +727,12 @@ snapshot/clock, distributed fencing and connected acceptance gates.
 The separate [bounded connected observation path](m2d-connected-no-order.md)
 adds real FOREX capture, authenticated short-lived clock intervals and paired
 no-order journal recovery. Missing costs, loss baselines, providers and qualified
-broker UTC remain explicit HOLD reasons. Native HTTPS requires its own actual
-terminal evidence; synthetic/native clock tests cannot supply that evidence.
+broker UTC remain explicit HOLD reasons. Actual terminal HTTPS authentication is
+now recorded, while the native clock gate prevented receipt handoff; connected
+acceptance remains incomplete. The [EA quote-freshness review](ea-quote-freshness-review.md)
+distinguishes local bridge RTT, source quote age and clock uncertainty. Its
+recommendations do not change the two-second entry rule or retrospectively pass
+the failed attempts.
 
 ## Required quote-latency and channel-status UI
 

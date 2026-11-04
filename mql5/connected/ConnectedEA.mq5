@@ -1,12 +1,13 @@
 #property strict
 #property version "1.00"
 #include "Inbox.mqh"
+#include "HighResolutionClock.mqh"
 // No order, position mutation, login, symbol selection or clock adjustment API.
 input bool EnableConnected=false;
 input bool BootstrapNewInbox=false;
 input string ConfigFile="fx-connected-private.tsv";
 CoInbox co_inbox;
-ShClock co_clock;
+ShHighResolutionClock co_clock;
 string co_endpoint,co_scope,co_client,co_incarnation,co_epoch,co_server,co_binding,co_key,co_checkpoint;
 long co_login=0,co_deadline=0,co_started=0,co_end=0,co_due=0,co_synced=0,co_nonce_counter=0;
 int co_backoff=1000,co_diagnostics=0;
@@ -16,10 +17,11 @@ bool CoIdentity()
       AccountInfoInteger(ACCOUNT_LOGIN)==co_login && AccountInfoString(ACCOUNT_SERVER)==co_server &&
       TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)==0;
 }
-void CoLog(string code)
+void CoLog(string code,bool final_marker=false)
 {
    // Private bounded diagnostic log: no key, login, server, endpoint or prices.
-   if(co_checkpoint=="" || co_diagnostics>=128) return;
+   // Two of the 128 bounded entries are reserved for stop reason and deinit.
+   if(co_checkpoint=="" || co_diagnostics>=(final_marker ? 128 : 126)) return;
    string path=co_checkpoint+".diagnostics";
    int file=FileOpen(path,FILE_READ|FILE_WRITE|FILE_TXT|FILE_ANSI,0,CP_UTF8);
    if(file==INVALID_HANDLE) return;
@@ -31,7 +33,7 @@ void CoLog(string code)
    }
    FileClose(file);
 }
-void CoStop(string reason){ CoLog(reason); EventKillTimer(); co_inbox.Close(); ExpertRemove(); }
+void CoStop(string reason){ CoLog(reason,true); EventKillTimer(); co_inbox.Close(); ExpertRemove(); }
 bool CoEndpoint(string value)
 {
    string suffix="/v1/connected-shadow";
@@ -76,7 +78,11 @@ void OnTimer()
    if(!CoIdentity()){ CoStop("IDENTITY_OR_TRADING_GUARD"); return; }
    if(!TerminalInfoInteger(TERMINAL_CONNECTED))
    { CoLog("TERMINAL_DISCONNECTED"); co_due=sent+1000; return; }
-   bool bounded=co_clock.Now(sent,utc,error);
+   // GetTickCount64 controls scheduling only. The UTC clock receives raw
+   // GetMicrosecondCount values, without converting or mixing counter epochs.
+   long sent_us=(long)GetMicrosecondCount();
+   if(sent_us<0){ CoStop("CLOCK_COUNTER_REGRESSION"); return; }
+   bool bounded=co_clock.NowUs(sent_us,utc,error);
    if(bounded && utc+error>=co_deadline){ CoStop("DEADLINE_REACHED"); return; }
    bool sync=!bounded || sent-co_synced>=2000;
    if(!bounded) utc=(long)TimeGMT()*1000; // Bootstrap authentication only, never receipt/quote eligibility.
@@ -85,13 +91,16 @@ void OnTimer()
    string payload="connected/1\t"+command+"\t"+co_incarnation+"\t"+co_epoch;
    if(command=="REPORT") payload+="\t"+ShHex(pending);
    string nonce=FxHash(co_key+co_client+IntegerToString(utc)+IntegerToString(sent)+
-      IntegerToString((long)GetMicrosecondCount())+IntegerToString(++co_nonce_counter));
+      IntegerToString(sent_us)+IntegerToString(++co_nonce_counter));
    string request=ShEncode(co_key,"C2S",co_scope,co_client,nonce,utc,command=="REPORT" ? "REPORT" : "PULL",payload);
    char data[],result[]; string headers;
    int bytes=StringToCharArray(request,data,0,WHOLE_ARRAY,CP_UTF8)-1; ArrayResize(data,bytes);
    ResetLastError();
    int status=WebRequest("POST",co_endpoint,"Content-Type: application/octet-stream\r\n",1500,data,result,headers);
-   int network_error=GetLastError(); long received=(long)GetTickCount64();
+   int network_error=GetLastError(); long received_us=(long)GetMicrosecondCount();
+   long received=(long)GetTickCount64();
+   if(received_us<sent_us){ CoStop("CLOCK_COUNTER_REGRESSION"); return; }
+   long rtt_us=received_us-sent_us;
    if(received>=co_end){ CoStop("DEADLINE_REACHED"); return; }
    if(!CoIdentity()){ CoStop("IDENTITY_OR_TRADING_GUARD"); return; }
    if(status!=200) CoLog(command+"_HTTP_"+IntegerToString(status)+"_ERROR_"+IntegerToString(network_error));
@@ -99,17 +108,20 @@ void OnTimer()
    // Do not advance the prior clock to receive time before Sync validates the
    // request's send counter. That would incorrectly classify it as an old request.
    bool current=bounded;
-   if(sync) response_now=bounded ? utc+(received-sent) : (long)TimeGMT()*1000;
-   else current=co_clock.Now(received,response_now,response_error);
+   if(sync) response_now=bounded ? utc+rtt_us/1000 : (long)TimeGMT()*1000;
+   else current=co_clock.NowUs(received_us,response_now,response_error);
    string op,response;
-   bool ok=status==200 && ArraySize(result)<=32768 && received>=sent && received-sent<=2000 &&
+   bool ok=status==200 && ArraySize(result)<=32768 && rtt_us<=2000000 &&
       (sync || current) && ShDecode(CharArrayToString(result,0,ArraySize(result),CP_UTF8),co_key,"S2C",co_scope,co_client,nonce,response_now,op,response);
    if(ok && sync)
    {
       string f[];
-      ok=op=="WORK" && StringSplit(response,'\t',f)==4 && f[0]=="connected/1" && f[1]=="CLOCK" &&
-         FxInteger(f[2]) && FxInteger(f[3]) && StringToInteger(f[3])<=100 &&
-         co_clock.Sync(StringToInteger(f[2]),(int)StringToInteger(f[3]),sent,received);
+      bool clock_payload=op=="WORK" && StringSplit(response,'\t',f)==4 && f[0]=="connected/1" && f[1]=="CLOCK" &&
+         FxInteger(f[2]) && FxInteger(f[3]) && StringToInteger(f[3])<=100;
+      ok=clock_payload && co_clock.SyncUs(StringToInteger(f[2]),(int)StringToInteger(f[3]),sent_us,received_us);
+      if(clock_payload)
+         CoLog("CLOCK_SYNC_SERVER_ERROR_MS_"+f[3]+"_RTT_US_"+IntegerToString(rtt_us)+
+            "_UNCERTAINTY_MS_"+IntegerToString(co_clock.LastSyncBoundMs())+"_ACCEPTED_"+(ok ? "1" : "0"));
       if(ok){ co_synced=received; CoLog("CLOCK_BOUNDED"); }
       else CoLog(co_clock.Reason());
    }
@@ -128,8 +140,8 @@ void OnTimer()
          native_tick=tick.time_msc-StringToInteger(f[13]);
          if(native_tick<=0) native_tick=0;
       }
-      long assessed=(long)GetTickCount64();
-      if(!co_clock.Now(assessed,response_now,response_error)){ CoLog(co_clock.Reason()); ok=false; }
+      long assessed=(long)GetTickCount64(),assessed_us=(long)GetMicrosecondCount();
+      if(!co_clock.NowUs(assessed_us,response_now,response_error)){ CoLog(co_clock.Reason()); ok=false; }
       else if(assessed>=co_end || response_now+response_error>=co_deadline){ CoStop("DEADLINE_REACHED"); return; }
       else if(response_now<StringToInteger(f[5]))
       {
@@ -151,5 +163,5 @@ void OnTimer()
 }
 void OnDeinit(const int reason)
 {
-   CoLog("STOPPED_NO_ORDER"); EventKillTimer(); co_inbox.Close(); co_key="";
+   CoLog("STOPPED_NO_ORDER",true); EventKillTimer(); co_inbox.Close(); co_key="";
 }

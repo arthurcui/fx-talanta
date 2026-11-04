@@ -74,6 +74,18 @@ def connect(server, context):
     return context.wrap_socket(sock, server_hostname="127.0.0.1")
 
 
+def test_clock_channel_disables_coalescing_on_the_actual_accepted_tls_socket(server):
+    server, context, _ = server
+    sock = connect(server, context)
+    try:
+        with server.deadline_lock:
+            accepted = [entry[0] for entry in server.deadlines.values()]
+            assert len(accepted) == 1
+            assert accepted[0].getsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY) == 1
+    finally:
+        sock.close()
+
+
 @pytest.mark.parametrize("part", ["headers", "body"])
 def test_absolute_deadline_closes_slow_sender_and_releases_worker(server, part):
     server, context, _ = server

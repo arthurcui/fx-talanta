@@ -8,24 +8,42 @@ an authenticated exchange nor a successful test authorizes an order.
 ## Current evidence
 
 The [November 4 evidence](evidence/m2d-connected-20261104.json) preserves the
-actual attempts, source hashes and native results. The complete Python/PostgreSQL
-regression passed **767 tests, no skips**; Ruff lint and formatting passed. Historical November 3
+actual attempts, source hashes and native results. The Python/PostgreSQL
+regression passed **775 tests, no skips** in two disjoint groups (773 plus two
+evidence checks); Ruff lint and formatting passed. Historical November 3
 evidence and its sources are retained unchanged.
 
 | Gate | Evidence and limit |
 | --- | --- |
-| Native clock and durable inbox | Actual account-free mathematical Tester: 32 clock and 36 protocol/inbox assertions passed; all three programs compiled with zero errors/warnings |
+| Native clock and durable inbox | 49 new high-resolution-clock assertions passed; 32 unchanged legacy-clock and 36 protocol/inbox assertions retained (117 total, not 117 new runs). New host/harness compiled with zero errors/warnings |
 | Real broker inputs | FOREX read-only capture observed EURUSD/USDJPY quotes, account state, symbol specifications, calculation outputs and CAD conversion; both normalized results remain HOLD |
 | Original policy and failures | Original policy was expired. The first FOREX capture failed because its derived lower bound excluded recent ticks. Fixed wrapper and a separate successful attempt retained; original binding unchanged |
-| CMC capture | Refused because the terminal reported Algo Trading enabled. No CMC connection test or setting change was made |
+| CMC capture | Preflight did not verify Algo Trading disabled. No CMC native HTTPS session or setting change was made |
 | HTTPS listener | Actual Python TLS tests cover trust rejection and absolute TLS/header/body deadlines; they do not prove native MT5 WebRequest |
 | Recovery and authority | PostgreSQL process competition, worker crash, database outage and archive/restore tests; independent processes on one host, not two physical hosts |
-| Native terminal HTTPS | Pending the explicit FOREX WebRequest URL permission and local certificate setup; no native connected pass claimed |
+| Native terminal HTTPS | Three stopped attempts preserved. Attempts 02/03 authenticated 5/9 signed CLOCK responses respectively; no native receipts or ACKs completed. Attempt 03 clock bounds 116–134 ms exceeded the unchanged 100 ms gate |
 | Broker execution | Disabled in every new component; no sender, new account, campaign or order test |
 
 The original broker and provider campaigns remain concluded without a pass.
 These short observations do not reopen or qualify M1 or complete M2D connected
 PAPER acceptance.
+
+The [native HTTPS report](evidence/m2d-native-https-20261104.json) independently
+reconciles all three stopped journals. Attempt 01 had WebRequest 4014 failures
+before the allowlist correction. Attempt 02 had a clock rejection and a separate
+status-file `PermissionError`; both are preserved. Attempt 03 reached its original
+deadline with nine authenticated CLOCK replies but no accepted native clock.
+Its native quote-read branch was never reached: these results do **not** show
+broker quote lag. See the [source-backed freshness review](ea-quote-freshness-review.md).
+The [EA event lifecycle review](ea-event-lifecycle-review.md) additionally identifies
+reinitialization, no-tick management and reconciliation-retry gaps; component
+test counts do not qualify those runtime paths.
+The actual post-stop FOREX check found Algo Trading off and zero positions/pending
+orders. CMC and the concluded campaigns were not changed.
+
+The original [pre-HTTPS report](evidence/m2d-connected-20261104-before-native-https.json)
+is retained byte-for-byte. Status-write cutoff/final-report hardening after attempt
+03 is covered by the later Python regression; it is not relabeled as that run's code.
 
 ## Input and clock authority
 
@@ -50,9 +68,20 @@ adds uncertainty; actual disjoint intervals invalidate the clock. Host evidence
 expires after 60 seconds, with fresh NTP required for a new interval. NTP is
 unauthenticated corroboration, not proof of long-term clock discipline.
 
-The native clock uses an authenticated, uncached server sample, measured round
-trip, a 32 ms Windows timer-granularity allowance and drift growth. Its interval
-expires after five seconds. Clock error above 100 ms rejects. The **two-second
+The deployed no-order host uses an authenticated, uncached server sample and raw
+`GetMicrosecondCount()` measurements. `HighResolutionClock.mqh` rounds the RTT
+bound outward, adds a 2 ms counter/conversion allowance, and charges the existing
+100 ppm rate allowance for both RTT and subsequent projection. These are declared
+counter assumptions, not a certificate of physical timer accuracy. The coarse
+`Clock.mqh` implementation and its original evidence remain preserved: its 32 ms
+allowance belonged to its coarse `GetTickCount64()` counter model, but consumed too
+much of the measured budget in the second actual connection attempt. Switching
+counter sources does not change the 100 ms ceiling or select a more favorable
+NTP result. [MetaQuotes documents the counter distinction](https://www.mql5.com/en/book/common/timing/timing_count).
+
+Scheduling and the stop timer still use the separate coarse counter. Native UTC
+projection uses only raw microseconds and expires after five seconds. Clock error
+above 100 ms rejects. The **two-second
 entry ceiling remains unchanged**: source and native tick ages must fit after
 adding uncertainty, and future timestamps reject. The five-second observation
 consistency check never grants entry freshness credit. No host clock is adjusted.
@@ -82,6 +111,13 @@ broker readiness, Python readiness or MCP readiness.
 The development listener binds only IPv4 loopback, requires TLS 1.2 or later,
 limits workers, and has a two-second absolute accepted-connection deadline
 covering handshake, headers and body. It is not a public deployment service.
+Accepted sockets disable Nagle coalescing for the small clock responses; actual
+measured RTT still counts in full. Status snapshots retry Windows sharing/access
+denials within a 100 ms retry budget, retaining the old complete snapshot until
+replacement succeeds. An exhausted budget keeps the complete pending bytes and
+fails explicitly; it never extends clock, lease, observation or session deadlines.
+The actual persistent-lock check took 101.53 ms of retry time because scheduling
+can exceed the configured budget. This is not a hard operating-system wall-time guarantee.
 The EA is disabled by default, requires global Algo Trading disabled, verifies
 demo identity, and enforces both a UTC and monotonic stop deadline. It cannot
 place orders or adjust the terminal's account/settings.
@@ -121,17 +157,27 @@ certificate is not automatically installed or trusted.
 one bounded loopback session. It permits at most 60 seconds for initial native
 attachment, with explicitly journaled startup renewals. After the first
 authenticated exchange, only native PULL renews the lease. It captures broker
-inputs once, publishes both pair observations, and stops within 300 seconds.
+inputs once and publishes both pair observations. Its configured observation
+deadline is at most 300 seconds, with separately bounded startup/shutdown and an
+external supervisor; this is not a 300-second whole-process wall-time guarantee.
 Supervise the process externally; any failure preserves evidence and does not
 restart a terminal or session. Fresh clocks, broker identity, global trading
 disabled and explicit bootstrap remain mandatory.
 
 Native attachment must use a new chart; do not replace the existing quote-stream
 EA. Allow only the explicit localhost HTTPS origin in FOREX's WebRequest list.
+In this terminal build, this is **Tools → Options → Experts**, between Trade and
+GPU, rather than the Toolbox's Experts log. Check **Allow WebRequest for listed
+URL** and add exactly `https://127.0.0.1:8443`; keep **Allow algorithmic trading**
+and the EA's **Allow Algo Trading** unchecked. Port 8443 is the loopback Python
+listener's configured HTTPS port, and `/v1/connected-shadow` is its only route.
+The first actual attempt preserved eight WebRequest 4014 errors; direct inspection
+then showed the FOREX checkbox disabled and its allowlist empty. The second
+attempt established authenticated HTTPS after that exact setting was corrected.
 No trust bypass or HTTP fallback is supported. Preserve the terminal's existing
 account, broker environment, old journals and campaign sources.
 
-Remaining connected gates include actual native HTTPS behavior, broker-authoritative
+Remaining connected gates include a completed native receipt/ACK handoff, broker-authoritative
 timestamp mapping, real cost/loss/provider qualification, independent-host fencing
 and broker protection/reconciliation timing. Demo orders need separate explicit
 authorization after their prerequisites; this PR supplies none.

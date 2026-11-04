@@ -3,10 +3,10 @@
   "execution_enabled": false,
   "new_campaign_started": false,
   "connected_paper_accepted": false,
-  "native_https": "PENDING_EXPLICIT_TERMINAL_URL_AND_LOCAL_CERTIFICATE_SETUP",
+  "native_https": "AUTHENTICATED_CLOCK_EXCHANGES_ONLY_HANDOFF_INCOMPLETE",
   "native": {
     "schema": "connected-native-evidence/1",
-    "recorded_at_utc": "2026-11-04T00:38:31.843845+00:00",
+    "recorded_at_utc": "2026-11-04T03:07:17.288365+00:00",
     "execution_enabled": false,
     "broker_connected": false,
     "mode": "isolated mathematical Tester, Model=3",
@@ -14,8 +14,10 @@
       "ConnectedEA": {
         "errors": 0,
         "warnings": 0,
-        "log_sha256": "16e677a6b30551acae68b53c9ffc13767eb6355d632877b09fc08bdc87fbf235",
-        "ex5_sha256": "fce835d42f08df135b38b58e6f502957108b98460d8166b7ed9263252cf9c47a"
+        "log_sha256": "0457ed186459c0bafc54e7dc8eeea154eec0cc4cf70b5ea6256197aa84015eec",
+        "ex5_sha256": "f9278396fcf0dd41edcbba90fced523e1789ff933ac1c855bf49ad8c7f6023ad",
+        "binary_bytes": 68162,
+        "preserved_binary": "binaries/ConnectedEA.ex5"
       },
       "NativeConnectedTests": {
         "errors": 0,
@@ -33,14 +35,24 @@
           "summary_sha256": "abf8bd1b88179f991e17630819112f44e0fc0cde0455a1b66d5aeea085bed717",
           "reason": "Clock implementation and Clock-only native harness are byte-identical; previous 32 assertions and compiler result reused without rerunning."
         }
+      },
+      "NativeHighResolutionClockTests": {
+        "errors": 0,
+        "warnings": 0,
+        "log_sha256": "306bd4f5af98826a96391efaafcff3b0788fd416aecd27518c15e8fe4e778928",
+        "ex5_sha256": "8998dde599a66cd19bd4dd7912c2db2155ba82f03e5ce0183b8decee8fb3b888",
+        "binary_bytes": 21052,
+        "preserved_binary": "binaries/NativeHighResolutionClockTests.ex5"
       }
     },
     "sources": {
       "mql5/connected/Clock.mqh": "c7971ca7f16a73da0184346a0d894de7bd4c49ee2c9570fff256ae788cf7428f",
-      "mql5/connected/ConnectedEA.mq5": "410e9ca912d920059e46db07e0b14011d35edf4b6408ff8a1092d0ca8c9b70ef",
+      "mql5/connected/ConnectedEA.mq5": "5aad405b8919461bbac61e6a1ade2796cc67af68002df198d0bffabf18bc032d",
+      "mql5/connected/HighResolutionClock.mqh": "8a6b2277672966d52b2bd8dea710c6853d37611d833592cd315b8c4a6f2f9322",
       "mql5/connected/Inbox.mqh": "264b2ac853725f7fd54794daa8d3c4b9b95712ecddf93709a31393cea8707520",
       "mql5/connected/NativeClockTests.mq5": "ecd636d31dfc2ceb7a455a53631fa80afa3edf2a10d11a8901e5b91c1f7918bc",
       "mql5/connected/NativeConnectedTests.mq5": "2b413b87ff34624971c39a1ccf94e5a76a9bddd0da28e6e6900d6638e5971ac8",
+      "mql5/connected/NativeHighResolutionClockTests.mq5": "97696aea731ef05c2bc9062cbc457a65b0bd71cebf72bf1118f82d961c9786cf",
       "mql5/connected/Protocol.mqh": "b73a0a999fe3d3ce1abe0035e09743af24d130e13da3d2392954056093953bb1",
       "mql5/shadow/Fields.mqh": "7df00f8a68efa6fc7e547148bf19edda6cc71678b0f3111838472c2be61d9f82",
       "mql5/shadow/Inbox.mqh": "e3673254686150015b12f5c017b466f8fdc1afa753121f1e0618f50946ec1c06",
@@ -212,7 +224,8 @@
           "summary": ".local/native-connected/assertions-20261104T002536Z/summary.json",
           "summary_sha256": "abf8bd1b88179f991e17630819112f44e0fc0cde0455a1b66d5aeea085bed717",
           "reason": "Clock implementation and Clock-only native harness are byte-identical; previous 32 assertions and compiler result reused without rerunning."
-        }
+        },
+        "role": "Preserved coarse-clock evidence; not proof of the new high-resolution clock"
       },
       "NativeConnectedTests": {
         "count": 36,
@@ -376,6 +389,219 @@
           "tester.ini": "780e47265419a8161111896abceecf81295f03b70bf76957765a037a34f69ad2"
         },
         "artifact_note": "Full isolated Tester sandbox snapshot after this invocation; may retain files from the prior preserved invocation. The current assertion TSV has 36 rows."
+      },
+      "NativeHighResolutionClockTests": {
+        "count": 49,
+        "passed": 49,
+        "failed": 0,
+        "results_sha256": "d05bfb91c63785b25accf35120c0481080ab21a578d239cb4436bcf4d8fd1561",
+        "config_sha256": "bb565900f8750c2d1975241bd2eb4c681b2ca751032a5c3bde2a99dc0d8e2c75",
+        "results": [
+          {
+            "name": "initial-unverified",
+            "result": "PASS"
+          },
+          {
+            "name": "73ms-server-10ms-rtt",
+            "result": "PASS"
+          },
+          {
+            "name": "rtt-drift-included",
+            "result": "PASS"
+          },
+          {
+            "name": "one-microsecond-aging",
+            "result": "PASS"
+          },
+          {
+            "name": "integer-projection",
+            "result": "PASS"
+          },
+          {
+            "name": "both-asymmetric-extremes",
+            "result": "PASS"
+          },
+          {
+            "name": "odd-microsecond-sync",
+            "result": "PASS"
+          },
+          {
+            "name": "odd-half-rtt-rounded-outward",
+            "result": "PASS"
+          },
+          {
+            "name": "fractional-projection-rounded-outward",
+            "result": "PASS"
+          },
+          {
+            "name": "one-microsecond-rtt",
+            "result": "PASS"
+          },
+          {
+            "name": "98ms-zero-rtt-sync",
+            "result": "PASS"
+          },
+          {
+            "name": "exact-100ms-bound",
+            "result": "PASS"
+          },
+          {
+            "name": "aging-over-100ms-denied",
+            "result": "PASS"
+          },
+          {
+            "name": "fresh-resync",
+            "result": "PASS"
+          },
+          {
+            "name": "one-microsecond-before-five-seconds",
+            "result": "PASS"
+          },
+          {
+            "name": "exact-five-seconds-expired",
+            "result": "PASS"
+          },
+          {
+            "name": "expired-never-revives",
+            "result": "PASS"
+          },
+          {
+            "name": "99ms-zero-rtt-rejected",
+            "result": "PASS"
+          },
+          {
+            "name": "rtt-budget-excess",
+            "result": "PASS"
+          },
+          {
+            "name": "exact-rtt-cap-still-fails-uncertainty",
+            "result": "PASS"
+          },
+          {
+            "name": "rtt-over-two-seconds",
+            "result": "PASS"
+          },
+          {
+            "name": "negative-error",
+            "result": "PASS"
+          },
+          {
+            "name": "server-error-over-100ms",
+            "result": "PASS"
+          },
+          {
+            "name": "receive-before-send",
+            "result": "PASS"
+          },
+          {
+            "name": "negative-counter",
+            "result": "PASS"
+          },
+          {
+            "name": "zero-server-clock",
+            "result": "PASS"
+          },
+          {
+            "name": "server-overflow-guard",
+            "result": "PASS"
+          },
+          {
+            "name": "send-counter-overflow-guard",
+            "result": "PASS"
+          },
+          {
+            "name": "receive-counter-overflow-guard",
+            "result": "PASS"
+          },
+          {
+            "name": "invalid-has-no-clock",
+            "result": "PASS"
+          },
+          {
+            "name": "ordered-sync",
+            "result": "PASS"
+          },
+          {
+            "name": "ordered-now",
+            "result": "PASS"
+          },
+          {
+            "name": "old-request-rejected",
+            "result": "PASS"
+          },
+          {
+            "name": "old-request-invalidates",
+            "result": "PASS"
+          },
+          {
+            "name": "current-request-recovery",
+            "result": "PASS"
+          },
+          {
+            "name": "new-anchor",
+            "result": "PASS"
+          },
+          {
+            "name": "counter-regression",
+            "result": "PASS"
+          },
+          {
+            "name": "jump-initial",
+            "result": "PASS"
+          },
+          {
+            "name": "disjoint-update",
+            "result": "PASS"
+          },
+          {
+            "name": "jump-invalidates",
+            "result": "PASS"
+          },
+          {
+            "name": "observed-initial",
+            "result": "PASS"
+          },
+          {
+            "name": "utc-regression",
+            "result": "PASS"
+          },
+          {
+            "name": "restart-has-no-restored-anchor",
+            "result": "PASS"
+          },
+          {
+            "name": "restart-needs-fresh-sync",
+            "result": "PASS"
+          },
+          {
+            "name": "restart-counter-reset-denied",
+            "result": "PASS"
+          },
+          {
+            "name": "counter-upper-bound",
+            "result": "PASS"
+          },
+          {
+            "name": "now-counter-overflow-guard",
+            "result": "PASS"
+          },
+          {
+            "name": "malformed-initial",
+            "result": "PASS"
+          },
+          {
+            "name": "malformed-sync-invalidates-old-clock",
+            "result": "PASS"
+          }
+        ],
+        "artifacts": {
+          "agent-logs/20261103.log": "1a2dbf928d85cc94a7a83088744864f90f1edd9328c7722c8e9802dce03b1981",
+          "Files/connected-high-resolution-clock-checks.tsv": "d05bfb91c63785b25accf35120c0481080ab21a578d239cb4436bcf4d8fd1561",
+          "terminal-logs/20261103.log": "4dfa54ec52466b52a8bb072d33f3d168663334a00e0c3fc9d9f85210a293f21e",
+          "terminal-logs/metaeditor.log": "da6762a03053a83ec8b4506982352658c52e824ff04ed7104ca751cbbf416f35",
+          "tester.ini": "bb565900f8750c2d1975241bd2eb4c681b2ca751032a5c3bde2a99dc0d8e2c75"
+        },
+        "artifact_note": "Full isolated Tester snapshot; older retained sandbox files may be present. Current high-resolution assertion TSV contains 49 results."
       }
     },
     "total_assertions": 68,
@@ -383,7 +609,24 @@
       "summary": ".local/native-connected/assertions-20261104T002536Z/summary.json",
       "summary_sha256": "abf8bd1b88179f991e17630819112f44e0fc0cde0455a1b66d5aeea085bed717",
       "reason": "Clock implementation and Clock-only native harness are byte-identical; previous 32 assertions and compiler result reused without rerunning."
-    }
+    },
+    "retained_prior_evidence": {
+      "summary": ".local/native-connected/assertions-future-20261104T003653Z/summary.json",
+      "summary_sha256": "380540119a5655c0ea3cbbe5fcf7110bcc4a9760ccb0ff194849ebaeb93ae893",
+      "protocol_inbox_assertions_unchanged": 36,
+      "legacy_clock_assertions_historical": 32,
+      "old_clock_tests_apply_to_new_host_clock": false,
+      "no_unchanged_harness_rerun": true
+    },
+    "clock_assumptions": {
+      "raw_counter": "GetMicrosecondCount",
+      "quantization_guard_ms": 2,
+      "rate_envelope_ppm": 100,
+      "hardware_accuracy_certified": false,
+      "maximum_uncertainty_ms": 100,
+      "entry_quote_ceiling_ms": 2000
+    },
+    "high_resolution_summary_sha256": "29961754efd87ad6f62cf9d56c1ff6c59b7eae6b805a35635d53f7b8bb3e9cc8"
   },
   "capture_attempts": {
     "cmc-capture-01": {
@@ -495,6 +738,162 @@
         "execution_enabled": false,
         "qualified_for_trading": false
       }
+    },
+    "forex-capture-03": {
+      "status": "BLOCKED",
+      "phase": "OFFSET_CORROBORATION",
+      "execution_enabled": false,
+      "entry_eligibility": false,
+      "timestamp_mapping_qualified": false,
+      "campaign_started": false,
+      "original_binding_sha256": "7e2d329bfa5a4a933f77e6a0645320bae5ac7970bdc1f41747aff44aff9c5ba6",
+      "reason": "ALGORITHMIC_TRADING_MUST_BE_DISABLED",
+      "original_binding_unchanged": true,
+      "artifacts_sha256": {
+        "clock-before.json": "56943f6b76b56118de23634a8d9afb23745b04b332fc845f9aa113dc8d7de7aa",
+        "original-policy-status.json": "a8db5600e3b54026335b62140b2493936851b72650611f0a9a57c4a7438f2dc8",
+        "preflight.json": "3ad45e2a38691f396b5c0deb9bd23ef5c795cde8f7727e5f787ae9700bad2064",
+        "private-preflight.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report.json": "969bba7a4ae25e93ff8e5686b6b86347717e27aae80a1fbf0c01afd31f8aea19"
+      }
+    },
+    "forex-capture-04": {
+      "status": "CAPTURED_DATA_HOLD",
+      "phase": "COMPLETE",
+      "execution_enabled": false,
+      "entry_eligibility": false,
+      "timestamp_mapping_qualified": false,
+      "campaign_started": false,
+      "original_binding_sha256": "7e2d329bfa5a4a933f77e6a0645320bae5ac7970bdc1f41747aff44aff9c5ba6",
+      "host_error_bound_ms": 71,
+      "sample_counts": {
+        "EURUSD": 2,
+        "USDJPY": 2
+      },
+      "missing": {
+        "EURUSD": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ],
+        "USDJPY": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ]
+      },
+      "original_binding_unchanged": true,
+      "artifacts_sha256": {
+        "clock-after-capture.json": "56e25e869c7f4bc5f1972fbe9de7e3f0e1c860fcc325641802fbb545a3225713",
+        "clock-after-preflight.json": "884688c33110ce0a611b65806c34709a9b6bacc6ed32beead205a4dc891637aa",
+        "clock-before.json": "79c1bea6c5dfbcce212e7bd3ed28396a7a7fd71e815088570459be10aef87eaa",
+        "derived-binding.private.json": "ec1bf9a04982caa16fea57faf82cf8b3b67a71dd4d0fc74b4a84505c48646e81",
+        "original-policy-status.json": "a8db5600e3b54026335b62140b2493936851b72650611f0a9a57c4a7438f2dc8",
+        "preflight.json": "3f5220e372711f502be461db42e3b5b22ed3d51d137e96a9fa3f61c3a553461f",
+        "private-capture-initial.json": "94e128f1b196ee862033f674c76d21a7a435cb3955f7a2274ffaccc22e5bb1ea",
+        "private-capture.json": "5e3994e969d143cac7d4b6102c0359970579e2d7931487ef3fb50eb439c64188",
+        "private-normalized.json": "7131b7c404d9db8ca3fb855c5fe0c3c440cb5ccc9af25e493585540374d7aa63",
+        "private-preflight.jsonl": "dc60a79c43a5fa253a603f8ddaeb01bf104c6ceddb0f958f06d14129310b3d8e",
+        "report.json": "5f6df4e122617555a0a6f43f052b8282ac843e6fd7dda764c6f906a783837aaf"
+      }
+    },
+    "forex-capture-05": {
+      "status": "CAPTURED_DATA_HOLD",
+      "phase": "COMPLETE",
+      "execution_enabled": false,
+      "entry_eligibility": false,
+      "timestamp_mapping_qualified": false,
+      "campaign_started": false,
+      "original_binding_sha256": "7e2d329bfa5a4a933f77e6a0645320bae5ac7970bdc1f41747aff44aff9c5ba6",
+      "host_error_bound_ms": 73,
+      "sample_counts": {
+        "EURUSD": 3,
+        "USDJPY": 3
+      },
+      "missing": {
+        "EURUSD": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ],
+        "USDJPY": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ]
+      },
+      "original_binding_unchanged": true,
+      "artifacts_sha256": {
+        "clock-after-capture.json": "de82786e0aeca7b2ea8d8e2f5575f632c6582d71c373d578b2d5b947df8d2b87",
+        "clock-after-preflight.json": "46de5a1367b31c9e7a696a3c5d7fcd31012d7cce8fd917cf47ea1f34a626be56",
+        "clock-before.json": "bdcd1d3a988d2fce70e32becdbc50c74aad8ae485c163d787a6da95550d521c8",
+        "derived-binding.private.json": "fb1490dded94c154811fa0e6bb91035dea9aee97026c8b2c09e53158a85f9dfd",
+        "original-policy-status.json": "a8db5600e3b54026335b62140b2493936851b72650611f0a9a57c4a7438f2dc8",
+        "preflight.json": "919986b38152324497cae5b7b2e00a9dc038ff71ba08061ae0552f391144412c",
+        "private-capture-initial.json": "fb10112a9b489386a4e85b4c848a94d3300a6544f0ded26a6ab9124f0287473b",
+        "private-capture.json": "f7259e6e29ddb638e29a9321957f9a5db43a426050b949b7190466c31d793e54",
+        "private-normalized.json": "e87300fa36b4d1db739d2a577908a169f0a3a5531b5b5be5d830e295dec9b544",
+        "private-preflight.jsonl": "c7e8e4195ddd56ac88b490226a04cae2193eb4377ea662e0c770f6d372c3a087",
+        "report.json": "c6629827981b999d831762539175b921fe1171680ffd09099b05242b49352e44"
+      }
+    },
+    "forex-capture-06": {
+      "status": "CAPTURED_DATA_HOLD",
+      "phase": "COMPLETE",
+      "execution_enabled": false,
+      "entry_eligibility": false,
+      "timestamp_mapping_qualified": false,
+      "campaign_started": false,
+      "original_binding_sha256": "7e2d329bfa5a4a933f77e6a0645320bae5ac7970bdc1f41747aff44aff9c5ba6",
+      "host_error_bound_ms": 76,
+      "sample_counts": {
+        "EURUSD": 3,
+        "USDJPY": 3
+      },
+      "missing": {
+        "EURUSD": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ],
+        "USDJPY": [
+          "TIMESTAMP_MAPPING_UNQUALIFIED",
+          "MANDATE",
+          "COSTS",
+          "BASELINE_AND_EXPOSURE",
+          "SESSION",
+          "PROVIDERS"
+        ]
+      },
+      "original_binding_unchanged": true,
+      "artifacts_sha256": {
+        "clock-after-capture.json": "7336dc3abda9e088e2074ffe4969331178da7414a1e9e3fa64d71df8399d56a0",
+        "clock-after-preflight.json": "aef1e857ba7a1a4ab36da03322125d9fdc5fb0b2f7a2b37eacb8ed16ef87dc60",
+        "clock-before.json": "184389daa431e6c32d6719e5f0cf8dd725a7baebb84a6521ac3d6c82dc8945dd",
+        "derived-binding.private.json": "1a88aea27395a82cf0f95a9f9db1c8bb4e6dc1b5a88e84e21cc11d31cccb5894",
+        "original-policy-status.json": "a8db5600e3b54026335b62140b2493936851b72650611f0a9a57c4a7438f2dc8",
+        "preflight.json": "803916ff8ad22d779167714c46dcfdcdf9d08359432fedd5d80bb260e2476208",
+        "private-capture-initial.json": "844e48f2a9fff7e19d80cae2cf4d08a37de7255a9c5886a62f9c5a26b91bd3a3",
+        "private-capture.json": "99078857e301d4f80fd557a4b248df9627a3d1dce64619e8b40320b6130ce329",
+        "private-normalized.json": "bc4b8bb6c500155444e2daa3d24ea7c0c14e9f92bb80cccdfc403ef2ed15203e",
+        "private-preflight.jsonl": "3395dca0e3136d9697d3df946cc9131f171350f13d6b52ed90fcac9c9ebd45e4",
+        "report.json": "385a69ec97de2b63b9e0ebf9678439e33b858b4b8ee283d0519caa42dd1608e3"
+      }
     }
   },
   "prior_evidence_sha256": {
@@ -503,7 +902,8 @@
     "docs/evidence/m2d-no-order-20261103.json": "ab1ebbd02c13ee35d7bdae48d008be5445682790521c9cd631e79bf2bc6318fe",
     "docs/evidence/m2d-shadow-20261103.json": "92084533b4d4dd4b3fd913dc04578b1443ca502ef6f31d038e33db658cdb0cbc",
     "docs/evidence/broker-campaign-final-20261103.json": "4944e6c62990dc349fa39d4af83aac6326fdf406fd5b69948bb3af7b842f39c7",
-    "docs/evidence/provider-campaign-final-20261103.json": "9c9c317fae1406000b933705ba3bff53ae24da628e8feb8585c32a7932cee67f"
+    "docs/evidence/provider-campaign-final-20261103.json": "9c9c317fae1406000b933705ba3bff53ae24da628e8feb8585c32a7932cee67f",
+    "docs/evidence/m2d-connected-20261104-before-native-https.json": "fce3e1eb3ca03639494c45eb493c61d55358660326276197755ff3747263b9aa"
   },
   "frozen_checkouts": {
     "root": "834cb8b42199e1424de433a08afa1b808a4124ba",
@@ -513,7 +913,7 @@
     "provider-campaign": "007a17ad71adb58f16d5d2f7383b1123ed8ec527"
   },
   "limits": [
-    "No actual native HTTPS pass",
+    "Actual native HTTPS authentication observed; no completed HOLD receipt/ACK handoff; not a broker quote-lag measurement",
     "No broker-authoritative timestamp qualification",
     "No actual provider/cost/loss-baseline qualification",
     "Process competition on one host is not physical multi-host fencing",
@@ -532,13 +932,26 @@
     "reason_for_repeat": "Native permitted a receipt before measurement midpoint while backend refused; fixed deferred host handling and matching receipt/verifier validation. Only the changed inbox test was rerun."
   },
   "python_regression": {
-    "passed": 767,
+    "passed": 775,
     "failed": 0,
     "skipped": 0,
     "includes_actual_postgresql": true,
-    "junit_sha256": "0d0e2f119c55206637f6cc4004836d79a9d0d877421d6c0c617f7d2a3823fdb5",
+    "disjoint_groups": [
+      {
+        "passed": 773,
+        "excluded_file": "tests/test_connected_evidence.py",
+        "junit_sha256": "007e59c9f369b9d0f2ec695ec8e7ab22fc34928939c8b8963ddf49fea00564da",
+        "report_sha256": "c11729294d0ee38c433bc06ec7192d9c6cddd115ffbe9dea14561d91b9f45814"
+      },
+      {
+        "passed": 2,
+        "file": "tests/test_connected_evidence.py",
+        "junit_sha256": "d9bbc4b07018b7e657d451971e5d64a9e4412a2c9dc1df47bfaa0c6087f98b72"
+      }
+    ],
     "ruff_check": "PASSED",
-    "ruff_format": "PASSED"
+    "ruff_format": "PASSED",
+    "native_terminal_test_repeated_after_post_run_status_fix": false
   },
   "implementation_sha256": {
     "src/fx_talanta/connected_shadow/__init__.py": "3a7ea7c46827fbd7922f377f2a14c0dd7776c71807fa29903fa67eb817027698",
@@ -546,10 +959,32 @@
     "src/fx_talanta/connected_shadow/clock.py": "45b69a15afa6fe4e1d0f41b4d258912e67f7128be76eaaf5717efa3ab3578932",
     "src/fx_talanta/connected_shadow/host_clock.py": "756fba15e2b436af4394d347068edf7f304ddacc6263568c6001bb5e6a04cd72",
     "src/fx_talanta/connected_shadow/inputs.py": "51afc886c87c91a04b186ea74b8f580c2ae1a438c5f0741137e5ad3560a6293c",
-    "src/fx_talanta/connected_shadow/listener.py": "b5f8a8f4ea42fe846c652a2ed4cee9fa8143b24b60ceda0f995861862d9cea3a",
+    "src/fx_talanta/connected_shadow/listener.py": "d6be508e77943fde0947f82c1ac62d541785716af3ab1aaa75f6a9c235a20daf",
     "src/fx_talanta/connected_shadow/native_checkpoint.py": "4febb2265d65f4f86576951077cfcd0342600eaee06262a73ddbc4f56fbf5376",
     "src/fx_talanta/connected_shadow/service.py": "46cb3aaaf9ce3e15f41e8e2187d451987ed2eb8a92b7c8221715f2af4f83c327",
     "scripts/connected_capture.py": "08e8f891393bbbe9d31e087966de59cd62b39d07b66cad76f3b4749c59f637d2",
-    "scripts/connected_session.py": "c4c5d5c064121631163f4ffa80908eb964ed704bc9a589eba7299c00200a4c44"
-  }
+    "scripts/connected_session.py": "3335eebbe4c60bd8ac46d3568d7e44fd5c169bfd7f5902dd70dcd13af06e085c"
+  },
+  "native_https_evidence": "docs/evidence/m2d-native-https-20261104.json",
+  "quote_freshness_review": "docs/ea-quote-freshness-review.md",
+  "status_writer_verification": {
+    "report_sha256": "9a73d98446b2cf5431c72e72e924b8d303b635fad5e83c0b1aaac4de336f543d",
+    "tested_source_sha256": "5836bf33ac12353953fee4f3d36af5ff39a7b5357907537ea4364133f5607118",
+    "actual_windows_sharing_denial_reproduced": true,
+    "transient_replacement_completed": true,
+    "persistent_denial_preserved_old_and_pending": true,
+    "subsequent_fix": "Post-attempt03: pre-retry deadline check and independent durable terminal report; tested separately, not relabeled as attempt03 code."
+  },
+  "native_https_evidence_sha256": "40eb815f01946c2cc0e52c0ddd66238cf775c427a2cb21463c486a4fc388c41a",
+  "post_terminal_check": {
+    "status": "CHECKED",
+    "identity_verified": true,
+    "positions_count": 0,
+    "artifact_sha256": "afdf1ad24d9f141089b7901c26d1500bf3ace67074d5b2b6cddc8f4986331cf9",
+    "algo_trading_disabled": true,
+    "orders_count": 0,
+    "scope": "Current open positions and pending orders; trade history is not assessed",
+    "original_and_session_files_unchanged": true
+  },
+  "event_lifecycle_review": "docs/ea-event-lifecycle-review.md"
 }

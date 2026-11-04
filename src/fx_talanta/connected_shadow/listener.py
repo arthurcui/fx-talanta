@@ -71,6 +71,10 @@ def listener(application, cert, key, *, port=0, drop_response=None, request_time
             wrapped = None
             timer = None
             try:
+                # Clock replies are small and latency-sensitive. Do not queue
+                # TLS/header/body records behind Nagle's acknowledgement wait.
+                # Measured RTT still counts in full toward the native bound.
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                 wrapped = context.wrap_socket(sock, server_side=True, do_handshake_on_connect=False)
                 wrapped.settimeout(request_timeout)
 

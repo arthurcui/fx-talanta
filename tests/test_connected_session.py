@@ -19,6 +19,100 @@ from tests.test_connected_capture import AdvancingSDK, Timer
 from tests.test_connected_inputs import binding
 
 
+def test_status_reader_conflict_preserves_old_snapshot_until_atomic_replacement(
+    tmp_path, monkeypatch
+):
+    path = tmp_path / "status.json"
+    old = b'{"status":"previous"}\n'
+    path.write_bytes(old)
+    original_replace = connected_session.os.replace
+    attempts = []
+
+    def conflict(source, destination):
+        attempts.append(source)
+        assert path.read_bytes() == old
+        assert json.loads(source.read_bytes()) == {"status": "current"}
+        if len(attempts) <= 2:
+            error = PermissionError("synthetic Windows sharing conflict")
+            error.winerror = 32
+            raise error
+        original_replace(source, destination)
+
+    monkeypatch.setattr(connected_session.os, "replace", conflict)
+    connected_session.atomic_status(path, {"status": "current"})
+    assert len(attempts) == 3 and len(set(attempts)) == 1
+    assert json.loads(path.read_bytes()) == {"status": "current"}
+    assert not list(tmp_path.glob("*.pending"))
+
+
+def test_status_persistent_reader_conflict_is_bounded_and_retains_both_snapshots(
+    tmp_path, monkeypatch
+):
+    path = tmp_path / "status.json"
+    path.write_text('{"status":"previous"}')
+    elapsed, attempts = [0.0], []
+
+    def denied(source, destination):
+        attempts.append(source)
+        error = PermissionError("synthetic Windows access denial")
+        error.winerror = 5
+        raise error
+
+    monkeypatch.setattr(connected_session.os, "replace", denied)
+    monkeypatch.setattr(connected_session.time, "monotonic", lambda: elapsed[0])
+    monkeypatch.setattr(
+        connected_session.time,
+        "sleep",
+        lambda seconds: elapsed.__setitem__(0, elapsed[0] + seconds),
+    )
+    with pytest.raises(ValueError, match="^STATUS_REPLACE_BLOCKED$"):
+        connected_session.atomic_status(path, {"status": "current"})
+    assert 0 < elapsed[0] <= 0.101 and len(attempts) <= 11
+    assert json.loads(path.read_bytes()) == {"status": "previous"}
+    pending = list(tmp_path.glob("*.pending"))
+    assert len(pending) == 1 and json.loads(pending[0].read_bytes()) == {"status": "current"}
+
+
+def test_status_other_permission_errors_are_not_retried(tmp_path, monkeypatch):
+    calls = []
+
+    def denied(*args):
+        calls.append(args)
+        raise PermissionError("synthetic non-Windows permission failure")
+
+    monkeypatch.setattr(connected_session.os, "replace", denied)
+    with pytest.raises(PermissionError):
+        connected_session.atomic_status(tmp_path / "status.json", {"status": "current"})
+    assert len(calls) == 1 and len(list(tmp_path.glob("*.pending"))) == 1
+
+
+@pytest.mark.parametrize("after_sleep", [0.1, 1.0])
+def test_status_does_not_attempt_replace_after_retry_cutoff(tmp_path, monkeypatch, after_sleep):
+    path = tmp_path / "status.json"
+    old = b'{"status":"previous"}\n'
+    path.write_bytes(old)
+    elapsed, attempts = [0.0], []
+
+    def conflict(source, destination):
+        attempts.append(elapsed[0])
+        if len(attempts) > 1:
+            pytest.fail("replacement attempted after the retry deadline")
+        error = PermissionError("synthetic Windows sharing conflict")
+        error.winerror = 32
+        raise error
+
+    monkeypatch.setattr(connected_session.os, "replace", conflict)
+    monkeypatch.setattr(connected_session.time, "monotonic", lambda: elapsed[0])
+    monkeypatch.setattr(
+        connected_session.time, "sleep", lambda _: elapsed.__setitem__(0, after_sleep)
+    )
+    with pytest.raises(ValueError, match="^STATUS_REPLACE_BLOCKED$"):
+        connected_session.atomic_status(path, {"status": "current"})
+    assert attempts == [0.0] and path.read_bytes() == old
+    pending = list(tmp_path.glob("*.pending"))
+    assert len(pending) == 1 and json.loads(pending[0].read_bytes()) == {"status": "current"}
+
+
 class FakeHostClock:
     def __init__(self, timer, error=10):
         self.timer, self.error = timer, error
@@ -192,6 +286,54 @@ def test_native_handshake_precedes_single_capture_two_hold_receipts_and_shutdown
     assert config[12] not in events and config[12] not in json.dumps(report)
     with parts["authority_store"].transaction() as journal:
         assert not any(e["kind"] == "retire" for e in journal.records)
+
+
+@pytest.mark.parametrize("winerror", [32, None])
+def test_terminal_report_survives_final_status_failure_without_qualification(
+    tmp_path, monkeypatch, winerror
+):
+    parts = setup(tmp_path)
+    original_replace = connected_session.os.replace
+    preserved = {}
+    private_message = "synthetic credential-like text that must not escape"
+
+    def blocked_final_replace(source, destination):
+        server = parts["state"].get("server")
+        if server is None or not server.closed:
+            return original_replace(source, destination)
+        if not preserved:
+            preserved.update(old=destination.read_bytes(), pending=source.read_bytes(), path=source)
+        assert destination.read_bytes() == preserved["old"]
+        assert source == preserved["path"] and source.read_bytes() == preserved["pending"]
+        error = PermissionError(private_message)
+        if winerror is not None:
+            error.winerror = winerror
+        raise error
+
+    monkeypatch.setattr(connected_session.os, "replace", blocked_final_replace)
+    report = run(parts)
+    assert report["status"] == "BLOCKED" and report["reason"] == "FINAL_STATUS_UPDATE_FAILED"
+    assert report["final_status_error"] == (
+        "STATUS_REPLACE_BLOCKED" if winerror is not None else "STATUS_WRITE_FAILED"
+    )
+    assert report["outcome_before_status_failure"] == dict(status="COMPLETED", reason=None)
+    assert report["receipt_count"] == 2 and report["channel_state"] == "DISCONNECTED"
+    assert not report["connected_execution_accepted"] and not report["execution_enabled"]
+    assert (
+        not report["timestamp_mapping_qualified"] and not report["native_acknowledgement_verified"]
+    )
+    assert parts["state"]["server"].closed and parts["state"]["capture"] == 1
+    assert (parts["out"] / "status.json").read_bytes() == preserved["old"]
+    assert preserved["path"].read_bytes() == preserved["pending"]
+    assert json.loads(preserved["pending"])["status"] == "COMPLETED"
+    terminal = parts["out"] / "report.json"
+    assert json.loads(terminal.read_text()) == report
+    assert private_message not in terminal.read_text()
+    assert private_message not in (parts["out"] / "private-events.jsonl").read_text()
+    before = terminal.read_bytes()
+    with pytest.raises(FileExistsError):
+        connected_session.exclusive_bytes(terminal, b"must not replace retained evidence")
+    assert terminal.read_bytes() == before
 
 
 def test_no_peer_gets_only_bounded_startup_renewals_and_no_sdk_capture(tmp_path):

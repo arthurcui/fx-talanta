@@ -1,0 +1,509 @@
+{
+  "schema": "m2d-native-https-attempt-evidence/1",
+  "recorded_at_utc": "2026-11-04T03:26:01.338243+00:00",
+  "scope": {
+    "broker": "FOREX.com demo",
+    "mode": "bounded read-only native HTTPS integration",
+    "execution_enabled": false,
+    "new_24_hour_campaign_started": false,
+    "clock_uncertainty_ceiling_ms": 100,
+    "entry_quote_ceiling_ms": 2000
+  },
+  "overall": {
+    "outcome": "ALL_THREE_HANDOFFS_INCOMPLETE",
+    "native_https_authenticated_sync_observed": true,
+    "accepted_native_clock_observed": false,
+    "completed_two_symbol_handoffs": 0,
+    "native_hold_receipts": 0,
+    "native_receipt_acknowledgements": 0,
+    "connected_execution_accepted": false,
+    "market_data_qualified": false,
+    "reporting_started_another_session": false
+  },
+  "interpretation": [
+    "An independently verified artifact means its integrity and recorded facts were checked; it does not mean the integration qualified.",
+    "Signed server responses were independently HMAC-verified. Raw client request frames were not retained for independent HMAC recomputation.",
+    "Native diagnostic lines are separate evidence and are not cryptographically linked to individual response nonces.",
+    "All native receipt states were empty. Empty-outbox checkpoint agreement is not evidence that an ACK was received.",
+    "Counter quantization guards and the 100 ppm drift envelope are declared measurement assumptions, not physical timer accuracy certification.",
+    "The attempt03 hashes describe its frozen runtime source. Later retry/final-report changes at the same paths were not exercised by these attempts.",
+    "No original failed outcome or evidence file was replaced by this report.",
+    "These attempts did not reach the native quote-read/receipt branch. In attempt03 all nine responses were CLOCK and all nine native clock candidates were rejected before SymbolInfoTick or CoReceipt could execute under the pinned host code. This measures the local clock-handshake path, not broker quote lag; it makes no finding that broker quotes were stale or fresh."
+  ],
+  "native_builds": {
+    "legacy_coarse_clock": {
+      "base_commit": "66d4f9ed7171e8ded4724df15c99d18fff6c1f7c",
+      "binary_sha256": "fce835d42f08df135b38b58e6f502957108b98460d8166b7ed9263252cf9c47a",
+      "compiler_errors": 0,
+      "compiler_warnings": 0,
+      "compiler_log_sha256": "16e677a6b30551acae68b53c9ffc13767eb6355d632877b09fc08bdc87fbf235",
+      "compiler_evidence_sha256": "380540119a5655c0ea3cbbe5fcf7110bcc4a9760ccb0ff194849ebaeb93ae893",
+      "source_sha256": {
+        "mql5/connected/Clock.mqh": "c7971ca7f16a73da0184346a0d894de7bd4c49ee2c9570fff256ae788cf7428f",
+        "mql5/connected/ConnectedEA.mq5": "410e9ca912d920059e46db07e0b14011d35edf4b6408ff8a1092d0ca8c9b70ef",
+        "mql5/connected/Inbox.mqh": "264b2ac853725f7fd54794daa8d3c4b9b95712ecddf93709a31393cea8707520",
+        "mql5/connected/NativeClockTests.mq5": "ecd636d31dfc2ceb7a455a53631fa80afa3edf2a10d11a8901e5b91c1f7918bc",
+        "mql5/connected/NativeConnectedTests.mq5": "2b413b87ff34624971c39a1ccf94e5a76a9bddd0da28e6e6900d6638e5971ac8",
+        "mql5/connected/Protocol.mqh": "b73a0a999fe3d3ce1abe0035e09743af24d130e13da3d2392954056093953bb1"
+      },
+      "all_compiler_input_count": 27,
+      "all_compiler_inputs_match_base_commit": true,
+      "counter": "GetTickCount64",
+      "counter_guard_ms": 32,
+      "protocol_inbox_assertions": 36,
+      "historical_clock_assertions": 32
+    },
+    "high_resolution_clock": {
+      "base_commit": "66d4f9ed7171e8ded4724df15c99d18fff6c1f7c",
+      "binary_sha256": "f9278396fcf0dd41edcbba90fced523e1789ff933ac1c855bf49ad8c7f6023ad",
+      "compiler_errors": 0,
+      "compiler_warnings": 0,
+      "compiler_log_sha256": "0457ed186459c0bafc54e7dc8eeea154eec0cc4cf70b5ea6256197aa84015eec",
+      "compiler_evidence_sha256": "29961754efd87ad6f62cf9d56c1ff6c59b7eae6b805a35635d53f7b8bb3e9cc8",
+      "source_sha256": {
+        "mql5/connected/Clock.mqh": "c7971ca7f16a73da0184346a0d894de7bd4c49ee2c9570fff256ae788cf7428f",
+        "mql5/connected/ConnectedEA.mq5": "5aad405b8919461bbac61e6a1ade2796cc67af68002df198d0bffabf18bc032d",
+        "mql5/connected/HighResolutionClock.mqh": "8a6b2277672966d52b2bd8dea710c6853d37611d833592cd315b8c4a6f2f9322",
+        "mql5/connected/Inbox.mqh": "264b2ac853725f7fd54794daa8d3c4b9b95712ecddf93709a31393cea8707520",
+        "mql5/connected/NativeClockTests.mq5": "ecd636d31dfc2ceb7a455a53631fa80afa3edf2a10d11a8901e5b91c1f7918bc",
+        "mql5/connected/NativeConnectedTests.mq5": "2b413b87ff34624971c39a1ccf94e5a76a9bddd0da28e6e6900d6638e5971ac8",
+        "mql5/connected/NativeHighResolutionClockTests.mq5": "97696aea731ef05c2bc9062cbc457a65b0bd71cebf72bf1118f82d961c9786cf",
+        "mql5/connected/Protocol.mqh": "b73a0a999fe3d3ce1abe0035e09743af24d130e13da3d2392954056093953bb1"
+      },
+      "all_compiler_input_count": 29,
+      "counter": "GetMicrosecondCount",
+      "counter_guard_ms": 2,
+      "drift_envelope_ppm": 100,
+      "candidate_uncertainty_formula_ms": "server_error_ms + ceil(RTT_us / 2000) + 2 + ceil(RTT_us / 10000000)",
+      "new_native_assertions_passed": 49,
+      "new_native_assertions_failed": 0,
+      "assertion_results_sha256": "d05bfb91c63785b25accf35120c0481080ab21a578d239cb4436bcf4d8fd1561",
+      "unchanged_protocol_inbox_assertions_referenced": 36,
+      "old_clock_assertions_applied_to_new_clock": false,
+      "hardware_accuracy_certified": false
+    }
+  },
+  "source_provenance": {
+    "attempts_01_02": {
+      "base_commit": "66d4f9ed7171e8ded4724df15c99d18fff6c1f7c",
+      "kind": "COMMITTED_BASELINE_RECONSTRUCTION",
+      "runtime_18_file_snapshot_recorded": false,
+      "source_sha256": {
+        "mql5/connected/Clock.mqh": "c7971ca7f16a73da0184346a0d894de7bd4c49ee2c9570fff256ae788cf7428f",
+        "mql5/connected/ConnectedEA.mq5": "410e9ca912d920059e46db07e0b14011d35edf4b6408ff8a1092d0ca8c9b70ef",
+        "mql5/connected/Inbox.mqh": "264b2ac853725f7fd54794daa8d3c4b9b95712ecddf93709a31393cea8707520",
+        "mql5/connected/NativeClockTests.mq5": "ecd636d31dfc2ceb7a455a53631fa80afa3edf2a10d11a8901e5b91c1f7918bc",
+        "mql5/connected/NativeConnectedTests.mq5": "2b413b87ff34624971c39a1ccf94e5a76a9bddd0da28e6e6900d6638e5971ac8",
+        "mql5/connected/Protocol.mqh": "b73a0a999fe3d3ce1abe0035e09743af24d130e13da3d2392954056093953bb1",
+        "scripts/connected_capture.py": "08e8f891393bbbe9d31e087966de59cd62b39d07b66cad76f3b4749c59f637d2",
+        "scripts/connected_session.py": "c4c5d5c064121631163f4ffa80908eb964ed704bc9a589eba7299c00200a4c44",
+        "src/fx_talanta/connected_shadow/__init__.py": "3a7ea7c46827fbd7922f377f2a14c0dd7776c71807fa29903fa67eb817027698",
+        "src/fx_talanta/connected_shadow/authority.py": "eb36aa05ebcea2fe5473bcbe8dd06bfeb9d9b77db7466d9584b0b9a2720f3ce5",
+        "src/fx_talanta/connected_shadow/clock.py": "45b69a15afa6fe4e1d0f41b4d258912e67f7128be76eaaf5717efa3ab3578932",
+        "src/fx_talanta/connected_shadow/host_clock.py": "756fba15e2b436af4394d347068edf7f304ddacc6263568c6001bb5e6a04cd72",
+        "src/fx_talanta/connected_shadow/inputs.py": "51afc886c87c91a04b186ea74b8f580c2ae1a438c5f0741137e5ad3560a6293c",
+        "src/fx_talanta/connected_shadow/listener.py": "b5f8a8f4ea42fe846c652a2ed4cee9fa8143b24b60ceda0f995861862d9cea3a",
+        "src/fx_talanta/connected_shadow/native_checkpoint.py": "4febb2265d65f4f86576951077cfcd0342600eaee06262a73ddbc4f56fbf5376",
+        "src/fx_talanta/connected_shadow/service.py": "46cb3aaaf9ce3e15f41e8e2187d451987ed2eb8a92b7c8221715f2af4f83c327"
+      },
+      "note": "These hashes are reconstructed from the immutable base commit; they are not presented as a later run-time snapshot."
+    },
+    "attempt_03": {
+      "base_commit": "66d4f9ed7171e8ded4724df15c99d18fff6c1f7c",
+      "kind": "FROZEN_RUNTIME_SNAPSHOT",
+      "snapshot_sha256": "0eef5d67a7304b6b98019c70ed3418d170d0fd823d9d9d23bef24e83b208fdd3",
+      "file_count": 18,
+      "verified_before_and_after_stopped_verification": true,
+      "source_sha256": {
+        "mql5/connected/Clock.mqh": "c7971ca7f16a73da0184346a0d894de7bd4c49ee2c9570fff256ae788cf7428f",
+        "mql5/connected/ConnectedEA.mq5": "5aad405b8919461bbac61e6a1ade2796cc67af68002df198d0bffabf18bc032d",
+        "mql5/connected/HighResolutionClock.mqh": "8a6b2277672966d52b2bd8dea710c6853d37611d833592cd315b8c4a6f2f9322",
+        "mql5/connected/Inbox.mqh": "264b2ac853725f7fd54794daa8d3c4b9b95712ecddf93709a31393cea8707520",
+        "mql5/connected/NativeClockTests.mq5": "ecd636d31dfc2ceb7a455a53631fa80afa3edf2a10d11a8901e5b91c1f7918bc",
+        "mql5/connected/NativeConnectedTests.mq5": "2b413b87ff34624971c39a1ccf94e5a76a9bddd0da28e6e6900d6638e5971ac8",
+        "mql5/connected/NativeHighResolutionClockTests.mq5": "97696aea731ef05c2bc9062cbc457a65b0bd71cebf72bf1118f82d961c9786cf",
+        "mql5/connected/Protocol.mqh": "b73a0a999fe3d3ce1abe0035e09743af24d130e13da3d2392954056093953bb1",
+        "scripts/connected_capture.py": "08e8f891393bbbe9d31e087966de59cd62b39d07b66cad76f3b4749c59f637d2",
+        "scripts/connected_session.py": "5836bf33ac12353953fee4f3d36af5ff39a7b5357907537ea4364133f5607118",
+        "src/fx_talanta/connected_shadow/__init__.py": "3a7ea7c46827fbd7922f377f2a14c0dd7776c71807fa29903fa67eb817027698",
+        "src/fx_talanta/connected_shadow/authority.py": "eb36aa05ebcea2fe5473bcbe8dd06bfeb9d9b77db7466d9584b0b9a2720f3ce5",
+        "src/fx_talanta/connected_shadow/clock.py": "45b69a15afa6fe4e1d0f41b4d258912e67f7128be76eaaf5717efa3ab3578932",
+        "src/fx_talanta/connected_shadow/host_clock.py": "756fba15e2b436af4394d347068edf7f304ddacc6263568c6001bb5e6a04cd72",
+        "src/fx_talanta/connected_shadow/inputs.py": "51afc886c87c91a04b186ea74b8f580c2ae1a438c5f0741137e5ad3560a6293c",
+        "src/fx_talanta/connected_shadow/listener.py": "d6be508e77943fde0947f82c1ac62d541785716af3ab1aaa75f6a9c235a20daf",
+        "src/fx_talanta/connected_shadow/native_checkpoint.py": "4febb2265d65f4f86576951077cfcd0342600eaee06262a73ddbc4f56fbf5376",
+        "src/fx_talanta/connected_shadow/service.py": "46cb3aaaf9ce3e15f41e8e2187d451987ed2eb8a92b7c8221715f2af4f83c327"
+      },
+      "post_run_fixes_exercised": false
+    }
+  },
+  "attempts": [
+    {
+      "attempt": "01",
+      "backend_final_status": "BLOCKED",
+      "backend_final_phase": "ATTACH",
+      "backend_reported_failure_reason": "NATIVE_ATTACH_WINDOW_EXPIRED",
+      "handoff_outcome": "INCOMPLETE",
+      "handoff_accepted": false,
+      "execution_enabled": false,
+      "native_build": "legacy_coarse_clock",
+      "planned_session_seconds": 180,
+      "original_native_deadline_utc": "2026-11-04T02:48:04.347000+00:00",
+      "counts": {
+        "committed_backend_records": 1,
+        "backend_binding_records": 1,
+        "observations_published": 0,
+        "observations_consumed_by_native": 0,
+        "pending_unconsumed_observations": 0,
+        "native_hold_receipts": 0,
+        "committed_backend_receipts": 0,
+        "independently_verified_signed_server_responses": 0,
+        "independently_verified_signed_clock_responses": 0,
+        "signed_ack_responses": 0,
+        "actual_native_receipt_acknowledgements": 0
+      },
+      "transport": {
+        "native_https_authenticated_sync_observed": false,
+        "response_hmac_verification": "NO_RESPONSE_EVIDENCE",
+        "raw_client_request_hmac_independently_recomputed": false,
+        "recorded_network_failure_codes": {
+          "SYNC_HTTP_-1_ERROR_4014": 8
+        }
+      },
+      "clock": {
+        "clock_limit_ms": 100,
+        "entry_quote_ceiling_ms": 2000,
+        "accepted_native_clock_observed": false,
+        "verified_signed_clock_responses": 0,
+        "signed_server_error_range_ms": null,
+        "native_clock_rejection_diagnostics": 0,
+        "accepted_native_clock_diagnostics": 0,
+        "native_counter_guard_ms": 32,
+        "actual_rtt_range_us": null,
+        "actual_candidate_error_range_ms": null,
+        "diagnostics_linked_to_individual_response_nonces": false
+      },
+      "shutdown": {
+        "native_deadline_marker_observed": true,
+        "native_stop_marker": "STOPPED_NO_ORDER",
+        "native_stop_marker_observed": true,
+        "supervisor_status": "CHILD_EXITED",
+        "supervisor_exit_code": 0,
+        "supervisor_timed_out": false,
+        "restart_performed": false,
+        "native_files_copied_after_deadline": true,
+        "copy_recorded_at_utc": "2026-11-04T02:49:44.231880+00:00"
+      },
+      "independent_verification": {
+        "status": "INTEGRITY_AND_RECORDED_FAILURE_VERIFIED",
+        "verified_at_utc": "2026-11-04T02:51:14.296608+00:00",
+        "database_read_only": true,
+        "database_isolation": "REPEATABLE READ",
+        "authority_mutated": false,
+        "original_binding_unchanged": true,
+        "runtime_source_pin_check": "NATIVE_BUILD_AND_BASE_COMMIT_PROVENANCE_NO_18_FILE_RUNTIME_SNAPSHOT",
+        "native_journal_and_checkpoint_integrity_verified": true,
+        "backend_hash_matches_retained_final_checkpoint": true,
+        "exact_native_backend_receipts_match": true,
+        "matching_receipt_sequence": 0,
+        "native_outbox_empty": true,
+        "actual_ack_received": false,
+        "paired_checkpoint_agreement": "MATCHING_EMPTY_RECEIPT_STATE_NOT_HANDOFF_SUCCESS",
+        "qualification_passed": false
+      },
+      "artifact_sha256": {
+        "independent_verification": "233c148136cb7e98b0175889019c0699373b4ebbbb28375938d312f1121863a3",
+        "independent_verifier_script": "ffce6f938661046229be34fb93c96970b31fe5bf90aec7c03a6e387d3a028de6",
+        "backend_final_report": "36ceed4fd462736e8efeb53d63c3d43745ea55101b816d704c0fc5ef11db88c9",
+        "supervisor_report": "4f19c132eb2faec06439ed86d6e602c60310892abf405f73e215836382f08e95",
+        "backend_event_log": "0b42e63bb7b43021058468b9b2473664dea688d84e6ca8f6f34e30e9f743f036",
+        "native_journal": "d9ea395f1af0d4d66f829e5d99b0896f7d7146675a7def3f6c0234df8cfacbb3",
+        "native_checkpoint": "1596c727eec8b005a23aaa74ad164369b62340adcc25ab1d9b3824be3d53282f",
+        "native_diagnostics": "6f4baf0c1d602822897593f4946cfcfdbfd0660f2b6d213f4d6f8cb766afad38",
+        "copied_evidence_manifest": "925a663b5234935e18e4cedd904390dee3bf1fa1903397f08dcfa53c020a5a4d",
+        "shutdown_facts": "6915ad5eacddce3071a37467bb500ad5d0e5ccc4c5d9a07417cb8ec10f78f1eb",
+        "backend_journal_tip": "be7b478b588510174621797a9c6fa6bab0d46c0cd12cc4113a8a50f5a499a225",
+        "paired_checkpoint_fingerprint": "47d520ae74d6ae42378ef239e4083b7b42e39d693ba8750bea861fa0b0e820a1"
+      },
+      "finding": "WebRequest error 4014 prevented any authenticated exchange; the 60-second native attach window expired.",
+      "native_quote_path": {
+        "native_symbol_info_tick_branch_reached": false,
+        "native_co_receipt_branch_reached": false,
+        "native_quote_freshness_comparison_performed": false,
+        "broker_quote_lag_assessed": false,
+        "basis": "No accepted native clock and no consumed observation under the pinned host code.",
+        "separate_python_capture_is_native_quote_path_evidence": false
+      }
+    },
+    {
+      "attempt": "02",
+      "backend_final_status": "BLOCKED",
+      "backend_final_phase": "RECEIPTS",
+      "backend_reported_failure_reason": "PermissionError",
+      "handoff_outcome": "INCOMPLETE",
+      "handoff_accepted": false,
+      "execution_enabled": false,
+      "native_build": "legacy_coarse_clock",
+      "planned_session_seconds": 180,
+      "original_native_deadline_utc": "2026-11-04T02:57:47.705000+00:00",
+      "counts": {
+        "committed_backend_records": 8,
+        "backend_binding_records": 1,
+        "observations_published": 2,
+        "observations_consumed_by_native": 0,
+        "pending_unconsumed_observations": 2,
+        "native_hold_receipts": 0,
+        "committed_backend_receipts": 0,
+        "independently_verified_signed_server_responses": 5,
+        "independently_verified_signed_clock_responses": 5,
+        "signed_ack_responses": 0,
+        "actual_native_receipt_acknowledgements": 0
+      },
+      "transport": {
+        "native_https_authenticated_sync_observed": true,
+        "response_hmac_verification": "ALL_RECORDED_RESPONSES_VERIFIED",
+        "raw_client_request_hmac_independently_recomputed": false,
+        "recorded_network_failure_codes": {
+          "SYNC_HTTP_1001_ERROR_5203": 4
+        }
+      },
+      "clock": {
+        "clock_limit_ms": 100,
+        "entry_quote_ceiling_ms": 2000,
+        "accepted_native_clock_observed": false,
+        "verified_signed_clock_responses": 5,
+        "signed_server_error_range_ms": [
+          76,
+          78
+        ],
+        "native_clock_rejection_diagnostics": 5,
+        "accepted_native_clock_diagnostics": 0,
+        "native_counter_guard_ms": 32,
+        "actual_rtt_range_us": null,
+        "actual_candidate_error_range_ms": null,
+        "diagnostics_linked_to_individual_response_nonces": false,
+        "zero_rtt_uncertainty_floor_range_ms": [
+          108,
+          110
+        ],
+        "all_response_bounds_exceed_limit_even_at_zero_rtt": true,
+        "actual_rtt_or_candidate_bound_not_recorded": true
+      },
+      "shutdown": {
+        "native_deadline_marker_observed": true,
+        "native_stop_marker": "STOPPED_NO_ORDER",
+        "native_stop_marker_observed": true,
+        "supervisor_status": "CHILD_EXITED",
+        "supervisor_exit_code": 0,
+        "supervisor_timed_out": false,
+        "restart_performed": false,
+        "native_files_copied_after_deadline": true,
+        "copy_recorded_at_utc": "2026-11-04T02:58:52.034527+00:00"
+      },
+      "independent_verification": {
+        "status": "INTEGRITY_AND_RECORDED_FAILURE_VERIFIED",
+        "verified_at_utc": "2026-11-04T02:58:52.824628+00:00",
+        "database_read_only": true,
+        "database_isolation": "REPEATABLE READ",
+        "authority_mutated": false,
+        "original_binding_unchanged": true,
+        "runtime_source_pin_check": "NATIVE_BUILD_AND_BASE_COMMIT_PROVENANCE_NO_18_FILE_RUNTIME_SNAPSHOT",
+        "native_journal_and_checkpoint_integrity_verified": true,
+        "backend_hash_matches_retained_final_checkpoint": true,
+        "exact_native_backend_receipts_match": true,
+        "matching_receipt_sequence": 0,
+        "native_outbox_empty": true,
+        "actual_ack_received": false,
+        "paired_checkpoint_agreement": "MATCHING_EMPTY_RECEIPT_STATE_NOT_HANDOFF_SUCCESS",
+        "qualification_passed": false
+      },
+      "artifact_sha256": {
+        "independent_verification": "4f225937712a10727235546f500f5651b449a077f6ee8a19da87e33654587f81",
+        "independent_verifier_script": "4593309e44cea7bbec9ad30b753f48e6991513a11c97cdd873e3392e3eaedb30",
+        "backend_final_report": "ff8c0b12447723c4d57db711b94c98c84e77e81b32b7aef681e0b554cb56b9db",
+        "supervisor_report": "4f19c132eb2faec06439ed86d6e602c60310892abf405f73e215836382f08e95",
+        "backend_event_log": "fc1c75fa946d20d2bd46f2bd5a53c821fc3fea6f1d6956287bbbace5cf7c5057",
+        "native_journal": "b3218b4b8ff6abe1ac10646fbcbca4a8e6e5c509909158d34ada03294881f0aa",
+        "native_checkpoint": "623400ce66664cd671ae87ef9056ecca638c9d20ef582dc4bacc556861b71303",
+        "native_diagnostics": "952ae7b212ea71a7575ef9116d9e7f2c688e01a94b8638070342c6d402cba7e5",
+        "copied_evidence_manifest": "c0d139be3706bab6c89ee9cfa06bdb0ff83396a758008294e233d1aef0ded8d1",
+        "shutdown_facts": "d4f7e7f006c759aa70945683a742848ba8901dafd51378d901a0588d63da653b",
+        "backend_journal_tip": "8d5a279014a95b772de414c3fc269d63d1fb30f20e8b38cc5f6fbf2e054c7b36",
+        "paired_checkpoint_fingerprint": "bf175fe55057c244a83ca4f328fe51f01dbf7879e9e2fd248328ba4584c664fe"
+      },
+      "finding": "HTTPS and signed SYNC succeeded, but the coarse-clock uncertainty floor already exceeded 100 ms without RTT. The backend separately terminated with PermissionError.",
+      "native_quote_path": {
+        "native_symbol_info_tick_branch_reached": false,
+        "native_co_receipt_branch_reached": false,
+        "native_quote_freshness_comparison_performed": false,
+        "broker_quote_lag_assessed": false,
+        "basis": "No accepted native clock and no consumed observation under the pinned host code.",
+        "separate_python_capture_is_native_quote_path_evidence": false
+      }
+    },
+    {
+      "attempt": "03",
+      "backend_final_status": "INCOMPLETE",
+      "backend_final_phase": "DEADLINE",
+      "backend_reported_failure_reason": null,
+      "handoff_outcome": "INCOMPLETE",
+      "handoff_accepted": false,
+      "execution_enabled": false,
+      "native_build": "high_resolution_clock",
+      "planned_session_seconds": 180,
+      "original_native_deadline_utc": "2026-11-04T03:17:02.644000+00:00",
+      "counts": {
+        "committed_backend_records": 12,
+        "backend_binding_records": 1,
+        "observations_published": 2,
+        "observations_consumed_by_native": 0,
+        "pending_unconsumed_observations": 2,
+        "native_hold_receipts": 0,
+        "committed_backend_receipts": 0,
+        "independently_verified_signed_server_responses": 9,
+        "independently_verified_signed_clock_responses": 9,
+        "signed_ack_responses": 0,
+        "actual_native_receipt_acknowledgements": 0
+      },
+      "transport": {
+        "native_https_authenticated_sync_observed": true,
+        "response_hmac_verification": "ALL_RECORDED_RESPONSES_VERIFIED",
+        "raw_client_request_hmac_independently_recomputed": false,
+        "recorded_network_failure_codes": {}
+      },
+      "clock": {
+        "clock_limit_ms": 100,
+        "entry_quote_ceiling_ms": 2000,
+        "accepted_native_clock_observed": false,
+        "verified_signed_clock_responses": 9,
+        "signed_server_error_range_ms": [
+          79,
+          82
+        ],
+        "native_clock_rejection_diagnostics": 9,
+        "accepted_native_clock_diagnostics": 0,
+        "native_counter_guard_ms": 2,
+        "actual_rtt_range_us": [
+          63225,
+          99002
+        ],
+        "actual_candidate_error_range_ms": [
+          116,
+          134
+        ],
+        "diagnostics_linked_to_individual_response_nonces": false,
+        "diagnostic_samples": [
+          {
+            "server_error_ms": 81,
+            "rtt_us": 80567,
+            "uncertainty_ms": 125,
+            "accepted": false
+          },
+          {
+            "server_error_ms": 81,
+            "rtt_us": 63225,
+            "uncertainty_ms": 116,
+            "accepted": false
+          },
+          {
+            "server_error_ms": 79,
+            "rtt_us": 82224,
+            "uncertainty_ms": 124,
+            "accepted": false
+          },
+          {
+            "server_error_ms": 80,
+            "rtt_us": 78530,
+            "uncertainty_ms": 123,
+            "accepted": false
+          },
+          {
+            "server_error_ms": 81,
+            "rtt_us": 99002,
+            "uncertainty_ms": 134,
+            "accepted": false
+          },
+          {
+            "server_error_ms": 82,
+            "rtt_us": 70001,
+            "uncertainty_ms": 121,
+            "accepted": false
+          },
+          {
+            "server_error_ms": 81,
+            "rtt_us": 86717,
+            "uncertainty_ms": 128,
+            "accepted": false
+          },
+          {
+            "server_error_ms": 81,
+            "rtt_us": 65197,
+            "uncertainty_ms": 117,
+            "accepted": false
+          },
+          {
+            "server_error_ms": 82,
+            "rtt_us": 70701,
+            "uncertainty_ms": 121,
+            "accepted": false
+          }
+        ],
+        "all_candidate_arithmetic_independently_recomputed": true,
+        "native_diagnostic_accepted_count": 0,
+        "native_diagnostic_rejected_count": 9
+      },
+      "shutdown": {
+        "native_deadline_marker_observed": true,
+        "native_stop_marker": "STOPPED_NO_ORDER",
+        "native_stop_marker_observed": true,
+        "supervisor_status": "CHILD_EXITED",
+        "supervisor_exit_code": 0,
+        "supervisor_timed_out": false,
+        "restart_performed": false,
+        "native_files_copied_after_deadline": true,
+        "copy_recorded_at_utc": "2026-11-04T03:19:03.889043+00:00"
+      },
+      "independent_verification": {
+        "status": "INTEGRITY_AND_RECORDED_FAILURE_VERIFIED",
+        "verified_at_utc": "2026-11-04T03:19:04.882040+00:00",
+        "database_read_only": true,
+        "database_isolation": "REPEATABLE READ",
+        "authority_mutated": false,
+        "original_binding_unchanged": true,
+        "runtime_source_pin_check": "18_FROZEN_FILES_MATCHED_BEFORE_AND_AFTER",
+        "native_journal_and_checkpoint_integrity_verified": true,
+        "backend_hash_matches_retained_final_checkpoint": true,
+        "exact_native_backend_receipts_match": true,
+        "matching_receipt_sequence": 0,
+        "native_outbox_empty": true,
+        "actual_ack_received": false,
+        "paired_checkpoint_agreement": "MATCHING_EMPTY_RECEIPT_STATE_NOT_HANDOFF_SUCCESS",
+        "qualification_passed": false
+      },
+      "artifact_sha256": {
+        "independent_verification": "42e6a3d5245cd7e1bc80f5eb2b212686f62f8c71eb3ca67f55d57de6fb753d2c",
+        "independent_verifier_script": "0497203379137ea9f0d81cf38eaa3ee7ce76e5b32b01b0fce99ecbfb0bfe9b7f",
+        "backend_final_report": "3e5d492765c189230cc50422cf65a23e21de0dbe07e50c8d7bb131a1712c4bf7",
+        "supervisor_report": "4f19c132eb2faec06439ed86d6e602c60310892abf405f73e215836382f08e95",
+        "backend_event_log": "f2eb2b3f21834fa17911a2d940e8387d5bb5a16a0d5e5111ac706993c7c4a911",
+        "native_journal": "eb83ccfe07d1355f52bf73b57d9c35edcce0576bc1d60779aa7caa69f1aa2844",
+        "native_checkpoint": "6515745570401ad165659af48f55e164b79ac10e85bbaa668f3c7b0ff538533c",
+        "native_diagnostics": "b91f1891bb982232a6379efa852e892468155e38e04e93f3d3096bfdfdc56f02",
+        "copied_evidence_manifest": "80c465ebcb9cd1308e0f0a21b640d7d8ec2a7caca0f0e20f42577981cd41d016",
+        "shutdown_facts": "dac604d2735c0a7891000e6cb6a9d69ee390fa47304dd9a8002a026e4dfe28e0",
+        "backend_journal_tip": "fbc5a193a7c5c6ab7a1c56dbd45b348f9b7681eb75e54c9441655694f2b02018",
+        "paired_checkpoint_fingerprint": "47e612cadca5a3c1bb0a77aebe1fbf02680248aab0aa7108b6f71ac7baef720d"
+      },
+      "finding": "The local HTTPS clock-handshake path authenticated nine CLOCK responses, but all native candidate bounds exceeded 100 ms. No native broker quote read or freshness comparison ran; the deadline ended with zero receipts and zero ACKs. Broker quote lag is not assessed by this result.",
+      "native_quote_path": {
+        "native_symbol_info_tick_branch_reached": false,
+        "native_co_receipt_branch_reached": false,
+        "native_quote_freshness_comparison_performed": false,
+        "broker_quote_lag_assessed": false,
+        "basis": "All nine recorded responses were CLOCK; every native SyncUs candidate was rejected. The host stayed in clock synchronization and did not reach its SymbolInfoTick/CoReceipt branch.",
+        "separate_python_capture_is_native_quote_path_evidence": false
+      }
+    }
+  ],
+  "quote_freshness_review": "docs/ea-quote-freshness-review.md"
+}

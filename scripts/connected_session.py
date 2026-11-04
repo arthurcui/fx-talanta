@@ -49,7 +49,24 @@ def exclusive_bytes(path, content):
 def atomic_status(path, value):
     temporary = path.with_name(path.name + "." + secrets.token_hex(6) + ".pending")
     exclusive_bytes(temporary, (json.dumps(value, indent=2, allow_nan=False) + "\n").encode())
-    os.replace(temporary, path)
+    # Windows readers can briefly deny replacement even though the writer has
+    # directory permission. Retry only those sharing/access errors within a
+    # 100 ms retry window; never truncate the old snapshot, discard pending bytes, or
+    # extend a session/clock/lease deadline. Other I/O errors remain fatal.
+    cutoff = time.monotonic() + 0.1
+    for attempt in range(11):
+        if attempt and time.monotonic() >= cutoff:
+            raise ValueError("STATUS_REPLACE_BLOCKED")
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError as error:
+            if getattr(error, "winerror", None) not in {5, 32, 33}:
+                raise
+            remaining = cutoff - time.monotonic()
+            if attempt == 10 or remaining <= 0:
+                raise ValueError("STATUS_REPLACE_BLOCKED") from None
+            time.sleep(min(0.01, remaining))
 
 
 def check_runtime_dsn(dsn):
@@ -470,9 +487,31 @@ def session(
         summary["last_observed_channel_state"] = summary.get("channel_state", "DISCONNECTED")
         summary["channel_state"] = "DISCONNECTED"
         event("LISTENER_STOPPED_LEASE_NOT_RETIRED")
-        events.close()
-        atomic_status(output / "status.json", summary)
-        write_json(output / "report.json", summary)
+        try:
+            atomic_status(output / "status.json", summary)
+        except Exception as error:
+            # A blocked mutable status file must not suppress the separate
+            # terminal report or promote a partial run. Preserve both the old
+            # complete snapshot and pending bytes for inspection; never retry
+            # this finalization with a different filename or a longer deadline.
+            summary["outcome_before_status_failure"] = dict(
+                status=summary["status"], reason=summary.get("reason")
+            )
+            summary.update(
+                status="BLOCKED",
+                reason="FINAL_STATUS_UPDATE_FAILED",
+                final_status_error=(
+                    "STATUS_REPLACE_BLOCKED"
+                    if isinstance(error, ValueError) and str(error) == "STATUS_REPLACE_BLOCKED"
+                    else "STATUS_WRITE_FAILED"
+                ),
+                connected_execution_accepted=False,
+            )
+        finally:
+            events.close()
+        exclusive_bytes(
+            output / "report.json", (json.dumps(summary, indent=2, allow_nan=False) + "\n").encode()
+        )
     return summary
 
 
