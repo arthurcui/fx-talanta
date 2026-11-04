@@ -14,10 +14,10 @@ from scripts.m2b_fixtures import NOW, SCOPE, fixture_requests
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_committed_native_evidence_matches_the_shipped_sources():
+def test_committed_native_evidence_matches_its_original_sources(historical_source):
     report = json.loads((ROOT / "docs/evidence/m2b-native-20261103.json").read_text("utf-8"))
     for name, expected in report["source_sha256"].items():
-        assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
+        assert hashlib.sha256(historical_source(name, expected)).hexdigest() == expected
     native = report["native_checks"]
     assert native["count"] == len(native["checks"]) == 85
     assert all(value == "PASS" for value in native["checks"].values())

@@ -25,7 +25,7 @@ def decode(line: str, token: str, symbol: str) -> StreamRow:
     fields = next(csv.reader([line]))
     if len(fields) != 13 or fields[:3] != ["quote-stream/1", token, symbol]:
         raise ValueError("stream binding/schema mismatch")
-    if fields[3] not in {"INITIAL", "TICK", "HEARTBEAT", "STOP"}:
+    if fields[3] not in {"INITIAL", "TICK", "HEARTBEAT", "STOP", "STOP_INCOMPLETE"}:
         raise ValueError("unknown stream event")
     row = StreamRow(
         symbol,

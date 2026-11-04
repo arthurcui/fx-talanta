@@ -720,6 +720,19 @@ The [M2D preparation report](m2d-no-order-acceptance.md) adds a durable no-order
 fault harness and bounded read-only CMC/FOREX capability observations. It preserves
 the two-second entry ceiling and historical M1 failures; connected PAPER
 acceptance remains open. No new sustained campaign or broker execution is enabled.
+The [shadow delivery increment](m2d-shadow-transport.md) adds authenticated
+pull/receipt code, PostgreSQL shadow evidence and independent native parity.
+It keeps the sender unavailable and explicitly retains native HTTPS, current
+snapshot/clock, distributed fencing and connected acceptance gates.
+The separate [bounded connected observation path](m2d-connected-no-order.md)
+adds real FOREX capture, authenticated short-lived clock intervals and paired
+no-order journal recovery. Missing costs, loss baselines, providers and qualified
+broker UTC remain explicit HOLD reasons. Actual terminal HTTPS authentication is
+now recorded, while the native clock gate prevented receipt handoff; connected
+acceptance remains incomplete. The [EA quote-freshness review](ea-quote-freshness-review.md)
+distinguishes local bridge RTT, source quote age and clock uncertainty. Its
+recommendations do not change the two-second entry rule or retrospectively pass
+the failed attempts.
 
 ## Required quote-latency and channel-status UI
 

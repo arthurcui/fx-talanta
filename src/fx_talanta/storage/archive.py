@@ -25,13 +25,14 @@ from fx_talanta.domain.offline import BrokerBook, GatewayBook
 from fx_talanta.storage.config import Settings, account_set
 from fx_talanta.storage.offline import WRITER_LOCK, WriterBusy
 
-FORMAT = "fx-talanta-fixture-archive/1"
-DEMO_FORMAT = "fx-talanta-demo-observer-archive/1"
+FORMAT = "fx-talanta-fixture-archive/2"
+DEMO_FORMAT = "fx-talanta-demo-observer-archive/2"
 MAX_BYTES = 256 * 1024 * 1024
 TABLES = {
     "records": "sequence",
     "record_links": "source_id, target_id, relation",
     "offline_journal": "recorded_at, run_id, stream, revision",
+    "shadow_events": "stream, seq",
 }
 SCHEMA_TABLES = {*TABLES, "schema_migrations", "account_binding", "restore_history"}
 
@@ -108,7 +109,7 @@ def export_archive(settings: Settings, destination: Path, *, paper_account=None)
                 stack.enter_context(conn.transaction())
                 conn.execute(
                     "LOCK TABLE fx.records, fx.record_links, fx.offline_journal, "
-                    "fx.restore_history IN SHARE MODE"
+                    "fx.restore_history, fx.shadow_events IN SHARE MODE"
                 )
                 last = conn.execute(
                     "SELECT status FROM fx.restore_history ORDER BY sequence DESC LIMIT 1"
@@ -158,20 +159,21 @@ def export_archive(settings: Settings, destination: Path, *, paper_account=None)
 
 def read_archive(path: Path, *, paper_account=None):
     accounts = account_set(paper_account)
-    expected = {f"{e.value}/{table}.jsonl" for e in Environment for table in TABLES}
     try:
         with zipfile.ZipFile(path) as archive:
             names = archive.namelist()
-            if len(names) != len(expected) + 1 or set(names) != expected | {"manifest.json"}:
-                raise ValueError("archive has missing, duplicate, or unexpected members")
             if sum(info.file_size for info in archive.infolist()) > MAX_BYTES:
                 raise ValueError("archive exceeds supported size")
             manifest = json.loads(archive.read("manifest.json"))
-            if (
-                manifest["format"] != (DEMO_FORMAT if paper_account else FORMAT)
-                or set(manifest["accounts"]) != {"PAPER", "LIVE"}
-                or set(manifest["files"]) != expected
-            ):
+            current = DEMO_FORMAT if paper_account else FORMAT
+            if manifest["format"] not in {current, current[:-1] + "1"}:
+                raise ValueError("unsupported fixture archive")
+            legacy = manifest["format"].endswith("/1")
+            tables = set(TABLES) - ({"shadow_events"} if legacy else set())
+            expected = {f"{e.value}/{table}.jsonl" for e in Environment for table in tables}
+            if len(names) != len(expected) + 1 or set(names) != expected | {"manifest.json"}:
+                raise ValueError("archive has missing, duplicate, or unexpected members")
+            if set(manifest["accounts"]) != {"PAPER", "LIVE"} or set(manifest["files"]) != expected:
                 raise ValueError("unsupported or incomplete fixture archive")
             UUID(manifest["archive_id"])
             data = {}
@@ -188,6 +190,8 @@ def read_archive(path: Path, *, paper_account=None):
             for environment in Environment:
                 name = environment.value
                 account = accounts[environment]
+                if legacy and any(v >= 7 for v, _ in manifest["accounts"][name]["migrations"]):
+                    raise ValueError("legacy archive cannot omit migrated shadow state")
                 if manifest["accounts"][name]["binding"] != [
                     {
                         "singleton": True,
@@ -209,6 +213,8 @@ def read_archive(path: Path, *, paper_account=None):
                     model = GatewayBook if row["stream"] == "gateway" else BrokerBook
                     if model.model_validate(row["payload"]).account != account:
                         raise ValueError("journal belongs to the wrong account")
+                if not legacy:
+                    validate_shadow_archive(data[f"{name}/shadow_events.jsonl"], account)
             return manifest, data
     except (
         zipfile.BadZipFile,
@@ -299,7 +305,10 @@ def restore_archive(settings: Settings, source: Path, *, paper_account=None) -> 
         for conn in conns.values():
             if not marker(conn):
                 with conn.transaction():
-                    conn.execute("LOCK TABLE fx.records, fx.offline_journal IN EXCLUSIVE MODE")
+                    conn.execute(
+                        "LOCK TABLE fx.records, fx.offline_journal, fx.shadow_events "
+                        "IN EXCLUSIVE MODE"
+                    )
                     if any(
                         conn.execute(f"SELECT EXISTS(SELECT 1 FROM fx.{t})").fetchone()[0]
                         for t in TABLES
@@ -343,6 +352,18 @@ def restore_archive(settings: Settings, source: Path, *, paper_account=None) -> 
                             row["recorded_at"],
                             row["event"],
                             Jsonb(row["payload"]),
+                        ),
+                    )
+                for row in data[f"{name}/shadow_events.jsonl"]:
+                    conn.execute(
+                        "INSERT INTO fx.shadow_events VALUES (%s,%s,%s,%s,%s,%s)",
+                        (
+                            row["stream"],
+                            row["seq"],
+                            row["scope"],
+                            row["body"],
+                            row["prior"],
+                            row["hash"],
                         ),
                     )
                 conn.execute(
@@ -392,3 +413,26 @@ def release_restore(
         "status": "STARTUP_RECONCILE_REQUIRED",
         "live_enabled": False,
     }
+
+
+def validate_shadow_archive(rows, account):
+    """Verify shadow stream scope/hash chains before any destination is staged."""
+    from fx_talanta.shadow.store import Events
+    from fx_talanta.shadow.work import scope_for
+
+    streams = {}
+    for row in rows:
+        UUID(row["stream"])
+        if account.environment != Environment.PAPER or row["scope"] != scope_for(account):
+            raise ValueError("shadow archive account mismatch")
+        streams.setdefault(row["stream"], []).append(
+            (row["seq"], row["body"], row["prior"], row["hash"])
+        )
+    for records in streams.values():
+        events = Events(records, None)
+        if events.records[0].get("kind") != "binding" or events.records[0].get(
+            "scope"
+        ) != scope_for(account):
+            raise ValueError("shadow archive binding mismatch")
+        if any(e.get("execution_enabled") is not False for e in events.records):
+            raise ValueError("shadow archive cannot enable execution")

@@ -14,6 +14,7 @@ Sample buffer[1024];
 int head=0, count=0, output=INVALID_HANDLE;
 ulong sequence=0, dropped=0, started=0, heartbeat=0;
 bool stopping=false;
+ulong tick_callbacks=0, read_errors=0;
 
 bool SafeBinding() {
    return AccountInfoInteger(ACCOUNT_LOGIN)==ExpectedLogin &&
@@ -32,23 +33,30 @@ void WriteSample(const Sample &sample) {
 }
 
 void Drain() {
+   ulong cutoff=GetTickCount64()+10;
    int remaining=256;
-   while(count>0 && remaining-->0 && !stopping) {
+   while(count>0 && remaining-->0 && !stopping && GetTickCount64()<cutoff) {
       WriteSample(buffer[head]); head=(head+1)%1024; count--;
    }
    FileFlush(output);
 }
 
 void Capture(const string kind) {
+   if(stopping) return;
+   if(GetTickCount64()-started>=(ulong)MaxSeconds*1000) { ExpertRemove(); return; }
    if(!SafeBinding()) { stopping=true; ExpertRemove(); return; }
    if(count==1024) { dropped++; return; }
    Sample sample;
    sample.captured=GetTickCount64(); sample.utc=TimeGMT(); sample.kind=kind;
-   if(!SymbolInfoTick(_Symbol,sample.tick)) return;
+   if(!SymbolInfoTick(_Symbol,sample.tick)) { read_errors++; return; }
    buffer[(head+count)%1024]=sample; count++;
 }
 
 int OnInit() {
+   EventKillTimer();
+   if(output!=INVALID_HANDLE) FileClose(output);
+   output=INVALID_HANDLE; head=0; count=0; sequence=0; dropped=0;
+   started=0; heartbeat=0; stopping=false; tick_callbacks=0; read_errors=0;
    if(!SafeBinding() || ExpectedLogin<=0 || ExpectedServer=="" ||
       StringLen(RunToken)<8 || StringLen(RunToken)>64 ||
       MaxSeconds<10 || MaxSeconds>900 || FlushMilliseconds<20 || FlushMilliseconds>1000)
@@ -75,7 +83,7 @@ int OnInit() {
    return INIT_SUCCEEDED;
 }
 
-void OnTick() { Capture("TICK"); }
+void OnTick() { tick_callbacks++; Capture("TICK"); }
 
 void OnTimer() {
    if(!SafeBinding() || GetTickCount64()-started>=(ulong)MaxSeconds*1000) {
@@ -92,9 +100,16 @@ void OnTimer() {
 void OnDeinit(const int reason) {
    EventKillTimer();
    if(output!=INVALID_HANDLE) {
-      if(!stopping) { while(count>0 && !stopping) Drain(); }
+      // Cleanup must not drain an unbounded backlog. A single synchronous OS
+      // write may still block: absence of this marker is incomplete evidence.
+      bool incomplete=stopping || count>0;
+      dropped+=(ulong)count; count=0;
       Sample sample; ZeroMemory(sample);
-      sample.kind="STOP"; sample.captured=GetTickCount64(); sample.utc=TimeGMT();
+      sample.kind=incomplete ? "STOP_INCOMPLETE" : "STOP";
+      sample.captured=GetTickCount64(); sample.utc=TimeGMT();
+      Print("QUOTE_STREAM_DEINIT reason=",reason," unfinished=",incomplete,
+         " tick_callbacks=",tick_callbacks," read_errors=",read_errors,
+         " application_losses=",dropped," terminal_coalescing=UNMEASURED");
       WriteSample(sample); FileFlush(output); FileClose(output); output=INVALID_HANDLE;
    }
 }

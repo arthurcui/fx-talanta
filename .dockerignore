@@ -21,6 +21,12 @@
 !mql5/safety/
 !mql5/safety/*.mq5
 !mql5/safety/*.mqh
+!mql5/shadow/
+!mql5/shadow/*.mq5
+!mql5/shadow/*.mqh
+!mql5/connected/
+!mql5/connected/*.mq5
+!mql5/connected/*.mqh
 !configs/
 !configs/news-filter.example.json
 !configs/news-filter.fixture.json
@@ -33,6 +39,10 @@
 !docs/evidence/broker-campaign-final-20261103.json
 !docs/evidence/provider-campaign-final-20261103.json
 !docs/evidence/m2d-no-order-20261103.json
+!docs/evidence/m2d-shadow-20261103.json
+!docs/evidence/m2d-connected-20261104.json
+!docs/evidence/m2d-connected-20261104-before-native-https.json
+!docs/evidence/m2d-native-https-20261104.json
 !README.md
 **/__pycache__/
 **/*.pyc

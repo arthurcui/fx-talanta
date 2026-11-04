@@ -37,3 +37,23 @@ def demo(repo):
     run_id = uuid4()
     result = run_demo(repo, run_id)
     return run_id, result
+
+
+@pytest.fixture
+def historical_source():
+    """Historical evidence pins its original source, never a later revision."""
+    import hashlib
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+
+    def read(name, expected):
+        current = (root / name).read_bytes()
+        if hashlib.sha256(current).hexdigest() == expected:
+            return current
+        archived = root / "tests/fixtures/source-archive" / (expected + ".txt")
+        data = archived.read_bytes()
+        assert hashlib.sha256(data).hexdigest() == expected
+        return data
+
+    return read

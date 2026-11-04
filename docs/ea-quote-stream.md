@@ -34,6 +34,15 @@ permission. No production observer/risk/gateway is switched to this stream.
 
 ## Bounded comparison method
 
+**November 4 review correction:** the recorded EA arrival timestamp is at parent
+consumer receipt, while the polling timestamp is in the SDK child before IPC and
+parent ingestion. The matched delay therefore is not a symmetric delivery-latency
+measurement; startup caches also differ. Original evidence is retained, but these
+metrics must not be presented as a like-for-like transport benchmark. The
+`entry_fresh` count below is diagnostic and omits clock uncertainty; it does not
+grant entry permission. See the [freshness review](ea-quote-freshness-review.md)
+and [event lifecycle findings](ea-event-lifecycle-review.md) for the precise limits.
+
 `scripts/compare_quote_stream.py` tails both EA files every approximately 10ms.
 A separate Python process reads the same terminal's latest quotes at one-second
 cadence, checking the pinned identity/build, clock-policy window, disabled trading

@@ -1,0 +1,17 @@
+{
+  "commit": "2711d4fa88c76244cf465e484a5b9c87a4aa5105",
+  "files": {
+    "mql5/connected/ConnectedEA.mq5": "5aad405b8919461bbac61e6a1ade2796cc67af68002df198d0bffabf18bc032d",
+    "mql5/connected/HighResolutionClock.mqh": "8a6b2277672966d52b2bd8dea710c6853d37611d833592cd315b8c4a6f2f9322",
+    "mql5/connected/NativeHighResolutionClockTests.mq5": "97696aea731ef05c2bc9062cbc457a65b0bd71cebf72bf1118f82d961c9786cf",
+    "mql5/gateway/Broker.mqh": "11609be3fc7d8824a73f666bdc3207ac624f1dbb02dd0cdcbcf3324f1d575112",
+    "mql5/gateway/FixedGateway.mq5": "434c71a3dc7519ad3de020d45abc6af7cdb11653796f1d06324339ee533cb489",
+    "mql5/readonly/QuoteStream.mq5": "2c9b6df1856daa6735985d49e7a71e8988452d34087d467739b8800f13e3d32c",
+    "scripts/connected_session.py": "3335eebbe4c60bd8ac46d3568d7e44fd5c169bfd7f5902dd70dcd13af06e085c",
+    "src/fx_talanta/connected_shadow/authority.py": "eb36aa05ebcea2fe5473bcbe8dd06bfeb9d9b77db7466d9584b0b9a2720f3ce5",
+    "src/fx_talanta/connected_shadow/listener.py": "d6be508e77943fde0947f82c1ac62d541785716af3ab1aaa75f6a9c235a20daf",
+    "src/fx_talanta/shadow/backend.py": "792e6b50283f2163d9fb3f9038b288d10f730ee8215686e02a4f1c92d76e2b01",
+    "src/fx_talanta/shadow/store.py": "3e1fd10db64f188a948214424d51bfdbdea70a57daae86d5b8b93c2e60e43367",
+    "tests/test_shadow.py": "e29e250f8495fdff08d35738a24b6e4a10332b4798ab2e57bcbb61f9b1c6d65a"
+  }
+}

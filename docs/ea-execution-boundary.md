@@ -36,6 +36,10 @@ preflight, independent native arithmetic, loss/protection reducers and local
 durability/fencing reference checks. Production authenticated transport, actual
 broker snapshot construction and a connected sender remain gated. Its local
 SQLite reference does not replace the PostgreSQL ownership specified below.
+The [shadow transport implementation](m2d-shadow-transport.md) supplies a separate
+PostgreSQL no-order journal, HTTPS application boundary, compiled native client
+and durable receipts. Native HTTPS and actual broker snapshot/clock sourcing are
+not qualified; the shadow result cannot be routed to the execution gateway.
 
 Transport is **EA-initiated pull of prepared work**, followed by idempotent event
 upload. A private authenticated HTTPS endpoint is pinned per account; a local relay
