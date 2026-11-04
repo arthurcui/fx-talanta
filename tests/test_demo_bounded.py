@@ -17,7 +17,7 @@ def bounded(tmp_path):
     budget = AcceptanceBudget(
         SQLiteStore(tmp_path / "budget.db", bootstrap=True),
         ACCOUNT,
-        BudgetPlan("a" * 64, NOW, NOW + 300_000),
+        BudgetPlan("a" * 64, NOW, NOW + 300_000, 200_000, "e" * 64),
         bootstrap=True,
     )
     with base.store.transaction() as events:

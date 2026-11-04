@@ -6,8 +6,8 @@ class DemoAcceptanceBudget
 {
 private:
    FxJournal journal;
-   string scope,release,policy,binding,rows[],ids[],hashes[];
-   long begins,expires,last,lots[],cents[];
+   string scope,release,policy,currency,binding,rows[],ids[],hashes[];
+   long begins,expires,last,reference,water,entry_bps,total_bps,lots[],cents[];
    bool closed[],healthy,expired;
    int Find(string id){for(int i=0;i<ArraySize(ids);i++)if(ids[i]==id)return i;return -1;}
    bool Apply(string row)
@@ -15,18 +15,18 @@ private:
       string f[];int n=StringSplit(row,'\t',f);
       if(n==2 && f[0]=="EXPIRED")
       {if(expired || !FxInteger(f[1]))return false;long at=StringToInteger(f[1]);if(at<expires || at<last)return false;expired=true;last=at;return true;}
-      if(n==7 && f[0]=="CHARGE")
+      if(n==8 && f[0]=="CHARGE")
       {
          if(!FxUuid(f[1]) || !FxHex(f[2],64) || (f[3]!="EURUSD" && f[3]!="USDJPY") ||
-            !FxInteger(f[4]) || !FxInteger(f[5]) || !FxInteger(f[6]))return false;
-         long volume=StringToInteger(f[4]),risk=StringToInteger(f[5]),at=StringToInteger(f[6]);
+            !FxInteger(f[4]) || !FxInteger(f[5]) || !FxInteger(f[6]) || !FxInteger(f[7]))return false;
+         long volume=StringToInteger(f[4]),risk=StringToInteger(f[5]),at=StringToInteger(f[6]),basis=StringToInteger(f[7]);
          int i=ArraySize(ids);long total=0;
          for(int k=0;k<i;k++){if(!closed[k])return false;total+=cents[k];}
-         if(expired || i>=2 || Find(f[1])>=0 || volume<1 || volume>2000000 || risk<1 || risk>500 ||
-            total+risk>1000 || at<begins || at>=expires || at<last)return false;
+         if(expired || i>=2 || Find(f[1])>=0 || volume<1 || volume>2000000 || risk<1 || risk>reference || basis<1 || basis>water || risk*10000>basis*entry_bps ||
+            (total+risk)*10000>basis*total_bps || at<begins || at>=expires || at<last)return false;
          ArrayResize(ids,i+1);ArrayResize(hashes,i+1);ArrayResize(lots,i+1);
          ArrayResize(cents,i+1);ArrayResize(closed,i+1);
-         ids[i]=f[1];hashes[i]=f[2];lots[i]=volume;cents[i]=risk;closed[i]=false;last=at;
+         ids[i]=f[1];hashes[i]=f[2];lots[i]=volume;cents[i]=risk;closed[i]=false;last=at;water=basis;
          return true;
       }
       if(n==5 && f[0]=="CLOSED")
@@ -54,17 +54,22 @@ public:
    string Tip(){return healthy ? DgRowsTip(rows) : "";}
    int Charged(){return ArraySize(ids);}
    bool Open(string path,string account_scope,string release_hash,string policy_hash,string plan_hash,
-             long start_ms,long expiry_ms,bool bootstrap,string retained_tip)
+             long start_ms,long expiry_ms,long reference_cents,int per_entry_rate,int total_rate,string account_currency,string equity_evidence,
+             bool bootstrap,string retained_tip)
    {
       Close();ArrayResize(ids,0);ArrayResize(hashes,0);ArrayResize(lots,0);
       ArrayResize(cents,0);ArrayResize(closed,0);ArrayResize(rows,0);
       if(!FxHex(account_scope,64) || !FxHex(release_hash,64) || !FxHex(policy_hash,64) ||
-         !FxHex(plan_hash,64) || start_ms<=0 || expiry_ms<=start_ms || expiry_ms-start_ms>300000 ||
+         !FxHex(plan_hash,64) || !FxHex(equity_evidence,64) || equity_evidence==StringFormat("%064d",0) ||
+         reference_cents<=0 || reference_cents>1000000000000 || per_entry_rate<1 || per_entry_rate>25 ||
+         total_rate<per_entry_rate || total_rate>50 || (account_currency!="CAD" && account_currency!="USD") || start_ms<=0 || expiry_ms<=start_ms || expiry_ms-start_ms>300000 ||
          (bootstrap ? (FileIsExist(path) || retained_tip!="") :
           (!FileIsExist(path) || !FxHex(retained_tip,64))))return false;
+      reference=reference_cents;water=reference;entry_bps=per_entry_rate;total_bps=total_rate;currency=account_currency;
       expired=false;scope=account_scope;release=release_hash;policy=policy_hash;begins=start_ms;expires=expiry_ms;last=begins;
-      binding="DEMO_BUDGET_1\t"+scope+"\t"+release+"\t"+policy+"\t"+plan_hash+"\t"+
-         IntegerToString(begins)+"\t"+IntegerToString(expires)+"\tCAD\t2\t2000000\t500\t1000";
+      binding="DEMO_BUDGET_PERCENT_2\t"+scope+"\t"+release+"\t"+policy+"\t"+plan_hash+"\t"+
+         IntegerToString(begins)+"\t"+IntegerToString(expires)+"\t"+currency+"\t2\t2000000\t"+IntegerToString(reference)+"\t"+
+         IntegerToString(entry_bps)+"\t"+IntegerToString(total_bps)+"\t"+equity_evidence;
       if(!journal.Open(path,rows))return false;
       if(bootstrap)
       {if(!journal.Append(binding)){Close();return false;}ArrayResize(rows,1);rows[0]=binding;healthy=true;return true;}
@@ -72,16 +77,16 @@ public:
       for(int i=1;i<ArraySize(rows);i++)if(!Apply(rows[i])){Close();return false;}
       healthy=true;return true;
    }
-   bool Charge(const FxWork &w,long now,bool flat)
+   bool Charge(const FxWork &w,long now,bool flat,long eligible_equity_cents)
    {
       if(!healthy || !flat || w.action!="ENTER" || w.environment!="PAPER" || w.venue!="BROKER_DEMO" ||
-         FxScope(w)!=scope || w.release!=release || w.policy!=policy || w.currency!="CAD" ||
-         !MathIsValidNumber(w.max_risk) || w.max_risk<=0 || w.max_risk>5)return false;
+         FxScope(w)!=scope || w.release!=release || w.policy!=policy || w.currency!=currency ||
+         !MathIsValidNumber(w.max_risk) || w.max_risk<=0 || w.max_risk>(double)reference/100.0 || eligible_equity_cents<=0 || eligible_equity_cents>1000000000000)return false;
       if(now>=expires && !expired){if(!Save("EXPIRED\t"+IntegerToString(now)))healthy=false;return false;}
       if(expired)return false;
       long risk=(long)MathCeil(w.max_risk*100.0);
       return Save("CHARGE\t"+w.id+"\t"+w.digest+"\t"+w.symbol+"\t"+IntegerToString(w.volume)+"\t"+
-         IntegerToString(risk)+"\t"+IntegerToString(now));
+         IntegerToString(risk)+"\t"+IntegerToString(now)+"\t"+IntegerToString((long)MathMin(water,eligible_equity_cents)));
    }
    bool ConfirmClosed(const FxEntry &e,long now,string witness,bool positive_query,bool flat)
    {

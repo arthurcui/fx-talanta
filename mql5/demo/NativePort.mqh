@@ -118,7 +118,7 @@ public:
    virtual bool BeforeMutation(const FxWork &w)
    {
       if(protection==NULL || (w.action=="ENTER" && protection.HardHalt())) return false;
-      if(w.action=="ENTER" && (budget==NULL || !budget.Charge(w,now_ms,PositionsTotal()==0 && OrdersTotal()==0)))return false;
+      if(w.action=="ENTER" && (budget==NULL || !budget.Charge(w,now_ms,PositionsTotal()==0 && OrdersTotal()==0,(long)MathFloor(AccountInfoDouble(ACCOUNT_EQUITY)*100.0))))return false;
       // Immutable local deadlines start before submission, never after its reply.
       if(w.action=="ENTER"){bool ok=protection.Begin(w.id,(long)GetTickCount64(),boot,repair_delay,exit_delay);if(ok)armed_before_send=w.id;return ok;}
       return true; // Owned risk reduction still has the gateway's durable SUBMITTING fence.

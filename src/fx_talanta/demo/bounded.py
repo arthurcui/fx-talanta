@@ -1,6 +1,6 @@
 """Budget-bound publication rehearsal. Native execution remains hard-disabled."""
 
-from decimal import ROUND_CEILING
+from decimal import ROUND_CEILING, ROUND_FLOOR
 
 from fx_talanta.demo.acceptance_budget import AcceptanceBudget
 from fx_talanta.demo.coordinator import DemoBackend, DemoCoordinator
@@ -33,7 +33,19 @@ class BoundedDemoCoordinator(DemoCoordinator):
                         (request.max_volume * 100_000_000).to_integral_value(rounding=ROUND_CEILING)
                     )
                     cents = int((request.max_risk * 100).to_integral_value(rounding=ROUND_CEILING))
-                    budget.reserve(envelope.digest, request.symbol, units, cents, now)
+                    eligible = int(
+                        (min(snapshot.equity, snapshot.capital) * 100).to_integral_value(
+                            rounding=ROUND_FLOOR
+                        )
+                    )
+                    budget.reserve(
+                        envelope.digest,
+                        request.symbol,
+                        units,
+                        cents,
+                        now,
+                        eligible_equity_cents=eligible,
+                    )
                 # A publication failure leaves its charge unresolved. No rollback
                 # of the other journal, automatic refund, or uncertain-call retry.
                 return super().publish(envelope, snapshot, now)

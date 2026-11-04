@@ -19,7 +19,9 @@ DemoKernel kernel;
 DemoNativePort native_port;
 DemoAcceptanceBudget native_budget;
 input string BudgetPlanHash="",RetainedBudgetTip="";
-input long BudgetStartsMs=0,BudgetExpiresMs=0;
+input long BudgetStartsMs=0,BudgetExpiresMs=0,BudgetReferenceEquityCents=0;
+input int BudgetPerEntryBps=25,BudgetTotalBps=50;
+input string BudgetCurrency="CAD",BudgetEquityEvidence="";
 DemoNativeHistory history;
 DemoReconciler reconciler;
 input string RetainedExecutionTip="",RetainedOutcomeTip="",RetainedBrokerStateTip="";
@@ -60,7 +62,8 @@ int OnInit()
    native_incarnation=FxHash(Client+IntegerToString((long)GetMicrosecondCount())+IntegerToString((long)GetTickCount64()));
    if(!protection.Open(JournalFile+".protection",Scope,BootstrapNewJournal,RetainedProtectionTip)) { kernel.Close(); return INIT_FAILED; }
    if(!native_budget.Open(JournalFile+".budget",Scope,Release,Policy,BudgetPlanHash,
-      BudgetStartsMs,BudgetExpiresMs,BootstrapNewJournal,RetainedBudgetTip))
+      BudgetStartsMs,BudgetExpiresMs,BudgetReferenceEquityCents,BudgetPerEntryBps,BudgetTotalBps,
+      BudgetCurrency,BudgetEquityEvidence,BootstrapNewJournal,RetainedBudgetTip))
    {kernel.Close();protection.Close();return INIT_FAILED;}
    native_port.BindBudget(GetPointer(native_budget));
    native_port.BindProtection(GetPointer(protection),native_incarnation,QualifiedRepairDelayMs,QualifiedExitDelayMs);

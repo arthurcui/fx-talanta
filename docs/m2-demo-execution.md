@@ -173,7 +173,7 @@ preserved and strategy trading blocked. This does not itself enable the native
 dispatcher or certify any broker/provider qualification. It would distinguish execution validation
 from the unresolved M1 strategy/provider qualification and keep strategy entries
 blocked. Proposed limits are two entry attempts, at most 0.02 lot per entry,
-one position at a time, C$5 planned virtual risk per entry and C$10 in aggregate.
+one position at a time, at most 0.25% planned risk per entry and 0.50% cumulative planned risk.
 Those are prospective limits, not a claim that an activation controller exists or
 that planned loss is a guaranteed loss cap.
 
@@ -195,7 +195,7 @@ passed by this preflight or this proposed scope.
 ## Bounded acceptance budget implementation
 
 `demo.acceptance_budget` implements a dedicated, checkpointed budget journal with
-at most two entries, 0.02 lot per entry, C$5 planned risk per entry and C$10 total.
+at most two entries, 0.02 lot per entry, 0.25% planned risk per entry and 0.50% total.
 Its immutable account/plan binding permits an entry window of at most five minutes.
 No rejection, uncertain response, closure or restart refunds a charge. Lost journals,
 stale checkpoints, valid-prefix rollback and competing stale instances refuse.
@@ -243,7 +243,7 @@ to account scope, release, policy, backend plan fingerprint and entry window.
 The disabled host opens it with an explicit retained checkpoint and binds it to
 the native port. Before an entry mutation, the native port charges the original
 request's maximum volume/risk and requires a flat account. Native limits are two
-entries, 0.02 lot each, C$5 planned risk each, C$10 total and a five-minute maximum
+entries, 0.02 lot each, 0.25% planned risk each, 0.50% total and a five-minute maximum
 entry window. No refund or retry follows an unknown result. Positive deal
 reconciliation is required to clear an unresolved charge; backend independent
 audit remains a separate prerequisite for publishing another entry.
@@ -269,3 +269,39 @@ open position. These budget controls alone are not a deployable order-capable re
 Desktop inspection also failed before initialization because the Windows helper
 could not write its kernel assets, including after reset. No broker terminal settings
 were changed. There was no new qualification campaign or strategy enablement.
+
+## Percentage risk mandate (supersedes fixed monetary limits)
+
+The owner replaced the fixed monetary budget with controlled percentages. The
+current default and maximum rates match the existing risk engine: **25 basis
+points (0.25%) per entry and 50 basis points (0.50%) cumulative planned risk**.
+A plan can choose smaller rates. These percentages describe modeled loss at the
+stop, including the risk model's cost allowances; they are not position notional
+percentages, margin percentages or guaranteed maximum realized losses.
+
+The plan pins verified starting eligible equity (the lower of allocated capital
+and equity), account currency and an equity-evidence fingerprint. Every entry uses
+the lower of this pinned basis, current eligible equity and the basis of previous
+accepted charges. Gains, deposits, closing a position or restarting cannot enlarge
+or replenish the campaign budget. Falling equity can leave no budget for another
+entry. Existing stricter risk-engine, daily-loss and exposure checks still apply.
+The native port rechecks current broker equity before charging.
+
+Monetary risk remains an internal calculation in account-currency minor units:
+risk is rounded up, equity down, and integer comparisons enforce the percentage
+without rounding an allowance upwards. There is no fixed C$5/C$10 policy cap.
+Both CAD and USD account currencies are supported. The two-entry, 0.02-lot,
+one-position, five-minute and two-second entry restrictions remain unchanged.
+
+`percentage-budget/2` and `DEMO_BUDGET_PERCENT_2` bind the policy and basis to their
+journals. Old fixed-limit journals cannot be adopted as percentage journals or
+reset automatically. Prior fixed-limit reports/source bytes remain historical
+proof of those versions, not qualification of this version. This change does not
+enable trading or complete actual-order M2 acceptance.
+
+[Percentage-budget evidence](evidence/m2-percentage-budget.json): **895 full
+Python/PostgreSQL/HTTPS tests passed with zero skips, and 90 native offline checks
+passed**. Both native programs compiled with zero errors/warnings. This covers
+percentage boundaries, equity scaling, conservative rounding, falling equity,
+no budget growth from gains, immutable basis/rates on restart and retained expiry.
+No broker calls or terminal deployment occurred.

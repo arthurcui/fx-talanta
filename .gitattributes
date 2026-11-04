@@ -1,2 +1,3 @@
 * text=auto eol=lf
 tests/fixtures/demo-budget/*.tsv -text
+tests/fixtures/demo-percent/*.tsv -text

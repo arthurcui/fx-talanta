@@ -23,10 +23,12 @@ class BudgetPlan:
     campaign: str
     starts_ms: int
     expires_ms: int
+    reference_equity_cents: int
+    equity_evidence_hash: str
     entries: int = 2
     lot_units: int = 2_000_000  # 0.02 lot, using the native 1e8 lot unit.
-    per_entry_cents: int = 500
-    total_cents: int = 1000
+    per_entry_bps: int = 25
+    total_bps: int = 50
     currency: str = "CAD"
 
     def __post_init__(self):
@@ -35,18 +37,22 @@ class BudgetPlan:
             self.expires_ms,
             self.entries,
             self.lot_units,
-            self.per_entry_cents,
-            self.total_cents,
+            self.reference_equity_cents,
+            self.per_entry_bps,
+            self.total_bps,
         )
         if (
             not hex64(self.campaign)
+            or not hex64(self.equity_evidence_hash)
+            or self.equity_evidence_hash == "0" * 64
             or any(type(n) is not int or n <= 0 for n in numbers)
             or not 0 < self.expires_ms - self.starts_ms <= 300_000
             or self.entries > 2
             or self.lot_units > 2_000_000
-            or not self.per_entry_cents <= self.total_cents <= 1000
-            or self.per_entry_cents > 500
-            or self.currency != "CAD"
+            or not self.per_entry_bps <= self.total_bps <= 50
+            or self.per_entry_bps > 25
+            or self.reference_equity_cents > 1_000_000_000_000
+            or self.currency not in {"CAD", "USD"}
         ):
             raise ValueError("INVALID_DEMO_BUDGET")
 
@@ -67,6 +73,7 @@ class AcceptanceBudget:
         self.store, self.plan = store, plan
         self.binding = {
             "kind": "demo_budget_binding",
+            "schema": "percentage-budget/2",
             "scope": scope_for(account),
             "plan": asdict(plan),
             "execution_enabled": False,
@@ -102,14 +109,18 @@ class AcceptanceBudget:
         self.tip = tip
         return expired
 
-    def reserve(self, request_hash, symbol, lot_units, risk_cents, now_ms):
+    def reserve(
+        self, request_hash, symbol, lot_units, risk_cents, now_ms, *, eligible_equity_cents
+    ):
         if (
             not hex64(request_hash)
             or symbol not in {"EURUSD", "USDJPY"}
             or type(lot_units) is not int
             or not 0 < lot_units <= self.plan.lot_units
             or type(risk_cents) is not int
-            or not 0 < risk_cents <= self.plan.per_entry_cents
+            or risk_cents <= 0
+            or type(eligible_equity_cents) is not int
+            or not 0 < eligible_equity_cents <= 1_000_000_000_000
         ):
             raise ValueError("BUDGET_ENTRY_INVALID")
         if self._expired(now_ms):
@@ -127,8 +138,16 @@ class AcceptanceBudget:
             }
             if any(e["request_hash"] not in closed for e in charges):
                 raise ValueError("BUDGET_OUTCOME_UNRESOLVED")
+            basis = min(
+                self.plan.reference_equity_cents,
+                eligible_equity_cents,
+                *(e["equity_basis_cents"] for e in charges),
+            )
+            if risk_cents * 10_000 > basis * self.plan.per_entry_bps:
+                raise ValueError("BUDGET_ENTRY_INVALID")
             if len(charges) >= self.plan.entries or (
-                sum(e["risk_cents"] for e in charges) + risk_cents > self.plan.total_cents
+                (sum(e["risk_cents"] for e in charges) + risk_cents) * 10_000
+                > basis * self.plan.total_bps
             ):
                 raise ValueError("DEMO_BUDGET_EXHAUSTED")
             events.append(
@@ -138,6 +157,7 @@ class AcceptanceBudget:
                     symbol=symbol,
                     lot_units=lot_units,
                     risk_cents=risk_cents,
+                    equity_basis_cents=basis,
                     at_ms=now_ms,
                 )
             )
@@ -231,6 +251,13 @@ class AcceptanceBudget:
             }
             return dict(
                 entries_charged=len(charges),
+                per_entry_percent=self.plan.per_entry_bps / 100,
+                total_percent=self.plan.total_bps / 100,
+                equity_basis_cents=min(
+                    self.plan.reference_equity_cents, *(e["equity_basis_cents"] for e in charges)
+                )
+                if charges
+                else self.plan.reference_equity_cents,
                 risk_cents_charged=sum(e["risk_cents"] for e in charges),
                 unresolved=sum(e["request_hash"] not in closed for e in charges),
                 entry_window_open=self.plan.starts_ms <= now_ms < self.plan.expires_ms,
