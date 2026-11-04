@@ -4,6 +4,7 @@
 #include "Kernel.mqh"
 #include "NativePort.mqh"
 #include "Reconcile.mqh"
+#include "Drain.mqh"
 #include "ProtectiveDispatch.mqh"
 int checks=INVALID_HANDLE;
 void Check(string name,bool ok){ FileWriteString(checks,name+"\t"+(ok ? "1" : "0")+"\r\n"); }
@@ -56,6 +57,15 @@ public:
    virtual bool Deal(int i,DemoDeal &r)
    { ZeroMemory(r);r.order=500;r.identifier=700;r.magic=contaminated ? 0 : (long)FX_MAGIC;r.volume=volume;r.entry=DEAL_ENTRY_IN;r.comment=comment;return true; }
    virtual bool Position(ulong id,DemoPosition &r){ r.ticket=700;r.volume=volume;r.stop=1.098;return true; }
+};
+class ClosedHistory : public FixtureHistory
+{
+public:
+   ClosedHistory(){volume=9000000;pending=0;final_order=true;}
+   virtual int DealCount(){return 2;}
+   virtual bool Deal(int i,DemoDeal &r)
+   {FixtureHistory::Deal(i,r);r.ticket=100+i;r.order=i==0 ? 500 : 600;r.entry=i==0 ? DEAL_ENTRY_IN : DEAL_ENTRY_OUT;return true;}
+   virtual bool Position(ulong id,DemoPosition &r){ZeroMemory(r);return true;}
 };
 class ManagementPort : public FixturePort
 {
@@ -296,6 +306,30 @@ int OnInit()
    second_limited.max_risk=10.01;
    Check("percent-budget-gains-no-expansion",!cap.Charge(second_limited,budget_start+2,true,800000));
    cap.Close();
+   Check("drain-budget-open",cap.Open("drain.budget",cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,400000,25,50,"CAD",FxHash("drain-equity"),true,""));
+   Check("entry-boundary-uncertainty",cap.EntriesOpen(budget_start+100,100) && !cap.EntriesOpen(budget_start+99,100) && !cap.EntriesOpen(budget_end-100,100));
+   Check("entry-monotonic-deadline",DemoEntryWindowOpen(cap,budget_start+100,0,999,1000) && !DemoEntryWindowOpen(cap,budget_start+100,0,1000,1000));
+   Check("entry-deadline-required",!DemoEntryWindowOpen(cap,budget_start+100,0,1,0));
+   limited.max_risk=5;
+   Check("drain-charge-retained",cap.Charge(limited,budget_start,true,400000) && cap.Drain() && cap.Drain() && cap.Charged()==1);
+   string drain_tip=cap.Tip();cap.Close();
+   Check("drain-restart-closed",cap.Open("drain.budget",cap_scope,limited.release,limited.policy,plan_hash,budget_start,budget_end,400000,25,50,"CAD",FxHash("drain-equity"),false,drain_tip) && cap.Draining() && !cap.EntriesOpen(budget_start+10,0));
+   Check("drain-entry-never-reopens",!cap.Charge(second_limited,budget_start+10,true,400000));
+   done.work=limited;
+   Check("drain-positive-closure-remains",cap.ConfirmClosed(done,budget_end+10,FxHash("drain-closed"),true,true));cap.Close();
+   FixturePort drain_port;runtime.Open("drain.execution",b[0],true,"");
+   Check("drain-empty-no-positive-query",!DemoDrainComplete(runtime.State(),cursor,false,true,true,false,false));
+   runtime.Dispatch(frames[0],risks[0],ledger,drain_port);
+   Check("drain-ack-not-flat-proof",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));
+   ClosedHistory closing;closing.comment=FxComment(first);cursor.Begin();result="INCOMPLETE";
+   while(result=="INCOMPLETE")result=cursor.Step(runtime.State(),closing,2);
+   Check("drain-positive-close",cursor.Confirmed(0) && DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));
+   Check("drain-report-must-deliver",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,true));
+   Check("drain-disconnection-not-completion",!DemoDrainComplete(runtime.State(),cursor,true,false,true,false,false));
+   Check("drain-unexpected-exposure",!DemoDrainComplete(runtime.State(),cursor,true,true,false,false,false));
+   Check("drain-protection-unknown",!DemoDrainComplete(runtime.State(),cursor,true,true,true,true,false));
+   cursor.Invalidate();
+   Check("drain-invalidated-scan",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));runtime.Close();
    FileClose(checks);return INIT_SUCCEEDED;
 }
 void OnTick(){ TesterStop(); }

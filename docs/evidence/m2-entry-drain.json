@@ -1,0 +1,108 @@
+{
+  "schema": "m2-entry-drain-evidence/1",
+  "native_dependency_sha256": {
+    "mql5/connected/HighResolutionClock.mqh": "122c305fde353cf3c7cb1ee54cf70e29c38b6a20687eb7a255bb7c86c8a38af2",
+    "mql5/demo/AcceptanceBudget.mqh": "bf4bcbe37b910a1518ab9c54521f8b5186da8187dd899e835c2425d0c20a5122",
+    "mql5/demo/DemoEA.mq5": "6bce67d0725f5b81f0c7e1ccc0c395d03c325bc1e8181d21216231c7458e878d",
+    "mql5/demo/Drain.mqh": "7bda18cdc3aa3cc44cea401c019fdc6b7c6183972c189f306591beaa214be81d",
+    "mql5/demo/Kernel.mqh": "8ec601767404468fbf8212400007547448ed03abe56b4787482df9516f062b9d",
+    "mql5/demo/NativePort.mqh": "906e648b186068be5099e5e9f89abf8d65d361108093134b2518b6c177878cd1",
+    "mql5/demo/NativeTests.mq5": "fcd03c8f11b8a9d25064274c3b700a93ccc614ea5ce54f5125b44cd108b26716",
+    "mql5/demo/Protection.mqh": "2923c80509292e656cc8c4e2829eaa685f6b535949e6351fc934fac04211749e",
+    "mql5/demo/ProtectiveDispatch.mqh": "7fbb02b2c678f600d9e55423e65bde0e274881adc437d0c5ae84e9030ee45c6a",
+    "mql5/demo/Reconcile.mqh": "3f795ab3b3c5f17ac24f2b43474b58b072601b240ba3d2fd4e51e22205f559ed",
+    "mql5/demo/Runtime.mqh": "b59ed933a1f2cf71093165ba73e29e1771d7cd86d043cb12033b0935ae5c291a",
+    "mql5/demo/StateOutbox.mqh": "45b54443dfee7c6a09aa059a9f0d228fcd264fc1ed6aef8712f7a07c71962dfb",
+    "mql5/gateway/Broker.mqh": "275c46f72fef1365192b1aa8d7d9a042f4da94a470d6b00b4dea55b7bed0c36b",
+    "mql5/gateway/Core.mqh": "2969182e560d3d2dbac002b707172ad05fb1c0a4a3e430fcbbfa4c0f4b92fab1",
+    "mql5/gateway/Wire.mqh": "ed54665a443e0ee92d3925fdb9ed9116363a9f2318c78524f9f3be75f3976dea",
+    "mql5/integration/DisabledKernel.mqh": "f87b90218663f9b2525d5574f30217baf8031120b9fdfedd44b871011e67094c",
+    "mql5/safety/Control.mqh": "6a356d4f7c4f51b6a3c08688089e7e589a5386cbea7b8c66949156d56b41b242",
+    "mql5/safety/Fence.mqh": "06024c335ab1a4f8261720dda2429f412422c83d42a0e3b92004bf56b71a754c",
+    "mql5/safety/Preflight.mqh": "fdda266458b3ac6460410353858483dc8e040bdf4397f09adaeea484fb8ce548",
+    "mql5/safety/Risk.mqh": "2e62685c22176f9e1ad1a55d7e3cc916991087dc6472023c4d442b2ad2c6d71d",
+    "mql5/shadow/Fields.mqh": "7df00f8a68efa6fc7e547148bf19edda6cc71678b0f3111838472c2be61d9f82",
+    "mql5/shadow/Protocol.mqh": "5e0be4d9f71da28f0c27a5621b493b60044d924b88bdd455f531af493cd420a5"
+  },
+  "native_check_count": 106,
+  "checks_sha256": "95e9c57a7a34c501d6eb53b8335913932c75d543921e1c72a0ffb799c9047e90",
+  "compiled": [
+    "NativeTests",
+    "DemoEA"
+  ],
+  "compiler_errors": 0,
+  "compiler_warnings": 0,
+  "execution_enabled": false,
+  "broker_orders_sent": 0,
+  "demo_order_acceptance": false,
+  "per_entry_bps": 25,
+  "total_bps": 50,
+  "entry_ceiling_ms": 2000,
+  "preflight": {
+    "status": "CAPTURED_DATA_HOLD",
+    "phase": "COMPLETE",
+    "reason": null,
+    "host_error_bound_ms": 56,
+    "missing": {
+      "EURUSD": [
+        "TIMESTAMP_MAPPING_UNQUALIFIED",
+        "MANDATE",
+        "COSTS",
+        "BASELINE_AND_EXPOSURE",
+        "SESSION",
+        "PROVIDERS"
+      ],
+      "USDJPY": [
+        "TIMESTAMP_MAPPING_UNQUALIFIED",
+        "MANDATE",
+        "COSTS",
+        "BASELINE_AND_EXPOSURE",
+        "SESSION",
+        "PROVIDERS"
+      ]
+    },
+    "entry_eligibility": false,
+    "original_binding_unchanged": true,
+    "execution_enabled": false,
+    "campaign_started": false,
+    "returncode": 0
+  },
+  "failed_attempts": [
+    {
+      "attempt": "native-demo-drain-01",
+      "reason": "compiler warning: parameter shadowed global; fixed"
+    },
+    {
+      "attempt": "native-demo-drain-02",
+      "reason": "localhost tester authorization failure before checks; isolated host-access retry passed"
+    }
+  ],
+  "limitations": [
+    "Bounded demo-order acceptance not run",
+    "Native activation release remains disabled",
+    "Quote timestamp mapping unqualified",
+    "Execution-only operating context and independent broker audit still required",
+    "M1 gaps separate; no new qualification campaign"
+  ],
+  "regression": {
+    "exit_code": 0,
+    "timed_out": false,
+    "elapsed_seconds": 78.87760260002688,
+    "python_source_sha256": "abc67b56cc65c148fe89dc99a8a1c256fc28a27b0f8ad03bb707af23c2f65385",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true,
+    "original_namespace_used": false,
+    "excluded_files": [],
+    "broker_access": false,
+    "stdout_sha256": "d4e112b4faa8e58fa8ffc87230adf34f9fa12d17c7bbe631dd75f6dddc8fdbb3",
+    "tests": 896,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 896,
+    "junit_sha256": "14d1c1d61132d020fda44aca2eaaf29e89853aa770825f2c2164f967259c1d89",
+    "junit_file": "junit-6cd22f4f4b26.xml",
+    "failed_test_names": [],
+    "status": "PASSED"
+  }
+}

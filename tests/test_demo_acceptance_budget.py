@@ -252,7 +252,7 @@ def test_percentage_policy_and_basis_cannot_change_on_restore(tmp_path):
             AcceptanceBudget(b.store, ACCOUNT, plan, expected_tip=b.tip)
 
 
-def test_current_percentage_native_evidence():
+def test_historical_percentage_native_evidence(historical_source):
     import hashlib
     import json
     from pathlib import Path
@@ -260,8 +260,25 @@ def test_current_percentage_native_evidence():
     root = Path(__file__).resolve().parents[1]
     report = json.loads((root / "docs/evidence/m2-percentage-budget.json").read_text())
     for name, expected in report["native_dependency_sha256"].items():
-        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected
+        assert hashlib.sha256(historical_source(name, expected)).hexdigest() == expected
     raw = (root / "tests/fixtures/demo-percent/demo-checks.tsv").read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == report["checks_sha256"]
+    rows = [line.split("\t") for line in raw.decode().splitlines()]
+    assert len(rows) == len(dict(rows)) == report["native_check_count"]
+    assert all(value == "1" for _, value in rows)
+    assert not report["execution_enabled"] and not report["demo_order_acceptance"]
+
+
+def test_current_entry_drain_evidence():
+    import hashlib
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    report = json.loads((root / "docs/evidence/m2-entry-drain.json").read_text())
+    for name, expected in report["native_dependency_sha256"].items():
+        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected
+    raw = (root / "tests/fixtures/demo-drain/demo-checks.tsv").read_bytes()
     assert hashlib.sha256(raw).hexdigest() == report["checks_sha256"]
     rows = [line.split("\t") for line in raw.decode().splitlines()]
     assert len(rows) == len(dict(rows)) == report["native_check_count"]

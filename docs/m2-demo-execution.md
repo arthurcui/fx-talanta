@@ -34,7 +34,8 @@ for an independently reconstructed M2A broker ExecutionState.
 
 ## Native lifecycle and safety
 
-`DemoEA.mq5` is a bounded, default-off host (maximum 300 seconds). OnInit binds
+`DemoEA.mq5` is a default-off host with an entry window of at most 300 seconds.
+Expiry closes admission and drains reconciliation/report delivery before shutdown. OnInit binds
 account/client/release/policy and opens risk, execution, outcome, broker-state outbox and protection
 journals with explicit bootstrap or separately retained checkpoints. Bootstrap
 requires a flat demo account. Incomplete bootstrap is not automatically reset.
@@ -262,10 +263,10 @@ owner-selected execution-only scope. Strategy/provider qualification remains ope
 
 **Activation is still incomplete.** The real submission constant remains false,
 and the host still enforces Algo Trading off. Enabling it requires an order-capable
-host with reviewed entry-window/drain behavior, source-backed execution-only inputs
+host with reviewed controlled-close behavior, source-backed execution-only inputs
 and qualified timestamp mapping, followed by actual independent broker evidence.
-The current disabled host's bounded stop behavior must not be used to abandon an
-open position. These budget controls alone are not a deployable order-capable release.
+The later entry-drain fix below replaces the former unconditional timer shutdown.
+These budget controls alone are not a deployable order-capable release.
 Desktop inspection also failed before initialization because the Windows helper
 could not write its kernel assets, including after reset. No broker terminal settings
 were changed. There was no new qualification campaign or strategy enablement.
@@ -305,3 +306,55 @@ passed**. Both native programs compiled with zero errors/warnings. This covers
 percentage boundaries, equity scaling, conservative rounding, falling equity,
 no budget growth from gains, immutable basis/rates on restart and retained expiry.
 No broker calls or terminal deployment occurred.
+
+## Entry-window drain and renewed percentage-gate preflight
+
+The [entry-drain evidence](evidence/m2-entry-drain.json) supersedes the timer-stop
+limitation described above. The disabled host now persistently closes admission
+at the earlier host-duration or budget deadline, including after a blocking HTTPS
+exchange. The final native entry barrier independently checks both monotonic and
+bounded UTC deadlines. Expiry never refreshes the original quote; the two-second
+entry ceiling and 25/50 bps percentage limits are unchanged.
+
+A DRAIN journal record survives restart and never refunds a charge. Reconciliation,
+report delivery and the existing owned-risk management path remain available after
+admission closes. Successful host shutdown requires a complete RECONCILED scan,
+a connected and flat account, no unresolved protection state, every non-rejected
+request positively CLOSED, and an empty report outbox. An acknowledgement, missing
+position, disconnected terminal, partial/invalidated scan or pending report cannot
+satisfy this condition. Identity/storage failure holds the host with an explicit
+alert instead of removing it or claiming a successful shutdown. This does not
+force-close a protected position or create a new management authority. The order-
+capable release, including its controlled campaign close path, remains disabled.
+
+Both programs compiled without errors/warnings; **106 native offline checks**
+passed. One earlier compile warning and one local tester authorization failure
+were preserved privately. The successful fixture used an isolated portable tester
+with cloud/remote agents and broker trading disabled. These are software results,
+not broker-order evidence.
+
+The renewed short FOREX read-only preflight captured three observations
+per required forex symbol with advancing ticks, a **56 ms host-clock bound**, unchanged original binding
+and disabled Algo Trading. It still reports TIMESTAMP_MAPPING_UNQUALIFIED. The
+capture helper deliberately supplies no operating context; its MANDATE, COSTS,
+BASELINE_AND_EXPOSURE and SESSION labels mean those inputs were not supplied by
+this helper, not that the account lacks them. Its PROVIDERS label belongs to the
+full strategy input model and is not reinstated as an M1 prerequisite for the
+owner-authorized bounded execution-only gate.
+
+The remaining concrete order prerequisites are a qualified quote timestamp mapping,
+a source-backed execution-only operating packet, and the reviewed order-capable
+host/backend activation and controlled-close path. Actual fills/closure must then
+be independently reconstructed. Desktop access was recovered after the owner
+restored the FOREX window; no trading setting or broker deployment changed. M1
+failures and provider gaps remain separate, and no 24-hour campaign was started.
+
+For the timestamp investigation, the official
+[MetaQuotes Python tick documentation](https://www.mql5.com/en/docs/python_metatrader5/mt5copyticksfrom_py)
+describes UTC timestamps. That general statement does not independently establish
+the existing broker-specific offset used by the provisional capture. The offset
+has not been promoted to qualified execution evidence.
+
+The final isolated regression passed **896 Python/PostgreSQL/HTTPS tests**, with
+zero failures or skips. Its report verifies unchanged Python source and original
+environment during execution, separate fixture namespaces and no broker access.

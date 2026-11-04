@@ -13,6 +13,8 @@ private:
    bool Apply(string row)
    {
       string f[];int n=StringSplit(row,'\t',f);
+      if(n==1 && f[0]=="DRAIN")
+      {if(expired)return false;expired=true;return true;}
       if(n==2 && f[0]=="EXPIRED")
       {if(expired || !FxInteger(f[1]))return false;long at=StringToInteger(f[1]);if(at<expires || at<last)return false;expired=true;last=at;return true;}
       if(n==8 && f[0]=="CHARGE")
@@ -53,6 +55,12 @@ public:
    bool Healthy(){return healthy;}
    string Tip(){return healthy ? DgRowsTip(rows) : "";}
    int Charged(){return ArraySize(ids);}
+   // Durable entry closure does not close the execution/protection journals.
+   // No wall-clock claim is invented when a monotonic host deadline triggers it.
+   bool Drain(){return healthy && (expired || Save("DRAIN"));}
+   bool Draining(){return healthy && expired;}
+   bool EntriesOpen(long now,long uncertainty)
+   {return healthy && !expired && uncertainty>=0 && uncertainty<=100 && now-uncertainty>=begins && now+uncertainty<expires;}
    bool Open(string path,string account_scope,string release_hash,string policy_hash,string plan_hash,
              long start_ms,long expiry_ms,long reference_cents,int per_entry_rate,int total_rate,string account_currency,string equity_evidence,
              bool bootstrap,string retained_tip)
@@ -98,4 +106,6 @@ public:
       return Save("CLOSED\t"+e.work.id+"\t"+witness+"\t"+IntegerToString(now)+"\t"+IntegerToString(e.filled));
    }
 };
+bool DemoEntryWindowOpen(DemoAcceptanceBudget &cap,long utc,int error,ulong mono,ulong deadline)
+{return deadline>0 && mono<deadline && cap.EntriesOpen(utc,error);}
 #endif

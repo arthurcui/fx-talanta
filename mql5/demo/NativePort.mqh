@@ -19,8 +19,9 @@ private:
    DemoAcceptanceBudget *budget;
    string boot,armed_before_send;
    long repair_delay,exit_delay;
+   ulong entry_deadline_mono;
 public:
-   DemoNativePort(){ budget=NULL; protection=NULL; boot=""; repair_delay=0;exit_delay=0; mapped=false; now_ms=0; error_ms=1000; state=NULL; clock=NULL; valid_until=0; paused=true; halted=true; session=false; }
+   DemoNativePort(){ entry_deadline_mono=0; budget=NULL; protection=NULL; boot=""; repair_delay=0;exit_delay=0; mapped=false; now_ms=0; error_ms=1000; state=NULL; clock=NULL; valid_until=0; paused=true; halted=true; session=false; }
    void Bind(string b,string s,string l,string r,string p,string eur,string jpy,FxGateway *journal,ShHighResolutionClock *verified_clock)
    { broker=b; server=s; login=l; release=r; policy=p; eurusd=eur; usdjpy=jpy; state=journal; clock=verified_clock; }
    void Observe(long now,int error,long qualified_offset,bool mapping_qualified,bool open,bool owner_pause,bool hard_halt,long evidence_until)
@@ -42,7 +43,7 @@ public:
       MqlTick tick={}; if(!SymbolInfoTick(c.symbol,tick)) return false;
       c.tick_ms=tick.time_msc-offset_ms; c.bid=tick.bid; c.ask=tick.ask;
       c.connected=TerminalInfoInteger(TERMINAL_CONNECTED); c.session_open=session;
-      c.owner_pause=paused; c.loss_halt=halted || protection==NULL || protection.HardHalt();
+      c.owner_pause=paused || (w.action=="ENTER" && (budget==NULL || !DemoEntryWindowOpen(budget,now_ms,(int)error_ms,GetTickCount64(),entry_deadline_mono))); c.loss_halt=halted || protection==NULL || protection.HardHalt();
       c.unknown_exposure=protection==NULL || protection.Unresolved(w.action=="ENTER" && w.id==armed_before_send ? armed_before_send : ""); c.position_side="~";
       c.min_lot=(long)MathRound(SymbolInfoDouble(c.symbol,SYMBOL_VOLUME_MIN)*1e8);
       c.max_lot=(long)MathRound(SymbolInfoDouble(c.symbol,SYMBOL_VOLUME_MAX)*1e8);
@@ -110,11 +111,12 @@ public:
       if(clock==NULL || !clock.NowUs((long)GetMicrosecondCount(),at,error) || error>100 || at<c.now_ms ||
          at+error>=w.expires_ms || at+error-c.tick_ms>2000) return false;
       if(w.action!="ENTER") return true;
+      if(budget==NULL || !DemoEntryWindowOpen(budget,at,error,GetTickCount64(),entry_deadline_mono))return false;
       string f[],v[],k[]; if(!ShWork(risk,FxScope(w),w.release,w.policy,f,v)) return false;
       StringSplit(SHADOW_FIELDS,'\t',k);
       return SV(k,v,"quote_age_ms")+at-SV(k,v,"measured_at_ms")+MathMax(error,SV(k,v,"clock_error_ms"))<=2000;
    }
-   void BindBudget(DemoAcceptanceBudget *value){budget=value;}
+   void BindBudget(DemoAcceptanceBudget *value,ulong deadline){budget=value;entry_deadline_mono=deadline;}
    virtual bool BeforeMutation(const FxWork &w)
    {
       if(protection==NULL || (w.action=="ENTER" && protection.HardHalt())) return false;
