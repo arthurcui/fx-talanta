@@ -183,16 +183,16 @@ report = compare(fixture, required_checks=manifest["checks"])
 | Risk and time | Existing percentage budget and clock/freshness checks retained | Two-second entry and 100 ms clock ceilings unchanged |
 | M1 qualification | Original failed/stopped reports | Still unqualified and separate from this execution-only work |
 
-#### Prepared bounded connected verification — not activated
+#### Authorized bounded connected verification — preflight blocked
 
-The previous authority is retired and both entry reservations are consumed. A fresh
-owner authorization is required before any further broker order. The proposed next
-check uses the existing FOREX.com demo account, one entry reservation, at most 0.01
+The previous authority is retired and both entry reservations are consumed. The owner
+authorized a **new** one-entry check on November 4; the prior allowance is not reused.
+This check uses the existing FOREX.com demo account, one entry reservation, at most 0.01
 lot, one position at a time and at most **0.10% of eligible equity** planned risk
 (per-entry and cumulative). The percentage calculation and conservative equity basis
 remain enforced; volume is reduced or the entry is refused if necessary.
 
-Use a new isolated manifest and journals, never reset the old budget. After approval,
+Use a new isolated manifest and journals, never reset the old budget. Before activation,
 perform fresh identity, flatness, clock/mapping, protective-order and authority checks.
 Set a fixed 30-second entry window and a bounded management/reporting window, with no
 extension or extra attempt. The exact UTC boundaries must be pinned before activation.
@@ -205,6 +205,23 @@ running EA's `CLOSED` report and ACK, and completed drain without a recovery att
 Retire authority and disable trading afterward. Failure preserves all evidence and
 requires reconciliation; it never silently starts another attempt. This is a short
 execution-only check, not a 24-hour campaign, a complete fault-matrix pass or M1 acceptance.
+
+The [authorized preflight evidence](../evidence/m2-one-entry-preflight-20261104.json)
+records **57 read-only samples and zero eligible entries** over approximately one
+minute. EURUSD spreads remained **5.1–5.5 pips**, above the existing **3-pip** limit;
+quote-age upper bounds ranged from **1,508 to 32,341 ms**. A short candidate threshold
+of 1,500 ms reserves transport headroom; the final original/native entry ceiling
+remains 2,000 ms. No spread or freshness limit was relaxed. The host clock passed
+its existing bound, and the isolated bounded EA compiled with zero errors/warnings.
+
+This is a **blocked preflight**, not a failed order attempt or completed closure
+acceptance. No activation, fixed entry window, authority or budget reservation was
+started; no EA was attached and no order was sent. Independent postflight checks
+confirmed unchanged broker history, flatness, disabled Algo Trading and all 69
+preserved prior evidence files unchanged. The new authorization remains unused.
+CMC and AvaTrade were untouched. Same-session connected `CLOSED`/ACK/drain remains
+unverified; synthetic closeout and the earlier recovery-assisted result remain
+separate evidence. M1 gaps and the prohibition on a new 24-hour campaign remain.
 
 ## Historical implementation stages
 
