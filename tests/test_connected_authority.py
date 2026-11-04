@@ -457,3 +457,28 @@ def test_reused_connections_commit_independently_and_never_reconnect_after_loss(
         assert independent.check(CLIENT, INCARNATION, 1, NOW + 4) == lease
     finally:
         store.close()
+
+
+@pytest.mark.integration
+def test_reused_connection_validation_rollback_preserves_expired_owner_receipt_recovery(settings):
+    configured = replace(settings, namespace="fx_rollback_" + uuid4().hex[:10])
+    bootstrap(configured)
+    store = PostgresAuthorityStore(
+        configured.runtime_dsn(Environment.PAPER), ACCOUNT, reuse_connection=True
+    )
+    try:
+        authority = Authority(store, ACCOUNT, bootstrap=True)
+        lease = authority.claim(CLIENT, INCARNATION, NOW)
+        connection = store._connection
+        with pytest.raises(ValueError, match="LEASE_EXPIRED"):
+            authority.check(CLIENT, INCARNATION, lease.epoch, lease.expires_ms)
+        assert store._connection is connection and not connection.closed
+        with authority.guard_receipt(
+            CLIENT, INCARNATION, lease.epoch, lambda: lease.expires_ms + 1
+        ):
+            pass
+        assert store._connection is connection
+        with pytest.raises(ValueError, match="LEASE_EXPIRED"):
+            authority.renew(CLIENT, INCARNATION, lease.epoch, lease.expires_ms + 2)
+    finally:
+        store.close()

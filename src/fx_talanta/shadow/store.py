@@ -111,11 +111,20 @@ class PostgresStore:
             # socket; binding, advisory locks and journal checks still run.
             with self._connection.transaction():
                 yield self._connection
-        except BaseException:
-            # No transparent reconnect/retry after an uncertain commit.
-            self._closed = True
-            if self._connection is not None:
-                self._connection.close()
+        except BaseException as error:
+            # A validation refusal with a completed rollback must not strand
+            # receipt-only recovery. Database/unknown failures still permanently
+            # close this session: never reconnect or retry an uncertain commit.
+            rolled_back_validation = (
+                isinstance(error, ValueError)
+                and self._connection is not None
+                and not self._connection.closed
+                and self._connection.info.transaction_status == psycopg.pq.TransactionStatus.IDLE
+            )
+            if not rolled_back_validation:
+                self._closed = True
+                if self._connection is not None:
+                    self._connection.close()
             raise
         finally:
             self._connection_lock.release()

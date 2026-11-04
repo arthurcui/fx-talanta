@@ -99,7 +99,8 @@
         "mql5/connected/ConnectedEA.mq5": "388010ab9ce9b36ce1258fb36c19308146fe853a27c58f1e8986a0f5209b4860"
       },
       "native_binary_sha256": "7d0c89f84401cb1354711ff41aec8916d0401155e80a1ebd7bc1a853a078e670",
-      "execution_enabled": false
+      "execution_enabled": false,
+      "recorded_source_files_available_at_commit": "b69d5612dc83100a28defa8a4c4dfce8eeb8c4cb"
     }
   ],
   "postcheck": {
@@ -180,7 +181,7 @@
     "src/fx_talanta/connected_shadow/listener.py": "fb61687a0982d9ddc45d80a86b4eba5846e89e59a0a920e8b74367fe94431eea",
     "src/fx_talanta/observer/quote_stream.py": "8718608cedb816fe023e22c0d057ec39d8a40657c6a260cd10fb84b34158c001",
     "src/fx_talanta/shadow/backend.py": "1dd985f94661e55f87efbd434f2b7fff45284567434beeb7e3d8d8e21ad3e881",
-    "src/fx_talanta/shadow/store.py": "03ce5341747f12465899a65ad3626e5ecc3455f93880c523c06cabd8e888319e",
+    "src/fx_talanta/shadow/store.py": "57e650ba1a88355a374d34b702d3fadb1cae4470c951bfad0260f058a43734e2",
     "mql5/connected/NativeLifecycleTests.mq5": "9a942d89314a8dc115948986a97cac8b29f6f8c018e23084bc1cb6ae45b8cc07",
     "mql5/connected/NativeGatewayLifecycleTests.mq5": "a863008c5a5e353d4521960bb470a0bb17866c5e19ee5b5a4079316f8ba63730"
   },
@@ -193,23 +194,21 @@
   },
   "regression": {
     "status": "PASSED",
-    "passed": 779,
+    "passed": 780,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "python_source_sha256": "8cf71892a2b148436966066b4bd62e21cd6068b57aa90cddb93587b68d33c703",
+    "python_source_sha256": "525c8f2b9155f0271d10c0751d600beada7959ddd519fbb6dc61725338139558",
     "python_source_unchanged": true,
     "root_env_unchanged": true,
     "original_namespace_used": false,
     "broker_access": false,
-    "junit_sha256": "5ee8be6ba5e980f2b946acba457289fa98c25ad4f843e8f61c63716eaeba67fa",
+    "junit_sha256": "c7d6875812e93d66a2701b705079e1fd959ad44744171877afa8170d445b6db2",
     "excluded_files": [
       "tests/test_connected_evidence.py"
     ],
-    "evidence_checks": "separately verified",
     "separate_evidence_tests_passed": 3,
-    "total_passed": 782,
-    "evidence_junit_sha256": "2907fed5a6c980f3fe05b72f86d9191724a358d35a605e04c42d326470b38f92"
+    "total_passed": 783
   },
   "limitations": [
     "No broker orders or connected PAPER execution acceptance",
@@ -231,5 +230,26 @@
     "order_dispatch_stubbed": true,
     "real_terminal_lifecycle_qualified": false
   },
-  "native_gateway_handler_summary_sha256": "1d96735c1fb12e8281b6d75d8f19ce5b13307270c15fcf189bbd3a0e9c05c935"
+  "native_gateway_handler_summary_sha256": "1d96735c1fb12e8281b6d75d8f19ce5b13307270c15fcf189bbd3a0e9c05c935",
+  "pre_recovery_fix_regression": {
+    "status": "PASSED",
+    "passed": 779,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "python_source_sha256": "8cf71892a2b148436966066b4bd62e21cd6068b57aa90cddb93587b68d33c703",
+    "python_source_unchanged": true,
+    "root_env_unchanged": true,
+    "original_namespace_used": false,
+    "broker_access": false,
+    "junit_sha256": "5ee8be6ba5e980f2b946acba457289fa98c25ad4f843e8f61c63716eaeba67fa",
+    "excluded_files": [
+      "tests/test_connected_evidence.py"
+    ],
+    "evidence_checks": "separately verified",
+    "separate_evidence_tests_passed": 3,
+    "total_passed": 782,
+    "evidence_junit_sha256": "2907fed5a6c980f3fe05b72f86d9191724a358d35a605e04c42d326470b38f92"
+  },
+  "post_native_run_change": "A completed validation rollback preserves receipt-only recovery on the same connection; database/unknown failures still close permanently. Covered by the final PostgreSQL regression; no additional native session."
 }
