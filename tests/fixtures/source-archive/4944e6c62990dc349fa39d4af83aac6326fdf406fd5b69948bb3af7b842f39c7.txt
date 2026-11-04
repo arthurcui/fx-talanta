@@ -1,0 +1,229 @@
+{
+  "cmc": {
+    "verified_at": "2026-11-03T08:41:19.829362+00:00",
+    "run_id": "e94880c5-451f-4537-8a5e-24e8c40a9ce9",
+    "started_at": "2026-11-03T04:50:33.284235+00:00",
+    "original_deadline": "2026-11-04T04:50:33.284235+00:00",
+    "halted_at": "2026-11-03T08:31:04.299052+00:00",
+    "phase": "HALTED",
+    "reason": "INVALID_DATA",
+    "database_records": 441,
+    "database_records_sha256": "0d712d55e327e1587224d2bbe880fd3f54e2e42990a10aea48e3c925df5531b3",
+    "status_matches_committed_evidence": true,
+    "evidence": {
+      "policy_version": 2,
+      "last_state": "HALTED",
+      "last_reason": "INVALID_DATA",
+      "last_committed_at": "2026-11-03T08:31:04.299052+00:00",
+      "last_successful_committed_read_at": "2026-11-03T08:30:34.482405+00:00",
+      "observations": 441,
+      "scheduled_slots": 2880,
+      "slots_due": 442,
+      "complete_reads": 438,
+      "healthy": 394,
+      "reasons": {
+        "CURRENT": 394,
+        "STALE_TICKS": 44,
+        "MISSING_DATA": 1,
+        "TIMEOUT": 1,
+        "INVALID_DATA": 1
+      },
+      "coverage_fraction": 0.997737556561086,
+      "healthy_fraction": 0.8914027149321267,
+      "legacy_fresh_per_committed_fraction": 0.8934240362811792,
+      "per_symbol_fresh_fraction": {
+        "EURUSD.a": 0.9027149321266968,
+        "USDJPY.a": 0.9615384615384616
+      },
+      "per_symbol_quote_quality": {
+        "EURUSD.a": {
+          "age_samples": 439,
+          "median_age_seconds": 1.177546,
+          "p95_age_seconds": 8.801743,
+          "max_age_seconds": 103.820684,
+          "longest_consecutive_stale_sample_slots": 2
+        },
+        "USDJPY.a": {
+          "age_samples": 439,
+          "median_age_seconds": 0.543915,
+          "p95_age_seconds": 3.827565,
+          "max_age_seconds": 95.798684,
+          "longest_consecutive_stale_sample_slots": 1
+        }
+      },
+      "elapsed_seconds": 13231.021119,
+      "observed_span_seconds": 13230.203946,
+      "max_gap_seconds": 59.29052600000068,
+      "max_complete_read_gap_seconds": 89.82896199999959,
+      "collector_gates": {
+        "valid_timestamps": true,
+        "duration": false,
+        "minimum_24_hours": true,
+        "sample_span": false,
+        "coverage": true,
+        "complete_reads": true,
+        "attempt_gaps": true,
+        "complete_read_gaps": true,
+        "final_read": false,
+        "no_halt": false
+      },
+      "quote_gates": {
+        "fresh_slot_fraction": false,
+        "final_fresh": false
+      },
+      "collector_accepted": false,
+      "quote_readiness_accepted": false,
+      "accepted": false,
+      "final_verification_records": 0,
+      "timely_final_verification_records": 0,
+      "final_verification_duration_seconds": null,
+      "final_verification_after_deadline_seconds": null,
+      "entry_authorized": false
+    },
+    "completion_receipt_present": false,
+    "final_verification_attempted": false,
+    "previous_runs_preserved": [
+      {
+        "broker": "cmc",
+        "run_id": "fe4bba5a-96e8-469b-a46d-b8692011ad42",
+        "records": 401,
+        "hash_unchanged": true
+      },
+      {
+        "broker": "forex",
+        "run_id": "b36e03b5-db3d-4489-9c08-3c7523e355e9",
+        "records": 218,
+        "hash_unchanged": true
+      },
+      {
+        "broker": "forex",
+        "run_id": "5bc4fe4f-440f-41f1-a5b9-37c2d630215f",
+        "records": 17,
+        "hash_unchanged": true
+      }
+    ],
+    "original_files_unchanged": true,
+    "bindings_and_environments_unchanged": true,
+    "diagnostic": {
+      "snapshot_retained": false,
+      "recorded_at": "2026-11-03T08:31:04.299052+00:00",
+      "collection_started_at": "2026-11-03T08:31:03.306738+00:00",
+      "integrity": "INVALID"
+    },
+    "execution_enabled": false,
+    "restarted": false,
+    "limitation": "Elapsed-slot fractions describe only the halted window and do not establish full-day acceptance."
+  },
+  "forex": {
+    "verified_at": "2026-11-03T18:55:41.667480+00:00",
+    "run_id": "1ca5f42f-b85b-49bb-8b33-f37d66423ee9",
+    "started_at": "2026-11-03T04:35:14.905200+00:00",
+    "original_deadline": "2026-11-04T04:35:14.905200+00:00",
+    "last_record_at": "2026-11-03T18:55:15.760050+00:00",
+    "stopped_at": "2026-11-03T18:55:15.786190+00:00",
+    "phase": "STOPPED",
+    "reason": "STOP_FILE",
+    "database_records": 1720,
+    "database_records_sha256": "91bbc5054b2a1a74250d4f479c7444c1c33c27eea0b8ae3766bfc7a0331d982f",
+    "status_matches_committed_evidence": true,
+    "evidence": {
+      "policy_version": 2,
+      "last_state": "HEALTHY",
+      "last_reason": "CURRENT",
+      "last_committed_at": "2026-11-03T18:55:15.760050+00:00",
+      "last_successful_committed_read_at": "2026-11-03T18:55:15.760050+00:00",
+      "observations": 1720,
+      "scheduled_slots": 2880,
+      "slots_due": 1721,
+      "complete_reads": 1718,
+      "healthy": 1485,
+      "reasons": {
+        "CURRENT": 1485,
+        "STALE_TICKS": 233,
+        "MISSING_DATA": 1,
+        "TIMEOUT": 1
+      },
+      "coverage_fraction": 0.999418942475305,
+      "healthy_fraction": 0.862870424171993,
+      "legacy_fresh_per_committed_fraction": 0.8633720930232558,
+      "per_symbol_fresh_fraction": {
+        "EURUSD.": 0.9233004067402673,
+        "USDJPY.": 0.9180708890180128
+      },
+      "per_symbol_quote_quality": {
+        "EURUSD.": {
+          "age_samples": 1719,
+          "median_age_seconds": 1.034141,
+          "p95_age_seconds": 6.45649,
+          "max_age_seconds": 27.908749,
+          "longest_consecutive_stale_sample_slots": 3
+        },
+        "USDJPY.": {
+          "age_samples": 1719,
+          "median_age_seconds": 1.045635,
+          "p95_age_seconds": 6.476949,
+          "max_age_seconds": 20.509443,
+          "longest_consecutive_stale_sample_slots": 3
+        }
+      },
+      "elapsed_seconds": 51600.881002,
+      "observed_span_seconds": 51600.138773,
+      "max_gap_seconds": 59.09579499999927,
+      "max_complete_read_gap_seconds": 89.60952999999972,
+      "collector_gates": {
+        "valid_timestamps": true,
+        "duration": false,
+        "minimum_24_hours": true,
+        "sample_span": false,
+        "coverage": true,
+        "complete_reads": true,
+        "attempt_gaps": true,
+        "complete_read_gaps": true,
+        "final_read": false,
+        "no_halt": true
+      },
+      "quote_gates": {
+        "fresh_slot_fraction": false,
+        "final_fresh": false
+      },
+      "collector_accepted": false,
+      "quote_readiness_accepted": false,
+      "accepted": false,
+      "final_verification_records": 0,
+      "timely_final_verification_records": 0,
+      "final_verification_duration_seconds": null,
+      "final_verification_after_deadline_seconds": null,
+      "entry_authorized": false
+    },
+    "completion_receipt_present": false,
+    "final_verification_attempted": false,
+    "previous_runs_preserved": [
+      {
+        "broker": "cmc",
+        "run_id": "fe4bba5a-96e8-469b-a46d-b8692011ad42",
+        "records": 401,
+        "hash_unchanged": true
+      },
+      {
+        "broker": "forex",
+        "run_id": "b36e03b5-db3d-4489-9c08-3c7523e355e9",
+        "records": 218,
+        "hash_unchanged": true
+      },
+      {
+        "broker": "forex",
+        "run_id": "5bc4fe4f-440f-41f1-a5b9-37c2d630215f",
+        "records": 17,
+        "hash_unchanged": true
+      }
+    ],
+    "original_files_unchanged": true,
+    "bindings_and_environments_unchanged": true,
+    "diagnostic": {
+      "conclusion": "USER_REQUESTED_EARLY_STOP; final 24-hour verification not attempted"
+    },
+    "execution_enabled": false,
+    "restarted": false,
+    "limitation": "Elapsed-slot fractions describe only the user-stopped window and do not establish full-day acceptance."
+  }
+}

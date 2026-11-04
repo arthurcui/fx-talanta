@@ -7,7 +7,7 @@ from test_connected_inputs import NOW, SDK, binding, capture, context
 
 from fx_talanta.connected_shadow.inputs import canonical_hash, normalize
 from fx_talanta.observer.mt5 import ObservationFailure
-from scripts.connected_capture import corroborate, derived_binding, run, safe_reason
+from tools.qualification.connected_capture import corroborate, derived_binding, run, safe_reason
 
 
 class Timer:
@@ -159,7 +159,7 @@ def test_one_shot_orchestration_preserves_expired_original_and_never_promotes(
     import json
     import sys
 
-    from scripts import connected_capture as module
+    from tools.qualification import connected_capture as module
 
     values = binding().model_dump(mode="json")
     values.update(

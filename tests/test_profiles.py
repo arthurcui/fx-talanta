@@ -26,7 +26,7 @@ def test_namespace_cannot_escape_its_database_identifiers(namespace):
 
 
 def test_task_runner_does_not_inherit_external_credentials(monkeypatch, tmp_path):
-    path = Path(__file__).resolve().parents[1] / "scripts" / "task_environment.py"
+    path = Path(__file__).resolve().parents[1] / "tools/dev/task_environment.py"
     spec = importlib.util.spec_from_file_location("task_environment", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

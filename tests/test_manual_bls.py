@@ -111,7 +111,7 @@ def test_desktop_failure_has_cli_fallback_and_does_not_create_store(
     tmp_path, monkeypatch, capsys, failure_stage
 ):
     # CI may lack Tk/a display. This exercises error handling only; native picker
-    # acceptance is recorded separately in docs/manual-bls-windows-verification.md.
+    # acceptance is recorded separately in docs/history/manual-bls-windows-verification.md.
     class DesktopError(Exception):
         pass
 

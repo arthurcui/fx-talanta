@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: M0A checks
+    runs-on: ubuntu-latest
+    env:
+      FX_DB_HOST: 127.0.0.1
+      FX_DB_PORT: 55432
+      FX_DB_ADMIN_USER: postgres
+      # Ephemeral credentials for this isolated CI service only.
+      FX_DB_ADMIN_PASSWORD: fixture-ci-postgres
+      FX_PAPER_PASSWORD: fixture-ci-paper
+      FX_LIVE_PASSWORD: fixture-ci-live
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -c requirements.lock -e '.[dev]'
+      - run: ruff check src tests tools
+      - run: ruff format --check src tests tools
+      - run: docker compose up -d --wait postgres
+      - run: python -m pytest --integration -q
+      - run: docker compose build app codex-test
+      - run: docker compose run --rm --no-deps codex-test
+      - run: python tools/dev/profile_acceptance.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m0c-fixture-parity
+          path: .local/parity/
+          include-hidden-files: true

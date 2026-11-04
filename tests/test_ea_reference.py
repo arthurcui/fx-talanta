@@ -8,8 +8,8 @@ from uuid import UUID
 from fx_talanta.domain.models import Environment
 from fx_talanta.domain.offline import BrokerBook, EntryIntent, Policy
 from fx_talanta.execution_contracts.reference import RiskVector, calculate
-from fx_talanta.fixtures import START
-from fx_talanta.offline_fixtures import market_at
+from fx_talanta.research.offline import market_at
+from fx_talanta.research.records import START
 from fx_talanta.risk.governor import losses, size
 from fx_talanta.storage.config import fixture_account
 
@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_human_reference_vectors_and_deterministic_native_export(tmp_path):
     spec = importlib.util.spec_from_file_location(
-        "m2a_reference", ROOT / "scripts/m2a_reference.py"
+        "m2a_reference", ROOT / "tools/fixtures/m2a_reference.py"
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

@@ -14,7 +14,7 @@ from fx_talanta.domain.models import (
     ExperienceCase,
     Record,
 )
-from fx_talanta.fixtures import START
+from fx_talanta.research.records import START
 from fx_talanta.storage.config import fixture_account, init_local
 
 

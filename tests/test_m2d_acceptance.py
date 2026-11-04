@@ -12,10 +12,10 @@ import pytest
 
 from fx_talanta.acceptance import probe
 from fx_talanta.acceptance.clock_probe import decode, packet
-from fx_talanta.acceptance.faults import readiness, run
 from fx_talanta.domain.models import AccountIdentity
 from fx_talanta.observer.contracts import Binding
 from fx_talanta.observer.mt5 import READ_METHODS, ObservationFailure
+from fx_talanta.research.faults import readiness, run
 
 ROOT = Path(__file__).resolve().parents[1]
 NOW = datetime(2026, 1, 5, 12, tzinfo=UTC)
@@ -280,12 +280,17 @@ def test_expired_clock_policy_is_not_extended(capture_fixture):
 
 
 def test_supervisor_timeout_is_retained_without_retry(tmp_path, monkeypatch, capsys):
-    spec = importlib.util.spec_from_file_location("m2d_cli", ROOT / "scripts/m2d_acceptance.py")
+    spec = importlib.util.spec_from_file_location(
+        "m2d_cli", ROOT / "tools/qualification/m2d_acceptance.py"
+    )
     cli = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(cli)
-    entrypoint = tmp_path / "scripts" / "m2d_acceptance.py"
-    entrypoint.parent.mkdir()
+    entrypoint = tmp_path / "tools/qualification/m2d_acceptance.py"
+    entrypoint.parent.mkdir(parents=True)
     entrypoint.write_text("# synthetic supervisor fixture\n")
+    fault_source = tmp_path / "src/fx_talanta/research/faults.py"
+    fault_source.parent.mkdir(parents=True)
+    fault_source.write_text("# synthetic fault dependency\n")
     monkeypatch.setattr(cli, "__file__", str(entrypoint))
     folder = tmp_path / ".local" / "timeout"
     calls = []
@@ -305,7 +310,9 @@ def test_supervisor_timeout_is_retained_without_retry(tmp_path, monkeypatch, cap
 
 
 def test_worktree_local_ancestor_does_not_allow_tracked_output(monkeypatch):
-    spec = importlib.util.spec_from_file_location("m2d_cli", ROOT / "scripts/m2d_acceptance.py")
+    spec = importlib.util.spec_from_file_location(
+        "m2d_cli", ROOT / "tools/qualification/m2d_acceptance.py"
+    )
     cli = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(cli)
     monkeypatch.setattr(sys, "argv", ["m2d", "--output", str(ROOT / "docs" / "forbidden-capture")])

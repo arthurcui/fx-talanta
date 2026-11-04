@@ -10,9 +10,9 @@ from psycopg.types.json import Jsonb
 from fx_talanta.clock import FakeClock
 from fx_talanta.domain.models import AccountIdentity, Environment, Record, TerminalObservation
 from fx_talanta.observer.contracts import Binding
-from fx_talanta.observer.fixtures import FixtureReader
 from fx_talanta.observer.mt5 import MT5Reader, ObservationFailure, ReadOnlySDK, read_snapshot
 from fx_talanta.observer.supervisor import Observer, assess
+from fx_talanta.research.observer import FixtureReader
 from fx_talanta.storage.archive import (
     export_archive,
     read_archive,

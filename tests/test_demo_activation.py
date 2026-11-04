@@ -5,8 +5,8 @@ import pytest
 from fx_talanta.demo.activation import DemoActivation, QuoteTimePolicy
 from fx_talanta.demo.bounded import BoundedDemoCoordinator
 from fx_talanta.shadow.store import SQLiteStore
-from scripts.shadow_fixtures import CLIENT, KEY, NOW, POLICY, RELEASE
 from tests.test_demo_bounded import ACCOUNT, INC, bounded, packet
+from tools.fixtures.shadow_fixtures import CLIENT, KEY, NOW, POLICY, RELEASE
 
 
 def activation(c):
@@ -192,7 +192,7 @@ def test_capture_mapping_preserves_original_and_m1_holds():
         policy.bind_capture(bad)
 
 
-def test_current_native_activation_evidence():
+def test_recorded_native_activation_evidence(historical_source):
     import hashlib
     import json
     from pathlib import Path
@@ -200,7 +200,7 @@ def test_current_native_activation_evidence():
     root = Path(__file__).resolve().parents[1]
     report = json.loads((root / "docs/evidence/m2-bounded-activation.json").read_text())
     for name, expected in report["native_dependency_sha256"].items():
-        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected
+        assert hashlib.sha256(historical_source(name, expected)).hexdigest() == expected
     raw = (root / "tests/fixtures/demo-activation/demo-checks.tsv").read_bytes()
     assert hashlib.sha256(raw).hexdigest() == report["checks_sha256"]
     rows = [line.split("\t") for line in raw.decode().splitlines()]

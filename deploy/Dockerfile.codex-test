@@ -6,18 +6,12 @@ WORKDIR /workspace
 COPY pyproject.toml requirements.lock ./
 COPY src ./src
 COPY tests ./tests
-COPY scripts ./scripts
-COPY mql5/readonly/QuoteStream.mq5 ./mql5/readonly/QuoteStream.mq5
-COPY mql5/offline/ProtocolReference.mq5 ./mql5/offline/ProtocolReference.mq5
-COPY mql5/gateway ./mql5/gateway
-COPY docs/evidence/ ./docs/evidence/
-COPY mql5/safety ./mql5/safety
-COPY mql5/shadow ./mql5/shadow
-COPY mql5/connected ./mql5/connected
-COPY mql5/integration ./mql5/integration
-COPY mql5/demo ./mql5/demo
-COPY configs/news-filter.example.json configs/news-filter.fixture.json ./configs/
+COPY mql5 ./mql5
+COPY tools ./tools
+COPY docs ./docs
+COPY README.md CONTRIBUTING.md ./
+COPY configs/news-filter.example.json ./configs/
 RUN python3 -m venv .venv \
     && .venv/bin/python -m pip install --no-cache-dir -c requirements.lock -e '.[dev]'
 ENTRYPOINT ["bash", "-c"]
-CMD ["python3 scripts/codex_setup.py --skip-install && python3 scripts/codex_run.py test && python3 scripts/codex_run.py offline-demo"]
+CMD ["python3 tools/dev/codex_setup.py --skip-install && python3 tools/dev/codex_run.py test && python3 tools/dev/codex_run.py offline-demo"]

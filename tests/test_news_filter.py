@@ -4,7 +4,6 @@ import pytest
 
 from fx_talanta.domain.models import NewsRevision
 from fx_talanta.domain.offline import Policy
-from fx_talanta.fixtures import START
 from fx_talanta.news_filter import (
     CalendarRevision,
     FeedCheck,
@@ -15,7 +14,8 @@ from fx_talanta.news_filter import (
     assess,
     restrict_market,
 )
-from fx_talanta.offline_fixtures import market_at
+from fx_talanta.research.offline import market_at
+from fx_talanta.research.records import START
 from fx_talanta.risk.governor import health_reason
 
 
@@ -236,7 +236,7 @@ def test_cli_reports_exact_fixture_hashes_and_never_overwrites(tmp_path):
         "--policy",
         str(root / "configs/news-filter.example.json"),
         "--inputs",
-        str(root / "configs/news-filter.fixture.json"),
+        str(root / "tests/fixtures/configs/news-filter.fixture.json"),
         "--symbol",
         "EURUSD",
         "--cutoff",
@@ -258,7 +258,7 @@ def test_filtered_outage_still_allows_existing_position_exit(settings):
     from fx_talanta.clock import FakeClock
     from fx_talanta.domain.models import Environment
     from fx_talanta.gateway.offline import Gateway
-    from fx_talanta.offline_fixtures import make_intent, warmup
+    from fx_talanta.research.offline import make_intent, warmup
     from fx_talanta.storage.config import fixture_account
 
     clock = FakeClock(START)

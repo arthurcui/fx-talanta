@@ -8,7 +8,7 @@ import psycopg
 from pydantic import ValidationError
 
 from fx_talanta.domain.models import Environment
-from fx_talanta.fixtures import run_demo
+from fx_talanta.research.records import run_demo
 from fx_talanta.storage.bootstrap import bootstrap
 from fx_talanta.storage.config import Settings, fixture_account, init_local
 from fx_talanta.storage.offline import WriterBusy
@@ -167,12 +167,12 @@ def main() -> None:
                 observer.close()
             return
         if args.command == "offline-demo":
-            from fx_talanta.offline_fixtures import run_offline_demo
+            from fx_talanta.research.offline import run_offline_demo
 
             print(json.dumps(run_offline_demo(settings), indent=2))
             return
         if args.command == "observer-demo":
-            from fx_talanta.observer.demo import run_observer_demo
+            from fx_talanta.research.observation_demo import run_observer_demo
 
             print(json.dumps(run_observer_demo(settings), indent=2))
             return

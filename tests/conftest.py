@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 
 from fx_talanta.domain.models import Environment
-from fx_talanta.fixtures import run_demo
+from fx_talanta.research.records import run_demo
 from fx_talanta.storage.bootstrap import bootstrap
 from fx_talanta.storage.config import Settings, fixture_account
 from fx_talanta.storage.repository import Repository
@@ -43,12 +43,16 @@ def demo(repo):
 def historical_source():
     """Historical evidence pins its original source, never a later revision."""
     import hashlib
+    import json
     from pathlib import Path
 
     root = Path(__file__).resolve().parents[1]
 
+    paths = json.loads((root / "docs/architecture/path-migration.json").read_text())["paths"]
+
     def read(name, expected):
-        current = (root / name).read_bytes()
+        current_path = root / paths.get(name, name)
+        current = current_path.read_bytes() if current_path.is_file() else b""
         if hashlib.sha256(current).hexdigest() == expected:
             return current
         archived = root / "tests/fixtures/source-archive" / (expected + ".txt")

@@ -9,8 +9,8 @@ import pytest
 from fx_talanta.clock import FakeClock
 from fx_talanta.domain.models import Environment
 from fx_talanta.gateway.offline import Gateway
-from fx_talanta.offline_fixtures import make_intent, market_at, warmup
 from fx_talanta.provider_pipeline import Journal, JournalGate, collect_once, parse_news
+from fx_talanta.research.offline import make_intent, market_at, warmup
 from fx_talanta.storage.config import fixture_account
 
 NOW = datetime(2026, 11, 2, 12, tzinfo=UTC)

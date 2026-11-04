@@ -4,7 +4,7 @@ import pytest
 
 from fx_talanta.demo.acceptance_budget import AcceptanceBudget, BudgetPlan
 from fx_talanta.shadow.store import SQLiteStore
-from scripts.demo_execution_fixtures import ACCOUNT
+from tools.fixtures.demo_execution_fixtures import ACCOUNT
 
 NOW = 100_000
 PLAN = BudgetPlan("a" * 64, NOW, NOW + 300_000, 200_000, "e" * 64)

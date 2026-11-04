@@ -13,8 +13,8 @@ from fx_talanta.safety.control import LossState, Protection
 from fx_talanta.shadow.store import SQLiteStore
 from fx_talanta.shadow.wire import Frame, digest
 from fx_talanta.shadow.work import assess
-from scripts.shadow_fixtures import ACCOUNT, CLIENT, KEY, NOW, POLICY, RELEASE, work
 from tests.test_connected_inputs import capture, context
+from tools.fixtures.shadow_fixtures import ACCOUNT, CLIENT, KEY, NOW, POLICY, RELEASE, work
 
 INC = "1" * 64
 

@@ -21,7 +21,7 @@ from fx_talanta.shadow.store import PostgresStore, SQLiteStore
 from fx_talanta.shadow.wire import Frame
 from fx_talanta.shadow.work import FIELDS, assess, parse_receipt, project, scope_for
 from fx_talanta.storage.config import fixture_account
-from scripts.shadow_fixtures import ACCOUNT, CLIENT, KEY, NOW, POLICY, RELEASE, ROOT, work
+from tools.fixtures.shadow_fixtures import ACCOUNT, CLIENT, KEY, NOW, POLICY, RELEASE, ROOT, work
 
 
 def backend(store, bootstrap=True):

@@ -5,7 +5,7 @@ import queue
 from types import SimpleNamespace
 
 from fx_talanta.observer.quote_stream import StreamRow
-from scripts import compare_quote_stream as comparison
+from tools.qualification import compare_quote_stream as comparison
 
 
 def test_warmup_parent_arrival_boundary_and_shutdown_duration(tmp_path, monkeypatch):

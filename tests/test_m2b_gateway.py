@@ -9,7 +9,7 @@ from fx_talanta.domain.ea_protocol import Envelope, ExecutionRequest
 from fx_talanta.execution_contracts.channel_recorder import ChannelRecorder
 from fx_talanta.execution_contracts.ea_file import decode_request, encode_request
 from fx_talanta.execution_contracts.ea_journal import read_journal
-from scripts.m2b_fixtures import NOW, SCOPE, fixture_requests
+from tools.fixtures.m2b_fixtures import NOW, SCOPE, fixture_requests
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -150,7 +150,9 @@ def test_unconfigured_channel_and_regressed_clock_are_explicit():
 
 def test_connected_order_boundary_is_not_configurable():
     folder = ROOT / "mql5/gateway"
-    source = "\n".join(p.read_text(encoding="utf-8") for p in folder.iterdir())
+    source = "\n".join(
+        p.read_text(encoding="utf-8") for p in folder.iterdir() if p.suffix in {".mq5", ".mqh"}
+    )
     assert source.count("OrderSend(") == 1
     assert "OrderSendAsync(" not in source
     assert "#import" not in source and "WebRequest(" not in source
@@ -158,6 +160,6 @@ def test_connected_order_boundary_is_not_configurable():
     boundary = broker.split("bool FxTesterSend", 1)[1].split("bool FxKnownComment", 1)[0]
     assert boundary.index("MQL_TESTER") < boundary.index("OrderSend(")
     assert boundary.index("SYMBOL_CUSTOM") < boundary.index("OrderSend(")
-    gateway = (folder / "FixedGateway.mq5").read_text(encoding="utf-8")
+    gateway = (ROOT / "tests/native/gateway/FixedGateway.mq5").read_text(encoding="utf-8")
     assert "FX_M2B_CONNECTED_EXECUTION_DISABLED" in gateway
     assert "input " not in gateway

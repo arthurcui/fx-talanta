@@ -5,7 +5,8 @@ from pathlib import Path
 import pytest
 
 spec = importlib.util.spec_from_file_location(
-    "probe_public_feeds", Path(__file__).resolve().parents[1] / "scripts/probe_public_feeds.py"
+    "probe_public_feeds",
+    Path(__file__).resolve().parents[1] / "tools/qualification/probe_public_feeds.py",
 )
 probe = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(probe)

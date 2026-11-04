@@ -12,9 +12,9 @@ from fx_talanta.safety.control import LossState
 from fx_talanta.shadow.store import SQLiteStore
 from fx_talanta.shadow.wire import Frame, digest
 from fx_talanta.shadow.work import assess
-from scripts.demo_execution_fixtures import ACCOUNT, example
-from scripts.shadow_fixtures import CLIENT, KEY, NOW, POLICY, RELEASE
 from tests.test_connected_listener import tls_material as tls_material
+from tools.fixtures.demo_execution_fixtures import ACCOUNT, example
+from tools.fixtures.shadow_fixtures import CLIENT, KEY, NOW, POLICY, RELEASE
 
 INC = "1" * 64
 
