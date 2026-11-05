@@ -1,0 +1,675 @@
+{
+  "schema": "m3-historical-pilot/1",
+  "verdict": "INSUFFICIENT_EVIDENCE_FOR_STRATEGY_SELECTION",
+  "sources": {
+    "EURUSD": {
+      "download": {
+        "source_page": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2025/1",
+        "retrieved_at": "2026-11-05T19:37:13.365454+00:00",
+        "sha256": "159f906f8055f6ee835d95806cf7fdf4023b6e3ef098aa308d2ab6ce53ac964a",
+        "bytes": 13954937,
+        "members": [
+          {
+            "name": "DAT_ASCII_EURUSD_T_202501.csv",
+            "size": 89046321
+          },
+          {
+            "name": "DAT_ASCII_EURUSD_T_202501.txt",
+            "size": 7091
+          }
+        ]
+      },
+      "quality": {
+        "schema": "histdata-import/1",
+        "symbol": "EURUSD",
+        "archive_sha256": "159f906f8055f6ee835d95806cf7fdf4023b6e3ef098aa308d2ab6ce53ac964a",
+        "source_timezone": "fixed UTC-05:00; no DST",
+        "rows": 2283239,
+        "timestamp_ties": 0,
+        "exact_duplicate_rows_retained": 0,
+        "first": "2025-01-01T22:00:14.647000+00:00",
+        "last": "2025-01-31T21:59:57.318000+00:00",
+        "selected_events": 22743,
+        "bars": 1283,
+        "gaps_over_180s": 10,
+        "maximum_gap_seconds": 172998.774,
+        "gap_examples": [
+          {
+            "from": "2025-01-03T21:59:59.434000+00:00",
+            "to": "2025-01-05T22:00:11.712000+00:00",
+            "seconds": 172812.278
+          },
+          {
+            "from": "2025-01-08T22:52:24.481000+00:00",
+            "to": "2025-01-08T22:56:26.840000+00:00",
+            "seconds": 242.359
+          },
+          {
+            "from": "2025-01-10T21:59:59.220000+00:00",
+            "to": "2025-01-12T22:03:17.994000+00:00",
+            "seconds": 172998.774
+          },
+          {
+            "from": "2025-01-14T22:31:20.215000+00:00",
+            "to": "2025-01-14T22:34:30.522000+00:00",
+            "seconds": 190.307
+          },
+          {
+            "from": "2025-01-14T22:45:31.862000+00:00",
+            "to": "2025-01-14T22:50:27.665000+00:00",
+            "seconds": 295.803
+          },
+          {
+            "from": "2025-01-15T22:36:32.018000+00:00",
+            "to": "2025-01-15T22:40:47.992000+00:00",
+            "seconds": 255.974
+          },
+          {
+            "from": "2025-01-17T21:59:56.374000+00:00",
+            "to": "2025-01-19T22:01:16.706000+00:00",
+            "seconds": 172880.332
+          },
+          {
+            "from": "2025-01-20T22:00:07.342000+00:00",
+            "to": "2025-01-20T22:04:01.738000+00:00",
+            "seconds": 234.396
+          },
+          {
+            "from": "2025-01-22T22:15:20.813000+00:00",
+            "to": "2025-01-22T22:20:11.205000+00:00",
+            "seconds": 290.392
+          },
+          {
+            "from": "2025-01-24T21:59:58.731000+00:00",
+            "to": "2025-01-26T22:00:03.929000+00:00",
+            "seconds": 172805.198
+          }
+        ],
+        "assumptions": {
+          "receipt_time": "UNKNOWN",
+          "modeled_latency_ms": 250,
+          "source_revisions": "UNKNOWN",
+          "session_calendar": "UNRECONCILED",
+          "research_inputs_assumed": false,
+          "calendar_news_qualified": false,
+          "history_qualified": false,
+          "conversion": "USD account; EUR valued at bid, JPY at inverse ask",
+          "execution_enabled": false
+        }
+      }
+    },
+    "USDJPY": {
+      "download": {
+        "source_page": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/usdjpy/2025/1",
+        "retrieved_at": "2026-11-05T19:37:16.606782+00:00",
+        "sha256": "72834b8a2d3c553e76018a8a3724af64ac30de4ec7211875378887b73232a896",
+        "bytes": 21773637,
+        "members": [
+          {
+            "name": "DAT_ASCII_USDJPY_T_202501.csv",
+            "size": 149085171
+          },
+          {
+            "name": "DAT_ASCII_USDJPY_T_202501.txt",
+            "size": 6817
+          }
+        ]
+      },
+      "quality": {
+        "schema": "histdata-import/1",
+        "symbol": "USDJPY",
+        "archive_sha256": "72834b8a2d3c553e76018a8a3724af64ac30de4ec7211875378887b73232a896",
+        "source_timezone": "fixed UTC-05:00; no DST",
+        "rows": 3467097,
+        "timestamp_ties": 0,
+        "exact_duplicate_rows_retained": 0,
+        "first": "2025-01-01T22:04:01.721000+00:00",
+        "last": "2025-01-31T21:59:58.140000+00:00",
+        "selected_events": 30081,
+        "bars": 1283,
+        "gaps_over_180s": 24,
+        "maximum_gap_seconds": 173044.485,
+        "gap_examples": [
+          {
+            "from": "2025-01-01T22:11:11.056000+00:00",
+            "to": "2025-01-01T22:14:12.702000+00:00",
+            "seconds": 181.646
+          },
+          {
+            "from": "2025-01-02T22:06:19.443000+00:00",
+            "to": "2025-01-02T22:10:10.445000+00:00",
+            "seconds": 231.002
+          },
+          {
+            "from": "2025-01-02T22:53:44.172000+00:00",
+            "to": "2025-01-02T22:56:50.451000+00:00",
+            "seconds": 186.279
+          },
+          {
+            "from": "2025-01-03T21:59:59.155000+00:00",
+            "to": "2025-01-05T22:02:14.729000+00:00",
+            "seconds": 172935.574
+          },
+          {
+            "from": "2025-01-05T22:06:45.598000+00:00",
+            "to": "2025-01-05T22:15:00.558000+00:00",
+            "seconds": 494.96
+          },
+          {
+            "from": "2025-01-05T22:32:50.836000+00:00",
+            "to": "2025-01-05T22:36:55.051000+00:00",
+            "seconds": 244.215
+          },
+          {
+            "from": "2025-01-06T21:59:59.535000+00:00",
+            "to": "2025-01-06T22:04:00.468000+00:00",
+            "seconds": 240.933
+          },
+          {
+            "from": "2025-01-06T22:25:47.428000+00:00",
+            "to": "2025-01-06T22:28:55.399000+00:00",
+            "seconds": 187.971
+          },
+          {
+            "from": "2025-01-06T22:43:41.409000+00:00",
+            "to": "2025-01-06T22:48:07.344000+00:00",
+            "seconds": 265.935
+          },
+          {
+            "from": "2025-01-10T21:59:59.132000+00:00",
+            "to": "2025-01-12T22:04:02.241000+00:00",
+            "seconds": 173043.109
+          },
+          {
+            "from": "2025-01-12T22:08:59.067000+00:00",
+            "to": "2025-01-12T22:13:10.160000+00:00",
+            "seconds": 251.093
+          },
+          {
+            "from": "2025-01-16T21:59:59.875000+00:00",
+            "to": "2025-01-16T22:03:14.789000+00:00",
+            "seconds": 194.914
+          },
+          {
+            "from": "2025-01-16T22:25:50.469000+00:00",
+            "to": "2025-01-16T22:29:40.476000+00:00",
+            "seconds": 230.007
+          },
+          {
+            "from": "2025-01-17T21:59:57.391000+00:00",
+            "to": "2025-01-19T22:04:01.876000+00:00",
+            "seconds": 173044.485
+          },
+          {
+            "from": "2025-01-20T21:59:56.710000+00:00",
+            "to": "2025-01-20T22:04:01.725000+00:00",
+            "seconds": 245.015
+          },
+          {
+            "from": "2025-01-20T22:12:39.028000+00:00",
+            "to": "2025-01-20T22:16:34.353000+00:00",
+            "seconds": 235.325
+          },
+          {
+            "from": "2025-01-21T21:59:02.909000+00:00",
+            "to": "2025-01-21T22:04:01.769000+00:00",
+            "seconds": 298.86
+          },
+          {
+            "from": "2025-01-22T21:59:59.769000+00:00",
+            "to": "2025-01-22T22:04:00.332000+00:00",
+            "seconds": 240.563
+          },
+          {
+            "from": "2025-01-22T22:42:23.247000+00:00",
+            "to": "2025-01-22T22:45:23.835000+00:00",
+            "seconds": 180.588
+          },
+          {
+            "from": "2025-01-24T21:59:58.796000+00:00",
+            "to": "2025-01-26T22:00:02.176000+00:00",
+            "seconds": 172803.38
+          },
+          {
+            "from": "2025-01-28T22:16:30.322000+00:00",
+            "to": "2025-01-28T22:22:10.351000+00:00",
+            "seconds": 340.029
+          },
+          {
+            "from": "2025-01-28T22:22:10.351000+00:00",
+            "to": "2025-01-28T22:25:20.961000+00:00",
+            "seconds": 190.61
+          },
+          {
+            "from": "2025-01-28T22:35:10.349000+00:00",
+            "to": "2025-01-28T22:41:35.622000+00:00",
+            "seconds": 385.273
+          },
+          {
+            "from": "2025-01-30T22:00:00.199000+00:00",
+            "to": "2025-01-30T22:04:02.442000+00:00",
+            "seconds": 242.243
+          }
+        ],
+        "assumptions": {
+          "receipt_time": "UNKNOWN",
+          "modeled_latency_ms": 250,
+          "source_revisions": "UNKNOWN",
+          "session_calendar": "UNRECONCILED",
+          "research_inputs_assumed": false,
+          "calendar_news_qualified": false,
+          "history_qualified": false,
+          "conversion": "USD account; EUR valued at bid, JPY at inverse ask",
+          "execution_enabled": false
+        }
+      }
+    }
+  },
+  "plan": {
+    "schema": "historical-research-scenario/1",
+    "source": "HistData Generic ASCII ticks January 2025",
+    "symbols": [
+      "EURUSD",
+      "USDJPY"
+    ],
+    "start": "2025-01-16T12:00:00+00:00",
+    "training_end": "2025-01-16T13:00:00+00:00",
+    "validation_end": "2025-01-16T14:00:00+00:00",
+    "end": "2025-01-16T15:00:00+00:00",
+    "purpose": "Counterfactual B01 mechanics on historical quotes; no calendar/news filter or completeness qualification",
+    "latency_assumption_ms": 250,
+    "history_completeness_attested": false,
+    "calendar_news_qualified": false,
+    "no_parameter_search": true,
+    "raw_data_publication": false,
+    "execution_enabled": false,
+    "model_benchmark": "B01-research/1; unchanged",
+    "costs": {
+      "commission_per_lot_per_side": "4",
+      "slippage_per_lot_per_side": "2",
+      "financing_per_lot_day": "3"
+    },
+    "note": "No receipt-time history or M1 gate attestation exists. Default replay must HOLD; candidate-only analysis may be reported separately, never as fills.",
+    "research_inputs_assumed": true,
+    "economic_acceptance": false,
+    "histdata_timezone": "UTC-05:00 fixed; no DST",
+    "parameter_search": false
+  },
+  "importer_sha256": "a725dbb0a62eaa4780e2d4e66e4169e08b4081de410aff4d0535fd4720031868",
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "partition": "training",
+      "manifest": {
+        "schema": "b01-experiment/1",
+        "dataset_sha256": "3f75b2cfeb46878f0b5b3fc85e1e95b81beb34a1926d886528fd5be7522c1f32",
+        "engine_sha256": "266705efb0d0c48096d6a245a2868df1fc0b03a97ff30c20ca1f304e308b466c",
+        "experiment": {
+          "name": "eurusd-historical-pilot",
+          "symbol": "EURUSD",
+          "start": "2025-01-16T12:00:00Z",
+          "training_end": "2025-01-16T13:00:00Z",
+          "validation_end": "2025-01-16T14:00:00Z",
+          "end": "2025-01-16T15:00:00Z",
+          "costs": {
+            "commission_per_lot_per_side": "4",
+            "slippage_per_lot_per_side": "2",
+            "financing_per_lot_day": "3",
+            "basis": "Uncalibrated research cost scenario, not broker pricing"
+          },
+          "policy": {
+            "version": "offline-risk/1",
+            "capital": "10000",
+            "trade_fraction": "0.0025",
+            "aggregate_fraction": "0.005",
+            "daily_fraction": "0.01",
+            "drawdown_fraction": "0.05",
+            "gross_multiple": "2",
+            "currency_multiple": "1",
+            "margin_fraction": "0.20",
+            "maximum_positions": 1,
+            "quote_age_seconds": 2,
+            "protection_seconds": 5,
+            "healthy_samples": 2,
+            "protection_mode": "INITIAL_STOP"
+          }
+        }
+      },
+      "receipt": {
+        "result_hash": "afa74dc1c60c6186222b22ed43306d9bb43dee67cfb7cd2f2b77cb596e7c9d92",
+        "journal_hash": "a0e4e45fd3f19a8a7583dc93eab37d0e6d865ea6afe50877baf269d5ccfa5a18",
+        "manifest_hash": "20e440808d228c67dbee9048fc9659872c64a2213849ac19c4a65c7964093470"
+      },
+      "events": 5522,
+      "actions": {
+        "HOLD": 3,
+        "CANDIDATE": 1,
+        "SUBMITTED_TO_SIMULATOR": 1
+      },
+      "closed_trades": 0,
+      "open_positions": 1,
+      "fully_settled": false,
+      "marked_return_pct": "0.01620000",
+      "maximum_observed_drawdown_fraction": "0.0008902468511639153276328226320532829",
+      "journal_reconstructed": true,
+      "execution_enabled": false,
+      "economic_acceptance": false
+    },
+    {
+      "symbol": "EURUSD",
+      "partition": "validation",
+      "manifest": {
+        "schema": "b01-experiment/1",
+        "dataset_sha256": "3f75b2cfeb46878f0b5b3fc85e1e95b81beb34a1926d886528fd5be7522c1f32",
+        "engine_sha256": "266705efb0d0c48096d6a245a2868df1fc0b03a97ff30c20ca1f304e308b466c",
+        "experiment": {
+          "name": "eurusd-historical-pilot",
+          "symbol": "EURUSD",
+          "start": "2025-01-16T12:00:00Z",
+          "training_end": "2025-01-16T13:00:00Z",
+          "validation_end": "2025-01-16T14:00:00Z",
+          "end": "2025-01-16T15:00:00Z",
+          "costs": {
+            "commission_per_lot_per_side": "4",
+            "slippage_per_lot_per_side": "2",
+            "financing_per_lot_day": "3",
+            "basis": "Uncalibrated research cost scenario, not broker pricing"
+          },
+          "policy": {
+            "version": "offline-risk/1",
+            "capital": "10000",
+            "trade_fraction": "0.0025",
+            "aggregate_fraction": "0.005",
+            "daily_fraction": "0.01",
+            "drawdown_fraction": "0.05",
+            "gross_multiple": "2",
+            "currency_multiple": "1",
+            "margin_fraction": "0.20",
+            "maximum_positions": 1,
+            "quote_age_seconds": 2,
+            "protection_seconds": 5,
+            "healthy_samples": 2,
+            "protection_mode": "INITIAL_STOP"
+          }
+        }
+      },
+      "receipt": {
+        "result_hash": "91881e01fa15b2995edc631c9f6263cf434d70505c7a8380ea26f98973325848",
+        "journal_hash": "8e4abccf58b546c57f341a9275da5b86bd2e1d1cacd064faf20b30fec999b986",
+        "manifest_hash": "20e440808d228c67dbee9048fc9659872c64a2213849ac19c4a65c7964093470"
+      },
+      "events": 10175,
+      "actions": {
+        "HOLD": 4
+      },
+      "closed_trades": 0,
+      "open_positions": 0,
+      "fully_settled": true,
+      "marked_return_pct": "0",
+      "maximum_observed_drawdown_fraction": "0",
+      "journal_reconstructed": true,
+      "execution_enabled": false,
+      "economic_acceptance": false
+    },
+    {
+      "symbol": "EURUSD",
+      "partition": "holdout",
+      "manifest": {
+        "schema": "b01-experiment/1",
+        "dataset_sha256": "3f75b2cfeb46878f0b5b3fc85e1e95b81beb34a1926d886528fd5be7522c1f32",
+        "engine_sha256": "266705efb0d0c48096d6a245a2868df1fc0b03a97ff30c20ca1f304e308b466c",
+        "experiment": {
+          "name": "eurusd-historical-pilot",
+          "symbol": "EURUSD",
+          "start": "2025-01-16T12:00:00Z",
+          "training_end": "2025-01-16T13:00:00Z",
+          "validation_end": "2025-01-16T14:00:00Z",
+          "end": "2025-01-16T15:00:00Z",
+          "costs": {
+            "commission_per_lot_per_side": "4",
+            "slippage_per_lot_per_side": "2",
+            "financing_per_lot_day": "3",
+            "basis": "Uncalibrated research cost scenario, not broker pricing"
+          },
+          "policy": {
+            "version": "offline-risk/1",
+            "capital": "10000",
+            "trade_fraction": "0.0025",
+            "aggregate_fraction": "0.005",
+            "daily_fraction": "0.01",
+            "drawdown_fraction": "0.05",
+            "gross_multiple": "2",
+            "currency_multiple": "1",
+            "margin_fraction": "0.20",
+            "maximum_positions": 1,
+            "quote_age_seconds": 2,
+            "protection_seconds": 5,
+            "healthy_samples": 2,
+            "protection_mode": "INITIAL_STOP"
+          }
+        }
+      },
+      "receipt": {
+        "result_hash": "6e7d700b6e9e9133c323a39c8de335112c2624e7d5a61ab71af4cf7dda89fe80",
+        "journal_hash": "c2ea9efe9af960eb174edd18fe34485ca7da5eadd1ec764a6a79075cfd77f34a",
+        "manifest_hash": "20e440808d228c67dbee9048fc9659872c64a2213849ac19c4a65c7964093470"
+      },
+      "events": 7046,
+      "actions": {
+        "HOLD": 4
+      },
+      "closed_trades": 0,
+      "open_positions": 0,
+      "fully_settled": true,
+      "marked_return_pct": "0",
+      "maximum_observed_drawdown_fraction": "0",
+      "journal_reconstructed": true,
+      "execution_enabled": false,
+      "economic_acceptance": false
+    },
+    {
+      "symbol": "USDJPY",
+      "partition": "training",
+      "manifest": {
+        "schema": "b01-experiment/1",
+        "dataset_sha256": "75ef38ce2776fee9888a8ae8126500e5688f79d7e738895c677d5edf7f6aca1b",
+        "engine_sha256": "266705efb0d0c48096d6a245a2868df1fc0b03a97ff30c20ca1f304e308b466c",
+        "experiment": {
+          "name": "usdjpy-historical-pilot",
+          "symbol": "USDJPY",
+          "start": "2025-01-16T12:00:00Z",
+          "training_end": "2025-01-16T13:00:00Z",
+          "validation_end": "2025-01-16T14:00:00Z",
+          "end": "2025-01-16T15:00:00Z",
+          "costs": {
+            "commission_per_lot_per_side": "4",
+            "slippage_per_lot_per_side": "2",
+            "financing_per_lot_day": "3",
+            "basis": "Uncalibrated research cost scenario, not broker pricing"
+          },
+          "policy": {
+            "version": "offline-risk/1",
+            "capital": "10000",
+            "trade_fraction": "0.0025",
+            "aggregate_fraction": "0.005",
+            "daily_fraction": "0.01",
+            "drawdown_fraction": "0.05",
+            "gross_multiple": "2",
+            "currency_multiple": "1",
+            "margin_fraction": "0.20",
+            "maximum_positions": 1,
+            "quote_age_seconds": 2,
+            "protection_seconds": 5,
+            "healthy_samples": 2,
+            "protection_mode": "INITIAL_STOP"
+          }
+        }
+      },
+      "receipt": {
+        "result_hash": "3a25b39232691dc6df31b0da2fc393d48850ea706be5c2e36dc305fd7be79aa6",
+        "journal_hash": "fbabed184d26e34f5676c7cdff85f62740dcbb0612e8a7082633e08021c387ca",
+        "manifest_hash": "ece2f41b1ce12808e4534c603aae6769defdee874346f0df184b32b18e40aa21"
+      },
+      "events": 5331,
+      "actions": {
+        "HOLD": 4
+      },
+      "closed_trades": 0,
+      "open_positions": 0,
+      "fully_settled": true,
+      "marked_return_pct": "0",
+      "maximum_observed_drawdown_fraction": "0",
+      "journal_reconstructed": true,
+      "execution_enabled": false,
+      "economic_acceptance": false
+    },
+    {
+      "symbol": "USDJPY",
+      "partition": "validation",
+      "manifest": {
+        "schema": "b01-experiment/1",
+        "dataset_sha256": "75ef38ce2776fee9888a8ae8126500e5688f79d7e738895c677d5edf7f6aca1b",
+        "engine_sha256": "266705efb0d0c48096d6a245a2868df1fc0b03a97ff30c20ca1f304e308b466c",
+        "experiment": {
+          "name": "usdjpy-historical-pilot",
+          "symbol": "USDJPY",
+          "start": "2025-01-16T12:00:00Z",
+          "training_end": "2025-01-16T13:00:00Z",
+          "validation_end": "2025-01-16T14:00:00Z",
+          "end": "2025-01-16T15:00:00Z",
+          "costs": {
+            "commission_per_lot_per_side": "4",
+            "slippage_per_lot_per_side": "2",
+            "financing_per_lot_day": "3",
+            "basis": "Uncalibrated research cost scenario, not broker pricing"
+          },
+          "policy": {
+            "version": "offline-risk/1",
+            "capital": "10000",
+            "trade_fraction": "0.0025",
+            "aggregate_fraction": "0.005",
+            "daily_fraction": "0.01",
+            "drawdown_fraction": "0.05",
+            "gross_multiple": "2",
+            "currency_multiple": "1",
+            "margin_fraction": "0.20",
+            "maximum_positions": 1,
+            "quote_age_seconds": 2,
+            "protection_seconds": 5,
+            "healthy_samples": 2,
+            "protection_mode": "INITIAL_STOP"
+          }
+        }
+      },
+      "receipt": {
+        "result_hash": "27e4e7ba10546c2582b560522f59a5bbb293e4172f21caa0b2fd9b4e4b4ff73d",
+        "journal_hash": "cb4de56965dfd63b539d605a99256a16f85ffd643b24b71a8adcf7edc180c941",
+        "manifest_hash": "ece2f41b1ce12808e4534c603aae6769defdee874346f0df184b32b18e40aa21"
+      },
+      "events": 12289,
+      "actions": {
+        "HOLD": 4
+      },
+      "closed_trades": 0,
+      "open_positions": 0,
+      "fully_settled": true,
+      "marked_return_pct": "0",
+      "maximum_observed_drawdown_fraction": "0",
+      "journal_reconstructed": true,
+      "execution_enabled": false,
+      "economic_acceptance": false
+    },
+    {
+      "symbol": "USDJPY",
+      "partition": "holdout",
+      "manifest": {
+        "schema": "b01-experiment/1",
+        "dataset_sha256": "75ef38ce2776fee9888a8ae8126500e5688f79d7e738895c677d5edf7f6aca1b",
+        "engine_sha256": "266705efb0d0c48096d6a245a2868df1fc0b03a97ff30c20ca1f304e308b466c",
+        "experiment": {
+          "name": "usdjpy-historical-pilot",
+          "symbol": "USDJPY",
+          "start": "2025-01-16T12:00:00Z",
+          "training_end": "2025-01-16T13:00:00Z",
+          "validation_end": "2025-01-16T14:00:00Z",
+          "end": "2025-01-16T15:00:00Z",
+          "costs": {
+            "commission_per_lot_per_side": "4",
+            "slippage_per_lot_per_side": "2",
+            "financing_per_lot_day": "3",
+            "basis": "Uncalibrated research cost scenario, not broker pricing"
+          },
+          "policy": {
+            "version": "offline-risk/1",
+            "capital": "10000",
+            "trade_fraction": "0.0025",
+            "aggregate_fraction": "0.005",
+            "daily_fraction": "0.01",
+            "drawdown_fraction": "0.05",
+            "gross_multiple": "2",
+            "currency_multiple": "1",
+            "margin_fraction": "0.20",
+            "maximum_positions": 1,
+            "quote_age_seconds": 2,
+            "protection_seconds": 5,
+            "healthy_samples": 2,
+            "protection_mode": "INITIAL_STOP"
+          }
+        }
+      },
+      "receipt": {
+        "result_hash": "6052b8538fe05f6d88c6b9ad1c09d5c930d6e0abc1d3932e9ca17afc207c8123",
+        "journal_hash": "dc77e495053b829d5f6e04288242801c53e7e2aa6c611caa2e57dabe1a463a10",
+        "manifest_hash": "ece2f41b1ce12808e4534c603aae6769defdee874346f0df184b32b18e40aa21"
+      },
+      "events": 12461,
+      "actions": {
+        "HOLD": 4
+      },
+      "closed_trades": 0,
+      "open_positions": 0,
+      "fully_settled": true,
+      "marked_return_pct": "0",
+      "maximum_observed_drawdown_fraction": "0",
+      "journal_reconstructed": true,
+      "execution_enabled": false,
+      "economic_acceptance": false
+    }
+  ],
+  "default_input_controls": [
+    {
+      "symbol": "EURUSD",
+      "entries": 0,
+      "state": "DEGRADED_PROTECT",
+      "receipt": {
+        "result_hash": "2d961f80103476f2c1086cccbd7a61d2c943b972a6711a2472f70c93cb135040",
+        "journal_hash": "75c1e7a93c4c2ccfa0a5842774d74986c81dec109bcb0c14b5dcdd5bee5b345a",
+        "manifest_hash": "f886980a8a4193c5838adfc91e88867c4f9b0ddd161046d8a1b58f703118666b"
+      },
+      "m1_qualified": false
+    },
+    {
+      "symbol": "USDJPY",
+      "entries": 0,
+      "state": "DEGRADED_PROTECT",
+      "receipt": {
+        "result_hash": "9e31ae3fb7e4350e9a649ee6767aab77fb924eeaaff5fab784d7ee87b089eb5f",
+        "journal_hash": "f0c4da8ccc3b43a5f1808b15683664e7970861f8dd1de3642c43c5ee8eda198c",
+        "manifest_hash": "1f4b07b90472a588f3fb91d283794257c83017955e94fa14cb43f49dc49685a3"
+      },
+      "m1_qualified": false
+    }
+  ],
+  "limits": [
+    "One-hour independent cold-start partitions, not a walk-forward economic study.",
+    "EURUSD training exposure is unresolved; no invented close or carry into the independent validation account.",
+    "No closed trades: no empirical expectancy or profitability verdict.",
+    "250 ms receipt latency is assumed, not measured.",
+    "Calendar/news and archive completeness are assumed only in the research scenario.",
+    "No broker-specific financing calibration or depth/queue model.",
+    "No raw source data redistributed."
+  ],
+  "execution_enabled": false,
+  "m1_qualified": false,
+  "economic_acceptance": false
+}

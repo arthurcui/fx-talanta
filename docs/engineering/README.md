@@ -14,3 +14,4 @@ Return to the [documentation index](../README.md).
 - [Required FX provider qualification](provider-acceptance.md)
 
 - [M3 offline baseline and replay](m3-baseline.md)
+- [Historical input and first replay pilot](m3-historical-data.md)
