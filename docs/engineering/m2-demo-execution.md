@@ -223,6 +223,27 @@ CMC and AvaTrade were untouched. Same-session connected `CLOSED`/ACK/drain remai
 unverified; synthetic closeout and the earlier recovery-assisted result remain
 separate evidence. M1 gaps and the prohibition on a new 24-hour campaign remain.
 
+#### Quote-capture diagnosis
+
+The [capture diagnostic](../evidence/m2-quote-capture-diagnostic-20261104.json)
+measured 30 read-only captures: median **27 ms**, maximum **55 ms**. Quotes were
+already aged when the SDK returned them; these measurements do not establish
+whether the age originates in broker timestamp accuracy, network delivery or the
+terminal. Python capture overhead is not the principal observed delay.
+
+A separate one-minute check with 100 ms sleeps between complete captures recorded
+**429 samples and 11 eligible overlaps**, using the unchanged 1,500 ms candidate
+headroom and 3-pip spread limit. Median capture time was 30 ms, maximum 85 ms.
+One-second sparse monitoring can miss these brief opportunities. Readiness checks
+should therefore use this finer cadence; neither the original broker timestamp nor
+the final two-second entry rule changes. This is monitoring evidence, not an entry
+permit or a same-period randomized comparison of polling cadences.
+
+The read-only native publisher compiled and was installed in an isolated FOREX
+diagnostic folder, but was **not attached**: desktop activation failed twice. A
+current EA-versus-Python comparison and the authorized one-entry closure test
+remain incomplete. No order, reservation or activation window started.
+
 ## Historical implementation stages
 
 The following notes describe earlier versions and their retained evidence. Their
