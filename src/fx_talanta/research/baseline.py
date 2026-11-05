@@ -139,6 +139,7 @@ def evaluate(bars, symbol, cutoff, *, history_complete=False, position_open=Fals
             "action": "CANDIDATE",
             "side": side,
             "signal_bar_close": signal.close_at.isoformat(),
+            "signal_price": str(signal.close),
             "signal_available_at": first[("M15", signal.close_at)].isoformat(),
             "expires_at": expires.isoformat(),
             "ema50": str(fast),

@@ -12,3 +12,5 @@ Return to the [documentation index](../README.md).
 - [M2C deterministic safety](m2c-deterministic-safety.md)
 - [M2D bounded connection, observations and recovery](m2d-connected-no-order.md)
 - [Required FX provider qualification](provider-acceptance.md)
+
+- [M3 offline baseline and replay](m3-baseline.md)

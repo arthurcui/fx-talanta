@@ -1,0 +1,76 @@
+{
+  "schema": "m3-synthetic-evidence/1",
+  "provenance": "SYNTHETIC",
+  "scope": "Offline B01 lifecycle and explicit cost accounting; not historical economic acceptance",
+  "manifest": {
+    "schema": "b01-experiment/1",
+    "dataset_sha256": "ae5a5a25f3d2b9f1c95a68dc7dacf47ea1952ca963cb2e6cd9ebbeb3a676c346",
+    "engine_sha256": "4bf3e544c8f519933704e4f0e57f72886a14fabe01524d991d7a868a65b9b2e8",
+    "experiment": {
+      "name": "synthetic-lifecycle",
+      "symbol": "EURUSD",
+      "start": "2026-11-05T11:59:57Z",
+      "training_end": "2026-11-05T17:00:00Z",
+      "validation_end": "2026-11-05T18:00:00Z",
+      "end": "2026-11-05T19:00:00Z",
+      "costs": {
+        "commission_per_lot_per_side": "4",
+        "slippage_per_lot_per_side": "2",
+        "financing_per_lot_day": "3",
+        "basis": "Synthetic explicit costs in USD, not a broker estimate"
+      },
+      "policy": {
+        "version": "offline-risk/1",
+        "capital": "10000",
+        "trade_fraction": "0.0025",
+        "aggregate_fraction": "0.005",
+        "daily_fraction": "0.01",
+        "drawdown_fraction": "0.05",
+        "gross_multiple": "2",
+        "currency_multiple": "1",
+        "margin_fraction": "0.20",
+        "maximum_positions": 1,
+        "quote_age_seconds": 2,
+        "protection_seconds": 5,
+        "healthy_samples": 2,
+        "protection_mode": "INITIAL_STOP"
+      }
+    }
+  },
+  "receipt": {
+    "result_hash": "a1c9aa890db891d2670d0ec5de7ee4b4fdd654007a21082d12fa88112bb1d6f2",
+    "journal_hash": "53a32cc7b0fc69052a2b4602eed6750f21b86116c6d3552667c5abf035ead7f7",
+    "manifest_hash": "9e30a89f92dd95349a266ad6c78f415106211f8252618dd4a72d37ba856ca182"
+  },
+  "outcome": {
+    "run_id": "5239757d-ed90-5109-97f5-c85871b849dc",
+    "open_positions": 0,
+    "fully_settled": true,
+    "unsettled_entry_orders": 0,
+    "commission": "0.72",
+    "financing": [
+      {
+        "deal_id": "139549a6-70f3-5701-8868-ccefcf0b7211",
+        "charge": "0.04499687500000000000000000000000000"
+      }
+    ],
+    "net_realized_pnl": "-2.024996875000000000000000000000",
+    "metrics": {
+      "closed_trades": 1,
+      "winning_trades": 0,
+      "net_expectancy": "-2.024996875000000000000000000000000",
+      "maximum_observed_drawdown_fraction": "0.000202499687500000000000000000",
+      "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+    },
+    "journal_tip": "e6e71ed65d3257563e6479edc46b83762f6198a3a8517d9f766dccd301828604",
+    "execution_enabled": false,
+    "m1_qualified": false,
+    "economic_acceptance": false
+  },
+  "deal_actions": [
+    "ENTER",
+    "CLOSE"
+  ],
+  "reproduce": "tools/fixtures/b01_replay.py then register/run training as documented in docs/engineering/m3-baseline.md",
+  "qualification_gaps": "Historical data, walk-forward, untouched historical holdout, conservative OHLC fallback and indicator parity remain open; M1 operational and broader M2 gaps preserved."
+}
