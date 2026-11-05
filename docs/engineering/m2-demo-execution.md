@@ -1,6 +1,6 @@
 # Bounded demo execution integration
 
-## Current implementation and acceptance boundary — November 4
+## Current implementation and acceptance boundary — November 5
 
 The [new owner-authorized one-entry test](../evidence/m2-one-entry-closeout-20261105-02.json)
 **passed bounded same-session closeout**: one 0.01-lot entry, broker SL/TP, one
@@ -289,7 +289,7 @@ from the later authorized entry.
 #### November 5 fixed-EA connected verification
 
 The owner explicitly authorized one further entry after the failed attempt. Its
-new isolated plan pinned **00:43:54.222�00:44:24.222 UTC**, one reservation, maximum
+new isolated plan pinned **00:43:54.222–00:44:24.222 UTC**, one reservation, maximum
 0.01 lot and 0.10% eligible-equity risk per entry and cumulatively. No deadline was
 extended and no extra entry or recovery attachment was used.
 
