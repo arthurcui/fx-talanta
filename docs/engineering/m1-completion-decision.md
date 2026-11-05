@@ -1,4 +1,9 @@
-# M1 completion decision — proposed, not approved
+# M1 completion decision — owner approved
+
+Owner approved the development/operational split in chat after PR #25, and authorized
+progression to offline M3. Full operational M1 remains open. See the
+[carried qualification register](m1-open-requirements.md). No trading or campaign
+authority is granted.
 
 ## Finding
 
@@ -12,7 +17,8 @@ requires sustained broker acceptance (M1A), complete required-family integration
 (M1B), and prospective provider qualification (M1C). The
 [closure checklist](m1-closure-checklist.md#m1-exit-checklist) additionally preserves
 independent broker verdicts and requires an explicit scope decision for exclusions.
-No acceptance requirement is changed by this proposal.
+The original operational acceptance requirements remain mandatory; their completion
+is no longer a prerequisite for offline M3 development.
 
 ## What cannot be repaired with code or existing evidence
 
@@ -44,13 +50,13 @@ availability and vetoes. This integration is still missing; it must not be
 described as merely waiting for a scheduled release. Current adapters remain
 useful for development and shadow evaluation.
 
-## Recommended scope decision
+## Approved scope decision
 
 Separate **M1 development integration** from **operational data qualification**.
-This is a proposed change to the milestone contract, not a declaration that the
-existing full-M1 criteria passed.
+This is the owner-approved development boundary. It does not declare that the
+existing full-M1 operational criteria passed.
 
-The development completion boundary would be:
+The development boundary is:
 
 1. Existing observer, manual BLS/FRED, optional MCP, eight news feeds and BEA
    ingestion remain explicitly development/shadow sources with their limits.
@@ -62,20 +68,18 @@ The development completion boundary would be:
    Strategy orders, unattended PAPER and LIVE remain disabled.
 
 The complete original B4/P2/P4/P5 gates, missing-family adapters and the reviewed
-qualification-to-runtime integration would remain mandatory **before connected
-strategy PAPER**, not merely before LIVE. They would be tracked together as an
+qualification-to-runtime integration remain mandatory **before connected
+strategy PAPER**, not merely before LIVE. They are tracked together as an
 operational qualification deliverable with explicit source scope and an authorized
-observation plan. No gate would be silently dropped, transferred into a passing
+observation plan. No gate is silently dropped, transferred into a passing
 result or satisfied by a fixture.
 
-If this scope decision is not accepted, the correct status remains **M1 open**.
-The alternative is to retain the full contract, implement all missing routes and
-qualification integration, then authorize the necessary future observations.
-Neither choice authorizes a campaign, subscription or order by itself.
+The decision permits offline M3 baseline/replay development while the operational
+requirements remain open. It does not authorize a campaign, subscription or order.
 
 ## PR disposition
 
-PR #26 is work in progress and remains unmerged. Its adapter and evidence summary
-are valid partial work, not an M1-completion deliverable. Do not merge or relabel
-the milestone as complete based on green CI. This decision must be resolved before
-presenting another partial PR as the requested outcome.
+PR #26 contains development integration, bounded evidence and this approved scope
+record. It can be reviewed within that scope; it is not full operational M1 closure.
+The prior failures and operational gates remain in the carried register. No merge
+is implied by this scope approval.

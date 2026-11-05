@@ -36,6 +36,13 @@ were consumed, including a definite pre-submission rejection; a rejected attempt
 not refund authorization. Original authority is retired. Test EAs/listeners were stopped
 and Algo Trading disabled at verification. This document is not a live terminal monitor.
 
+## Current development milestone
+
+The owner approved proceeding to **M3 offline baseline/replay** with M1 operational
+requirements carried forward. The [scope decision](../engineering/m1-completion-decision.md)
+and [open-requirements register](../engineering/m1-open-requirements.md) preserve them
+as blockers before connected strategy PAPER. This does not enable strategy orders.
+
 ## Remaining gates
 
 - **M1:** broker data and required USD/EUR/JPY calendar/news coverage, timeliness and

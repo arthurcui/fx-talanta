@@ -1,9 +1,9 @@
 # M1 input readiness: implemented remediation and remaining restrictions
 
-**Work in progress, not an M1 completion PR.** The
-[completion decision](m1-completion-decision.md) records the unresolved milestone
-contract and missing qualification-to-runtime integration. No scope change has
-been approved.
+**Owner-approved development scope.** The
+[completion decision](m1-completion-decision.md) permits offline M3 progression;
+[operational M1 requirements](m1-open-requirements.md) remain open and block connected
+strategy PAPER. This is not full operational qualification.
 
 PR #25 is merged. Bounded M2 demo closeout is verified, with all M1 failures
 preserved separately. This work uses an isolated checkout and new SQLite journals;
