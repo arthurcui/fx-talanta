@@ -16,3 +16,4 @@ Return to the [documentation index](../README.md).
 - [M3 offline baseline and replay](m3-baseline.md)
 - [Historical input and first replay pilot](m3-historical-data.md)
 - [Full-session historical study](m3-session-study.md)
+- [M3 completion checklist and independent numerical validation](m3-completion.md)

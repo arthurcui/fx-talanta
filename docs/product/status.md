@@ -57,6 +57,9 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   [full-session study](../engineering/m3-session-study.md): six sessions, 713,826 ticks,
   14 closed simulated trades and all sessions flat. Both holdout pairs lost after
   modeled costs; historical economic acceptance remains open.
+  The [M3 completion checklist](../engineering/m3-completion.md) records the remaining
+  source/cost reconciliation, multi-fold evaluation and final verdict. Independent
+  numerical comparison passes 36 synthetic cases; this is not terminal qualification.
 - **Later milestones:** production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
 

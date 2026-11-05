@@ -25,9 +25,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - run: python -m pip install -c requirements.lock -e '.[dev]'
       - run: ruff check src tests tools
       - run: ruff format --check src tests tools
+      - run: python -m tools.qualification.b01_parity --output .local/b01-numerical-parity.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m3-numerical-parity
+          path: .local/b01-numerical-parity.json
+          include-hidden-files: true
       - run: docker compose up -d --wait postgres
       - run: python -m pytest --integration -q
       - run: docker compose build app codex-test

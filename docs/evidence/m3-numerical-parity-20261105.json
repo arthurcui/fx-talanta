@@ -1,0 +1,231 @@
+{
+  "schema": "b01-independent-numerical-parity/1",
+  "cases": [
+    {
+      "case": "EURUSD-200--1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "1.480414886858929049887156185E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-200--1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "1.480414886858929049887156185E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-200-0-False",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-200-0-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-200-1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "1.480414886858929049887156185E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-200-1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "1.480414886858929049887156185E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-201--1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "1.912555479531127910675895158E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-201--1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "1.912555479531127910675895158E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-201-0-False",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-201-0-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-201-1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "1.912555479531127910675895158E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-201-1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "1.912555479531127910675895158E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-260--1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "8.659487763446637661441117673E-34",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-260--1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "8.659487763446637661441117673E-34",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-260-0-False",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-260-0-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-33",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-260-1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "8.659487763446637661441117673E-34",
+      "passed": true
+    },
+    {
+      "case": "EURUSD-260-1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "8.659487763446637661441117673E-34",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-200--1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "1.480414886858929049887156185E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-200--1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "1.480414886858929049887156185E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-200-0-False",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-200-0-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-200-1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "1.480414886858929049887156185E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-200-1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "1.480414886858929049887156185E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-201--1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "1.912555479531127910675895158E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-201--1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "1.912555479531127910675895158E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-201-0-False",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-201-0-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-201-1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "1.912555479531127910675895158E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-201-1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "1.912555479531127910675895158E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-260--1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "8.659487763446637661441117673E-32",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-260--1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "8.659487763446637661441117673E-32",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-260-0-False",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-260-0-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "0E-31",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-260-1-False",
+      "action": "CANDIDATE",
+      "maximum_absolute_error": "8.659487763446637661441117673E-32",
+      "passed": true
+    },
+    {
+      "case": "USDJPY-260-1-True",
+      "action": "HOLD",
+      "maximum_absolute_error": "8.659487763446637661441117673E-32",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "vectors_sha256": "f51fe5b1f56239d3a23ac80faa5b37bc498ccc1283fc474cb30e41aafc788477",
+  "reference_sha256": "34c322bbf47f959e2896bad4c77088ad77e3a2d641010e689073ffd071e0dbff",
+  "baseline_sha256": "7b983fbd458d96c2e66948a88fca1840f5cdb67209207b0ef1d217ff7710aea1",
+  "numerical_absolute_tolerance": "1E-26",
+  "side_and_rounded_distances": "EXACT",
+  "node_version": "v26.8.2",
+  "execution_enabled": false,
+  "mql5_native_parity": false,
+  "scope": "Synthetic numerical kernel only; no terminal, costs, feed or economic qualification"
+}
