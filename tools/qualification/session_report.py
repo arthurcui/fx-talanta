@@ -4,12 +4,13 @@ import argparse
 import json
 import sqlite3
 from collections import Counter
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal, localcontext
 from pathlib import Path
 
 from fx_talanta.research.replay import digest, read
 from fx_talanta.research.session_study import PHASES, Plan, background_priority, verify_phase, write
-from fx_talanta.research.spool import file_hash
+from fx_talanta.research.spool import file_hash, rows
 
 
 def reconcile_fills(result):
@@ -95,7 +96,10 @@ def report(directory):
             result = verify_phase(output, manifest, full=True)
             index_path = Path(manifest["indexes"][experiment.symbol]["path"])
             start, end = experiment.window(phase)
-            bounds = tuple(int(t.timestamp() * 1000) - plan.latency_ms for t in (start, end))
+            epoch = datetime(1970, 1, 1, tzinfo=UTC)
+            bounds = tuple(
+                (t - epoch) // timedelta(milliseconds=1) - plan.latency_ms for t in (start, end)
+            )
             connection = sqlite3.connect(
                 index_path.resolve().as_uri() + "?mode=ro&immutable=1", uri=True
             )
@@ -109,11 +113,23 @@ def report(directory):
                 raise ValueError("source row count differs from replayed ticks")
             summary = summarize(result, json.loads(read(output / "receipt.json")))
             summary["source_rows_independently_counted"] = expected
+            states = Counter()
+            final_state = None
+            for sample in rows(output / "equity.jsonl.gz"):
+                final_state = sample["state"]
+                states[final_state] += 1
+            summary["equity_sample_states"] = dict(states)
+            summary["final_state"] = final_state
             sessions.append(summary)
     return {
         "schema": "full-session-sanitized-report/1",
         "manifest_hash": digest(manifest),
         "engine_sha256": manifest["engine_sha256"],
+        "implementation_observation": json.loads(
+            read(directory / "implementation-observation.json")
+        )
+        if (directory / "implementation-observation.json").exists()
+        else None,
         "runtime_observation": json.loads(read(directory / "runtime-observation.json"))
         if (directory / "runtime-observation.json").exists()
         else None,

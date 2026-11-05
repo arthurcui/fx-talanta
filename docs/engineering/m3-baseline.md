@@ -107,6 +107,11 @@ fixed-EST conversion and six bounded replay scenarios. It produced no closed tra
 and is insufficient for economic selection. Equal-time quotes with explicit source
 sequences are retained; unsequenced ties remain invalid.
 
+The subsequent [full-session study](m3-session-study.md) completed six registered
+sessions with 14 closed simulated trades and verified flat boundaries. Both holdout
+pairs lost after modeled costs. It supplies a reproducible cost-adjusted result and
+explicit uncertainty, while broader economic acceptance remains open.
+
 This PR delivers the integrated offline research path, not economic acceptance:
 
 - Source-backed historical bid/ask datasets with reconciled availability, session

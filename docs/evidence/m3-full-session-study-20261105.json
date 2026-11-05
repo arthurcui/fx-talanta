@@ -1,0 +1,521 @@
+{
+  "schema": "full-session-sanitized-report/1",
+  "manifest_hash": "f39a590b3a0b8020491e9b629ea53398a633b1d43dcf2d4b20ab4f7f1e859201",
+  "engine_sha256": "14dc7afd77665242fe8f98139e0bfa46bc219068ce252138418cf3cb936fe5cc",
+  "implementation_observation": {
+    "commit": "5962495f97a0c9d935533922859d973ce8823a46",
+    "engine_sha256": "14dc7afd77665242fe8f98139e0bfa46bc219068ce252138418cf3cb936fe5cc",
+    "engine_matches_registered_study": true
+  },
+  "runtime_observation": {
+    "python": "3.14.7",
+    "pydantic": "2.14.2",
+    "sqlite": "3.50.4",
+    "platform": "Windows",
+    "engine_unchanged": true,
+    "recorded_during_study": true
+  },
+  "plan": {
+    "experiments": [
+      {
+        "name": "full-session-fixed-b01-eurusd",
+        "symbol": "EURUSD",
+        "start": "2025-01-21T00:00:00Z",
+        "training_end": "2025-01-22T00:00:00Z",
+        "validation_end": "2025-01-23T00:00:00Z",
+        "end": "2025-01-24T00:00:00Z",
+        "costs": {
+          "commission_per_lot_per_side": "4",
+          "slippage_per_lot_per_side": "2",
+          "financing_per_lot_day": "3",
+          "basis": "Uncalibrated research assumptions in USD; spread embedded in source bid/ask"
+        },
+        "policy": {
+          "version": "offline-risk/1",
+          "capital": "10000",
+          "trade_fraction": "0.0025",
+          "aggregate_fraction": "0.005",
+          "daily_fraction": "0.01",
+          "drawdown_fraction": "0.05",
+          "gross_multiple": "2",
+          "currency_multiple": "1",
+          "margin_fraction": "0.20",
+          "maximum_positions": 1,
+          "quote_age_seconds": 2,
+          "protection_seconds": 5,
+          "healthy_samples": 2,
+          "protection_mode": "INITIAL_STOP"
+        }
+      },
+      {
+        "name": "full-session-fixed-b01-usdjpy",
+        "symbol": "USDJPY",
+        "start": "2025-01-21T00:00:00Z",
+        "training_end": "2025-01-22T00:00:00Z",
+        "validation_end": "2025-01-23T00:00:00Z",
+        "end": "2025-01-24T00:00:00Z",
+        "costs": {
+          "commission_per_lot_per_side": "4",
+          "slippage_per_lot_per_side": "2",
+          "financing_per_lot_day": "3",
+          "basis": "Uncalibrated research assumptions in USD; spread embedded in source bid/ask"
+        },
+        "policy": {
+          "version": "offline-risk/1",
+          "capital": "10000",
+          "trade_fraction": "0.0025",
+          "aggregate_fraction": "0.005",
+          "daily_fraction": "0.01",
+          "drawdown_fraction": "0.05",
+          "gross_multiple": "2",
+          "currency_multiple": "1",
+          "margin_fraction": "0.20",
+          "maximum_positions": 1,
+          "quote_age_seconds": 2,
+          "protection_seconds": 5,
+          "healthy_samples": 2,
+          "protection_mode": "INITIAL_STOP"
+        }
+      }
+    ],
+    "latency_ms": 250,
+    "assume_research_inputs": true,
+    "description": "Frozen B01, no parameter search. Jan21 training, Jan22 validation, Jan23 holdout UTC. Independent cold starts only after all prior partitions verified flat. All source ticks; normal stops/targets/four-hour or 23:45 time exits. Counterfactual historical calendar/news/history readiness; modeled receipt latency, unqualified source/revisions/broker costs. Three days cannot establish economic acceptance or clear M1 gaps."
+  },
+  "indexes": {
+    "EURUSD": {
+      "sha256": "2ca8a00c88d05a4bda8da080378544811df783fcbc3df7d555141791481864a9",
+      "archive_sha256": "159f906f8055f6ee835d95806cf7fdf4023b6e3ef098aa308d2ab6ce53ac964a"
+    },
+    "USDJPY": {
+      "sha256": "eb6b5c2129112b4177709a95f9371e56165e5650e6063768b66c20bf2a5d7029",
+      "archive_sha256": "72834b8a2d3c553e76018a8a3724af64ac30de4ec7211875378887b73232a896"
+    }
+  },
+  "sessions": [
+    {
+      "symbol": "EURUSD",
+      "partition": "training",
+      "coverage": {
+        "ticks": 122952,
+        "first": "2025-01-21T00:00:00.707000+00:00",
+        "last": "2025-01-21T23:59:41.340000+00:00",
+        "maximum_arrival_gap_seconds_including_edges": "60.312",
+        "receipt_timing": "MODELED_NOT_MEASURED"
+      },
+      "metrics": {
+        "closed_trades": 2,
+        "winning_trades": 2,
+        "net_expectancy": "18.01237243437500000000000000000000",
+        "maximum_observed_drawdown_fraction": "0.001777919674347372779471113793843130",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+      },
+      "net_realized_return_percent": "0.36024744868750000000000000000",
+      "maximum_observed_drawdown_percent": "0.1777919674347372779471113793843130",
+      "costs_usd": {
+        "commission": "1.44",
+        "slippage": "0.72",
+        "half_spread": "0.49500000",
+        "financing": "0.06525513125000000000000000000000000"
+      },
+      "cost_note": "Spread/slippage are embedded in fills; do not subtract them twice.",
+      "decision_actions": {
+        "HOLD": 94,
+        "CANDIDATE": 2,
+        "SUBMITTED_TO_SIMULATOR": 2
+      },
+      "entry_fills": 2,
+      "close_fills": 2,
+      "open_positions": 0,
+      "unsettled_entry_orders": 0,
+      "fully_settled": true,
+      "journal_tip": "6ac9b398f50079c19bf095c7390d9bb70da627ce58cbf8efc00a73c19ccab647",
+      "receipt": {
+        "manifest_hash": "f39a590b3a0b8020491e9b629ea53398a633b1d43dcf2d4b20ab4f7f1e859201",
+        "result_hash": "64aeedd5bbe9d3088ad9558f7917d1e43d912e175fdf0773b99481ddcc5a3d64",
+        "journal": {
+          "file": "journal.jsonl.gz",
+          "rows": 122988,
+          "raw_bytes": 240545621,
+          "raw_sha256": "a809b75a72e9b1b9f85a68e768cbf1e9f3163b804ba73b1ea6cb36389c205730",
+          "sha256": "0853a0ea0097f0330d5dadee3e34f67d96c632f4686683aa911b297338f961bb"
+        },
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "rows": 122952,
+          "raw_bytes": 10512049,
+          "raw_sha256": "64158c39c23510be5b4ab1ce40b69375036c6bd3cb013881c66dddb8fc7f1ead",
+          "sha256": "9d9cc74ebb6c775cd86a7f1b0656de605bb3e802b78c7fa680d1cb58bf9cd3e0"
+        }
+      },
+      "independently_reconstructed": true,
+      "fill_ledger_verification": {
+        "balance_from_fills": true,
+        "exposure_from_fills": true,
+        "arithmetic_tolerance_usd": "1e-25"
+      },
+      "source_rows_independently_counted": 122952,
+      "equity_sample_states": {
+        "DEGRADED_PROTECT": 1,
+        "RUNNING": 122951
+      },
+      "final_state": "RUNNING"
+    },
+    {
+      "symbol": "USDJPY",
+      "partition": "training",
+      "coverage": {
+        "ticks": 167688,
+        "first": "2025-01-21T00:00:00.289000+00:00",
+        "last": "2025-01-21T23:59:59.801000+00:00",
+        "maximum_arrival_gap_seconds_including_edges": "298.86",
+        "receipt_timing": "MODELED_NOT_MEASURED"
+      },
+      "metrics": {
+        "closed_trades": 3,
+        "winning_trades": 0,
+        "net_expectancy": "-16.72035585542147936924968734311105",
+        "maximum_observed_drawdown_fraction": "0.005632548832093084497290267268871425",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+      },
+      "net_realized_return_percent": "-0.5016106756626443810774906202933300",
+      "maximum_observed_drawdown_percent": "0.5632548832093084497290267268871425",
+      "costs_usd": {
+        "commission": "2.08",
+        "slippage": "1.04",
+        "half_spread": "1.162204650996491911936643554440500",
+        "financing": "0.02713403611111111111111111111111111"
+      },
+      "cost_note": "Spread/slippage are embedded in fills; do not subtract them twice.",
+      "decision_actions": {
+        "HOLD": 92,
+        "CANDIDATE": 4,
+        "SUBMITTED_TO_SIMULATOR": 3,
+        "EXPIRED": 1
+      },
+      "entry_fills": 3,
+      "close_fills": 3,
+      "open_positions": 0,
+      "unsettled_entry_orders": 0,
+      "fully_settled": true,
+      "journal_tip": "9b357f46899d4ec124748ba33e5c71c97d56b236abec67b66dc6e2a16397a151",
+      "receipt": {
+        "manifest_hash": "f39a590b3a0b8020491e9b629ea53398a633b1d43dcf2d4b20ab4f7f1e859201",
+        "result_hash": "46af4d7acdd4160e1e27908e4389a5b879dba18eb1255be890ec377d382196fa",
+        "journal": {
+          "file": "journal.jsonl.gz",
+          "rows": 167741,
+          "raw_bytes": 760462028,
+          "raw_sha256": "7c20356f691efc72f394367ed21b073efdaedb2131de95821dbb5eb4b4a8240d",
+          "sha256": "f729aa62a23c4cdbacb65f5c3b2ad365e8a6e5d8187f14b0c5514b742bf90740"
+        },
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "rows": 167688,
+          "raw_bytes": 17867967,
+          "raw_sha256": "7cbe4f99d7d5a52db9921fcd42f64e41927bf1d3bf6b0dc9da8b2a7ddba75f3a",
+          "sha256": "2503fdf54b940d6fa3eaec7fbcb51839473d023af39f05ab373d6fc5b39e3394"
+        }
+      },
+      "independently_reconstructed": true,
+      "fill_ledger_verification": {
+        "balance_from_fills": true,
+        "exposure_from_fills": true,
+        "arithmetic_tolerance_usd": "1e-25"
+      },
+      "source_rows_independently_counted": 167688,
+      "equity_sample_states": {
+        "DEGRADED_PROTECT": 1,
+        "RUNNING": 167687
+      },
+      "final_state": "RUNNING"
+    },
+    {
+      "symbol": "EURUSD",
+      "partition": "validation",
+      "coverage": {
+        "ticks": 88605,
+        "first": "2025-01-22T00:00:01.143000+00:00",
+        "last": "2025-01-22T23:59:54.056000+00:00",
+        "maximum_arrival_gap_seconds_including_edges": "290.392",
+        "receipt_timing": "MODELED_NOT_MEASURED"
+      },
+      "metrics": {
+        "closed_trades": 2,
+        "winning_trades": 1,
+        "net_expectancy": "2.91415831875000000000000000000000",
+        "maximum_observed_drawdown_fraction": "0.001384493941810940737833475219860326",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+      },
+      "net_realized_return_percent": "0.05828316637500000000000000000",
+      "maximum_observed_drawdown_percent": "0.1384493941810940737833475219860326",
+      "costs_usd": {
+        "commission": "1.44",
+        "slippage": "0.72",
+        "half_spread": "0.36000000",
+        "financing": "0.02168336250000000000000000000000000"
+      },
+      "cost_note": "Spread/slippage are embedded in fills; do not subtract them twice.",
+      "decision_actions": {
+        "HOLD": 94,
+        "CANDIDATE": 2,
+        "SUBMITTED_TO_SIMULATOR": 2
+      },
+      "entry_fills": 2,
+      "close_fills": 2,
+      "open_positions": 0,
+      "unsettled_entry_orders": 0,
+      "fully_settled": true,
+      "journal_tip": "0782be1f39df9c01b33fb1dc532cc0304700ac8284f314ff208e39ebb3bcb0c7",
+      "receipt": {
+        "manifest_hash": "f39a590b3a0b8020491e9b629ea53398a633b1d43dcf2d4b20ab4f7f1e859201",
+        "result_hash": "a7cc5c7341f2b243851cec2e2fd5c4bc90e81f5dabdfa3d1d0067631042db0cb",
+        "journal": {
+          "file": "journal.jsonl.gz",
+          "rows": 88641,
+          "raw_bytes": 277519028,
+          "raw_sha256": "920485b07b5ad0b16981b7c81a9153ab77b0657016f9c300103e35ad48672019",
+          "sha256": "4fd514caa4f4c65f4263de33d42bc9456d792fcde3f02214f36f12e110709514"
+        },
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "rows": 88605,
+          "raw_bytes": 8509480,
+          "raw_sha256": "5781c2adc38ab1b766177ab978583ba9ad40e5032412288a307072f1a15a7fe0",
+          "sha256": "7e577608d30828603fe2bff762065cc2122b31bb7e2b8e105535450d12911325"
+        }
+      },
+      "independently_reconstructed": true,
+      "fill_ledger_verification": {
+        "balance_from_fills": true,
+        "exposure_from_fills": true,
+        "arithmetic_tolerance_usd": "1e-25"
+      },
+      "source_rows_independently_counted": 88605,
+      "equity_sample_states": {
+        "DEGRADED_PROTECT": 1,
+        "RUNNING": 88604
+      },
+      "final_state": "RUNNING"
+    },
+    {
+      "symbol": "USDJPY",
+      "partition": "validation",
+      "coverage": {
+        "ticks": 115620,
+        "first": "2025-01-22T00:00:00.308000+00:00",
+        "last": "2025-01-22T23:59:59.929000+00:00",
+        "maximum_arrival_gap_seconds_including_edges": "240.563",
+        "receipt_timing": "MODELED_NOT_MEASURED"
+      },
+      "metrics": {
+        "closed_trades": 1,
+        "winning_trades": 0,
+        "net_expectancy": "-12.48777922246623247457409605767920",
+        "maximum_observed_drawdown_fraction": "0.001252597775872652456550938907663819",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+      },
+      "net_realized_return_percent": "-0.1248777922246623247457409605767900",
+      "maximum_observed_drawdown_percent": "0.1252597775872652456550938907663819",
+      "costs_usd": {
+        "commission": "0.72",
+        "slippage": "0.36",
+        "half_spread": "0.4333352444772436777737362395005000",
+        "financing": "0.03131144999999999999999999999999999"
+      },
+      "cost_note": "Spread/slippage are embedded in fills; do not subtract them twice.",
+      "decision_actions": {
+        "HOLD": 94,
+        "CANDIDATE": 2,
+        "SUBMITTED_TO_SIMULATOR": 1,
+        "EXPIRED": 1
+      },
+      "entry_fills": 1,
+      "close_fills": 1,
+      "open_positions": 0,
+      "unsettled_entry_orders": 0,
+      "fully_settled": true,
+      "journal_tip": "33af22090230a7c78b5f38d3105dd7e41a4332fb5386af1b838d47111af144b4",
+      "receipt": {
+        "manifest_hash": "f39a590b3a0b8020491e9b629ea53398a633b1d43dcf2d4b20ab4f7f1e859201",
+        "result_hash": "37f46cedbf5e4f8ce4ac658ac7cdf59133263efacc92dfb20a4f8d1f4b45d5c9",
+        "journal": {
+          "file": "journal.jsonl.gz",
+          "rows": 115639,
+          "raw_bytes": 235998077,
+          "raw_sha256": "c4f3e2ab40846d401d4f9ece04cadbb47d2fc384d4b36d12211622317123f670",
+          "sha256": "f95d3006743beaa4196a52aea770396671b81325dd2d156415c0ab0b5bf387f6"
+        },
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "rows": 115620,
+          "raw_bytes": 10913274,
+          "raw_sha256": "a3948caa7fdae6532fa73b3c31b183710e4062143629e171b3f169b725e7d232",
+          "sha256": "62c2fa9096bb262fabb5352821e6852b54782457f029d3a6d67dc2ba168cde55"
+        }
+      },
+      "independently_reconstructed": true,
+      "fill_ledger_verification": {
+        "balance_from_fills": true,
+        "exposure_from_fills": true,
+        "arithmetic_tolerance_usd": "1e-25"
+      },
+      "source_rows_independently_counted": 115620,
+      "equity_sample_states": {
+        "DEGRADED_PROTECT": 1,
+        "RUNNING": 115619
+      },
+      "final_state": "RUNNING"
+    },
+    {
+      "symbol": "EURUSD",
+      "partition": "holdout",
+      "coverage": {
+        "ticks": 101193,
+        "first": "2025-01-23T00:00:00.456000+00:00",
+        "last": "2025-01-23T23:59:59.427000+00:00",
+        "maximum_arrival_gap_seconds_including_edges": "139.461",
+        "receipt_timing": "MODELED_NOT_MEASURED"
+      },
+      "metrics": {
+        "closed_trades": 2,
+        "winning_trades": 0,
+        "net_expectancy": "-6.86543512187500000000000000000000",
+        "maximum_observed_drawdown_fraction": "0.001933991591956336904198675802785927",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+      },
+      "net_realized_return_percent": "-0.137308702437500000000000000000",
+      "maximum_observed_drawdown_percent": "0.1933991591956336904198675802785927",
+      "costs_usd": {
+        "commission": "1.44",
+        "slippage": "0.72",
+        "half_spread": "0.67500000",
+        "financing": "0.05087024374999999999999999999999999"
+      },
+      "cost_note": "Spread/slippage are embedded in fills; do not subtract them twice.",
+      "decision_actions": {
+        "HOLD": 94,
+        "CANDIDATE": 2,
+        "SUBMITTED_TO_SIMULATOR": 2
+      },
+      "entry_fills": 2,
+      "close_fills": 2,
+      "open_positions": 0,
+      "unsettled_entry_orders": 0,
+      "fully_settled": true,
+      "journal_tip": "519564298c29f1147e1249f25cae60e1be0ed1faacb9dab0150e439203d3f788",
+      "receipt": {
+        "manifest_hash": "f39a590b3a0b8020491e9b629ea53398a633b1d43dcf2d4b20ab4f7f1e859201",
+        "result_hash": "d2be781c17ef71a0c7d2cfc0a293cbf8ed9af7e8b8bed164c43f2f785df4e494",
+        "journal": {
+          "file": "journal.jsonl.gz",
+          "rows": 101229,
+          "raw_bytes": 249079739,
+          "raw_sha256": "3b0358377c2a1cc60c5afeed9d5ecf090bb760dda4b4ce7837527fae46e9133b",
+          "sha256": "627992edc8c1026abf24888cf3225667b27af02c5500f8c98b906aea02e99951"
+        },
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "rows": 101193,
+          "raw_bytes": 9741055,
+          "raw_sha256": "be637350a77ace17182a9609351055f242e4f31956d538ba1fac2ddaa0d72adc",
+          "sha256": "03ed135fdbd6ef001f1433bd66168c12eb63f61c00662cf38d66e3cd21ead953"
+        }
+      },
+      "independently_reconstructed": true,
+      "fill_ledger_verification": {
+        "balance_from_fills": true,
+        "exposure_from_fills": true,
+        "arithmetic_tolerance_usd": "1e-25"
+      },
+      "source_rows_independently_counted": 101193,
+      "equity_sample_states": {
+        "DEGRADED_PROTECT": 1,
+        "RUNNING": 101192
+      },
+      "final_state": "RUNNING"
+    },
+    {
+      "symbol": "USDJPY",
+      "partition": "holdout",
+      "coverage": {
+        "ticks": 117768,
+        "first": "2025-01-23T00:00:00.033000+00:00",
+        "last": "2025-01-23T23:59:59.688000+00:00",
+        "maximum_arrival_gap_seconds_including_edges": "179.113",
+        "receipt_timing": "MODELED_NOT_MEASURED"
+      },
+      "metrics": {
+        "closed_trades": 4,
+        "winning_trades": 1,
+        "net_expectancy": "-2.942680315135089948867000373879008",
+        "maximum_observed_drawdown_fraction": "0.003758643776267445924852747716639494",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+      },
+      "net_realized_return_percent": "-0.1177072126054035979546800149551700",
+      "maximum_observed_drawdown_percent": "0.3758643776267445924852747716639494",
+      "costs_usd": {
+        "commission": "2.88",
+        "slippage": "1.44",
+        "half_spread": "1.525915791369735613012768490473500",
+        "financing": "0.1002569875000000000000000000000000"
+      },
+      "cost_note": "Spread/slippage are embedded in fills; do not subtract them twice.",
+      "decision_actions": {
+        "HOLD": 92,
+        "CANDIDATE": 4,
+        "SUBMITTED_TO_SIMULATOR": 4
+      },
+      "entry_fills": 4,
+      "close_fills": 4,
+      "open_positions": 0,
+      "unsettled_entry_orders": 0,
+      "fully_settled": true,
+      "journal_tip": "ebd4de7ac6ccaff994dd308c9bef21458fddc1be320e5f36f33e2e55a2f36d03",
+      "receipt": {
+        "manifest_hash": "f39a590b3a0b8020491e9b629ea53398a633b1d43dcf2d4b20ab4f7f1e859201",
+        "result_hash": "c277784fc0a4919071b227c8afa9c255d9d5a53d5b38fb9c01ef2162297f3411",
+        "journal": {
+          "file": "journal.jsonl.gz",
+          "rows": 117838,
+          "raw_bytes": 570953593,
+          "raw_sha256": "5d2871b9473fe2194f490f51bf43768c63cf416eca3218c02ba4b86c027d927e",
+          "sha256": "7180047f7b92e7ef0b46db95cacedbf27f097411e836697fc1015ea979d91cb8"
+        },
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "rows": 117768,
+          "raw_bytes": 12550699,
+          "raw_sha256": "1b636cacd5c1b546751d18a0d315341d8c3d6300b433bd9e4426280ff1018b70",
+          "sha256": "0ed3edf6b1a5ec411032463d4da72f5af3e04daf5f6a6268821716aa7a389bf1"
+        }
+      },
+      "independently_reconstructed": true,
+      "fill_ledger_verification": {
+        "balance_from_fills": true,
+        "exposure_from_fills": true,
+        "arithmetic_tolerance_usd": "1e-25"
+      },
+      "source_rows_independently_counted": 117768,
+      "equity_sample_states": {
+        "DEGRADED_PROTECT": 1,
+        "RUNNING": 117767
+      },
+      "final_state": "RUNNING"
+    }
+  ],
+  "total_ticks": 713826,
+  "total_closed_trades": 14,
+  "all_sessions_flat": true,
+  "execution_enabled": false,
+  "m1_qualified": false,
+  "economic_acceptance": false,
+  "limitations": [
+    "Three consecutive days, one chronological split, not multiple walk-forward folds.",
+    "Independent cold-start accounts; no combined equity curve or compounded return.",
+    "Calendar/news/history readiness assumed; receipt latency modeled, not measured.",
+    "Unqualified revisions/session gaps; generic instrument and cost assumptions.",
+    "No parameter tuning, annualization, significance claim or broker execution inference.",
+    "Original pilot, M1 gaps and broader M2 fault requirements remain unchanged."
+  ]
+}

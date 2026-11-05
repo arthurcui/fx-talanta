@@ -65,6 +65,8 @@ an examined holdout as untouched evidence.
 Each index accepts at most five million source ticks, 20,000 bars, a 32 MiB ZIP and
 256 MiB CSV. SQLite has an 8 MiB cache; insertion batches contain 5,000 rows and
 replay reads 512 rows at a time. Each partition is at most 24 hours and 300,000 ticks.
+Plan boundaries must align to whole source milliseconds; finer precision is rejected
+instead of silently truncating the SQL window.
 Exceeding a bound fails explicitly rather than silently truncating the session.
 
 Equity and hash-chained audit records stream to deterministic gzip JSONL files.
@@ -74,6 +76,42 @@ the stream writer. Engine position/order history and the bounded bar set remain 
 memory. These are resource limits, not strategy qualification thresholds.
 
 ## Interpretation
+
+### Actual result, November 5, 2026
+
+The [sanitized report](../evidence/m3-full-session-study-20261105.json) records all
+six completed sessions: **713,826 ticks and 14 closed simulated trades**. Every
+session finished flat with no unsettled entry orders. All hash chains, final books,
+fill-ledger balances/exposure, equity/drawdown and source-row counts were checked.
+No boundary liquidation, window extension or parameter change was needed.
+
+| Pair | Partition | Ticks | Closed trades | Net return | Maximum observed drawdown |
+| --- | --- | ---: | ---: | ---: | ---: |
+| EUR/USD | Training | 122,952 | 2 | +0.3602% | 0.1778% |
+| USD/JPY | Training | 167,688 | 3 | −0.5016% | 0.5633% |
+| EUR/USD | Validation | 88,605 | 2 | +0.0583% | 0.1384% |
+| USD/JPY | Validation | 115,620 | 1 | −0.1249% | 0.1253% |
+| EUR/USD | Holdout | 101,193 | 2 | −0.1373% | 0.1934% |
+| USD/JPY | Holdout | 117,768 | 4 | −0.1177% | 0.3759% |
+
+Returns include the registered costs. Each row uses an independent account, so the
+returns are not a combined or compounded portfolio performance series. Both holdout
+pairs lost money. **Decision: retain B01 as a research comparator; do not promote it
+to connected strategy trading or claim an economic edge from this study.** This
+completes the bounded full-session study, not all M3 economic acceptance.
+
+The registered engine is preserved at commit
+`5962495f97a0c9d935533922859d973ce8823a46`; its engine hash and runtime versions are in
+the report. The original January 16 pilot was not changed or included in these totals.
+After all runs stopped, an input guard was added to reject submillisecond boundaries.
+All six recorded windows use exact UTC midnights and satisfy that guard. This did
+not change or rerun the registered engine; use the recorded commit to reproduce its
+source hash. The added guard has separate regression tests.
+The report can be rebuilt from retained private artifacts with:
+
+```text
+python -m tools.qualification.session_report --study .local/full-session-study-01 --output .local/reconstructed-session-report.json
+```
 
 Three consecutive days are a small, correlated sample. Report closed-trade counts,
 cost-adjusted return per independent account/session, observed drawdown, gaps and

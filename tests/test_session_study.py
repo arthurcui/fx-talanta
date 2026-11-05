@@ -172,3 +172,13 @@ def test_report_reconstructs_fills_and_rejects_invented_balance():
     result["balance"] = "999999"
     with pytest.raises(ValueError, match="balance mismatch"):
         reconcile_fills(result)
+
+
+@pytest.mark.parametrize("field", ["start", "training_end", "validation_end", "end"])
+def test_submillisecond_plan_boundaries_are_rejected_instead_of_truncated(field):
+    _, experiment = scenario()
+    experiment = experiment.model_copy(
+        update={field: getattr(experiment, field) + timedelta(microseconds=1)}
+    )
+    with pytest.raises(ValueError, match="source milliseconds"):
+        Plan(experiments=(experiment,), description="Unsupported timestamp precision")

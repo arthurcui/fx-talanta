@@ -35,6 +35,8 @@ class Plan(FrozenModel):
         for e in self.experiments:
             for phase in PHASES:
                 start, end = e.window(phase)
+                if start.microsecond % 1000 or end.microsecond % 1000:
+                    raise ValueError("study boundaries must align to source milliseconds")
                 if end - start > timedelta(days=1):
                     raise ValueError("each study partition is bounded to one session/day")
         return self
