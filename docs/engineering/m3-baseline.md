@@ -102,6 +102,11 @@ provider. All results retain `execution_enabled=false`, `m1_qualified=false` and
 
 ## Remaining M3 acceptance
 
+Use the [M3 completion checklist](m3-completion.md) for the current finite work
+packages and their required evidence. Independent exact-rational numerical comparison
+now passes 36 synthetic cases; it does not qualify MT5-native indicator behavior or
+broker costs.
+
 The [first historical pilot](m3-historical-data.md) now covers HistData ingestion,
 fixed-EST conversion and six bounded replay scenarios. It produced no closed trades
 and is insufficient for economic selection. Equal-time quotes with explicit source
