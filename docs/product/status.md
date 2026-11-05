@@ -1,7 +1,8 @@
 # Current product status
 
-Baseline: merged PR #25 (`359563c`, November 5, 2026). M1 input remediation does
-not change execution authority or qualify another campaign.
+Research baseline: merged PR #34 (`93fb4c5`, November 5, 2026). M3's completed
+research scope is closed by owner decision; qualification gaps remain tracked.
+This does not change execution authority or qualify another campaign.
 
 ## Implemented
 
@@ -38,10 +39,13 @@ and Algo Trading disabled at verification. This document is not a live terminal 
 
 ## Current development milestone
 
-The owner approved proceeding to **M3 offline baseline/replay** with M1 operational
-requirements carried forward. The [scope decision](../engineering/m1-completion-decision.md)
-and [open-requirements register](../engineering/m1-open-requirements.md) preserve them
-as blockers before connected strategy PAPER. This does not enable strategy orders.
+The owner approved **M4 offline development** after closing the completed M3 research
+scope. The [M3 closure](../engineering/m3-research-closeout.md) retains M3-Q1–Q4
+qualification gaps and B01's REJECT_FOR_PROMOTION verdict. The
+[M4 evidence foundation](../engineering/m4-advisor.md) provides typed simulator-only
+reads; model integration, authenticated API and simulated command acceptance remain
+pending. M1 [open requirements](../engineering/m1-open-requirements.md) still block
+connected strategy PAPER. This does not enable strategy orders.
 
 ## Remaining gates
 
@@ -57,8 +61,8 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   [full-session study](../engineering/m3-session-study.md): six sessions, 713,826 ticks,
   14 closed simulated trades and all sessions flat. Both holdout pairs lost after
   modeled costs; historical economic acceptance remains open.
-  The [M3 completion checklist](../engineering/m3-completion.md) records the remaining
-  source/cost reconciliation, multi-fold evaluation and final verdict. Independent
+  The [M3 completion checklist](../engineering/m3-completion.md) records the completed
+  multi-fold evaluation and verdict, with source/cost qualification still open. Independent
   numerical comparison passes 36 synthetic cases; this is not terminal qualification.
   The [input/cost audit](../engineering/historical-input-costs.md) checks all retained
   January ticks and records spread distributions and demo fees. Historical fee terms,
@@ -73,8 +77,9 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   per-fill USD-notional commissions and dated signed rollover postings in the USD
   simulator. The legacy cost model and B01 verdict are unchanged; synthetic tests
   prove integration, not historical account-cost calibration.
-- **Later milestones:** production model integration,
-  conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
+- **M4 and later:** the offline evidence-reader slice is implemented; production model
+  integration, authenticated conversational advisor, dashboard, unattended PAPER and
+  capped LIVE remain gated.
 
 Broader M2 acceptance must preserve the historical closure recovery and reconcile
 existing evidence for lost replies, restart while exposed, partial fills, rejected

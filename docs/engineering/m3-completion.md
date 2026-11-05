@@ -1,5 +1,11 @@
 # M3 completion checklist
 
+**Research scope closed by the owner on November 5, 2026.** The
+[closure and M3-Q1–Q4 register](m3-research-closeout.md) preserves qualification gaps
+and the B01 rejection. M4 offline development may proceed; full historical
+qualification and connected trading remain gated. The checklist below retains
+the original acceptance boundaries rather than relabeling them as passed.
+
 M3 delivers a trustworthy frozen baseline and a reproducible research verdict. It
 does not require disguising a losing strategy as profitable. Engineering validity
 and economic suitability are separate conclusions; neither authorizes connected

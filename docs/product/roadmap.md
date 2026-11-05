@@ -12,8 +12,8 @@ gates. [Current status](status.md) distinguishes implemented features from quali
 | M2B | Fixed EA | Implemented and native/Tester evidence retained |
 | M2C | Deterministic safety and recovery | Implemented checks; connected acceptance still must validate the fault matrix |
 | M2D | Connected PAPER execution acceptance | Bounded same-session demo closeout verified without recovery (PR #25); full fault-matrix acceptance remains open |
-| M3 | Strategy baseline and replay | Frozen B01 evaluated across three advancing origins and a final holdout under base/stress costs; registered screen rejects promotion. Historical cost/availability qualification remains open; no broker execution |
-| M4 | Bounded AI and conversational advisor | Model proposals and explanations cite records; deterministic authority remains outside the model |
+| M3 | Strategy baseline and replay | [Research scope closed](../engineering/m3-research-closeout.md); B01 remains REJECT_FOR_PROMOTION. M3-Q1–Q4 cost/availability qualification gaps remain open |
+| M4 | Bounded AI and conversational advisor | In development: [offline evidence projection](../engineering/m4-advisor.md); provider integration, authenticated API and simulated commands remain acceptance work |
 | M5 | Unattended PAPER and operating UI | All prerequisites plus at least eight weeks AND 100 closed trades under the specification's gates |
 | M6 | Capped LIVE | Explicit approval and bounded live risk after PAPER acceptance |
 | M7 | Evaluated evolution | Evidence-based lessons, candidate evaluation, promotion and rollback; no self-modified execution authority |
@@ -24,5 +24,5 @@ The operating dashboard must show quote latency and separate channel status for 
 EA, Python MT5 package and MCP. It must distinguish connection health, quote freshness,
 clock uncertainty and entry readiness. A healthy connection is not a fresh-market pass.
 
-The short-term repository work improves navigation and maintainability. It does not
-advance a milestone, relax the two-second entry ceiling or authorize more trading.
+The owner authorized M4 development after closing M3's completed research scope.
+This does not relax the two-second entry ceiling or authorize connected trading.
