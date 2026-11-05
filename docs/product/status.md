@@ -60,6 +60,9 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   The [M3 completion checklist](../engineering/m3-completion.md) records the remaining
   source/cost reconciliation, multi-fold evaluation and final verdict. Independent
   numerical comparison passes 36 synthetic cases; this is not terminal qualification.
+  The [input/cost audit](../engineering/historical-input-costs.md) checks all retained
+  January ticks and records spread distributions and demo fees. Historical fee terms,
+  financing rates, representative slippage and source availability remain unqualified.
 - **Later milestones:** production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
 

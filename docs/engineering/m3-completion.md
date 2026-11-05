@@ -45,6 +45,13 @@ scope and cannot substitute for those missing attestations.
 
 ## Next study protocol, before any new evaluation
 
+The [input/cost audit](historical-input-costs.md) now provides complete retained-tick
+integrity checks, daily spread distributions, explicit gap classification and saved
+demo fee aggregates. It resolves the inventory step only as a scoped research audit:
+the session proxy, original receipt/revision history, historical account tariffs,
+financing rates and representative slippage remain unqualified. Current published
+commission scenarios must not be described as historically calibrated costs.
+
 1. Finish the source/cost inventory and choose the research claim supported by it.
    Separate calibrated quantities from unmeasured conservative assumptions. Keep
    missing required calendar/news evidence visible; do not rename it a passed gate.
