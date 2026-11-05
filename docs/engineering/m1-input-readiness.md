@@ -1,5 +1,10 @@
 # M1 input readiness: implemented remediation and remaining restrictions
 
+**Work in progress, not an M1 completion PR.** The
+[completion decision](m1-completion-decision.md) records the unresolved milestone
+contract and missing qualification-to-runtime integration. No scope change has
+been approved.
+
 PR #25 is merged. Bounded M2 demo closeout is verified, with all M1 failures
 preserved separately. This work uses an isolated checkout and new SQLite journals;
 no terminal, broker database, shared Python environment or stopped campaign changes.
