@@ -249,17 +249,31 @@ def run(dataset, experiment, partition):
             }
         ),
     )
+    timeline = ((at, at in bar_times, events.get(at, ())) for at in timeline)
+    return execute_timeline(dataset, experiment, partition, timeline, run_id)
+
+
+def execute_timeline(
+    dataset, experiment, partition, timeline, run_id, *, journal_sink=None, samples_sink=None
+):
+    """Shared risk/execution loop; alternate sinks do not change trading decisions."""
+    start, end = experiment.window(partition)
     account = AccountIdentity(
         environment="PAPER", venue="SIMULATOR", broker="REPLAY", server="OFFLINE", login="B01"
     )
     clock = FakeClock(start)
     gateway = Gateway.for_replay(account, run_id, clock, experiment.policy)
     gateway.broker = CostSimulator(gateway.store, experiment.policy.capital, experiment.costs)
-    pending, seen, decisions, samples, final_market = None, set(), [], [], None
+    if journal_sink is not None:
+        for item in gateway.store.journal:
+            journal_sink.append(item)
+        gateway.store.journal = journal_sink
+    pending, seen, decisions, final_market = None, set(), [], None
+    samples = [] if samples_sink is None else samples_sink
     with localcontext() as context:
         context.prec = 34
         try:
-            for at in timeline:
+            for at, bar_arrival, event_group in timeline:
                 clock.advance(at - clock.now())
                 if pending and at >= datetime.fromisoformat(pending["expires_at"]):
                     decisions.append(
@@ -270,7 +284,7 @@ def run(dataset, experiment, partition):
                         }
                     )
                     pending = None
-                if at in bar_times:
+                if bar_arrival:
                     candidate = evaluate(
                         dataset.bars,
                         experiment.symbol,
@@ -285,9 +299,7 @@ def run(dataset, experiment, partition):
                     ):
                         pending = candidate
                         seen.add(candidate["signal_bar_close"])
-                if at not in events:
-                    continue
-                for event in events[at]:
+                for event in event_group:
                     market = priced(event.market, experiment.costs)
                     gateway.reconcile(market)
                     final_market = market
@@ -382,6 +394,8 @@ def run(dataset, experiment, partition):
                             "state": gateway.book.state,
                         }
                     )
+            if final_market is None:
+                raise ValueError("partition has no market evidence")
             book = gateway.broker.book
             result = {
                 "schema": "b01-replay/1",
@@ -392,7 +406,7 @@ def run(dataset, experiment, partition):
                 "experiment": experiment.model_dump(mode="json"),
                 "run_id": str(run_id),
                 "decisions": decisions,
-                "equity_samples": samples,
+                "equity_samples": samples if samples_sink is None else [],
                 "deals": [d.model_dump(mode="json") for d in book.deals],
                 "financing": gateway.broker.financing,
                 "fill_costs": gateway.broker.fill_costs,
@@ -410,10 +424,13 @@ def run(dataset, experiment, partition):
             }
             closed = [p.realized for p in book.positions if not p.volume]
             peak, drawdown = experiment.policy.capital, Decimal(0)
-            for sample in samples:
-                value = Decimal(sample["equity"])
-                peak = max(peak, value)
-                drawdown = max(drawdown, (peak - value) / peak)
+            if samples_sink is None:
+                for sample in samples:
+                    value = Decimal(sample["equity"])
+                    peak = max(peak, value)
+                    drawdown = max(drawdown, (peak - value) / peak)
+            else:
+                drawdown = samples_sink.drawdown
             result["metrics"] = {
                 "closed_trades": len(closed),
                 "winning_trades": sum(p > 0 for p in closed),
