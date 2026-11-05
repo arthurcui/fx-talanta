@@ -46,6 +46,35 @@ queries have no side effects; no account state, source record or authority chang
 
 ## Remaining M4 acceptance
 
+### Durable offline read conversations
+
+`advisor.journal.read_and_record` now loads exact evidence IDs and their bounded
+dependency closure from the existing account-bound repository, projects the answer,
+and atomically appends a typed query and exact JSON answer as two conversation
+messages. The receipt retains citation IDs/hashes, unavailable IDs, provenance,
+as-of and generation times. Fixed bilingual rendering can be applied to that same
+saved receipt; no free-form user text or command interpretation is accepted.
+
+Request UUIDs derive stable message IDs. Re-delivery validates actor, account,
+conversation, language and query, then returns the original receipt. Later evidence
+does not change a previously unknown answer; a genuinely new query needs a new
+request ID. Changed content under the same ID, partial receipts, expired access,
+wrong accounts and future receipts fail closed. Concurrent delivery cannot append
+another pair. A caller whose captured clock predates a winning concurrent receipt
+must retry with a current time; it cannot overwrite that receipt.
+
+The existing 4096-character message contract is retained. Both messages are fully
+validated before the atomic append, so oversized evidence results fail without
+truncation or a partial conversation. Request fewer records in a new query. Source
+records and execution history remain unchanged. Dependency traversal is capped at
+1,000 identities and never scans account history or follows future-record links.
+
+These are trusted-caller offline records with `authenticated=false`, not a claim of
+real owner authentication. They are explicitly READ_ONLY and create no command,
+risk reservation or broker call. PostgreSQL failure returns an error, not an
+unrecorded successful response. Production authentication, model traces and
+natural-language conversation/command handling remain unfinished.
+
 | Work | Required acceptance |
 | --- | --- |
 | Bounded provider integration | Strict proposal schema, candidate/account allowlists, versioned model/prompt/input hashes, original two-second freshness, timeout/expiry and configured spend/retry caps; failures produce recorded HOLD |
@@ -63,8 +92,8 @@ authority, qualify missing market inputs, alter policy or deploy itself.
 ## Verification
 
 ```text
-python -m pytest tests/test_advisor_evidence.py
-python -m pytest tests/test_advisor_evidence.py --integration
+python -m pytest tests/test_advisor_evidence.py tests/test_advisor_journal.py
+python -m pytest tests/test_advisor_evidence.py tests/test_advisor_journal.py --integration
 ```
 
 Unit tests cover account/time isolation, duplicate/corrupt inputs, exact-version
@@ -72,3 +101,7 @@ queries, missing links, bilingual citation identity and memory cutoffs. The
 PostgreSQL test projects existing demo records and confirms the stored history is
 unchanged. It runs on CI's isolated fixture database; no local broker database or
 terminal is required.
+Journal tests additionally cover restart/re-delivery, changed request identity,
+late-arriving evidence, storage failure, oversized receipts and concurrent delivery.
+The PostgreSQL cases verify exactly two durable messages and unchanged source
+records. Test doubles are unit fixtures, not a SQLite substitute for production.
