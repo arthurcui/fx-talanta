@@ -1,0 +1,34 @@
+{
+  "schema": "retained-cost-calibration/1",
+  "scope": "FOREX.com MT5 saved CAD demo EURUSD sample only",
+  "trade_deals": 6,
+  "matched_closed_positions": 3,
+  "filled_lots_across_both_legs": "0.06",
+  "native_elapsed_ms_sorted": [
+    24690,
+    29235,
+    30404
+  ],
+  "native_elapsed_is_verified_utc_interval": false,
+  "recorded_trade_charges_cad": {
+    "commission": "0.0",
+    "fee": "0.0",
+    "swap": "0.0"
+  },
+  "observed_commission_and_fee_cad_per_filled_lot": "0E+1",
+  "measurement_status": "OBSERVED_SAMPLE_ONLY",
+  "nontrade_deals_excluded": 1,
+  "complete_account_charge_audit": false,
+  "account_tariff": "UNKNOWN",
+  "historical_2025_applicability": "UNPROVEN",
+  "financing_rate": "NOT_IDENTIFIABLE_FROM_ZERO_RECORDED_SWAP",
+  "slippage": "NO_VALIDATED_SUBMISSION_BENCHMARK",
+  "cad_to_usd_conversion": "NO_DATED_CONVERSION_EVIDENCE",
+  "broker_costs_qualified": false,
+  "replay_profile_created": false,
+  "b01_verdict": "REJECT_FOR_PROMOTION_UNCHANGED",
+  "execution_enabled": false,
+  "source_sha256": "1b17996497be6f5a587a72a4f0070967c7af9976eaa411584418306c93fb8d66",
+  "assessor_sha256": "e62a527a5a76f2e51311c87059c498337a2cbbaeb30b4fbdab61e38c98f4f256",
+  "source_unchanged": true
+}
