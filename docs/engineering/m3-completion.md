@@ -81,6 +81,11 @@ requirements remain open and are not erased by a completed simulation.
 
 ## Run the numerical check
 
+The [retained cost assessment](retained-cost-calibration.md) is complete: three
+matched CAD demo round trips support sample-only charge measurements. They do not
+identify historical tariffs, financing or representative slippage, so no calibrated
+profile or new B01 verdict is created. Full calibration remains an evidence gap.
+
 From the repository, with Python dependencies and Node.js available:
 
 ```text

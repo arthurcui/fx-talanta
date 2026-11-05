@@ -20,3 +20,4 @@ Return to the [documentation index](../README.md).
 - [Historical input audit and cost calibration](historical-input-costs.md)
 - [Frozen advancing-origin evaluation and research verdict](m3-walkforward.md)
 - [Broker-aware replay cost integration](broker-aware-replay-costs.md)
+- [Retained broker cost calibration: measurements and limits](retained-cost-calibration.md)

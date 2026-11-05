@@ -6,6 +6,7 @@ See [current status](../product/status.md) for what the product may claim today.
 
 | Evidence | What it establishes | What it does not establish |
 | --- | --- | --- |
+| [Retained cost calibration](m3-retained-cost-calibration-20261105.json) | Three matched demo round trips, observed CAD fees per filled lot, explicit non-identifiable costs | Historical tariffs, swap/slippage calibration, account-wide charges or a new replay profile |
 | [Broker-aware replay costs](m3-broker-cost-integration-20261105.json) | Synthetic per-fill commission/rollover integration, ledger reconstruction and exact legacy fixture compatibility | Historical broker-cost calibration, CAD ledger support, broker billing equivalence or any new trading authority |
 | [Frozen multi-fold result](m3-walkforward-result-20261105.json) | Three advancing origins and a separate final outcome holdout, base/stress costs, flat boundaries and a reproducible rejection screen | Calibrated broker costs, statistical profitability, full M3 qualification or permission to trade |
 | [Historical input/cost audit](m3-input-cost-audit-20261105.json) | All 5.75 million January ticks checked, spread distributions, explicit gaps and retained demo fee aggregates | Certified session availability, representative slippage or account-specific historical cost calibration |
