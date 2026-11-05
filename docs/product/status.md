@@ -63,6 +63,12 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   The [input/cost audit](../engineering/historical-input-costs.md) checks all retained
   January ticks and records spread distributions and demo fees. Historical fee terms,
   financing rates, representative slippage and source availability remain unqualified.
+  The [registered multi-fold evaluation](../engineering/m3-walkforward.md) adds
+  three advancing origins and a separate January 30 outcome holdout: 16 verified
+  flat sessions, 42 simulated closed trades across base/stress scenarios, and
+  **REJECT_FOR_PROMOTION** under the frozen research screen. This completes that
+  registered comparison, not full M3 cost/availability qualification. No retuning
+  or further study run is implied by the result.
 - **Later milestones:** production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
 

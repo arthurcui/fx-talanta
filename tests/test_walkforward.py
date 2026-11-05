@@ -10,6 +10,7 @@ from fx_talanta.research.spool import file_hash
 from tests.test_session_study import source
 from tools.fixtures.b01_replay import scenario
 from tools.qualification.walkforward import Session, run, run_job, verdict, wrapper_hash
+from tools.qualification.walkforward_report import report
 
 
 def setup(tmp_path):
@@ -38,6 +39,7 @@ def setup(tmp_path):
         "jobs": [job],
         "engine_sha256": engine_hash(),
         "wrapper_sha256": wrapper_hash(),
+        "runtime": {"scope": "fixture"},
     }
     directory = tmp_path / "study"
     directory.mkdir()
@@ -73,6 +75,22 @@ def test_changed_registry_refused_before_start(tmp_path):
     with pytest.raises(ValueError, match="registry"):
         run(directory)
     assert not (directory / "started.json").exists()
+
+
+def test_independent_report_rebuilds_and_rejects_changed_claim(tmp_path):
+    directory, manifest, job = setup(tmp_path)
+    run(directory)
+    result = report(directory)
+    assert result["completed_sessions"] == 1
+    assert result["independently_verified"]
+    assert result["sessions"][0]["source_rows_independently_counted"] == 6
+    assert result["verdict"] == "INSUFFICIENT_EVIDENCE_INCOMPLETE"
+    path = directory / "conclusion.json"
+    damaged = json.loads(path.read_text())
+    damaged["no_trade_comparator"]["return_percent"] = "-1"
+    path.write_text(json.dumps(damaged))
+    with pytest.raises(ValueError, match="comparator"):
+        report(directory)
 
 
 def test_frozen_protocol_has_new_outcome_holdout_and_unchanged_limits():
