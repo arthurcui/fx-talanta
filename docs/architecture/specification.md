@@ -624,6 +624,15 @@ remain P0/M0–M7; completion of this design is not completion of those gates.
 | M6 | Exact evaluated release on separately authorized capped LIVE account; no copied PAPER balances/orders/risk history; tested rollback and ongoing PAPER comparison |
 | M7 | Independently qualified challengers/adapters, retained failed experiments, audited promotion/rejection; no expansion of risk authority |
 
+**November 5 scope decision:** the owner closed the completed M3 research scope and
+authorized M4 offline development. B01 remains REJECT_FOR_PROMOTION. This is not a
+pass of M3's historical cost/availability gates: the
+[M3-Q1–Q4 register](../engineering/m3-research-closeout.md) retains them, alongside
+M1 operational and M2 fault-matrix requirements. M4 cannot promote B01, clear these
+gaps or authorize connected trading. Its first implemented slice is the
+[simulator-only evidence reader](../engineering/m4-advisor.md), not production AI
+or authentication.
+
 ## Mandatory fault tests
 
 1. Lost response after a possible send produces OUTCOME_UNKNOWN and no blind resend.

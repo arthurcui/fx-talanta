@@ -21,3 +21,5 @@ Return to the [documentation index](../README.md).
 - [Frozen advancing-origin evaluation and research verdict](m3-walkforward.md)
 - [Broker-aware replay cost integration](broker-aware-replay-costs.md)
 - [Retained broker cost calibration: measurements and limits](retained-cost-calibration.md)
+- [M3 research closure and qualification-gap register](m3-research-closeout.md)
+- [M4 advisor evidence foundation and acceptance](m4-advisor.md)
