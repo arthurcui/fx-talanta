@@ -19,3 +19,4 @@ Return to the [documentation index](../README.md).
 - [M3 completion checklist and independent numerical validation](m3-completion.md)
 - [Historical input audit and cost calibration](historical-input-costs.md)
 - [Frozen advancing-origin evaluation and research verdict](m3-walkforward.md)
+- [Broker-aware replay cost integration](broker-aware-replay-costs.md)

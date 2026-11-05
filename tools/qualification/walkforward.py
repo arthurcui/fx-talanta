@@ -16,6 +16,7 @@ from pydantic import model_validator
 
 from fx_talanta.domain.models import FrozenModel, Timestamp
 from fx_talanta.domain.offline import Policy
+from fx_talanta.research.broker_costs import BrokerCosts
 from fx_talanta.research.replay import Costs, digest, execute_timeline
 from fx_talanta.research.session_study import (
     TrackedEvents,
@@ -35,7 +36,7 @@ class Session(FrozenModel):
     symbol: Literal["EURUSD", "USDJPY"]
     start: Timestamp
     end: Timestamp
-    costs: Costs
+    costs: Costs | BrokerCosts
     policy: Policy
 
     @model_validator(mode="after")
@@ -93,7 +94,7 @@ def register(directory, protocol, indexes):
                     symbol=symbol,
                     start=day,
                     end=day + timedelta(days=1),
-                    costs=Costs.model_validate(costs),
+                    costs=costs,
                     policy=Policy.model_validate(protocol["policy"]),
                 )
                 index = TickIndex(Path(pinned[symbol]))

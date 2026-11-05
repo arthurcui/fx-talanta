@@ -29,6 +29,8 @@ def reconcile_fills(result):
             )
             if exposure[position] < 0:
                 raise ValueError("close exceeds owned simulated exposure")
+        if result.get("cost_model") == "broker-costs/1":
+            balance -= sum((Decimal(p["charge"]) for p in result["financing"]), Decimal(0))
         # Engine arithmetic uses Decimal precision 34; tolerate only round-off far
         # below a currency cent when independently accumulating at precision 50.
         if abs(balance - Decimal(result["balance"])) > Decimal("1e-25"):
