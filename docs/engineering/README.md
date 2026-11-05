@@ -17,3 +17,4 @@ Return to the [documentation index](../README.md).
 - [Historical input and first replay pilot](m3-historical-data.md)
 - [Full-session historical study](m3-session-study.md)
 - [M3 completion checklist and independent numerical validation](m3-completion.md)
+- [Historical input audit and cost calibration](historical-input-costs.md)

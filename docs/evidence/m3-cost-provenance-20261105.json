@@ -1,0 +1,56 @@
+{
+  "schema": "m3-cost-provenance/1",
+  "checked_on": "2026-11-05",
+  "historical_population": "January 2025 HistData EURUSD and USDJPY",
+  "historical_account_costs_qualified": false,
+  "replay_cost_model_changed": false,
+  "commission_scenarios": [
+    {
+      "broker": "FOREX.com Canada",
+      "plan": "RAW",
+      "usd_per_100000_usd_notional_per_leg": "7",
+      "source": "https://www.forex.com/en-ca/help-and-support/fx-commission-calculator/",
+      "historical_effective_date": "UNKNOWN",
+      "retained_account_plan_match": "UNKNOWN",
+      "status": "PUBLISHED_CURRENT_SCENARIO_ONLY"
+    },
+    {
+      "broker": "CMC Markets Canada",
+      "plan": "FX Active",
+      "usd_per_100000_usd_notional_per_leg": "2.50",
+      "source": "https://www.cmcmarkets.com/en-ca/forex/forex-active-trader",
+      "historical_effective_date": "UNKNOWN",
+      "retained_account_plan_match": "UNKNOWN",
+      "status": "PUBLISHED_CURRENT_SCENARIO_ONLY"
+    }
+  ],
+  "spread": {
+    "status": "MEASURED_SOURCE_QUOTES",
+    "evidence": "m3-input-cost-audit-20261105.json",
+    "weighting": "tick-weighted nearest-rank",
+    "broker_executable_price_equivalence": "UNPROVEN"
+  },
+  "retained_demo_charges": {
+    "status": "OBSERVED_SMALL_DEMO_SAMPLE",
+    "evidence": "m3-input-cost-audit-20261105.json",
+    "currency": "CAD",
+    "historical_research_currency": "USD",
+    "dated_conversion_rates": "MISSING"
+  },
+  "slippage": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "reason": "No representative submission-time quote to fill benchmark established",
+    "legacy_allowance_is_measurement": false
+  },
+  "financing": {
+    "broker_scope": "FOREX.com Canada convention only",
+    "source": "https://www.forex.com/en-ca/help-and-support/rollover/",
+    "cutoff": "17:00 America/New_York",
+    "normal_wednesday_multiplier": 3,
+    "dated_pair_side_rates": "MISSING",
+    "historical_pair_holiday_overrides": "MISSING",
+    "credits_and_debits_supported": true,
+    "legacy_elapsed_day_charge_is_calibration": false
+  },
+  "decision": "Input integrity and cost-unit preparation complete for this scope; historical broker cost calibration remains incomplete. Preserve all original studies; do not silently replace their assumptions."
+}
