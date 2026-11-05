@@ -43,7 +43,8 @@ The owner approved **M4 offline development** after closing the completed M3 res
 scope. The [M3 closure](../engineering/m3-research-closeout.md) retains M3-Q1–Q4
 qualification gaps and B01's REJECT_FOR_PROMOTION verdict. The
 [M4 evidence foundation](../engineering/m4-advisor.md) provides typed simulator-only
-reads; model integration, authenticated API and simulated command acceptance remain
+reads and atomic, idempotent conversation receipts; model integration,
+authenticated API and simulated command acceptance remain
 pending. M1 [open requirements](../engineering/m1-open-requirements.md) still block
 connected strategy PAPER. This does not enable strategy orders.
 
