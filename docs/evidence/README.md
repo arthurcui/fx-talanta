@@ -6,6 +6,7 @@ See [current status](../product/status.md) for what the product may claim today.
 
 | Evidence | What it establishes | What it does not establish |
 | --- | --- | --- |
+| [Frozen multi-fold result](m3-walkforward-result-20261105.json) | Three advancing origins and a separate final outcome holdout, base/stress costs, flat boundaries and a reproducible rejection screen | Calibrated broker costs, statistical profitability, full M3 qualification or permission to trade |
 | [Historical input/cost audit](m3-input-cost-audit-20261105.json) | All 5.75 million January ticks checked, spread distributions, explicit gaps and retained demo fee aggregates | Certified session availability, representative slippage or account-specific historical cost calibration |
 | [Full-session historical study](m3-full-session-study-20261105.json) | Six verified offline sessions, all source ticks retained, 14 closed simulated trades and flat boundaries | Economic edge, multi-fold validation, measured latency, M1 qualification or broker execution quality |
 | [Bounded demo, November 4](m2-bounded-demo-20261104.json) | Actual demo entry, protection, controlled close and independent read-only recovery | Unattended first-pass success, complete M2 fault acceptance or M1 qualification |

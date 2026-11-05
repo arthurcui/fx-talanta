@@ -18,3 +18,4 @@ Return to the [documentation index](../README.md).
 - [Full-session historical study](m3-session-study.md)
 - [M3 completion checklist and independent numerical validation](m3-completion.md)
 - [Historical input audit and cost calibration](historical-input-costs.md)
+- [Frozen advancing-origin evaluation and research verdict](m3-walkforward.md)

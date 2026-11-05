@@ -1,0 +1,78 @@
+{
+  "schema": "b01-walkforward-protocol/1",
+  "registered_before_new_strategy_outcomes": true,
+  "execution_enabled": false,
+  "strategy": "B01-research/1",
+  "parameter_search": false,
+  "training": "Expanding chronological bar prefix from January 1; no parameter fitting. Earlier evaluation days enter later bar prefixes.",
+  "folds": [
+    {
+      "name": "fold-1",
+      "role": "walkforward",
+      "evaluation_start": "2025-01-15T00:00:00+00:00"
+    },
+    {
+      "name": "fold-2",
+      "role": "walkforward",
+      "evaluation_start": "2025-01-20T00:00:00+00:00"
+    },
+    {
+      "name": "fold-3",
+      "role": "walkforward",
+      "evaluation_start": "2025-01-27T00:00:00+00:00"
+    },
+    {
+      "name": "final",
+      "role": "final_holdout",
+      "evaluation_start": "2025-01-30T00:00:00+00:00"
+    }
+  ],
+  "prior_outcomes_examined": [
+    "2025-01-16",
+    "2025-01-21",
+    "2025-01-22",
+    "2025-01-23"
+  ],
+  "holdout_scope": "Untouched strategy outcomes, not unseen prices: full January price-quality audit already published.",
+  "arms": {
+    "base": {
+      "commission_per_lot_per_side": "4",
+      "slippage_per_lot_per_side": "2",
+      "financing_per_lot_day": "3",
+      "basis": "Uncalibrated legacy USD assumptions; base scenario; spread embedded in source bid/ask"
+    },
+    "stress": {
+      "commission_per_lot_per_side": "8",
+      "slippage_per_lot_per_side": "4",
+      "financing_per_lot_day": "6",
+      "basis": "Uncalibrated legacy USD assumptions; stress scenario; spread embedded in source bid/ask"
+    }
+  },
+  "policy": {
+    "version": "offline-risk/1",
+    "capital": "10000",
+    "trade_fraction": "0.0025",
+    "aggregate_fraction": "0.005",
+    "daily_fraction": "0.01",
+    "drawdown_fraction": "0.05",
+    "gross_multiple": "2",
+    "currency_multiple": "1",
+    "margin_fraction": "0.20",
+    "maximum_positions": 1,
+    "quote_age_seconds": 2,
+    "protection_seconds": 5,
+    "healthy_samples": 2,
+    "protection_mode": "INITIAL_STOP"
+  },
+  "latency_ms": 250,
+  "index_hashes": {
+    "EURUSD": "2ca8a00c88d05a4bda8da080378544811df783fcbc3df7d555141791481864a9",
+    "USDJPY": "eb6b5c2129112b4177709a95f9371e56165e5650e6063768b66c20bf2a5d7029"
+  },
+  "cost_scope": "Generic uncalibrated USD research assumptions, not actual broker tariff. Source bid/ask spread embedded, never subtracted twice. Legacy elapsed-day financing retained, not actual rollover.",
+  "readiness_scope": "Historical news/calendar/history readiness assumed. Original arrival/revision/session availability unqualified.",
+  "comparator": "No trade: zero trading PnL, cost and drawdown; cash interest excluded.",
+  "execution": "16 serial full-day pair/arm sessions, every tick, 300000-tick/session bound; independent USD10000 accounts. Stop on any failed or nonflat session; no retry, resampling, forced close or hidden reset.",
+  "selection_rule": "After all16 verified flat: reject promotion if any pair/arm final holdout net return <=0 or fewer than2of3 prior fold returns >0 for any pair/arm; otherwise keep for further research only. Incomplete evidence returns insufficient. No statistical acceptance, annualization, summed returns or live promotion.",
+  "uncertainty": "Four dates from one month, correlated pairs and scenarios, few trades; report individual outcomes and ranges, no independence/significance claims."
+}

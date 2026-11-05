@@ -29,21 +29,21 @@ an MT5 indicator test. It does not prove native `iMA`/`iATR` parity, terminal
 availability, live freshness or broker costs. CI explicitly installs Node for this
 check; the application/container image does not gain a JavaScript dependency.
 
-## Finite remaining work
+## Acceptance evidence and remaining boundaries
 
 | Work package | Concrete acceptance evidence | Current state |
 | --- | --- | --- |
 | Input and convention reconciliation | Versioned source/session calendar; classified gaps with unresolved gaps retained; fixed timezone/DST, arrival and revision limitations; independently checked numerical and point-in-time conventions | Numerical comparison now evidenced. Source/session and historical availability limitations remain open; modeled 250 ms latency is not a measured result. Native indicator equivalence remains unclaimed. |
 | Cost calibration and conservative execution | Per-pair, account-specific commission, spread, slippage and financing provenance; effective dates/units; rollover/triple-day behavior; explicit conservative stress bounds; reproducible cost attribution | Current 4/2/3 per-lot assumptions are not calibration. Use retained read-only/fill evidence and published schedules where applicable; insufficient observations stay insufficient. No new order is authorized. |
 | Frozen multi-fold study | At least three chronological walk-forward folds, all variants retained, identical cost/availability treatment, a separately sealed final holdout, flat partition boundaries and independent artifact verification | One three-day split is completed, not multi-fold evaluation. January 16 and January 21–23 are examined evidence and cannot be relabeled untouched holdout data. |
-| Final M3 verdict | Reproducible baseline comparison, cost sensitivity, per-fold results, uncertainty and explicit keep/reject/insufficient decision; checklist links each claim to evidence | Both examined holdouts lost. No economic acceptance or promotion is claimed. |
+| Final M3 verdict | Reproducible baseline comparison, cost sensitivity, per-fold results, uncertainty and explicit keep/reject/insufficient decision; checklist links each claim to evidence | Registered research verdict: REJECT_FOR_PROMOTION. All scenario outcomes, uncertainty and no-trade comparison are published in [the consolidated report](m3-walkforward.md). The research screen is complete; full historical cost/availability qualification and economic acceptance remain open. |
 
 These packages do not require a new live 24-hour campaign. Missing historical
 availability or broker calibration cannot be solved by running more ticks through
 an assumption-enabled replay. A data-only study must retain its counterfactual
 scope and cannot substitute for those missing attestations.
 
-## Next study protocol, before any new evaluation
+## Protocol applied to the registered evaluation
 
 The [input/cost audit](historical-input-costs.md) now provides complete retained-tick
 integrity checks, daily spread distributions, explicit gap classification and saved
@@ -72,9 +72,12 @@ commission scenarios must not be described as historically calibrated costs.
    expressing uncertainty. Do not infer robustness from 14 trades or annualize a tiny
    sample. The economic decision may be rejection or insufficient evidence.
 
-This protocol is not a registered experiment: dates, new dataset hashes and calibrated
-cost inputs are still required before running it. It deliberately does not manufacture
-a completed M3 gate from another assumption-only study.
+The [published registry](../evidence/m3-walkforward-registration-20261105.json)
+implements this protocol with explicitly uncalibrated base/stress assumptions, rather
+than claiming missing historical broker inputs were obtained. Its defined study is
+finished and does not authorize further tuning or another run. The two research
+deliverables above are complete; full M3 calibrated-cost and source-availability
+requirements remain open and are not erased by a completed simulation.
 
 ## Run the numerical check
 
