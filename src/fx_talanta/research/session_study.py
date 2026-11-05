@@ -157,6 +157,7 @@ def verify_phase(output, manifest, *, full=False):
     if full:
         previous = "0" * 64
         broker = None
+        postings = []
         count = 0
         for item in rows(output / "journal.jsonl.gz"):
             payload = item["payload"]
@@ -165,6 +166,8 @@ def verify_phase(output, manifest, *, full=False):
             previous = item["hash"]
             if payload["stream"] == "broker":
                 broker = payload["book"]
+            if payload["stream"] == "financing":
+                postings.append(payload["posting"])
             count += 1
         if (
             count != receipt["journal"]["rows"]
@@ -176,6 +179,8 @@ def verify_phase(output, manifest, *, full=False):
             raise ValueError("balance reconstruction mismatch")
         if broker["deals"] != result["deals"]:
             raise ValueError("fill reconstruction mismatch")
+        if result.get("cost_model") == "broker-costs/1" and postings != result["financing"]:
+            raise ValueError("financing reconstruction mismatch")
         if sum(bool(Decimal(p["volume"])) for p in broker["positions"]) != result["open_positions"]:
             raise ValueError("exposure reconstruction mismatch")
         with localcontext() as context:
@@ -184,12 +189,18 @@ def verify_phase(output, manifest, *, full=False):
             drawdown = Decimal(0)
             last = None
             count = 0
+            financing_samples = 0
             for sample in rows(output / "equity.jsonl.gz"):
+                financing_samples += sample.get("event") == "FINANCING"
                 last = Decimal(sample["equity"])
                 peak = max(peak, last)
                 drawdown = max(drawdown, (peak - last) / peak)
                 count += 1
-            if count != receipt["equity"]["rows"] or count != result["coverage"]["ticks"]:
+            if (
+                count != receipt["equity"]["rows"]
+                or financing_samples != result.get("financing_equity_samples", 0)
+                or count != result["coverage"]["ticks"] + financing_samples
+            ):
                 raise ValueError("equity stream count mismatch")
             if last != Decimal(result["marked_equity"]) or drawdown != Decimal(
                 result["metrics"]["maximum_observed_drawdown_fraction"]

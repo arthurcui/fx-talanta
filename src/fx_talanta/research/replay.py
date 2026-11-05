@@ -1,6 +1,7 @@
 """Availability-ordered, simulator-only B01 replay and immutable experiments."""
 
 import argparse
+import heapq
 import json
 from datetime import datetime
 from decimal import Decimal, localcontext
@@ -27,6 +28,7 @@ from fx_talanta.domain.models import (
 from fx_talanta.domain.offline import EntryIntent, Fault, Market, Policy
 from fx_talanta.gateway.offline import Gateway
 from fx_talanta.research.baseline import VERSION, Bar, evaluate
+from fx_talanta.research.broker_costs import BrokerCosts, BrokerCostSimulator
 from fx_talanta.risk.governor import equity, health_reason
 
 LIMIT = 32 * 1024 * 1024
@@ -96,7 +98,7 @@ class Experiment(FrozenModel):
     training_end: Timestamp
     validation_end: Timestamp
     end: Timestamp
-    costs: Costs
+    costs: Costs | BrokerCosts
     policy: Policy
 
     @model_validator(mode="after")
@@ -105,6 +107,12 @@ class Experiment(FrozenModel):
             raise ValueError("chronological training/validation/holdout intervals required")
         if self.policy.maximum_positions != 1:
             raise ValueError("B01 replay allows one position at a time")
+        if isinstance(self.costs, BrokerCosts) and (
+            self.costs.symbol != self.symbol
+            or self.costs.valid_from > self.start
+            or self.costs.valid_until < self.end
+        ):
+            raise ValueError("broker cost terms must cover the whole registered experiment")
         return self
 
     def window(self, partition):
@@ -199,7 +207,9 @@ class CostSimulator(Simulator):
         return result
 
 
-def priced(market, costs):
+def priced(market, costs, at=None):
+    if isinstance(costs, BrokerCosts):
+        return costs.price_risk(market, at)
     return Market.model_validate(
         {
             **market.model_dump(),
@@ -263,18 +273,43 @@ def execute_timeline(
     )
     clock = FakeClock(start)
     gateway = Gateway.for_replay(account, run_id, clock, experiment.policy)
-    gateway.broker = CostSimulator(gateway.store, experiment.policy.capital, experiment.costs)
+    broker_costs = isinstance(experiment.costs, BrokerCosts)
+    if broker_costs:
+        costs = experiment.costs
+        if costs.symbol != experiment.symbol or costs.valid_from > start or costs.valid_until < end:
+            raise ValueError("broker cost profile does not cover experiment symbol/window")
+        gateway.broker = BrokerCostSimulator(gateway.store, experiment.policy.capital, costs)
+        timeline = heapq.merge(
+            ((s.cutoff, False, ()) for s in costs.swap_days if start <= s.cutoff < end),
+            timeline,
+            key=lambda item: item[0],
+        )
+    else:
+        gateway.broker = CostSimulator(gateway.store, experiment.policy.capital, experiment.costs)
     if journal_sink is not None:
         for item in gateway.store.journal:
             journal_sink.append(item)
         gateway.store.journal = journal_sink
     pending, seen, decisions, final_market = None, set(), [], None
+    financing_samples = 0
     samples = [] if samples_sink is None else samples_sink
     with localcontext() as context:
         context.prec = 34
         try:
             for at, bar_arrival, event_group in timeline:
                 clock.advance(at - clock.now())
+                if broker_costs and gateway.broker.accrue(at) and final_market is not None:
+                    gateway.reconcile(final_market)
+                    samples.append(
+                        {
+                            "at": at.isoformat(),
+                            "equity": str(equity(gateway.broker.book, final_market)),
+                            "state": gateway.book.state,
+                            "event": "FINANCING",
+                            "quote_basis_at": final_market.at.isoformat(),
+                        }
+                    )
+                    financing_samples += 1
                 if pending and at >= datetime.fromisoformat(pending["expires_at"]):
                     decisions.append(
                         {
@@ -300,7 +335,7 @@ def execute_timeline(
                         pending = candidate
                         seen.add(candidate["signal_bar_close"])
                 for event in event_group:
-                    market = priced(event.market, experiment.costs)
+                    market = priced(event.market, experiment.costs, at)
                     gateway.reconcile(market)
                     final_market = market
                     if pending:
@@ -422,6 +457,11 @@ def execute_timeline(
                 "m1_qualified": False,
                 "economic_acceptance": False,
             }
+            if broker_costs:
+                result["cost_model"] = "broker-costs/1"
+                result["cost_qualification"] = experiment.costs.status
+                result["cost_account_currency"] = "USD"
+                result["financing_equity_samples"] = financing_samples
             closed = [p.realized for p in book.positions if not p.volume]
             peak, drawdown = experiment.policy.capital, Decimal(0)
             if samples_sink is None:
@@ -468,6 +508,8 @@ def source_hash():
     paths = [
         "research/baseline.py",
         "research/replay.py",
+        "research/broker_costs.py",
+        "research/cost_calibration.py",
         "research/store.py",
         "risk/governor.py",
         "gateway/offline.py",
@@ -519,6 +561,12 @@ def verify_result(directory, manifest):
         previous = item["hash"]
     if previous != result["journal_tip"]:
         raise ValueError("journal tip mismatch")
+    if result.get("cost_model") == "broker-costs/1":
+        postings = [
+            x["payload"]["posting"] for x in journal if x["payload"]["stream"] == "financing"
+        ]
+        if postings != result["financing"]:
+            raise ValueError("financing reconstruction mismatch")
 
 
 def execute(directory, dataset_path, partition):

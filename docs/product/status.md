@@ -69,6 +69,10 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   **REJECT_FOR_PROMOTION** under the frozen research screen. This completes that
   registered comparison, not full M3 cost/availability qualification. No retuning
   or further study run is implied by the result.
+  [Broker-aware replay costs](../engineering/broker-aware-replay-costs.md) now support
+  per-fill USD-notional commissions and dated signed rollover postings in the USD
+  simulator. The legacy cost model and B01 verdict are unchanged; synthetic tests
+  prove integration, not historical account-cost calibration.
 - **Later milestones:** production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
 

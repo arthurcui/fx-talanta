@@ -1,0 +1,41 @@
+{
+  "schema": "broker-cost-integration/1",
+  "scope": "CONSTRUCTED_FIXTURE_NOT_BROKER_CALIBRATION",
+  "engine_sha256": "c90e172f1d1a66e040dbfa22b2de49e30308677944d2b09ab36014087e941853",
+  "manifest_sha256": "1dd6f6082eb57f1a763749a5c2c72f5f7230c043f841f11335d1e8f0abefdb9b",
+  "result_sha256": "c5c61a0c087b31b533816550f672cfa79ae276b8a02ae8dfc8d7a8551bd8d41e",
+  "journal_sha256": "5740009498ffb2bb547792c2385e46ad35a154eb094cd052d85da2d92b39e6bf",
+  "cost_model": "broker-costs/1",
+  "account_currency": "USD",
+  "closed_trades": 1,
+  "fully_settled": true,
+  "balance": "9996.1047370",
+  "commission_usd": "1.2852630",
+  "financing_debit_usd": "1.35",
+  "financing_postings": 1,
+  "cutoff": "2025-01-08T22:00:00+00:00",
+  "posted_at": "2025-01-08T22:00:00+00:00",
+  "financing_equity_samples": 1,
+  "ledger_reconstruction": {
+    "balance_from_fills": true,
+    "exposure_from_fills": true,
+    "arithmetic_tolerance_usd": "1e-25"
+  },
+  "legacy_comparison": {
+    "reference_commit": "4df6b0e247f2bc0d4cafc5d9b816e99573f97c3a",
+    "result_sha256": "a1c9aa890db891d2670d0ec5de7ee4b4fdd654007a21082d12fa88112bb1d6f2",
+    "journal_sha256": "53a32cc7b0fc69052a2b4602eed6750f21b86116c6d3552667c5abf035ead7f7",
+    "exact_match": true
+  },
+  "historical_b01_verdict": "REJECT_FOR_PROMOTION_UNCHANGED",
+  "execution_enabled": false,
+  "economic_acceptance": false,
+  "historical_costs_qualified": false,
+  "limitations": [
+    "USD ledger only; other account currencies rejected.",
+    "Unrounded Decimal charges; no minimum fee or broker billing-rounding replication.",
+    "Explicit New York weekday cutoff ordering is a simulation convention, not broker sequencing evidence.",
+    "Slippage remains an assumption; real historical tariff/swap evidence remains missing.",
+    "Fresh replay only; no restart or deferred-entry-remainder settlement."
+  ]
+}
