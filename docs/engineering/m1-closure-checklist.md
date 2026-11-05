@@ -1,18 +1,45 @@
 # M1 closure checklist and remediation scope
 
 Prepared 2026-11-03 from existing evidence at main `893e161` (merged PR #15).
-No tests, provider fetches, broker probes, database replays or campaigns were run.
+That initial planning pass ran no tests, provider fetches, broker probes or campaigns.
+The November 5 section below records the current remediation boundary.
 This checklist implements the [canonical roadmap](../architecture/specification.md); it does
 not change acceptance criteria. M0A–M0C remain completed within offline scope.
 
-**Next work: diagnostic evidence and an existing-record report, not another soak.**
-Prepare one consolidated remediation PR, reviewing that first slice before adding
-provider work. Do not create incremental PRs for every capture/status update.
+**Historical first slice:** diagnostic evidence and an existing-record report.
+That slice was delivered; the November 5 remediation now includes provider work.
+Keep related implementation and evidence consolidated rather than splitting captures.
 Implementation was subsequently authorized by the owner's instruction to finish
 M1. See [actual remediation progress](../history/m1-remediation-progress.md). The earlier
 campaign restriction remains. A later explicit authorization permits the bounded
 [read-only EA quote comparison](../operations/ea-quote-stream.md) and related verification.
 The remediation and its evidence are consolidated in one implementation PR.
+
+## November 5 remediation boundary
+
+PR #25 is merged. Its [bounded same-session demo result](../evidence/m2-one-entry-closeout-20261105-02.json)
+passes execution closeout without recovery; it does not rescore any M1 campaign.
+Trading remains disabled and no additional campaign is scheduled.
+
+The [M1 input-readiness work](m1-input-readiness.md) adds the missing BEA GDP/PCE
+normalizer and an executable evidence summary. B1 diagnostic preservation and B2
+existing-record analysis are implemented; the lost historical CMC cause remains
+unknown. Calendar normalization is still partial across the full inventory.
+
+There are four fixed closure areas, mapped to the original checklist below:
+
+| Area | Implemented / verified | Evidence still required |
+| --- | --- | --- |
+| Quote readiness (B1-B4) | Structured diagnostics, retained-record analysis, native comparison, bounded native admission | Independent broker reliability qualification; no old failed/stopped run is promoted |
+| Calendar coverage (P1-P2) | BLS manual workflow, FRED dates, optional MCP, now BEA GDP/PCE normalization | Every remaining USD/EUR/JPY family, independent horizon/revision reconciliation |
+| News delivery (P2-P5) | Eight feed parsers; JOLTS matched on schedule while publication-age metric failed | Missing delivery routes, intended-use scope, prospective category delivery and reliability |
+| Failure restrictions (P3, X1-X2) | Durable revisions/replay, no freshness on duplicate receipt, missing required inputs block readiness | Complete selected-route evidence and final independent qualification decision |
+
+No additional broker account, paid subscription, trading activation or 24-hour
+campaign is needed for this implementation work. Future release observations are
+external evidence dependencies, not tests that can be replaced with fixtures.
+Uncovered broader news and official unscheduled announcements remain explicit
+blockers. They have not been silently made optional. This is not full M1 closure.
 
 ## Existing evidence and limitations
 
@@ -119,7 +146,7 @@ cases, existing-record report, coverage matrix and a bounded launch manifest.
 Exclude threshold changes, trading/M2 code, new subscriptions, calendar EA/service
 resurrection, automated browser refresh and shared environment modifications.
 
-## Validation proposal — not started or authorized
+## Historical November 3 validation proposal
 
 1. Local regression verification now passed: 334 tests; 119 PostgreSQL-dependent
    tests were skipped to preserve broker databases. CI uses its isolated fixture database.

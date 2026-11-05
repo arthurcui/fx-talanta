@@ -452,6 +452,12 @@ Alerts identify the account/environment, fault, limit, exposure, and recovery. T
 
 # Strategy research and validation
 
+**Owner-approved progression after PR #25:** proceed with offline M3 under the
+[development/operational split](../engineering/m1-completion-decision.md).
+[Operational M1 requirements](../engineering/m1-open-requirements.md) remain open
+and mandatory before connected strategy PAPER; no historical verdict changes.
+
+
 ## Initial baseline hypothesis
 
 Start with one deterministic template, B01, to make the AI's contribution measurable:

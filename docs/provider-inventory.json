@@ -44,7 +44,7 @@
       ],
       "calendar": "https://apps.bea.gov/API/signup/release_dates.json",
       "delivery_candidate": null,
-      "gap": "Official keyless UTC schedule candidate; normalization, change tracking and actual notice delivery pending"
+      "gap": "BEA GDP/PCE normalization and isolated journal replay verified November 5; independent reconciliation, stable release-instance matching, rights and prospective notice delivery remain unqualified"
     },
     {
       "id": "USD_OTHER_ACTIVITY",

@@ -1,0 +1,33 @@
+{
+  "status": "BOUNDED_IMPORT_AND_OFFLINE_REPLAY_VERIFIED",
+  "source_url": "https://apps.bea.gov/API/signup/release_dates.json",
+  "received_at": "2026-11-05T01:02:07.744819+00:00",
+  "parser": "bea-calendar/1",
+  "source_hash": "5774525c10ec63520b36b7647a11fad4d192f5d1d609074109f692acd29ce721",
+  "events": 70,
+  "families": [
+    "GDP",
+    "PCE"
+  ],
+  "duplicates": 0,
+  "exact_events": 70,
+  "date_only_events": 0,
+  "offline_replay_revision_count": 70,
+  "offline_replay_did_not_add_revisions": true,
+  "next_occurrences": {
+    "GDP": "2026-11-25T13:30:00+00:00",
+    "PCE": "2026-11-25T13:30:00+00:00"
+  },
+  "qualified_for_trading": false,
+  "coverage_qualified": false,
+  "execution_enabled": false,
+  "limitations": [
+    "One fetch, not prospective delivery or sustained availability",
+    "Source does not supply stable release instance IDs; moved/omitted times retained conservatively",
+    "Independent schedule reconciliation, rights review and notices remain unqualified"
+  ],
+  "setup_failures": [
+    "Initial local test temporary parent absent; corrected",
+    "First replay regression exposed news-only timestamp check on BEA calendar; fixed before successful replay"
+  ]
+}

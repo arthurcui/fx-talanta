@@ -1,0 +1,372 @@
+{
+  "schema": "m1-evidence-summary/1",
+  "basis": "Committed historical evidence; not a live terminal or feed status",
+  "evidence_hashes": {
+    "docs/provider-inventory.json": "223487685c594c7f382be386d8ad94f126b59d5b98e3712b4aea37ff7d046831",
+    "docs/evidence/broker-campaign-final-20261103.json": "4944e6c62990dc349fa39d4af83aac6326fdf406fd5b69948bb3af7b842f39c7",
+    "docs/evidence/provider-campaign-final-20261103.json": "9c9c317fae1406000b933705ba3bff53ae24da628e8feb8585c32a7932cee67f",
+    "docs/evidence/m2-one-entry-closeout-20261105-02.json": "d44c958155516c749bdcdaa4953253059e151dcc5f593ae1032e7ded2d63b151"
+  },
+  "brokers": {
+    "cmc": {
+      "run_id": "e94880c5-451f-4537-8a5e-24e8c40a9ce9",
+      "phase": "HALTED",
+      "collector_accepted": false,
+      "quote_readiness_accepted": false,
+      "completion_receipt_present": false
+    },
+    "forex": {
+      "run_id": "1ca5f42f-b85b-49bb-8b33-f37d66423ee9",
+      "phase": "STOPPED",
+      "collector_accepted": false,
+      "quote_readiness_accepted": false,
+      "completion_receipt_present": false
+    }
+  },
+  "provider_campaign": {
+    "phase": "STOPPED",
+    "sources": {
+      "fed": {
+        "slots_due": 166,
+        "scheduled_slots": 288,
+        "attempted_slots": 166,
+        "successful_slots": 165,
+        "success_fraction": 0.9939759036144579,
+        "maximum_success_gap_seconds": 599.96764,
+        "initial_backfill_items_excluded": 15,
+        "other_backfill_items_excluded": 0,
+        "revisions_requiring_independent_time_evidence": 0,
+        "prospective_first_version_items": 0,
+        "publication_to_receipt_seconds": {
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "transport_reliability_passed": false,
+        "sampled_delivery_passed": false,
+        "required_category_delivery_qualified": false
+      },
+      "ecb": {
+        "slots_due": 166,
+        "scheduled_slots": 288,
+        "attempted_slots": 166,
+        "successful_slots": 165,
+        "success_fraction": 0.9939759036144579,
+        "maximum_success_gap_seconds": 599.981728,
+        "initial_backfill_items_excluded": 15,
+        "other_backfill_items_excluded": 0,
+        "revisions_requiring_independent_time_evidence": 0,
+        "prospective_first_version_items": 0,
+        "publication_to_receipt_seconds": {
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "transport_reliability_passed": false,
+        "sampled_delivery_passed": false,
+        "required_category_delivery_qualified": false
+      },
+      "boj": {
+        "slots_due": 166,
+        "scheduled_slots": 288,
+        "attempted_slots": 166,
+        "successful_slots": 164,
+        "success_fraction": 0.9879518072289156,
+        "maximum_success_gap_seconds": 600.059369,
+        "initial_backfill_items_excluded": 86,
+        "other_backfill_items_excluded": 0,
+        "revisions_requiring_independent_time_evidence": 0,
+        "prospective_first_version_items": 0,
+        "publication_to_receipt_seconds": {
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "transport_reliability_passed": false,
+        "sampled_delivery_passed": false,
+        "required_category_delivery_qualified": false
+      },
+      "bls_jobs": {
+        "slots_due": 166,
+        "scheduled_slots": 288,
+        "attempted_slots": 166,
+        "successful_slots": 165,
+        "success_fraction": 0.9939759036144579,
+        "maximum_success_gap_seconds": 599.790012,
+        "initial_backfill_items_excluded": 12,
+        "other_backfill_items_excluded": 0,
+        "revisions_requiring_independent_time_evidence": 0,
+        "prospective_first_version_items": 0,
+        "publication_to_receipt_seconds": {
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "transport_reliability_passed": false,
+        "sampled_delivery_passed": false,
+        "required_category_delivery_qualified": false
+      },
+      "bls_cpi": {
+        "slots_due": 166,
+        "scheduled_slots": 288,
+        "attempted_slots": 166,
+        "successful_slots": 165,
+        "success_fraction": 0.9939759036144579,
+        "maximum_success_gap_seconds": 599.715762,
+        "initial_backfill_items_excluded": 12,
+        "other_backfill_items_excluded": 0,
+        "revisions_requiring_independent_time_evidence": 0,
+        "prospective_first_version_items": 0,
+        "publication_to_receipt_seconds": {
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "transport_reliability_passed": false,
+        "sampled_delivery_passed": false,
+        "required_category_delivery_qualified": false
+      },
+      "bls_ppi": {
+        "slots_due": 166,
+        "scheduled_slots": 288,
+        "attempted_slots": 166,
+        "successful_slots": 165,
+        "success_fraction": 0.9939759036144579,
+        "maximum_success_gap_seconds": 599.79931,
+        "initial_backfill_items_excluded": 12,
+        "other_backfill_items_excluded": 0,
+        "revisions_requiring_independent_time_evidence": 0,
+        "prospective_first_version_items": 0,
+        "publication_to_receipt_seconds": {
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "transport_reliability_passed": false,
+        "sampled_delivery_passed": false,
+        "required_category_delivery_qualified": false
+      },
+      "bls_jolts": {
+        "slots_due": 166,
+        "scheduled_slots": 288,
+        "attempted_slots": 166,
+        "successful_slots": 165,
+        "success_fraction": 0.9939759036144579,
+        "maximum_success_gap_seconds": 599.850957,
+        "initial_backfill_items_excluded": 12,
+        "other_backfill_items_excluded": 0,
+        "revisions_requiring_independent_time_evidence": 0,
+        "prospective_first_version_items": 1,
+        "publication_to_receipt_seconds": {
+          "p50": 2588.76575,
+          "p95": 2588.76575,
+          "max": 2588.76575
+        },
+        "transport_reliability_passed": false,
+        "sampled_delivery_passed": false,
+        "required_category_delivery_qualified": false
+      },
+      "eurostat": {
+        "slots_due": 166,
+        "scheduled_slots": 288,
+        "attempted_slots": 166,
+        "successful_slots": 165,
+        "success_fraction": 0.9939759036144579,
+        "maximum_success_gap_seconds": 599.893761,
+        "initial_backfill_items_excluded": 11,
+        "other_backfill_items_excluded": 0,
+        "revisions_requiring_independent_time_evidence": 0,
+        "prospective_first_version_items": 0,
+        "publication_to_receipt_seconds": {
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "transport_reliability_passed": false,
+        "sampled_delivery_passed": false,
+        "required_category_delivery_qualified": false
+      }
+    },
+    "scheduled_release_checks": [
+      {
+        "event_id": "a5f62569c18ea6778048207d0a771e0ed3e3413a5b15d7162d9561b4b2b08a3b",
+        "source": "bls_jolts",
+        "scheduled_at": "2026-11-03T15:00:00+00:00",
+        "state": "ON_TIME",
+        "first_receipt_at": "2026-11-03T15:03:44.733750+00:00",
+        "schedule_to_receipt_seconds": 224.73375
+      }
+    ],
+    "coverage_qualified": false
+  },
+  "required_groups": [
+    {
+      "id": "USD_POLICY",
+      "families": [
+        "FOMC decision",
+        "minutes",
+        "press conference",
+        "projections"
+      ],
+      "remaining_gap": "Dates verified; exact release-instance time matching and prospective category delivery pending",
+      "qualified": false
+    },
+    {
+      "id": "USD_JOBS_INFLATION",
+      "families": [
+        "Employment Situation",
+        "CPI",
+        "PPI",
+        "JOLTS"
+      ],
+      "remaining_gap": "Manual BLS importer and initial RSS parsing verified; prospective release matching, delivery latency and schedule revisions pending",
+      "qualified": false
+    },
+    {
+      "id": "USD_GROWTH_PCE",
+      "families": [
+        "GDP",
+        "Personal Income and Outlays/PCE"
+      ],
+      "remaining_gap": "BEA GDP/PCE normalization and isolated journal replay verified November 5; independent reconciliation, stable release-instance matching, rights and prospective notice delivery remain unqualified",
+      "qualified": false
+    },
+    {
+      "id": "USD_OTHER_ACTIVITY",
+      "families": [
+        "Retail sales",
+        "Industrial production",
+        "Weekly jobless claims"
+      ],
+      "remaining_gap": "Census, Federal Reserve statistical and Labor Department calendar/delivery adapters missing",
+      "qualified": false
+    },
+    {
+      "id": "USD_OFFICIAL_UNSCHEDULED",
+      "families": [
+        "Fed speeches",
+        "Unscheduled monetary/fiscal announcements"
+      ],
+      "remaining_gap": "Monetary-policy RSS does not cover the entire official announcement inventory",
+      "qualified": false
+    },
+    {
+      "id": "EUR_POLICY",
+      "families": [
+        "ECB decision",
+        "press conference",
+        "monetary policy accounts"
+      ],
+      "remaining_gap": "Meeting dates verified; date-only entries cannot supply invented intraday times",
+      "qualified": false
+    },
+    {
+      "id": "EUR_INFLATION",
+      "families": [
+        "Euro-area HICP flash",
+        "Euro-area HICP final"
+      ],
+      "remaining_gap": "Initial release Atom parsing verified; calendar normalization, current horizon and prospective category matching pending",
+      "qualified": false
+    },
+    {
+      "id": "EUR_GROWTH_JOBS",
+      "families": [
+        "Euro-area GDP estimates",
+        "employment",
+        "unemployment"
+      ],
+      "remaining_gap": "Initial release Atom parsing verified; calendar normalization, current horizon and prospective category matching pending",
+      "qualified": false
+    },
+    {
+      "id": "EUR_OTHER_ACTIVITY",
+      "families": [
+        "Retail trade",
+        "Industrial production"
+      ],
+      "remaining_gap": "Initial release Atom parsing verified; calendar normalization, current horizon and prospective category matching pending",
+      "qualified": false
+    },
+    {
+      "id": "EUR_OFFICIAL_UNSCHEDULED",
+      "families": [
+        "ECB speeches",
+        "Unscheduled ECB statements"
+      ],
+      "remaining_gap": "Announcement feed capture does not prove speech or unscheduled-event completeness",
+      "qualified": false
+    },
+    {
+      "id": "JPY_POLICY",
+      "families": [
+        "BOJ decision",
+        "Summary of Opinions",
+        "minutes",
+        "Outlook Report"
+      ],
+      "remaining_gap": "Exact and approximate times must stay distinct; prospective release matching and intended-use scope pending",
+      "qualified": false
+    },
+    {
+      "id": "JPY_INFLATION",
+      "families": [
+        "National CPI",
+        "Tokyo CPI"
+      ],
+      "remaining_gap": "Official schedule discovered; normalization and release-delivery adapter pending",
+      "qualified": false
+    },
+    {
+      "id": "JPY_GROWTH",
+      "families": [
+        "Japan GDP preliminary",
+        "Japan GDP revised"
+      ],
+      "remaining_gap": "Official dates/times found; revision handling and prospective receipt evidence pending",
+      "qualified": false
+    },
+    {
+      "id": "JPY_JOBS_WAGES_ACTIVITY",
+      "families": [
+        "Labour Force Survey",
+        "wages",
+        "Tankan",
+        "industrial production",
+        "retail sales"
+      ],
+      "remaining_gap": "Separate Statistics Bureau, MHLW, BOJ and METI category sources are needed",
+      "qualified": false
+    },
+    {
+      "id": "JPY_OFFICIAL_UNSCHEDULED",
+      "families": [
+        "BOJ speeches",
+        "MOF currency intervention announcements"
+      ],
+      "remaining_gap": "BOJ alone does not cover MOF intervention announcements",
+      "qualified": false
+    },
+    {
+      "id": "FX_BROADER_NEWS",
+      "families": [
+        "Geopolitics",
+        "private-sector market-moving releases",
+        "non-central-bank breaking news"
+      ],
+      "remaining_gap": "No qualified free comprehensive source; remain explicitly uncovered, do not silently remove the required news gate",
+      "qualified": false
+    }
+  ],
+  "bounded_m2_closeout_verified": true,
+  "restrictions": [
+    "Strategy trading remains disabled; this report cannot authorize entry.",
+    "Connection health does not establish quote freshness or clock validity.",
+    "Two-second entry ceiling and five-second observer ceiling are unchanged.",
+    "A calendar import does not qualify release delivery or source coverage.",
+    "Missing/stale/uncertain required inputs block strategy readiness.",
+    "M2 closeout success does not change historical M1 verdicts."
+  ],
+  "m1_qualified": false,
+  "execution_enabled": false
+}

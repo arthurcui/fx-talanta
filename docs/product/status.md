@@ -1,6 +1,6 @@
 # Current product status
 
-Baseline: merged PR #23 (`5034085`, November 4, 2026). Repository reorganization does
+Baseline: merged PR #25 (`359563c`, November 5, 2026). M1 input remediation does
 not change execution authority or qualify another campaign.
 
 ## Implemented
@@ -16,6 +16,15 @@ The manual file chooser is a utility; a trading dashboard is not implemented.
 
 ## What the demo proved
 
+The [PR #25 fixed-build result](../evidence/m2-one-entry-closeout-20261105-02.json)
+is **PASS_BOUNDED_SAME_SESSION_CLOSEOUT**: one 0.01-lot entry, broker SL/TP,
+one controlled exit, durable CLOSED/ACK and completed drain in the same EA,
+without recovery. Quote ages were 1,797/1,798 ms; the 0.10% per-entry/cumulative
+risk limit remained. Authority is retired, account flat, Algo Trading off.
+The preceding failed closeout and PR #23 recovery-assisted result below remain
+historical evidence. No further entry is authorized by this status page.
+
+
 [PR #23 evidence](../evidence/m2-bounded-demo-20261104.json) records one actual
 FOREX.com demo EURUSD entry, confirmed protection and a controlled exit. Independent
 broker history confirms closure and flatness. A separate hard-disabled build recovered
@@ -27,18 +36,25 @@ were consumed, including a definite pre-submission rejection; a rejected attempt
 not refund authorization. Original authority is retired. Test EAs/listeners were stopped
 and Algo Trading disabled at verification. This document is not a live terminal monitor.
 
+## Current development milestone
+
+The owner approved proceeding to **M3 offline baseline/replay** with M1 operational
+requirements carried forward. The [scope decision](../engineering/m1-completion-decision.md)
+and [open-requirements register](../engineering/m1-open-requirements.md) preserve them
+as blockers before connected strategy PAPER. This does not enable strategy orders.
+
 ## Remaining gates
 
 - **M1:** broker data and required USD/EUR/JPY calendar/news coverage, timeliness and
   reliability remain unqualified. Failed and owner-stopped campaigns retain their verdicts.
-- **M2D:** final connected execution acceptance and the complete fault matrix remain
-  open. The [synthetic closeout regression](../engineering/m2-demo-execution.md#closeout-verification) now verifies
+- **M2D:** bounded first-pass closeout is verified; the complete connected fault matrix remains
+  open. The [closeout evidence](../engineering/m2-demo-execution.md#closeout-verification) now verifies
   the complete native close/report/ACK path without restart, plus backend replay. The bounded execution gate keeps M1 gaps
   separate; it does not clear them.
 - **Later milestones:** strategy baseline/replay, production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
 
-The next M2 acceptance must account for the separate closure recovery and reconcile
+Broader M2 acceptance must preserve the historical closure recovery and reconcile
 existing evidence for lost replies, restart while exposed, partial fills, rejected
 protection, backend/database loss and closed-market exits. A new broker-order attempt
 requires fresh bounded authorization; no further order or 24-hour run is started by
