@@ -52,7 +52,8 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   the complete native close/report/ACK path without restart, plus backend replay. The bounded execution gate keeps M1 gaps
   separate; it does not clear them.
 - **M3:** [offline B01 baseline and replay](../engineering/m3-baseline.md) now has
-  simulator/risk integration and synthetic lifecycle evidence; historical economic
+  simulator/risk integration, synthetic lifecycle evidence and a
+  [first historical pilot](../engineering/m3-historical-data.md); historical economic
   acceptance remains open.
 - **Later milestones:** production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.

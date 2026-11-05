@@ -102,6 +102,11 @@ provider. All results retain `execution_enabled=false`, `m1_qualified=false` and
 
 ## Remaining M3 acceptance
 
+The [first historical pilot](m3-historical-data.md) now covers HistData ingestion,
+fixed-EST conversion and six bounded replay scenarios. It produced no closed trades
+and is insufficient for economic selection. Equal-time quotes with explicit source
+sequences are retained; unsequenced ties remain invalid.
+
 This PR delivers the integrated offline research path, not economic acceptance:
 
 - Source-backed historical bid/ask datasets with reconciled availability, session

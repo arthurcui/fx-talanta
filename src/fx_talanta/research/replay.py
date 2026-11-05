@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Literal
 from uuid import NAMESPACE_URL, uuid5
 
-from pydantic import Field, model_validator
+from pydantic import Field, model_serializer, model_validator
 
 from fx_talanta.brokers.simulator import Simulator
 from fx_talanta.clock import FakeClock
@@ -47,6 +47,14 @@ class Event(FrozenModel):
     available_at: Timestamp
     market: Market
     fault: Fault = Fault()
+    source_sequence: int | None = Field(default=None, ge=0)
+
+    @model_serializer(mode="wrap")
+    def legacy_wire(self, handler):
+        data = handler(self)
+        if self.source_sequence is None:
+            data.pop("source_sequence", None)
+        return data
 
     @model_validator(mode="after")
     def timing(self):
@@ -69,8 +77,15 @@ class Dataset(FrozenModel):
     @model_validator(mode="after")
     def ordered(self):
         times = [e.available_at for e in self.events]
-        if times != sorted(times) or len(times) != len(set(times)):
-            raise ValueError("market arrivals must be strictly ordered")
+        if times != sorted(times):
+            raise ValueError("market arrivals must be strictly ordered or explicitly sequenced")
+        for previous, current in zip(self.events, self.events[1:], strict=False):
+            if current.available_at == previous.available_at and (
+                previous.source_sequence is None
+                or current.source_sequence is None
+                or current.source_sequence <= previous.source_sequence
+            ):
+                raise ValueError("equal-time arrivals require increasing source sequences")
         return self
 
 
@@ -207,10 +222,17 @@ def run(dataset, experiment, partition):
     dataset = Dataset.model_validate_json(dataset.model_dump_json())
     experiment = Experiment.model_validate_json(experiment.model_dump_json())
     start, end = experiment.window(partition)
-    events = {e.available_at: e for e in dataset.events if start <= e.available_at < end}
+    events = {}
+    for event in dataset.events:
+        if start <= event.available_at < end:
+            events.setdefault(event.available_at, []).append(event)
     if not events:
         raise ValueError("partition has no market evidence")
-    if any({q.symbol for q in e.market.quotes} != {experiment.symbol} for e in events.values()):
+    if any(
+        {q.symbol for q in e.market.quotes} != {experiment.symbol}
+        for group in events.values()
+        for e in group
+    ):
         raise ValueError("replay market must contain exactly the experiment symbol")
     timeline = sorted(
         set(events) | {b.available_at for b in dataset.bars if start <= b.available_at < end}
@@ -265,99 +287,101 @@ def run(dataset, experiment, partition):
                         seen.add(candidate["signal_bar_close"])
                 if at not in events:
                     continue
-                event = events[at]
-                market = priced(event.market, experiment.costs)
-                gateway.reconcile(market)
-                final_market = market
-                if pending:
-                    q, spec = (
-                        market.quote_for(experiment.symbol),
-                        market.spec_for(experiment.symbol),
-                    )
-                    after_signal = q.at > datetime.fromisoformat(pending["as_of"])
-                    if (
-                        after_signal
-                        and gateway.book.state == "RUNNING"
-                        and health_reason(market, at, experiment.policy) is None
-                        and q.ask - q.bid <= spec.maximum_spread
-                    ):
-                        side = pending["side"]
-                        distance = Decimal(pending["stop_distance"])
-                        price = q.ask if side == "BUY" else q.bid
-                        sign = 1 if side == "BUY" else -1
-                        benchmark = Decimal(pending["signal_price"])
-                        if sign * (price - benchmark) > spec.maximum_adverse_move:
-                            samples.append(
+                for event in events[at]:
+                    market = priced(event.market, experiment.costs)
+                    gateway.reconcile(market)
+                    final_market = market
+                    if pending:
+                        q, spec = (
+                            market.quote_for(experiment.symbol),
+                            market.spec_for(experiment.symbol),
+                        )
+                        after_signal = q.at > datetime.fromisoformat(pending["as_of"])
+                        if (
+                            after_signal
+                            and gateway.book.state == "RUNNING"
+                            and health_reason(market, at, experiment.policy) is None
+                            and q.ask - q.bid <= spec.maximum_spread
+                        ):
+                            side = pending["side"]
+                            distance = Decimal(pending["stop_distance"])
+                            price = q.ask if side == "BUY" else q.bid
+                            sign = 1 if side == "BUY" else -1
+                            benchmark = Decimal(pending["signal_price"])
+                            if sign * (price - benchmark) > spec.maximum_adverse_move:
+                                samples.append(
+                                    {
+                                        "at": at.isoformat(),
+                                        "equity": str(equity(gateway.broker.book, market)),
+                                        "state": gateway.book.state,
+                                    }
+                                )
+                                continue
+                            decision_id = uuid5(run_id, "decision/" + pending["signal_bar_close"])
+                            decision = Decision(
+                                account=account,
+                                action="ENTER",
+                                candidate_id=VERSION,
+                                symbol=experiment.symbol,
+                                side=side,
+                                expires_at=pending["expires_at"],
+                                rationale="Frozen B01 replay candidate",
+                            )
+                            record = Record(
+                                record_id=decision_id,
+                                account=account,
+                                recorded_at=datetime.fromisoformat(pending["as_of"]),
+                                correlation_id=run_id,
+                                provenance="OFFLINE_SIMULATION",
+                                versions=Versions(
+                                    strategy=VERSION, policy=experiment.policy.version
+                                ),
+                                body=DecisionAttempt(
+                                    result="VALID",
+                                    action="ENTER",
+                                    cutoff=pending["as_of"],
+                                    input_snapshot=pending["input_hash"],
+                                    candidates=(VERSION,),
+                                    response=decision.model_dump_json(),
+                                    decision=decision,
+                                    reason="Research-only signal",
+                                    trace=ModelTrace(request_id=uuid5(decision_id, "trace")),
+                                ),
+                            )
+                            gateway.store.append_batch((record,))
+                            intent = EntryIntent(
+                                intent_id=uuid5(decision_id, "entry"),
+                                account=account,
+                                decision_id=decision_id,
+                                strategy=VERSION,
+                                policy_version=experiment.policy.version,
+                                symbol=experiment.symbol,
+                                side=side,
+                                stop=price - sign * distance,
+                                target=price + sign * distance * 2,
+                                benchmark=benchmark,
+                                expires_at=pending["expires_at"],
+                                exit_at=pending["time_exit_at"],
+                            )
+                            gateway.broker.next_fault = event.fault
+                            entry = gateway.submit(intent, market)
+                            decisions.append(
                                 {
                                     "at": at.isoformat(),
-                                    "equity": str(equity(gateway.broker.book, market)),
-                                    "state": gateway.book.state,
+                                    "action": "SUBMITTED_TO_SIMULATOR",
+                                    "state": entry.state,
+                                    "reason": entry.reason,
+                                    "signal": pending["signal_bar_close"],
                                 }
                             )
-                            continue
-                        decision_id = uuid5(run_id, "decision/" + pending["signal_bar_close"])
-                        decision = Decision(
-                            account=account,
-                            action="ENTER",
-                            candidate_id=VERSION,
-                            symbol=experiment.symbol,
-                            side=side,
-                            expires_at=pending["expires_at"],
-                            rationale="Frozen B01 replay candidate",
-                        )
-                        record = Record(
-                            record_id=decision_id,
-                            account=account,
-                            recorded_at=datetime.fromisoformat(pending["as_of"]),
-                            correlation_id=run_id,
-                            provenance="OFFLINE_SIMULATION",
-                            versions=Versions(strategy=VERSION, policy=experiment.policy.version),
-                            body=DecisionAttempt(
-                                result="VALID",
-                                action="ENTER",
-                                cutoff=pending["as_of"],
-                                input_snapshot=pending["input_hash"],
-                                candidates=(VERSION,),
-                                response=decision.model_dump_json(),
-                                decision=decision,
-                                reason="Research-only signal",
-                                trace=ModelTrace(request_id=uuid5(decision_id, "trace")),
-                            ),
-                        )
-                        gateway.store.append_batch((record,))
-                        intent = EntryIntent(
-                            intent_id=uuid5(decision_id, "entry"),
-                            account=account,
-                            decision_id=decision_id,
-                            strategy=VERSION,
-                            policy_version=experiment.policy.version,
-                            symbol=experiment.symbol,
-                            side=side,
-                            stop=price - sign * distance,
-                            target=price + sign * distance * 2,
-                            benchmark=benchmark,
-                            expires_at=pending["expires_at"],
-                            exit_at=pending["time_exit_at"],
-                        )
-                        gateway.broker.next_fault = event.fault
-                        entry = gateway.submit(intent, market)
-                        decisions.append(
-                            {
-                                "at": at.isoformat(),
-                                "action": "SUBMITTED_TO_SIMULATOR",
-                                "state": entry.state,
-                                "reason": entry.reason,
-                                "signal": pending["signal_bar_close"],
-                            }
-                        )
-                        pending = None
-                samples.append(
-                    {
-                        "at": at.isoformat(),
-                        "equity": str(equity(gateway.broker.book, market)),
-                        "state": gateway.book.state,
-                    }
-                )
+                            pending = None
+                    samples.append(
+                        {
+                            "at": at.isoformat(),
+                            "equity": str(equity(gateway.broker.book, market)),
+                            "state": gateway.book.state,
+                        }
+                    )
             book = gateway.broker.book
             result = {
                 "schema": "b01-replay/1",
