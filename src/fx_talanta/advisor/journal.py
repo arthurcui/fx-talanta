@@ -8,6 +8,8 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID, uuid5
 
+from psycopg.errors import UniqueViolation
+
 from fx_talanta.advisor.evidence import EvidenceAnswer, EvidenceQuery, ReadGrant, project
 from fx_talanta.domain.models import ConversationMessage, EvidenceLink, Record, Versions, utc
 from fx_talanta.storage.repository import RecordConflict, Repository
@@ -156,8 +158,12 @@ def read_and_record(
     )
     try:
         repository.append_batch((user, reply))
-    except RecordConflict:
+    except (RecordConflict, UniqueViolation) as error:
+        if isinstance(error, UniqueViolation) and error.diag.constraint_name != "message_identity":
+            raise
         # Concurrent identical request may have committed with another timestamp.
+        # PostgreSQL may report the separate message_identity unique index before
+        # ON CONFLICT(record_id). The failed transaction is already rolled back.
         # Validate identity again; never overwrite or regenerate a winning receipt.
         winner = existing()
         if winner is None:

@@ -1,7 +1,9 @@
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 from uuid import uuid4, uuid5
 
 import pytest
+from psycopg.errors import UniqueViolation
 from pydantic import ValidationError
 
 from fx_talanta.advisor.evidence import EvidenceQuery, ReadGrant
@@ -128,6 +130,30 @@ def test_partial_receipt_rejected():
     with pytest.raises(RecordConflict):
         read_and_record(store, grant, query, **kwargs)
     assert store.writes == 1
+
+
+@pytest.mark.parametrize("constraint", ["message_identity", "unrelated_unique_index"])
+def test_secondary_unique_constraint_requires_verified_winner(constraint):
+    class Race(UniqueViolation):
+        @property
+        def diag(self):
+            return SimpleNamespace(constraint_name=constraint)
+
+    class RacingStore(MemoryStore):
+        def append_batch(self, records):
+            # Represents a winner committed by another caller, not a partial write.
+            super().append_batch(records)
+            raise Race("fixture concurrent winner")
+
+    source, grant, query, kwargs = setup()
+    store = RacingStore(source.account, (source,))
+    if constraint == "message_identity":
+        result = read_and_record(store, grant, query, **kwargs)
+        assert len(result.citations) == 1
+        assert len(store.records) == 3
+    else:
+        with pytest.raises(UniqueViolation):
+            read_and_record(store, grant, query, **kwargs)
 
 
 @pytest.mark.integration
