@@ -62,8 +62,25 @@ class Gateway:
         news_gate=None,
     ):
         policy = Policy.model_validate((policy or Policy()).model_dump(mode="json"))
+        self._initialize(
+            OfflineStore(dsn, account, run_id, clock), account, run_id, clock, policy, news_gate
+        )
+
+    @classmethod
+    def for_replay(cls, account, run_id, clock, policy):
+        """Run the same offline safety lifecycle with a simulator-only memory store."""
+        from fx_talanta.research.store import ReplayStore
+
+        instance = cls.__new__(cls)
+        instance._initialize(
+            ReplayStore(account, run_id, clock), account, run_id, clock, policy, None
+        )
+        return instance
+
+    def _initialize(self, store, account, run_id, clock, policy, news_gate):
+        policy = Policy.model_validate((policy or Policy()).model_dump(mode="json"))
         self.lock = RLock()
-        self.store = OfflineStore(dsn, account, run_id, clock)
+        self.store = store
         self.clock, self.account, self.run_id = clock, account, run_id
         self.news_gate = news_gate
         try:
@@ -104,6 +121,7 @@ class Gateway:
 
     def _record(self, body, refs=(), *, supersedes=None, costs=None):
         return Record(
+            record_id=self.store.next_id(),
             account=self.account,
             recorded_at=self.clock.now(),
             correlation_id=self.run_id,

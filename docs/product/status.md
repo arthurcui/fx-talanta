@@ -51,7 +51,10 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   open. The [closeout evidence](../engineering/m2-demo-execution.md#closeout-verification) now verifies
   the complete native close/report/ACK path without restart, plus backend replay. The bounded execution gate keeps M1 gaps
   separate; it does not clear them.
-- **Later milestones:** strategy baseline/replay, production model integration,
+- **M3:** [offline B01 baseline and replay](../engineering/m3-baseline.md) now has
+  simulator/risk integration and synthetic lifecycle evidence; historical economic
+  acceptance remains open.
+- **Later milestones:** production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
 
 Broader M2 acceptance must preserve the historical closure recovery and reconcile

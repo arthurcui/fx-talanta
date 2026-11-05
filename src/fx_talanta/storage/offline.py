@@ -1,6 +1,6 @@
 """Session-fenced simulator journal. A lost connection also loses mutation authority."""
 
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import psycopg
 from psycopg.types.json import Jsonb
@@ -18,6 +18,9 @@ class WriterBusy(RuntimeError):
 
 
 class OfflineStore:
+    def next_id(self):
+        return uuid4()
+
     def __init__(self, dsn: str, account: AccountIdentity, run_id: UUID, clock: Clock):
         if account.environment != "PAPER" or account.venue != "SIMULATOR":
             raise AccountMismatch("M0B execution requires PAPER/SIMULATOR")
