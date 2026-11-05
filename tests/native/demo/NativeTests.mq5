@@ -339,21 +339,21 @@ int OnInit()
    done.work=limited;
    Check("drain-positive-closure-remains",cap.ConfirmClosed(done,budget_end+10,FxHash("drain-closed"),true,true));cap.Close();
    FixturePort drain_port;runtime.Open("drain.execution",b[0],true,"");
-   Check("drain-empty-no-positive-query",!DemoDrainComplete(runtime.State(),cursor,false,true,true,false,false));
+   Check("drain-empty-no-positive-query",!DemoDrainComplete(runtime.State(),cursor,false,true,true,false,false,true));
    runtime.Dispatch(frames[0],risks[0],ledger,drain_port);
-   Check("drain-ack-not-flat-proof",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));
+   Check("drain-ack-not-flat-proof",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false,true));
    Check("empty-position-snapshot-valid",FxHex(DemoPositionsFingerprint(""),64));
    Check("empty-position-snapshot-repeatable",DemoPositionsFingerprint("")==DemoPositionsFingerprint(""));
    Check("empty-position-snapshot-distinct",DemoPositionsFingerprint("")!=DemoPositionsFingerprint("1:0.01000000:1.00000000:2.00000000;"));
    ClosedHistory closing;closing.comment=FxComment(first);cursor.Begin();result="INCOMPLETE";
    while(result=="INCOMPLETE")result=cursor.Step(runtime.State(),closing,2);
-   Check("drain-positive-close",cursor.Confirmed(0) && DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));
-   Check("drain-report-must-deliver",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,true));
-   Check("drain-disconnection-not-completion",!DemoDrainComplete(runtime.State(),cursor,true,false,true,false,false));
-   Check("drain-unexpected-exposure",!DemoDrainComplete(runtime.State(),cursor,true,true,false,false,false));
-   Check("drain-protection-unknown",!DemoDrainComplete(runtime.State(),cursor,true,true,true,true,false));
+   Check("drain-positive-close",cursor.Confirmed(0) && DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false,true));
+   Check("drain-report-must-deliver",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,true,true));
+   Check("drain-disconnection-not-completion",!DemoDrainComplete(runtime.State(),cursor,true,false,true,false,false,true));
+   Check("drain-unexpected-exposure",!DemoDrainComplete(runtime.State(),cursor,true,true,false,false,false,true));
+   Check("drain-protection-unknown",!DemoDrainComplete(runtime.State(),cursor,true,true,true,true,false,true));
    cursor.Invalidate();
-   Check("drain-invalidated-scan",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false));runtime.Close();
+   Check("drain-invalidated-scan",!DemoDrainComplete(runtime.State(),cursor,true,true,true,false,false,true));runtime.Close();
    FixturePort campaign_port;runtime.Open("campaign-close.execution",b[0],true,"");runtime.Dispatch(frames[0],risks[0],ledger,campaign_port);
    runtime.State().Reconcile(0,true,9000000,9000000,0,500,700,1.098,true);
    campaign_port.expected_version=runtime.State().At(0).version;
@@ -394,23 +394,26 @@ int OnInit()
    Check("closeout-protection-open",closeout_protection.Open("closeout.protection",b[0],true,"") && closeout_protection.Begin(first.id,100,boot,100,200));
    closeout_port.expected_version=e.version;
    Check("closeout-controlled-exit-once",DemoProtect(closeout.State(),0,closeout_protection,closeout_port,160,boot,true,true,attempted,true)=="PROTECTION_ACKNOWLEDGED" && attempted && closeout_port.sends==2);
-   Check("closeout-ack-is-not-closure",!DemoDrainComplete(closeout.State(),closeout_scan,true,true,true,closeout_protection.Unresolved(),false));
+   Check("closeout-ack-is-not-closure",!DemoDrainComplete(closeout.State(),closeout_scan,true,true,true,closeout_protection.Unresolved(),false,closeout.ClosureReportsAcknowledged()));
    ClosedHistory closeout_closed;closeout_closed.comment=FxComment(first);
    closeout_scan.Begin();result="INCOMPLETE";loops=0;
    while(result=="INCOMPLETE" && loops++<100)result=closeout_scan.Step(closeout.State(),closeout_closed,2);
    e=closeout.State().At(0);
    Check("closeout-positive-flat-witness",result=="RECONCILED" && closeout_scan.Confirmed(0) && e.state=="CLOSED" && e.open_volume==0 && FxHex(DemoPositionsFingerprint(""),64));
    Check("closeout-protection-settled",DemoProtect(closeout.State(),0,closeout_protection,closeout_port,190,boot,true,true,attempted,true)=="CLOSED_CONFIRMED" && !closeout_protection.Unresolved() && closeout_port.sends==2);
+   // Simulate clock loss after broker closure: publication is skipped and the
+   // preceding PROTECTED report is already ACKed, so Pending() is empty.
+   Check("closeout-unpublished-closed-blocks-drain",closeout.Pending()=="" && !closeout.ClosureReportsAcknowledged() && !DemoDrainComplete(closeout.State(),closeout_scan,true,true,true,false,false,closeout.ClosureReportsAcknowledged()));
    Check("closeout-closed-report-persisted",closeout.PublishState(e,1767614400040,10,closeout_scan.Proof(0),true) && closeout.Pending()!="");
    string closeout_pending=closeout.Pending();
    int closeout_file=FileOpen("closeout-state.txt",FILE_WRITE|FILE_TXT|FILE_ANSI,0,CP_UTF8);
    if(closeout_file!=INVALID_HANDLE){FileWriteString(closeout_file,closeout_pending);FileClose(closeout_file);}
-   Check("closeout-lost-report-ack-blocks-drain",!DemoDrainComplete(closeout.State(),closeout_scan,true,true,true,false,closeout.Pending()!=""));
+   Check("closeout-lost-report-ack-blocks-drain",!DemoDrainComplete(closeout.State(),closeout_scan,true,true,true,false,closeout.Pending()!="",closeout.ClosureReportsAcknowledged()));
    Check("closeout-repeat-report-identical",closeout.PublishState(e,1767614400050,10,closeout_scan.Proof(0),true) && closeout.Pending()==closeout_pending && closeout_port.sends==2);
    Check("closeout-wrong-report-ack-refused",!closeout.Ack(FxHash("wrong-ack")) && closeout.Pending()==closeout_pending);
    Check("closeout-closed-report-acked",closeout.Ack(FxHash(closeout_pending)) && closeout.Pending()=="");
-   Check("closeout-drain-completes-without-restart",DemoDrainComplete(closeout.State(),closeout_scan,true,true,true,closeout_protection.Unresolved(),closeout.Pending()!="") && closeout_port.sends==2);
-   Check("closeout-invalidated-evidence-blocks-drain",!DemoDrainComplete(closeout.State(),closeout_scan,false,true,true,false,false));
+   Check("closeout-drain-completes-without-restart",DemoDrainComplete(closeout.State(),closeout_scan,true,true,true,closeout_protection.Unresolved(),closeout.Pending()!="",closeout.ClosureReportsAcknowledged()) && closeout_port.sends==2);
+   Check("closeout-invalidated-evidence-blocks-drain",!DemoDrainComplete(closeout.State(),closeout_scan,false,true,true,false,false,closeout.ClosureReportsAcknowledged()));
    closeout.Close();closeout_protection.Close();
    FileClose(checks);return INIT_SUCCEEDED;
 }

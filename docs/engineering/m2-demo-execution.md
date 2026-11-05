@@ -218,7 +218,7 @@ This is a **blocked preflight**, not a failed order attempt or completed closure
 acceptance. No activation, fixed entry window, authority or budget reservation was
 started; no EA was attached and no order was sent. Independent postflight checks
 confirmed unchanged broker history, flatness, disabled Algo Trading and all 69
-preserved prior evidence files unchanged. The new authorization remains unused.
+preserved prior evidence files unchanged. The authorization was unused at that preflight; the November 5 attempt below consumed it.
 CMC and AvaTrade were untouched. Same-session connected `CLOSED`/ACK/drain remains
 unverified; synthetic closeout and the earlier recovery-assisted result remain
 separate evidence. M1 gaps and the prohibition on a new 24-hour campaign remain.
@@ -239,10 +239,44 @@ should therefore use this finer cadence; neither the original broker timestamp n
 the final two-second entry rule changes. This is monitoring evidence, not an entry
 permit or a same-period randomized comparison of polling cadences.
 
-The read-only native publisher compiled and was installed in an isolated FOREX
-diagnostic folder, but was **not attached**: desktop activation failed twice. A
-current EA-versus-Python comparison and the authorized one-entry closure test
-remain incomplete. No order, reservation or activation window started.
+The initial desktop activation failed twice, so this November 4 diagnostic stopped
+before attachment. The owner restored the window; the subsequent comparison and
+one-entry attempt are recorded below, separately from that zero-order preflight.
+
+#### November 5 actual one-entry outcome and shutdown fix
+
+The [independent broker/native audit](../evidence/m2-one-entry-closeout-20261105.json)
+verified one **0.01-lot** entry, broker SL/TP and one controlled exit, with a flat
+account and no recovery attachment. Planned risk remained capped at **0.10% of
+eligible equity**, per entry and cumulatively. Native admission recorded quote-age
+upper bounds of **1,542/1,544 ms** and **89 ms** clock uncertainty. Algo Trading is
+off, the listener stopped, the EA removed itself and authority is retired. The
+reservation remains charged; no extra entry or new 24-hour campaign is authorized.
+All 69 earlier evidence files and preceding broker-history records were unchanged.
+
+**The connected closeout gate failed:** local reconciliation reached CLOSED, but
+the backend received only PROTECTED. The terminal logged clock-sync uncertainty
+above 100 ms near shutdown. When the clock was unverified, the host skipped state
+publication; the empty outbox then incorrectly allowed `DEMO_DRAIN_COMPLETE_FLAT`.
+That log line is not evidence that the required CLOSED/ACK gate passed.
+
+Drain now requires the exact current CLOSED state/version to have a durable report
+ACK. An empty outbox with an unpublished final state blocks shutdown. This also
+blocks stale PROTECTED acknowledgements and lost/wrong CLOSED acknowledgements.
+The [new isolated native run](../evidence/m2-native-clock-loss-closeout-20261105.json)
+passed **143 checks**, including clock-loss/unpublished-close regression; earlier
+142-check evidence is preserved. This offline fix does not convert the failed
+connected attempt into a pass. M1 and full M2 qualification remain separate.
+
+The [EA/Python comparison](../evidence/m2-native-quote-comparison-20261105.json)
+completed after the owner restored FOREX.com. Across 556 assessments per symbol,
+the native stream never had a newer timestamp than Python. New native samples had
+median mapped age approximately **1.17 seconds**, with buffer flush medians of
+39 ms (EURUSD) and 47 ms (USDCAD). This corroborates timestamp age before Python
+processing; it does not identify broker/network causality or certify timestamp
+accuracy. Both read-only publishers stopped with archived STOP records and trading
+off; the [cleanup record](../evidence/m2-native-quote-cleanup-20261105.json) is separate
+from the later authorized entry.
 
 ## Historical implementation stages
 

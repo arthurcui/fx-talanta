@@ -123,3 +123,26 @@ def test_native_closed_payload_survives_backend_restart_and_lost_ack(tmp_path):
     with backend.store.transaction() as events:
         states = [r for r in events.records if r["kind"] == "demo_broker_state"]
         assert len(states) == 1 and not states[0].get("risk_released", False)
+
+
+def test_clock_loss_closeout_native_capture(historical_source):
+    import hashlib
+
+    root = Path(__file__).resolve().parents[1]
+    fixture = root / "tests/fixtures/demo-closeout-clock-loss"
+    report = json.loads(
+        (root / "docs/evidence/m2-native-clock-loss-closeout-20261105.json").read_text()
+    )
+    manifest = fixture / "required-checks.json"
+    result = compare(fixture, required_checks=json.loads(manifest.read_text())["checks"])
+    assert result["checks"] == report["checks"]
+    assert result["required_check_count"] == 143
+    assert result["checks"]["closeout-unpublished-closed-blocks-drain"] == "1"
+    for name, expected in report["source_sha256"].items():
+        assert hashlib.sha256(historical_source(name, expected)).hexdigest() == expected
+    assert hashlib.sha256(manifest.read_bytes()).hexdigest() == report["required_manifest_sha256"]
+    assert (
+        hashlib.sha256((fixture / "demo-checks.tsv").read_bytes()).hexdigest()
+        == report["checks_sha256"]
+    )
+    assert not report["demo_order_acceptance"] and not report["full_m2_acceptance"]

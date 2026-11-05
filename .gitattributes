@@ -11,3 +11,5 @@ tests/fixtures/source-archive/*.txt -text
 tests/fixtures/demo-closeout/*.tsv -text whitespace=cr-at-eol
 tests/fixtures/demo-closeout/*.txt -text
 tests/fixtures/demo-closeout/required-checks.json -text whitespace=cr-at-eol
+
+tests/fixtures/demo-closeout-clock-loss/* -text whitespace=cr-at-eol

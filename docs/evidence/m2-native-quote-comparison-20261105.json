@@ -1,0 +1,25 @@
+{
+  "EURUSD": {
+    "assessments": 556,
+    "same_identity": 548,
+    "ea_newer": 0,
+    "python_newer": 8,
+    "new_native_samples": 30,
+    "native_capture_age_median_ms": 1172.5,
+    "native_capture_age_min_ms": 1163,
+    "native_buffer_flush_median_ms": 39.0
+  },
+  "USDCAD": {
+    "assessments": 556,
+    "same_identity": 288,
+    "ea_newer": 0,
+    "python_newer": 10,
+    "new_native_samples": 29,
+    "native_capture_age_median_ms": 1176,
+    "native_capture_age_min_ms": 1161,
+    "native_buffer_flush_median_ms": 47
+  },
+  "scope": "Read-only diagnostic, distinct from subsequent demo entry",
+  "m1_qualified": false,
+  "broker_network_latency_certified": false
+}

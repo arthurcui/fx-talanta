@@ -130,7 +130,7 @@ void OnTimer()
    }
    if(native_budget.Draining() && DemoDrainComplete(gateway,reconciler,full_scan && history.Valid(),
       (bool)TerminalInfoInteger(TERMINAL_CONNECTED),PositionsTotal()==0 && OrdersTotal()==0,
-      protection.Unresolved(),kernel.Pending()!=""))
+      protection.Unresolved(),kernel.Pending()!="",kernel.ClosureReportsAcknowledged()))
    { Print("DEMO_DRAIN_COMPLETE_FLAT");Stop();return; }
    if(GetTickCount64()<due) return;
    if(!TerminalInfoInteger(TERMINAL_CONNECTED)){ due=GetTickCount64()+1000; return; }

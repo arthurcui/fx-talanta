@@ -1,0 +1,19 @@
+{
+  "streams": {
+    "EURUSD": {
+      "stop": true,
+      "sha256": "f4487f62a75716f224a6ddf2061aade7c8c89d3a1673a880cb61cb3c38327489",
+      "rows": 255
+    },
+    "USDCAD": {
+      "stop": true,
+      "sha256": "17ca536a1bad7af0a1695af946ccaa7461e7ad55c44b25b9f1fad211d763f9da",
+      "rows": 191
+    }
+  },
+  "algo_enabled": false,
+  "flat": true,
+  "scope": "Read-only diagnostic, distinct from subsequent demo entry",
+  "m1_qualified": false,
+  "broker_network_latency_certified": false
+}
