@@ -11,7 +11,7 @@ gates. [Current status](status.md) distinguishes implemented features from quali
 | M2A | Intent/EA protocol and offline reference | Implemented contracts and reference vectors |
 | M2B | Fixed EA | Implemented and native/Tester evidence retained |
 | M2C | Deterministic safety and recovery | Implemented checks; connected acceptance still must validate the fault matrix |
-| M2D | Connected PAPER execution acceptance | Bounded demo execution verified with separate read-only recovery; full acceptance remains open |
+| M2D | Connected PAPER execution acceptance | Bounded same-session demo closeout verified without recovery (PR #25); full fault-matrix acceptance remains open |
 | M3 | Strategy baseline and replay | Reproducible baseline, point-in-time inputs and costs before AI optimization |
 | M4 | Bounded AI and conversational advisor | Model proposals and explanations cite records; deterministic authority remains outside the model |
 | M5 | Unattended PAPER and operating UI | All prerequisites plus at least eight weeks AND 100 closed trades under the specification's gates |

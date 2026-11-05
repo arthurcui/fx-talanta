@@ -9,7 +9,7 @@ paper/live environments and a conversational advisor are part of that design.
 **Today:** the offline foundation, market-data and calendar tooling, deterministic
 risk controls and fixed MT5 execution gateway are implemented. A bounded FOREX.com
 **demo** trade was opened, protected and closed, with independent broker verification
-and a separate read-only closure recovery. Full connected acceptance is unfinished;
+and same-session closure acknowledgement without recovery. Full connected acceptance is unfinished;
 live and unattended strategy trading are **not enabled**.
 
 [Try the offline demo](docs/guides/getting-started.md) ·
@@ -64,7 +64,7 @@ implementation code is merged. There is no automatic broker failover.
 | Python/PostgreSQL foundation and isolated paper/live records | Implemented |
 | Offline simulation, deterministic risk and restart recovery | Implemented and tested |
 | Broker and USD/EUR/JPY news/calendar qualification (M1) | Incomplete; campaigns concluded without full qualification |
-| Fixed EA and bounded demo execution (M2) | Real demo execution verified with read-only recovery; final acceptance remains |
+| Fixed EA and bounded demo execution (M2) | Bounded same-session demo closeout verified; full fault-matrix acceptance remains |
 | Strategy baseline, production AI/advisor and trading dashboard | Planned |
 | Unattended PAPER, capped LIVE and evaluated evolution | Later gated milestones |
 

@@ -19,6 +19,7 @@ from uuid import uuid4
 
 from dotenv import dotenv_values
 
+from fx_talanta import bea_calendar as bea
 from fx_talanta import bls_calendar as bls
 from fx_talanta import fred_calendar as fred
 from fx_talanta.domain.models import NewsRevision, utc
@@ -48,6 +49,7 @@ SOURCES = {
         "EUR",
     ),
     "bls": (bls.URL, "USD"),
+    "bea": (bea.URL, "USD"),
 }
 LIMIT = 2 * 1024 * 1024
 
@@ -84,14 +86,14 @@ def digest(value):
 
 def policy():
     return FilterPolicy(
-        version="provider-shadow/3",
+        version="provider-shadow/4",
         sources=(
             SourceRule(source="calendar_inventory", role="CALENDAR", required=True),
             SourceRule(source="news_inventory", role="NEWS", required=True),
             *(
                 SourceRule(
                     source=s,
-                    role="CALENDAR" if s == "bls" else "NEWS",
+                    role="CALENDAR" if s in {"bls", "bea"} else "NEWS",
                     required=False,
                     currencies=(currency,),
                 )
@@ -192,7 +194,9 @@ def _worker(sender, source, tls, fred_key, start, end):
                 SOURCES[source][0],
                 headers={
                     "User-Agent": "FX-Talanta-Shadow/1",
-                    "Accept": "application/rss+xml, application/xml, text/calendar",
+                    "Accept": (
+                        "application/rss+xml, application/xml, text/calendar, application/json"
+                    ),
                 },
             )
             opener = urllib.request.build_opener(
@@ -208,7 +212,11 @@ def _worker(sender, source, tls, fred_key, start, end):
             timestamps = []
             evidence = {
                 "version": "provider-receipt/1",
-                "parser": "news-timestamps/1" if source != "bls" else "bls-calendar",
+                "parser": "bea-calendar/1"
+                if source == "bea"
+                else "bls-calendar"
+                if source == "bls"
+                else "news-timestamps/1",
                 "body_sha256": sha256(raw).hexdigest(),
                 "body_bytes": len(raw),
                 "received_at": observed.isoformat(),
@@ -218,6 +226,8 @@ def _worker(sender, source, tls, fred_key, start, end):
             payload = (
                 bls.import_calendar(raw, fetched_at=observed).model_dump(mode="json")
                 if source == "bls"
+                else bea.parse(raw, observed).model_dump(mode="json")
+                if source == "bea"
                 else parse_news(source, raw, observed, timestamp_evidence=timestamps)
             )
             result = {"status": "OK", "payload": payload, "response_hash": sha256(raw).hexdigest()}
@@ -369,6 +379,8 @@ class Journal:
                         ):
                             raise ValueError("conflicting export at same producer time")
                     candidates = [(v["value_id"], v) for v in normalized["events"]]
+                elif source == "bea":
+                    candidates = bea.candidates(result["payload"], now)
                 elif source == "bls":
                     snapshot = bls.BlsSnapshot.model_validate(result["payload"])
                     if snapshot.imported_at > now:
@@ -436,7 +448,7 @@ class Journal:
                         raise ValueError("calendar revision regressed or conflicts")
                     if (
                         old
-                        and source not in {"bls", "mt5_calendar", "mt5_mcp_calendar"}
+                        and source not in {"bls", "bea", "mt5_calendar", "mt5_mcp_calendar"}
                         and candidate["published_at"] != old["value"]["published_at"]
                     ):
                         raise ValueError("publication time changed")
@@ -519,9 +531,9 @@ class Journal:
                 continue
             payload = json.loads(payload)
             value = payload["value"]
-            if source in {"bls", "mt5_calendar", "mt5_mcp_calendar"}:
+            if source in {"bls", "bea", "mt5_calendar", "mt5_mcp_calendar"}:
                 # Uncertain/omitted updates cannot erase a previously exact blackout.
-                if source == "mt5_mcp_calendar" and value["scheduled_at"] is None:
+                if source in {"bea", "mt5_mcp_calendar"} and value["scheduled_at"] is None:
                     continue
                 calendar.append(
                     CalendarRevision(
