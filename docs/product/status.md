@@ -32,7 +32,9 @@ and Algo Trading disabled at verification. This document is not a live terminal 
 - **M1:** broker data and required USD/EUR/JPY calendar/news coverage, timeliness and
   reliability remain unqualified. Failed and owner-stopped campaigns retain their verdicts.
 - **M2D:** final connected execution acceptance and the complete fault matrix remain
-  open. The bounded execution gate keeps M1 gaps separate; it does not clear them.
+  open. The [synthetic closeout regression](../engineering/m2-demo-execution.md#closeout-verification) now verifies
+  the complete native close/report/ACK path without restart, plus backend replay. The bounded execution gate keeps M1 gaps
+  separate; it does not clear them.
 - **Later milestones:** strategy baseline/replay, production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
 

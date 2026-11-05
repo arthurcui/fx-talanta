@@ -1,0 +1,43 @@
+{
+  "status": "FAIL_NATIVE_CLOSED_DELIVERY",
+  "acceptance_passed": false,
+  "entries": 1,
+  "lot_size": 0.01,
+  "risk_limit_percent": 0.1,
+  "controlled_close_attempts": 1,
+  "broker_entry_and_exit_verified": true,
+  "protective_sl_tp_verified": true,
+  "prior_broker_history_unchanged": true,
+  "prior_files_unchanged": 69,
+  "account_flat": true,
+  "algo_enabled": false,
+  "native_local_closed": true,
+  "native_closed_reports": 0,
+  "native_state_sequence": [
+    "PROTECTED"
+  ],
+  "native_quote_upper_age_ms": [
+    1542,
+    1544
+  ],
+  "native_clock_error_ms": [
+    89,
+    89
+  ],
+  "recovery_used": false,
+  "another_entry_authorized": false,
+  "authority_retired": true,
+  "listener_stopped": true,
+  "native_self_removed": true,
+  "refunded": false,
+  "new_24h_campaign": false,
+  "m1_qualified": false,
+  "full_m2_acceptance": false,
+  "entry_window_utc": [
+    "2026-11-05T00:22:06.112Z",
+    "2026-11-05T00:22:36.112Z"
+  ],
+  "failure": "Native CLOSED report and ACK missing; empty outbox permitted drain when bounded clock unavailable",
+  "source_fix": "Require durable ACK for exact current CLOSED state/version before drain; preserve failed original attempt",
+  "private_verification_sha256": "f246242ce147b980dcd0637b3a0fbc9a09af28c981afb2a5b0dd35ab13db9cab"
+}

@@ -10,6 +10,17 @@ public:
    DemoStateOutbox(){loaded=false;acknowledged=0;}
    void Close(){journal.Close();loaded=false;}
    string Pending(){return loaded && acknowledged<ArraySize(reports) ? reports[acknowledged] : "";}
+   bool Acknowledged(const FxEntry &e)
+   {
+      if(!loaded)return false;
+      for(int i=acknowledged-1;i>=0;i--)
+      {
+         string f[];if(StringSplit(reports[i],'\t',f)!=14)return false;
+         if(f[1]==e.work.id)
+            return f[2]==e.work.digest && StringToInteger(f[3])==e.version && f[4]==e.state;
+      }
+      return false;
+   }
    bool Open(string path,string binding,bool bootstrap,string tip)
    {
       Close();scope=binding;ArrayResize(reports,0);acknowledged=0;

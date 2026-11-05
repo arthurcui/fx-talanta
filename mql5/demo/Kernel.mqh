@@ -41,6 +41,18 @@ public:
    }
    bool PublishState(const FxEntry &entry,long at,int error,string proof,bool positive)
    {return loaded && broker_states.Publish(entry,at,error,proof,positive);}
+   bool ClosureReportsAcknowledged()
+   {
+      if(!loaded)return false;
+      FxGateway *gateway=runtime.State();
+      for(int i=0;i<gateway.Count();i++)
+      {
+         FxEntry entry=gateway.At(i);
+         if(entry.state=="REJECTED")continue;
+         if(entry.state!="CLOSED" || !broker_states.Acknowledged(entry))return false;
+      }
+      return true;
+   }
    string Pending()
    {
       string receipt=reference.Pending(); if(receipt=="") return broker_states.Pending();

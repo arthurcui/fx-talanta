@@ -1,0 +1,50 @@
+{
+  "status": "PASS_BOUNDED_SAME_SESSION_CLOSEOUT",
+  "bounded_closeout_passed": true,
+  "entries": 1,
+  "lot_size": 0.01,
+  "risk_limit_percent": 0.1,
+  "controlled_close_attempts": 1,
+  "broker_entry_and_exit_verified": true,
+  "protective_sl_tp_verified": true,
+  "prior_broker_history_unchanged": true,
+  "prior_attempt_files_unchanged": 181,
+  "earlier_files_unchanged": 69,
+  "prior_database_records_unchanged": true,
+  "account_flat": true,
+  "algo_enabled": false,
+  "native_local_closed": true,
+  "native_closed_acknowledged": true,
+  "native_budget_closed": true,
+  "native_state_sequence": [
+    "PROTECTED",
+    "CLOSED"
+  ],
+  "native_quote_upper_age_ms": [
+    1797,
+    1798
+  ],
+  "native_clock_error_ms": [
+    91,
+    91
+  ],
+  "same_ea_session": true,
+  "completed_drain": true,
+  "recovery_used": false,
+  "refunded": false,
+  "new_24h_campaign": false,
+  "m1_qualified": false,
+  "full_m2_acceptance": false,
+  "source_commit": "99c0bbb0a07fb9f866c26959ce96bb6e893567d8",
+  "closed_report_sha256": "c9254c1004193662d333e3ad280c5af8209da0e41ed0eca49da43f92bb841abd",
+  "authority_retired": true,
+  "listener_stopped": true,
+  "native_self_removed": true,
+  "entry_window_utc": [
+    "2026-11-05T00:43:54.222Z",
+    "2026-11-05T00:44:24.222Z"
+  ],
+  "private_audit_sha256": "1a5a20446f77700192988550bfe237cbc0cec2423110b086e9994f7683c8468d",
+  "previous_failed_attempt": "m2-one-entry-closeout-20261105.json",
+  "previous_failure_preserved": true
+}

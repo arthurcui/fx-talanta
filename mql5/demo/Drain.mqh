@@ -5,9 +5,11 @@
 // A stopped network is not a successful shutdown: unsent outbox evidence remains.
 bool DemoDrainComplete(FxGateway &gateway,DemoReconciler &scan,
                        bool complete_query,bool connected,bool flat,
-                       bool protection_unresolved,bool pending_report)
+                       bool protection_unresolved,bool pending_report,bool closure_reports_acknowledged)
 {
-   if(!complete_query || !connected || !flat || protection_unresolved || pending_report)return false;
+   // Empty outbox may mean publication was skipped while the clock was invalid.
+   // Require the exact terminal state/version's durable ACK, not just no backlog.
+   if(!complete_query || !connected || !flat || protection_unresolved || pending_report || !closure_reports_acknowledged)return false;
    for(int i=0;i<gateway.Count();i++)
    {
       FxEntry e=gateway.At(i);

@@ -1,11 +1,18 @@
 # Bounded demo execution integration
 
-## Current implementation and acceptance boundary — November 4
+## Current implementation and acceptance boundary — November 5
+
+The [new owner-authorized one-entry test](../evidence/m2-one-entry-closeout-20261105-02.json)
+**passed bounded same-session closeout**: one 0.01-lot entry, broker SL/TP, one
+controlled close, native CLOSED report/ACK and completed drain, without recovery.
+The 0.10% eligible-equity per-entry/cumulative cap and two-second rule were retained.
+All authority is retired and Algo Trading is off. This verifies the shutdown fix;
+it does not qualify M1, unattended trading or the full M2 fault matrix.
 
 PR #23 adds an explicitly armed, demo-only execution build alongside the
 hard-disabled default build. Strategy and live trading remain blocked. M1 broker
 and provider gaps remain separate and unchanged. No new 24-hour campaign ran.
-The actual bounded-order verdict is **verified with read-only recovery**, recorded
+The earlier PR #23 bounded-order verdict was **verified with read-only recovery**, recorded
 in the [sanitized session report](../evidence/m2-bounded-demo-20261104.json): one
 0.01-lot EURUSD entry, broker-confirmed protection and one controlled close.
 The backend received and the native outbox acknowledged the final `CLOSED` state
@@ -33,9 +40,10 @@ not consume a reservation. A committed reservation is never refunded or replayed
 The native port independently validates identity, source and current quote age,
 loss/exposure limits, volume, protection and the fixed submission boundary.
 
-The owner-authorized maximum remains two entry reservations, 0.02 lot per entry,
+The original, now-retired authorization allowed two entry reservations, 0.02 lot per entry,
 one position at a time, 0.25% planned risk per entry and 0.50% cumulative planned
-risk. The actual test uses stricter 0.01-lot requests and 0.10% reservations.
+risk. Subsequent individually authorized closeout tests each allowed only one 0.01-lot
+entry and 0.10% per-entry/cumulative planned risk; neither replenished an older plan.
 Starting/current/prior eligible-equity minima and conservative integer rounding
 apply. A later isolated window carries prior consumed entries and risk forward;
 new files or a new process do not replenish authorization. Original expired
@@ -106,7 +114,7 @@ The public session report contains sanitized outcomes; private manifests, comple
 broker audits, native journals, hash chains and checkpoints remain under `.local`.
 Credentials, account identifiers, ticket numbers and raw prices are not published.
 
-Final verification: 938 Python/PostgreSQL tests and 125 native checks passed.
+PR #23 verification: 938 Python/PostgreSQL tests and 125 native checks passed.
 Two earlier regression runs hit the original database container's shared-memory
 limit; their failures are retained. Final tests used a separate loopback-only
 PostgreSQL instance, without restarting or modifying the broker-evidence database.
@@ -121,6 +129,186 @@ restarts during real exposure remain fixture-only or unobserved unless explicitl
 captured. A normal entry/close does not qualify the full live fault matrix or M1.
 CMC and the owner-reported third AvaTrade demo remain untouched and unqualified
 by these FOREX-only tests. PR #23 was merged after CI passed; its recorded execution limits remain unchanged.
+
+### Closeout verification
+
+This increment verifies the final-state path with synthetic native and backend
+inputs. It does not reopen a broker campaign, change trading permissions, replenish
+the consumed demo budget or qualify M1.
+
+#### Completed work
+
+The native lifecycle now runs through one `DemoKernel`: entry receipt/ACK, positive
+protected-position reconciliation, controlled close, positive entry/exit history,
+empty-position fingerprint, durable `CLOSED` report, report ACK and successful drain.
+No gateway restart or separate recovery build is used in that synthetic flow.
+A missing ACK keeps the report pending and blocks drain; retransmission is identical;
+a wrong ACK is rejected. The fake port records exactly one entry and one close.
+The real native submission port remains disabled throughout the fixture.
+
+The actual captured native `CLOSED` payload is then replayed through the Python
+backend. Restart plus a lost response yields the same ACK and one durable state
+record. Receipt of that report does not make it independently broker-verified,
+release reserved risk or enable trading.
+
+The [native evidence](../evidence/m2-native-closeout-20261104.json) records **142
+passing checks**: all 125 prior activation checks plus 17 closeout checks. Compilation
+had zero errors and warnings. The first attempt had one failed assertion because the
+new test expected `CLOSED` instead of the existing `CLOSED_CONFIRMED` return value.
+Its check file and source are retained; the runtime return value was not changed.
+
+#### Evidence validation fix
+
+`tools.fixtures.demo_execution_fixtures.compare` previously accepted any 20 passing
+rows and collapsed duplicate names into a dictionary. A truncated check file, or a
+failed row overwritten by a duplicate passing row, could therefore appear successful.
+
+It now requires a predeclared check manifest. Missing, additional, duplicate,
+malformed and failing rows are rejected. Native completeness is established against
+the entire declared set, not a count. Historical manifests/results are not regenerated.
+A historical check set can be verified by explicitly supplying that version's names;
+never derive the required set from the output being verified.
+
+```python
+import json
+from pathlib import Path
+from tools.fixtures.demo_execution_fixtures import compare
+
+fixture = Path("tests/fixtures/demo-closeout")
+manifest = json.loads((fixture / "required-checks.json").read_text())
+report = compare(fixture, required_checks=manifest["checks"])
+```
+
+#### Acceptance boundaries
+
+| Gate | Evidence now available | Remaining boundary |
+| --- | --- | --- |
+| Actual demo entry, protection and exit | PR #23 broker audit, independently verified | Original final delivery required read-only recovery; retain that qualification |
+| Integrated close/report/ACK/drain | November 5 fixed-EA one-entry test, independently verified without recovery | Bounded closeout only; unattended and fault-matrix qualification remain separate |
+| Lost response and duplicates | Native pending report, incorrect ACK rejection, backend restart/replay; existing send-uncertainty fixtures | No automatic broker resend is authorized |
+| Partial fill, rejected protection and closed-market exit | Existing native/fixture cases retained in the 142-check manifest | Fixture evidence is not an observed broker fault; applicable connected acceptance remains open |
+| Database/network loss and writer fencing | Existing backend/HTTPS/PostgreSQL tests | No new live fault injection performed |
+| Risk and time | Existing percentage budget and clock/freshness checks retained | Two-second entry and 100 ms clock ceilings unchanged |
+| M1 qualification | Original failed/stopped reports | Still unqualified and separate from this execution-only work |
+
+#### Authorized bounded connected verification — preflight blocked
+
+The previous authority is retired and both entry reservations are consumed. The owner
+authorized a **new** one-entry check on November 4; the prior allowance is not reused.
+This check uses the existing FOREX.com demo account, one entry reservation, at most 0.01
+lot, one position at a time and at most **0.10% of eligible equity** planned risk
+(per-entry and cumulative). The percentage calculation and conservative equity basis
+remain enforced; volume is reduced or the entry is refused if necessary.
+
+Use a new isolated manifest and journals, never reset the old budget. Before activation,
+perform fresh identity, flatness, clock/mapping, protective-order and authority checks.
+Set a fixed 30-second entry window and a bounded management/reporting window, with no
+extension or extra attempt. The exact UTC boundaries must be pinned before activation.
+Require a fresh original and native quote within two seconds and clock uncertainty
+within 100 ms. Preserve broker-confirmed SL/TP and the existing one-shot controlled
+close/reconciliation behavior; no blind resend or refund after an uncertain outcome.
+
+Success requires an independently verified entry/exit history, flat account, the same
+running EA's `CLOSED` report and ACK, and completed drain without a recovery attachment.
+Retire authority and disable trading afterward. Failure preserves all evidence and
+requires reconciliation; it never silently starts another attempt. This is a short
+execution-only check, not a 24-hour campaign, a complete fault-matrix pass or M1 acceptance.
+
+The [authorized preflight evidence](../evidence/m2-one-entry-preflight-20261104.json)
+records **57 read-only samples and zero eligible entries** over approximately one
+minute. EURUSD spreads remained **5.1–5.5 pips**, above the existing **3-pip** limit;
+quote-age upper bounds ranged from **1,508 to 32,341 ms**. A short candidate threshold
+of 1,500 ms reserves transport headroom; the final original/native entry ceiling
+remains 2,000 ms. No spread or freshness limit was relaxed. The host clock passed
+its existing bound, and the isolated bounded EA compiled with zero errors/warnings.
+
+This is a **blocked preflight**, not a failed order attempt or completed closure
+acceptance. No activation, fixed entry window, authority or budget reservation was
+started; no EA was attached and no order was sent. Independent postflight checks
+confirmed unchanged broker history, flatness, disabled Algo Trading and all 69
+preserved prior evidence files unchanged. The authorization was unused at that preflight; the November 5 attempt below consumed it.
+CMC and AvaTrade were untouched. Same-session connected `CLOSED`/ACK/drain remains
+unverified; synthetic closeout and the earlier recovery-assisted result remain
+separate evidence. M1 gaps and the prohibition on a new 24-hour campaign remain.
+
+#### Quote-capture diagnosis
+
+The [capture diagnostic](../evidence/m2-quote-capture-diagnostic-20261104.json)
+measured 30 read-only captures: median **27 ms**, maximum **55 ms**. Quotes were
+already aged when the SDK returned them; these measurements do not establish
+whether the age originates in broker timestamp accuracy, network delivery or the
+terminal. Python capture overhead is not the principal observed delay.
+
+A separate one-minute check with 100 ms sleeps between complete captures recorded
+**429 samples and 11 eligible overlaps**, using the unchanged 1,500 ms candidate
+headroom and 3-pip spread limit. Median capture time was 30 ms, maximum 85 ms.
+One-second sparse monitoring can miss these brief opportunities. Readiness checks
+should therefore use this finer cadence; neither the original broker timestamp nor
+the final two-second entry rule changes. This is monitoring evidence, not an entry
+permit or a same-period randomized comparison of polling cadences.
+
+The initial desktop activation failed twice, so this November 4 diagnostic stopped
+before attachment. The owner restored the window; the subsequent comparison and
+one-entry attempt are recorded below, separately from that zero-order preflight.
+
+#### November 5 actual one-entry outcome and shutdown fix
+
+The [independent broker/native audit](../evidence/m2-one-entry-closeout-20261105.json)
+verified one **0.01-lot** entry, broker SL/TP and one controlled exit, with a flat
+account and no recovery attachment. Planned risk remained capped at **0.10% of
+eligible equity**, per entry and cumulatively. Native admission recorded quote-age
+upper bounds of **1,542/1,544 ms** and **89 ms** clock uncertainty. Algo Trading is
+off, the listener stopped, the EA removed itself and authority is retired. The
+reservation remains charged; no extra entry or new 24-hour campaign is authorized.
+All 69 earlier evidence files and preceding broker-history records were unchanged.
+
+**The connected closeout gate failed:** local reconciliation reached CLOSED, but
+the backend received only PROTECTED. The terminal logged clock-sync uncertainty
+above 100 ms near shutdown. When the clock was unverified, the host skipped state
+publication; the empty outbox then incorrectly allowed `DEMO_DRAIN_COMPLETE_FLAT`.
+That log line is not evidence that the required CLOSED/ACK gate passed.
+
+Drain now requires the exact current CLOSED state/version to have a durable report
+ACK. An empty outbox with an unpublished final state blocks shutdown. This also
+blocks stale PROTECTED acknowledgements and lost/wrong CLOSED acknowledgements.
+The [new isolated native run](../evidence/m2-native-clock-loss-closeout-20261105.json)
+passed **143 checks**, including clock-loss/unpublished-close regression; earlier
+142-check evidence is preserved. This offline fix does not convert the failed
+connected attempt into a pass. M1 and full M2 qualification remain separate.
+
+The [EA/Python comparison](../evidence/m2-native-quote-comparison-20261105.json)
+completed after the owner restored FOREX.com. Across 556 assessments per symbol,
+the native stream never had a newer timestamp than Python. New native samples had
+median mapped age approximately **1.17 seconds**, with buffer flush medians of
+39 ms (EURUSD) and 47 ms (USDCAD). This corroborates timestamp age before Python
+processing; it does not identify broker/network causality or certify timestamp
+accuracy. Both read-only publishers stopped with archived STOP records and trading
+off; the [cleanup record](../evidence/m2-native-quote-cleanup-20261105.json) is separate
+from the later authorized entry.
+
+#### November 5 fixed-EA connected verification
+
+The owner explicitly authorized one further entry after the failed attempt. Its
+new isolated plan pinned **00:43:54.222–00:44:24.222 UTC**, one reservation, maximum
+0.01 lot and 0.10% eligible-equity risk per entry and cumulatively. No deadline was
+extended and no extra entry or recovery attachment was used.
+
+The [independent result](../evidence/m2-one-entry-closeout-20261105-02.json) verifies
+one owned entry and exit, broker SL/TP, the same EA's durable CLOSED report and
+matching native ACK, native budget closure and this run's completed-drain marker.
+Original/native entry-age upper bounds were **1,797/1,798 ms** and native clock
+uncertainty **91 ms**, below the unchanged 2,000/100 ms ceilings. The fixed binary
+matched the tested source at `99c0bbb`.
+
+The account is flat; Algo Trading is off, the EA removed itself, listener exited,
+authority was retired and the isolated database stopped with journals retained.
+The reservation remains charged. All **181 files** from the preceding failed
+attempt, **69 earlier files**, previous broker-history prefixes and both earlier
+attempts' committed backend/budget/authority records were verified unchanged.
+
+**Verdict: PASS_BOUNDED_SAME_SESSION_CLOSEOUT.** This passes the specific shutdown
+fix verification, not M1 or full M2 acceptance. The earlier failure is preserved;
+no strategy trading or 24-hour campaign was started. PR #25 remains unmerged.
 
 ## Historical implementation stages
 
