@@ -6,6 +6,7 @@ See [current status](../product/status.md) for what the product may claim today.
 
 | Evidence | What it establishes | What it does not establish |
 | --- | --- | --- |
+| [Full-session historical study](m3-full-session-study-20261105.json) | Six verified offline sessions, all source ticks retained, 14 closed simulated trades and flat boundaries | Economic edge, multi-fold validation, measured latency, M1 qualification or broker execution quality |
 | [Bounded demo, November 4](m2-bounded-demo-20261104.json) | Actual demo entry, protection, controlled close and independent read-only recovery | Unattended first-pass success, complete M2 fault acceptance or M1 qualification |
 | [Native closeout](m2-native-closeout-20261104.json) | Complete synthetic native close/report/ACK/drain and preserved first assertion failure | Connected first-pass broker acceptance or M1 qualification |
 | [Native activation](m2-bounded-activation.json) | Recorded native checks and regression results for the pinned source | A fresh result for source modified after that build |

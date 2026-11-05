@@ -90,10 +90,13 @@ and replay mechanics, not profitability, reliability or full M3 acceptance.
 
 ## Larger study boundary
 
-The next research deliverable needs bounded streaming of a longer quote path,
-position-aware partition boundaries or an explicitly preregistered management tail,
-multiple walk-forward folds, a newly frozen untouched holdout and uncertainty-aware
-results. The now-examined pilot window cannot become an untouched holdout again.
+The separate [full-session study](m3-session-study.md) provides bounded-memory tick
+replay, compressed audit streams and verified-flat partition boundaries. Its new
+registered sessions do not extend or replace this pilot's recorded windows.
+
+Broader economic acceptance still needs multiple walk-forward folds, additional
+newly frozen untouched holdouts and uncertainty-aware results. The now-examined
+pilot window cannot become an untouched holdout again.
 Do not extend these recorded windows, hide the unresolved position, tune parameters
 to this example, or weaken freshness gates to manufacture a result. Broker-specific
 financing, session reconciliation, indicator parity and the existing M1/M2 gaps remain

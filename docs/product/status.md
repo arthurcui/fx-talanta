@@ -53,8 +53,10 @@ as blockers before connected strategy PAPER. This does not enable strategy order
   separate; it does not clear them.
 - **M3:** [offline B01 baseline and replay](../engineering/m3-baseline.md) now has
   simulator/risk integration, synthetic lifecycle evidence and a
-  [first historical pilot](../engineering/m3-historical-data.md); historical economic
-  acceptance remains open.
+  [first historical pilot](../engineering/m3-historical-data.md), followed by a
+  [full-session study](../engineering/m3-session-study.md): six sessions, 713,826 ticks,
+  14 closed simulated trades and all sessions flat. Both holdout pairs lost after
+  modeled costs; historical economic acceptance remains open.
 - **Later milestones:** production model integration,
   conversational advisor, dashboard, unattended PAPER and capped LIVE remain gated.
 

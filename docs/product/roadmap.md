@@ -12,7 +12,7 @@ gates. [Current status](status.md) distinguishes implemented features from quali
 | M2B | Fixed EA | Implemented and native/Tester evidence retained |
 | M2C | Deterministic safety and recovery | Implemented checks; connected acceptance still must validate the fault matrix |
 | M2D | Connected PAPER execution acceptance | Bounded same-session demo closeout verified without recovery (PR #25); full fault-matrix acceptance remains open |
-| M3 | Strategy baseline and replay | Current work: frozen B01, point-in-time offline replay and explicit costs; no broker execution |
+| M3 | Strategy baseline and replay | Frozen B01 and six verified full-session replays; both holdout pairs lost after modeled costs. Economic acceptance remains open; no broker execution |
 | M4 | Bounded AI and conversational advisor | Model proposals and explanations cite records; deterministic authority remains outside the model |
 | M5 | Unattended PAPER and operating UI | All prerequisites plus at least eight weeks AND 100 closed trades under the specification's gates |
 | M6 | Capped LIVE | Explicit approval and bounded live risk after PAPER acceptance |
