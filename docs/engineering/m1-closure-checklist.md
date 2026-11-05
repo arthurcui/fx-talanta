@@ -1,13 +1,14 @@
 # M1 closure checklist and remediation scope
 
 Prepared 2026-11-03 from existing evidence at main `893e161` (merged PR #15).
-No tests, provider fetches, broker probes, database replays or campaigns were run.
+That initial planning pass ran no tests, provider fetches, broker probes or campaigns.
+The November 5 section below records the current remediation boundary.
 This checklist implements the [canonical roadmap](../architecture/specification.md); it does
 not change acceptance criteria. M0A–M0C remain completed within offline scope.
 
-**Next work: diagnostic evidence and an existing-record report, not another soak.**
-Prepare one consolidated remediation PR, reviewing that first slice before adding
-provider work. Do not create incremental PRs for every capture/status update.
+**Historical first slice:** diagnostic evidence and an existing-record report.
+That slice was delivered; the November 5 remediation now includes provider work.
+Keep related implementation and evidence consolidated rather than splitting captures.
 Implementation was subsequently authorized by the owner's instruction to finish
 M1. See [actual remediation progress](../history/m1-remediation-progress.md). The earlier
 campaign restriction remains. A later explicit authorization permits the bounded
@@ -145,7 +146,7 @@ cases, existing-record report, coverage matrix and a bounded launch manifest.
 Exclude threshold changes, trading/M2 code, new subscriptions, calendar EA/service
 resurrection, automated browser refresh and shared environment modifications.
 
-## Validation proposal — not started or authorized
+## Historical November 3 validation proposal
 
 1. Local regression verification now passed: 334 tests; 119 PostgreSQL-dependent
    tests were skipped to preserve broker databases. CI uses its isolated fixture database.
