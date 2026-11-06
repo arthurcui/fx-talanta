@@ -141,3 +141,10 @@ or flaky. The [bounded synthetic runner report](../evidence/m5-paper-runner-synt
 records six observations, 18 matched decisions, one closed simulated position per
 arm and three pending final HOLD outcomes. It preserves source/receipt hashes and
 explicitly reports zero broker/model calls, no campaign and full M5 incomplete.
+
+Final Python API admission hardening revalidates copied Pydantic models, so callers
+cannot bypass literal simulation-only fields or strict sequences. The final
+[source-hashed report](../evidence/m5-paper-runner-api-engineering-20261106.json) records
+**188 backend checks and 10 browser scenarios passed**, zero skips/flaky results.
+The [matching synthetic report](../evidence/m5-paper-runner-api-synthetic-20261106.json)
+retains the same six-input lifecycle verdict. Earlier reports above remain preserved.

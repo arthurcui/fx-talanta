@@ -360,3 +360,16 @@ def test_terminal_checkpoint_detects_restoring_pre_stop_copy(tmp_path):
         runner.report(sha, (final["receipt_sequence"], final["receipt_hash"]))
     with pytest.raises(ValueError, match="prefix"):
         runner.report(sha, (-1, final["receipt_hash"]))
+
+
+def test_python_model_copy_cannot_bypass_admission_contract(tmp_path):
+    runner, clock, sha, dataset, config = setup(tmp_path)
+    target = tmp_path / "invalid.sqlite"
+    with pytest.raises(ValueError):
+        Runner.create(target, config.model_copy(update={"execution_enabled": True}), clock)
+    assert not target.exists()
+    at, tick = next(ticks(dataset))
+    clock.advance(at - clock.now())
+    with pytest.raises(ValueError):
+        runner.admit(tick.model_copy(update={"sequence": True}), sha)
+    assert runner.report(sha)["observations"] == 0

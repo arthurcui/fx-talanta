@@ -1,0 +1,432 @@
+{
+  "schema": "paper-runner-synthetic-acceptance/1",
+  "result": "PASS",
+  "provenance": "SYNTHETIC",
+  "engine_sha256": "979d28eef5425150cfb4ca5faf30acf84dc15e09773c6945729676b5faf0450c",
+  "runner": {
+    "version": "paper-simulation-report/1",
+    "run_id": "c9817026-b583-4a8f-b0e0-1f94250ee938",
+    "status": "STOPPED",
+    "provenance": "SYNTHETIC",
+    "registered_at": "2026-11-05T11:59:57+00:00",
+    "deadline": "2026-11-05T19:00:00+00:00",
+    "observations": 6,
+    "receipt_sequence": 7,
+    "receipt_hash": "36545b98ad0815e4e1bc1645d5d6764d6eadb86809beda8ce87d8d21d653106b",
+    "registration_hash": "b07f53c908db12d5caba795e9bbef1b425b026e42d92336c244b9f251a9c4558",
+    "arms": {
+      "NO_AI": {
+        "state": "RUNNING",
+        "entries": 1,
+        "closed_simulated_positions": 1,
+        "open_positions": 0,
+        "balance": "9997.975003125000000000000000000000"
+      },
+      "AI_NO_NEWS": {
+        "state": "RUNNING",
+        "entries": 1,
+        "closed_simulated_positions": 1,
+        "open_positions": 0,
+        "balance": "9997.975003125000000000000000000000"
+      },
+      "AI_NEWS": {
+        "state": "RUNNING",
+        "entries": 1,
+        "closed_simulated_positions": 1,
+        "open_positions": 0,
+        "balance": "9997.975003125000000000000000000000"
+      }
+    },
+    "pending_outcomes": 3,
+    "execution_enabled": false,
+    "broker_calls": 0,
+    "external_model_calls": 0,
+    "selector": "SCRIPTED_TEST_DOUBLE",
+    "qualified_for_unattended_paper": false,
+    "prospective_evidence_verified": false,
+    "full_M5_complete": false,
+    "B01": "REJECT_FOR_PROMOTION"
+  },
+  "export": {
+    "plan_hash": "a54500208d56881f30efdfa1cfb7c182cf5d2c846df5e0f038b00f2048b355ad",
+    "source_registration": "b07f53c908db12d5caba795e9bbef1b425b026e42d92336c244b9f251a9c4558",
+    "source_receipt_hash": "36545b98ad0815e4e1bc1645d5d6764d6eadb86809beda8ce87d8d21d653106b",
+    "derived_export": true,
+    "execution_enabled": false
+  },
+  "matched": {
+    "schema_version": "matched-receipt-report/1",
+    "status": "CLOSED",
+    "run_id": "c9817026-b583-4a8f-b0e0-1f94250ee938",
+    "plan_hash": "a54500208d56881f30efdfa1cfb7c182cf5d2c846df5e0f038b00f2048b355ad",
+    "provenance": "SYNTHETIC",
+    "receipt_sequence": 41,
+    "receipt_hash": "cf16f0ac178a437ba1a0ec583088ebdc77a8ad97e5efbc3ff16d042a80dca0d2",
+    "registered_at": "2026-11-05T11:59:57+00:00",
+    "deadline": "2026-11-05T19:00:00+00:00",
+    "observations": 6,
+    "decisions": 18,
+    "outcomes": 15,
+    "revisions": 0,
+    "observations_without_decisions": 0,
+    "missing_decisions": 0,
+    "pending_outcomes": 3,
+    "comparison": {
+      "schema_version": "matched-offline-report/1",
+      "provenance": "SYNTHETIC",
+      "study_sha256": "2a188199a93ac327b2605cab0be306076d349ea03b9ed95d73954433c2f49407",
+      "candidate_hash": "770fc919c51404c4122fd60895f6cc971d1e64d118d455bf2bfc0d0aa44afc0f",
+      "cutoff": "2026-11-05T16:00:01+00:00",
+      "snapshots": 6,
+      "samples": 18,
+      "comparisons": [
+        {
+          "left": "AI_NO_NEWS",
+          "right": "NO_AI",
+          "complete_pairs": 5,
+          "excluded_pairs": 1,
+          "mean_net_difference_usd": "0E-27",
+          "minimum_difference_usd": "0",
+          "maximum_difference_usd": "0",
+          "uncertainty": "NOT_ESTIMATED; dependence and small samples require predeclared analysis"
+        },
+        {
+          "left": "AI_NEWS",
+          "right": "AI_NO_NEWS",
+          "complete_pairs": 5,
+          "excluded_pairs": 1,
+          "mean_net_difference_usd": "0E-27",
+          "minimum_difference_usd": "0",
+          "maximum_difference_usd": "0",
+          "uncertainty": "NOT_ESTIMATED; dependence and small samples require predeclared analysis"
+        }
+      ],
+      "arms": [
+        {
+          "name": "NO_AI",
+          "observations": 6,
+          "missed_entries": 0,
+          "unknown_net_outcomes": 1,
+          "max_latency_ms": 0
+        },
+        {
+          "name": "AI_NO_NEWS",
+          "observations": 6,
+          "missed_entries": 0,
+          "unknown_net_outcomes": 1,
+          "max_latency_ms": 0
+        },
+        {
+          "name": "AI_NEWS",
+          "observations": 6,
+          "missed_entries": 0,
+          "unknown_net_outcomes": 1,
+          "max_latency_ms": 0
+        }
+      ],
+      "result": "DESCRIPTIVE_OFFLINE_ONLY",
+      "execution_enabled": false,
+      "prospective_evidence_verified": false,
+      "qualified_for_unattended_paper": false,
+      "minimum_paper_weeks": 8,
+      "minimum_closed_trades": 100,
+      "limitations": [
+        "Input metadata is not independently verified delivery evidence",
+        "No broker closed-trade count or sustained coverage inferred",
+        "Missing costs/outcomes excluded, never imputed as zero",
+        "M1-M3 gaps and B01 rejection remain unchanged"
+      ]
+    },
+    "study": {
+      "schema_version": "matched-offline-study/1",
+      "provenance": "SYNTHETIC",
+      "candidate_hash": "770fc919c51404c4122fd60895f6cc971d1e64d118d455bf2bfc0d0aa44afc0f",
+      "dataset_hash": "b1cf000dee6bc2026f646c04cf1acbf16d8ee59df6afad33f89652248d6132dd",
+      "criteria_hash": "0f791a37c139509efb1b680abe9eedb8e926c5b78829d55eea59a4ac8a18c22f",
+      "feature_hash": "88369df4fafeec1bd3b24d776b4e152ce5c65b981eced594716b5683e36b2c43",
+      "lessons_hash": "3220302461a8c762dcff2b595bf96c0af8e83d3db005fa6e438a4180071f1967",
+      "news_interpretation_hash": "aba79cb7f79644c545e1791bdf17b656304a01b629736d15f55e4adc6c6fa433",
+      "frozen_at": "2026-11-05T11:59:57Z",
+      "cutoff": "2026-11-05T16:00:01Z",
+      "arms": [
+        {
+          "name": "NO_AI",
+          "ledger": "NO_AI",
+          "policy_hash": "612e1c279641d426ab0162cd9b66d03b94b6aa1e24643021ef58423310d8b4b7",
+          "safety_hash": "5df5c674f1d46ca0ec43e510aac4e92d5b80fa358c3a1d57fde9eecb45aa8dd9",
+          "model_hash": null,
+          "prompt_hash": null,
+          "news_content": false
+        },
+        {
+          "name": "AI_NO_NEWS",
+          "ledger": "AI_NO_NEWS",
+          "policy_hash": "0a0c274d4fa96d9c75947f67dd8e196985381d63bfa4783cab8c555222ab7137",
+          "safety_hash": "5df5c674f1d46ca0ec43e510aac4e92d5b80fa358c3a1d57fde9eecb45aa8dd9",
+          "model_hash": "188fd835b1189397dd1667d5faff7eb1d3cc2208f4670ec56e84f27b28c2b1e6",
+          "prompt_hash": "6b1147d1bfb6ab0f70e9554c6cb83204a9a63b65077c071b3cb568f406c0dd01",
+          "news_content": false
+        },
+        {
+          "name": "AI_NEWS",
+          "ledger": "AI_NEWS",
+          "policy_hash": "0a0c274d4fa96d9c75947f67dd8e196985381d63bfa4783cab8c555222ab7137",
+          "safety_hash": "5df5c674f1d46ca0ec43e510aac4e92d5b80fa358c3a1d57fde9eecb45aa8dd9",
+          "model_hash": "188fd835b1189397dd1667d5faff7eb1d3cc2208f4670ec56e84f27b28c2b1e6",
+          "prompt_hash": "6b1147d1bfb6ab0f70e9554c6cb83204a9a63b65077c071b3cb568f406c0dd01",
+          "news_content": true
+        }
+      ],
+      "samples": [
+        {
+          "snapshot_hash": "9b68c659ef248db5be4723b26542bf42a13d5cb8e5ea651335f6b0582d391b7f",
+          "snapshot_at": "2026-11-05T11:59:58Z",
+          "arm": "NO_AI",
+          "decision_id": "2fc94cff-16ce-5e2f-be9f-f4d3f57d2a47",
+          "decision_at": "2026-11-05T11:59:58Z",
+          "outcome_at": "2026-11-05T11:59:59Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "9b68c659ef248db5be4723b26542bf42a13d5cb8e5ea651335f6b0582d391b7f",
+          "snapshot_at": "2026-11-05T11:59:58Z",
+          "arm": "AI_NO_NEWS",
+          "decision_id": "fd745180-cc2f-5ad7-9d30-8d5e3db67f35",
+          "decision_at": "2026-11-05T11:59:58Z",
+          "outcome_at": "2026-11-05T11:59:59Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "9b68c659ef248db5be4723b26542bf42a13d5cb8e5ea651335f6b0582d391b7f",
+          "snapshot_at": "2026-11-05T11:59:58Z",
+          "arm": "AI_NEWS",
+          "decision_id": "1571690b-00cf-5e64-8ba6-60fdb5576ed3",
+          "decision_at": "2026-11-05T11:59:58Z",
+          "outcome_at": "2026-11-05T11:59:59Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "aa2f89eb84c0630443dc4369d88cac7833448b4fe0df1306e0988e51d98185ae",
+          "snapshot_at": "2026-11-05T11:59:59Z",
+          "arm": "NO_AI",
+          "decision_id": "4dfd8617-1e10-54a4-a946-632fafe63ceb",
+          "decision_at": "2026-11-05T11:59:59Z",
+          "outcome_at": "2026-11-05T12:00:01Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "aa2f89eb84c0630443dc4369d88cac7833448b4fe0df1306e0988e51d98185ae",
+          "snapshot_at": "2026-11-05T11:59:59Z",
+          "arm": "AI_NO_NEWS",
+          "decision_id": "e5f747c6-4870-51b1-8610-8a85fe29e5f3",
+          "decision_at": "2026-11-05T11:59:59Z",
+          "outcome_at": "2026-11-05T12:00:01Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "aa2f89eb84c0630443dc4369d88cac7833448b4fe0df1306e0988e51d98185ae",
+          "snapshot_at": "2026-11-05T11:59:59Z",
+          "arm": "AI_NEWS",
+          "decision_id": "6dead0b7-7246-575e-982a-f4fae46b102d",
+          "decision_at": "2026-11-05T11:59:59Z",
+          "outcome_at": "2026-11-05T12:00:01Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "f2b3c9a7cdd06d3f740860eeb7c17240f74044a41ef6f72cb1782e1a1e95dff1",
+          "snapshot_at": "2026-11-05T12:00:01Z",
+          "arm": "NO_AI",
+          "decision_id": "d5c8aaac-163a-5b00-aadf-068ac7c6d031",
+          "decision_at": "2026-11-05T12:00:01Z",
+          "outcome_at": "2026-11-05T16:00:00Z",
+          "gross_pnl": "-1.260000000000000000000000000000000",
+          "cost": "0.7649968750000000000000000000000000",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "f2b3c9a7cdd06d3f740860eeb7c17240f74044a41ef6f72cb1782e1a1e95dff1",
+          "snapshot_at": "2026-11-05T12:00:01Z",
+          "arm": "AI_NO_NEWS",
+          "decision_id": "c8892b9f-823b-5b1f-bb60-b1c9a4332535",
+          "decision_at": "2026-11-05T12:00:01Z",
+          "outcome_at": "2026-11-05T16:00:00Z",
+          "gross_pnl": "-1.260000000000000000000000000000000",
+          "cost": "0.7649968750000000000000000000000000",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "f2b3c9a7cdd06d3f740860eeb7c17240f74044a41ef6f72cb1782e1a1e95dff1",
+          "snapshot_at": "2026-11-05T12:00:01Z",
+          "arm": "AI_NEWS",
+          "decision_id": "7225b25a-863a-589b-9cfb-b6d8d6624450",
+          "decision_at": "2026-11-05T12:00:01Z",
+          "outcome_at": "2026-11-05T16:00:00Z",
+          "gross_pnl": "-1.260000000000000000000000000000000",
+          "cost": "0.7649968750000000000000000000000000",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "c446116f7445f850b6e6b6afe4305b91f722a35fa36273360181c6d414e2d02e",
+          "snapshot_at": "2026-11-05T12:00:02Z",
+          "arm": "NO_AI",
+          "decision_id": "62b3ecc9-bf97-5598-a48d-a055472e4263",
+          "decision_at": "2026-11-05T12:00:02Z",
+          "outcome_at": "2026-11-05T16:00:00Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "c446116f7445f850b6e6b6afe4305b91f722a35fa36273360181c6d414e2d02e",
+          "snapshot_at": "2026-11-05T12:00:02Z",
+          "arm": "AI_NO_NEWS",
+          "decision_id": "337ae368-16b2-5dd4-b549-5cb7f3fcc399",
+          "decision_at": "2026-11-05T12:00:02Z",
+          "outcome_at": "2026-11-05T16:00:00Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "c446116f7445f850b6e6b6afe4305b91f722a35fa36273360181c6d414e2d02e",
+          "snapshot_at": "2026-11-05T12:00:02Z",
+          "arm": "AI_NEWS",
+          "decision_id": "864d7664-37e5-5bee-b7d1-91899af0fb0e",
+          "decision_at": "2026-11-05T12:00:02Z",
+          "outcome_at": "2026-11-05T16:00:00Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "8a993a7cd90867fa989c0dd00cb2c8d40fd8f18584db97dd528c74011eaa4cab",
+          "snapshot_at": "2026-11-05T16:00:00Z",
+          "arm": "NO_AI",
+          "decision_id": "51f4e495-c02d-5675-9b95-c83e91dce76a",
+          "decision_at": "2026-11-05T16:00:00Z",
+          "outcome_at": "2026-11-05T16:00:01Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "8a993a7cd90867fa989c0dd00cb2c8d40fd8f18584db97dd528c74011eaa4cab",
+          "snapshot_at": "2026-11-05T16:00:00Z",
+          "arm": "AI_NO_NEWS",
+          "decision_id": "b817fd05-4435-5782-9613-acbadd052567",
+          "decision_at": "2026-11-05T16:00:00Z",
+          "outcome_at": "2026-11-05T16:00:01Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "8a993a7cd90867fa989c0dd00cb2c8d40fd8f18584db97dd528c74011eaa4cab",
+          "snapshot_at": "2026-11-05T16:00:00Z",
+          "arm": "AI_NEWS",
+          "decision_id": "817b9808-59f9-545f-aa1f-538ed2d24ae9",
+          "decision_at": "2026-11-05T16:00:00Z",
+          "outcome_at": "2026-11-05T16:00:01Z",
+          "gross_pnl": "0",
+          "cost": "0",
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "c60129c14038d8b0b2724e9b9bf45a46164d676e8aba38a6966781353b68badc",
+          "snapshot_at": "2026-11-05T16:00:01Z",
+          "arm": "NO_AI",
+          "decision_id": "7bae1e23-3e91-51d4-88ad-8a014d9cf44c",
+          "decision_at": "2026-11-05T16:00:01Z",
+          "outcome_at": null,
+          "gross_pnl": null,
+          "cost": null,
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "c60129c14038d8b0b2724e9b9bf45a46164d676e8aba38a6966781353b68badc",
+          "snapshot_at": "2026-11-05T16:00:01Z",
+          "arm": "AI_NO_NEWS",
+          "decision_id": "452b3f04-09d7-5ff4-b683-9b62b4ad8a68",
+          "decision_at": "2026-11-05T16:00:01Z",
+          "outcome_at": null,
+          "gross_pnl": null,
+          "cost": null,
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        },
+        {
+          "snapshot_hash": "c60129c14038d8b0b2724e9b9bf45a46164d676e8aba38a6966781353b68badc",
+          "snapshot_at": "2026-11-05T16:00:01Z",
+          "arm": "AI_NEWS",
+          "decision_id": "5bdf9fa2-b4ee-5104-a501-01e801903c37",
+          "decision_at": "2026-11-05T16:00:01Z",
+          "outcome_at": null,
+          "gross_pnl": null,
+          "cost": null,
+          "latency_ms": 0,
+          "missed_entry": false,
+          "currency": "USD"
+        }
+      ],
+      "execution_enabled": false
+    },
+    "result": "OFFLINE_RECEIPT_WORKFLOW_ONLY",
+    "execution_enabled": false,
+    "prospective_evidence_verified": false,
+    "qualified_for_unattended_paper": false,
+    "limitations": [
+      "Local receipt order is not trusted external publication or broker evidence",
+      "Artifact hashes verify bytes, not strategy quality or input provenance",
+      "No strategy/model/broker runner or campaign started",
+      "M1-M3 gaps and B01 rejection preserved"
+    ]
+  },
+  "host_clock_adjusted": false,
+  "campaign_started": false,
+  "full_M5_complete": false
+}

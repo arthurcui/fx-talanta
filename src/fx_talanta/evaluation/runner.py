@@ -407,7 +407,9 @@ class Runner:
 
     @classmethod
     def create(cls, path, config, clock=None):
-        config = Config.model_validate(config)
+        config = Config.model_validate(
+            config.model_dump() if isinstance(config, Config) else config
+        )
         runner = cls(path, clock)
         at = runner.clock.now()
         if not config.start <= at < config.deadline:
@@ -501,7 +503,7 @@ class Runner:
             raise
 
     def admit(self, tick, expected_hash):
-        tick = Tick.model_validate(tick)
+        tick = Tick.model_validate(tick.model_dump() if isinstance(tick, Tick) else tick)
         with closing(
             sqlite3.connect(self.path.resolve().as_uri() + "?mode=rw", uri=True, timeout=3)
         ) as conn:
