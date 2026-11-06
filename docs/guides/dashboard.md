@@ -594,3 +594,10 @@ This is not a generic email/Slack integration. A receiver must implement exact-I
 digest acknowledgement and receipt lookup; uncertain POSTs are never blindly resent.
 The UI separates local acknowledgement from receiver acceptance. Restored inspection
 backups cannot reactivate delivery. No real receiver is configured by the tests.
+
+## Pinned inspection deployment
+
+For an explicit HTTPS launch with artifact/code drift checks and verified journal
+backup/restore, use the [inspection deployment guide](../engineering/m5-deployment-readiness.md).
+This restricted profile exposes no broker, model, operator or alert activation flags.
+It does not replace an existing preview or qualify remote operation.

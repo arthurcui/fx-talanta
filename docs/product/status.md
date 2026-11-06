@@ -17,7 +17,7 @@ The M5 [read-only dashboard](../guides/dashboard.md) now provides a local browse
 workspace for offline records, EA/Python/MCP timing, cited English/Chinese evidence
 chat and isolated manual BLS uploads. Optional bounded model inspection, current
 broker receipt views, simulator-only administration, background inspection and
-HTTPS owner sign-in are implemented. The UI does not attach broker terminals or
+HTTPS owner sign-in are implemented. A [pinned inspection-only deployment profile](../engineering/m5-deployment-readiness.md) validates local artifacts, TLS and journal recovery before explicit launch. The UI does not attach broker terminals or
 expose broker order controls. Actual remote deployment and unattended PAPER remain
 unqualified. Historical execution does not imply current positions.
 
