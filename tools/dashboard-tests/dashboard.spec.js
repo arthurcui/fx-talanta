@@ -52,7 +52,16 @@ test("desktop: channels, cited advisor, filters, safe calendar failure", async (
   );
   await page.locator("#kind").selectOption("decision");
   await expect(page.locator(".record")).toHaveCount(1);
+  await page.locator("#evidence-search").fill("not-present-fixture");
+  await expect(page.locator("#empty")).toBeVisible();
+  await page.locator("#evidence-search").fill("HOLD");
+  await expect(page.locator(".record")).toHaveCount(1);
   await page.locator(".record").click();
+  await expect(page.locator("#trace-status")).toContainText("3 linked records");
+  await expect(page.locator("#trace-status")).toContainText(
+    "0 missing references",
+  );
+  await expect(page.locator("#trace-nodes")).toContainText("SHA-256");
   await page.getByRole("button", { name: "Ask advisor" }).click();
   await expect(page.locator("#messages .citation")).toContainText("SHA-256");
   await expect(page.locator("#messages")).toContainText(
@@ -80,6 +89,24 @@ test("desktop: channels, cited advisor, filters, safe calendar failure", async (
   await expect(page.locator("#messages")).toContainText(
     "NEWS_COVERAGE_INCOMPLETE",
   );
+  await page.locator("#kind").selectOption("all");
+  await page.locator("#incident-query").fill("EA-quotes");
+  await page
+    .getByRole("button", { name: "Search incidents", exact: true })
+    .click();
+  await expect(page.locator("#incident-events .incident")).toHaveCount(1);
+  await page.locator("#incident-latest").click();
+  const downloadPromise = page.waitForEvent("download");
+  await page.locator("#export").click();
+  const download = await downloadPromise;
+  const report = JSON.parse(readFileSync(await download.path(), "utf8"));
+  expect(report.payload.scope).toBe("OFFLINE_INSPECTION_NOT_QUALIFICATION");
+  expect(report.payload.execution_enabled).toBe(false);
+  expect(report.sha256).toMatch(/^[0-9a-f]{64}$/);
+  expect(JSON.stringify(report)).not.toContain(new URL(url).hash.slice(7));
+  await page.locator("#kind").selectOption("decision");
+  await page.locator(".record").click();
+  await expect(page.locator("#trace-status")).toContainText("3 linked records");
   await page.locator("#kind").selectOption("all");
   await page.screenshot({
     path: "test-results/dashboard-desktop.png",

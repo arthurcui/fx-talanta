@@ -79,19 +79,7 @@ function render(data) {
     feed.status === "NOT_CONFIGURED"
       ? "Snapshot only · no telemetry file configured"
       : `Telemetry file: ${feed.status} · sequence ${feed.sequence ?? "unknown"} · ${feed.provenance || "retained evidence only"}. No broker collector is attached.`;
-  $("incident-count").textContent =
-    `${data.incidents.total} retained transitions · showing latest ${data.incidents.shown}`;
-  $("incident-events").replaceChildren(
-    ...data.incidents.events.map((event) => {
-      const e = node("article", undefined, "incident");
-      e.append(
-        node("strong", `${event.kind}: ${event.state}`),
-        node("span", stamp(event.at)),
-        node("code", `Evidence ${event.evidence}`),
-      );
-      return e;
-    }),
-  );
+  if (!incidentBrowsing) renderIncidents(data.incidents);
   const selected = $("selected").value;
   $("selected").replaceChildren(
     new Option("Workspace questions", ""),
@@ -150,9 +138,17 @@ function render(data) {
     $("news").append(node("p", "No news/provider evidence in this snapshot."));
 }
 function renderRecords() {
+  const query = $("evidence-search").value.trim().toLowerCase();
   const list = snapshot.records.filter(
-    (r) => $("kind").value === "all" || r.kind === $("kind").value,
+    (r) =>
+      ($("kind").value === "all" || r.kind === $("kind").value) &&
+      JSON.stringify([r.id, r.kind, r.facts, r.provenance])
+        .toLowerCase()
+        .includes(query),
   );
+  $("evidence-count").textContent =
+    `${list.length} of ${snapshot.records.length} projected records`;
+
   $("empty").hidden = !!list.length;
   $("records").replaceChildren(
     ...list.map((r) => {
@@ -184,6 +180,7 @@ function renderRecords() {
           ),
         );
       b.addEventListener("click", () => {
+        showTrace(r.id);
         $("selected").value = r.id;
         $("question").value = "Explain this recorded evidence";
         $("advisor").scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -307,6 +304,7 @@ document.querySelectorAll("[data-question]").forEach((b) =>
   }),
 );
 $("kind").addEventListener("change", renderRecords);
+$("evidence-search").addEventListener("input", renderRecords);
 $("refresh").addEventListener("click", refresh);
 $("login-form").addEventListener("submit", (e) => {
   e.preventDefault();
@@ -336,6 +334,127 @@ $("upload-form").addEventListener("submit", async (e) => {
     $("upload-result").textContent = `Upload rejected: ${err.message}`;
   } finally {
     $("upload").disabled = false;
+  }
+});
+let incidentBrowsing = false,
+  incidentBefore = null,
+  incidentQuery = "",
+  incidentRequest = 0,
+  traceRequest = 0;
+function renderIncidents(data) {
+  incidentBefore =
+    "next_before" in data
+      ? data.next_before
+      : data.total > data.shown
+        ? data.events.at(-1)?.id
+        : null;
+  $("incident-older").disabled = !incidentBefore;
+  $("incident-count").textContent =
+    `${data.total} matching retained transitions · showing ${data.shown}`;
+  $("incident-events").replaceChildren(
+    ...data.events.map((event) => {
+      const e = node("article", undefined, "incident");
+      e.append(
+        node("strong", `${event.kind}: ${event.state}`),
+        node("span", stamp(event.at)),
+        node("code", `Evidence ${event.evidence}`),
+      );
+      return e;
+    }),
+  );
+}
+async function loadIncidents(before = null) {
+  const request = ++incidentRequest;
+  incidentBrowsing = true;
+  $("incident-older").disabled = true;
+  try {
+    const params = new URLSearchParams({ q: incidentQuery });
+    if (before) params.set("before", before);
+    const data = await api(`/api/incidents?${params}`);
+    if (request === incidentRequest) renderIncidents(data);
+  } catch (e) {
+    if (request === incidentRequest)
+      $("incident-count").textContent =
+        `Incident search unavailable: ${e.message}`;
+  }
+}
+$("incident-search-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  incidentQuery = $("incident-query").value.trim();
+  loadIncidents();
+});
+$("incident-older").addEventListener("click", () =>
+  loadIncidents(incidentBefore),
+);
+$("incident-latest").addEventListener("click", () => {
+  incidentQuery = "";
+  $("incident-query").value = "";
+  loadIncidents();
+});
+async function showTrace(id) {
+  const request = ++traceRequest;
+  $("trace-panel").hidden = false;
+  $("trace-status").textContent = "Loading recorded links…";
+  $("trace-nodes").replaceChildren();
+  $("trace-links").replaceChildren();
+  try {
+    const data = await api(`/api/trace/${encodeURIComponent(id)}`);
+    if (request !== traceRequest) return;
+    $("trace-status").textContent =
+      `${data.nodes.length} linked records · ${data.missing.length} missing references · cutoff ${stamp(data.cutoff)}`;
+    $("trace-nodes").replaceChildren(
+      ...data.nodes.map((r) => {
+        const e = node("article", undefined, "incident");
+        e.append(
+          node("strong", `${r.kind} · ${stamp(r.at)}`),
+          node("code", `Record ${r.id}`),
+          node(
+            "p",
+            r.details_available
+              ? JSON.stringify(r.facts)
+              : "Details outside the dashboard projection",
+          ),
+          node("code", `SHA-256 ${r.sha256}`),
+        );
+        return e;
+      }),
+    );
+    $("trace-links").replaceChildren(
+      ...data.links.map((l) =>
+        node(
+          "p",
+          `${l.source} → ${l.target} · ${l.relation} · ${l.resolved ? "record present" : "MISSING"}`,
+          "trace-link",
+        ),
+      ),
+    );
+  } catch (e) {
+    if (request === traceRequest)
+      $("trace-status").textContent =
+        `Evidence trail unavailable: ${e.message}`;
+  }
+}
+$("export").addEventListener("click", async () => {
+  $("export").disabled = true;
+  try {
+    const report = await api("/api/report");
+    const url = URL.createObjectURL(
+      new Blob([JSON.stringify(report, null, 2)], { type: "application/json" }),
+    );
+    const link = node("a");
+    link.href = url;
+    link.download = "fx-talanta-inspection.json";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    notice(
+      "Inspection report exported. It is bounded offline evidence, not qualification or a full archive.",
+    );
+  } catch (e) {
+    notice(`Export unavailable: ${e.message}`);
+  } finally {
+    $("export").disabled = false;
   }
 });
 window.addEventListener("hashchange", () => {

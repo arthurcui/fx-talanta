@@ -47,7 +47,12 @@
               A clear view of inputs, decisions and the reasons to wait.
             </p>
           </div>
-          <button id="refresh" class="secondary">Refresh snapshot</button>
+          <div class="workspace-actions">
+            <button id="refresh" class="secondary">Refresh snapshot</button
+            ><button id="export" class="secondary">
+              Export inspection report
+            </button>
+          </div>
         </div>
         <section id="login" class="panel" hidden>
           <h2>Open your local session</h2>
@@ -143,8 +148,28 @@
                   Select a record to inspect it with the advisor. Historical
                   execution observations do not establish current positions.
                 </p>
+                <label for="evidence-search">Search evidence</label
+                ><input
+                  id="evidence-search"
+                  type="search"
+                  maxlength="128"
+                  placeholder="Record ID, kind or recorded fact"
+                />
+                <p id="evidence-count" class="fine" role="status"></p>
                 <div id="records"></div>
                 <p id="empty" hidden>No matching records in this snapshot.</p>
+              </section>
+              <section class="panel" id="trace-panel" hidden>
+                <span class="eyebrow">RECORDED LINKS</span>
+                <h2>Evidence trail</h2>
+                <p class="section-note">
+                  Only explicit references connect records. Missing links remain
+                  gaps; shared timestamps or correlation IDs do not prove
+                  causality or execution.
+                </p>
+                <p id="trace-status" role="status"></p>
+                <div id="trace-nodes"></div>
+                <div id="trace-links"></div>
               </section>
               <section class="panel" id="calendar">
                 <div class="section-title">
@@ -197,8 +222,22 @@
                   Recorded when the dashboard is inspected. This is not
                   continuous monitoring or campaign acceptance.
                 </p>
+                <form id="incident-search-form">
+                  <label for="incident-query">Search retained incidents</label
+                  ><input
+                    id="incident-query"
+                    maxlength="128"
+                    type="search"
+                    placeholder="Channel, state or evidence hash"
+                  /><button class="secondary">Search incidents</button>
+                </form>
                 <p id="incident-count" role="status"></p>
                 <div id="incident-events" class="incident-list"></div>
+                <button id="incident-older" class="secondary" disabled>
+                  Older matching incidents</button
+                ><button id="incident-latest" class="secondary">
+                  Latest incidents
+                </button>
               </section>
               <section class="panel blockers">
                 <span class="eyebrow">SAFETY BOUNDARY</span>

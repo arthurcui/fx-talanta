@@ -162,3 +162,40 @@ with an explicit shown/total count. Original timestamps and source hashes remain
 the local archive. Lesson records show M4's evidence-based memory eligibility at the
 snapshot cutoff; a QUALIFIED label alone is insufficient. Neither view qualifies
 provider coverage or promotes a strategy.
+
+## Search, follow recorded links and export
+
+Use **Search evidence** with the kind filter to find a record ID, provenance or
+projected fact. Selecting a record opens its evidence trail and selects it for the
+advisor. The trail follows explicit references in either direction, supersession,
+and lesson supporting/contradicting-case links. It does not infer causality from
+correlation IDs or timestamps. Cycles terminate; missing references are marked
+MISSING and cannot bridge otherwise unrelated groups. Each present record retains
+its original timestamp, provenance and SHA-256. Unsupported record kinds show
+metadata only. A record's presence does not prove an order was executed, a position
+is open or a strategy is qualified. No linked evidence is fetched from other accounts,
+files, databases or the network.
+
+**Search retained incidents** searches the entire local incident journal using
+literal case-insensitive text (condition, state or evidence hash). Results show up
+to 100 events per page, newest first. **Older matching incidents** uses an ID cursor;
+new events do not shift earlier pages. **Latest incidents** returns to the newest
+unfiltered page. Search results are a requested view, not a continuously refreshed
+alert feed. Failures do not disappear when a condition recovers.
+
+**Export inspection report** downloads JSON from the authenticated local service.
+It contains a bounded overview, snapshot hash, projected records, timing, blockers,
+and the displayed calendar/incident windows with total/shown counts. It excludes
+session credentials, internal state paths, account login fields and chat answers.
+Record facts and the source label are still local user data; this is not a public
+redaction service. It is not a complete source archive or qualification certificate.
+The report's `sha256` covers `payload` serialized as UTF-8 JSON with sorted keys,
+compact separators and ASCII escaping (`json.dumps(payload, sort_keys=True,
+separators=(",", ":"), ensure_ascii=True)`). The digest detects content changes; it
+is not a signature or independent proof of broker activity.
+
+All search, trace and report endpoints use the existing bearer session and exact
+Host/Origin restrictions. There is no execution route. Backend tests cover cycles,
+missing links, unrelated correlated records, literal search, stable pagination,
+export hashes and authentication. Headless browser acceptance exercises search,
+trace, download and desktop/mobile layouts without opening user applications.

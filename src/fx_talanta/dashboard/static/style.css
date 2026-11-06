@@ -778,3 +778,23 @@ footer {
     left: 15px;
   }
 }
+
+.workspace-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.trace-link {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+#trace-nodes {
+  max-height: 400px;
+  overflow: auto;
+}
+#trace-nodes p {
+  overflow-wrap: anywhere;
+}
+#incident-search-form {
+  margin-bottom: 12px;
+}

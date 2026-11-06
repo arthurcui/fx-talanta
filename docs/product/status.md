@@ -104,3 +104,9 @@ upcoming manual-calendar events and M4 lesson eligibility at the snapshot cutoff
 Missing/invalid/stale telemetry remains unavailable; old evidence is preserved.
 This is not a connected collector, continuous monitoring campaign or unattended
 PAPER qualification. See the [dashboard operating guide](../guides/dashboard.md).
+
+The evidence workspace adds searchable projected records, explicit-reference trails,
+full retained-incident search with stable pagination, and hashed bounded inspection
+report downloads. It exposes gaps rather than synthesizing missing execution or
+learning evidence; all routes remain authenticated and read-only with respect to
+trading. M5 unattended PAPER prerequisites and observation gates remain unchanged.
