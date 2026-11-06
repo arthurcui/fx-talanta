@@ -41,7 +41,7 @@ test("direct runner view shows simulation authority and clears unavailable evide
     "6 observations",
   );
   await expect(page.locator("#workflow-details")).toContainText(
-    "SCRIPTED_TEST_DOUBLE",
+    "RECORDED_MODEL_RESPONSES",
   );
   await expect(page.locator("#workflow-details")).toContainText(
     "not quote latency or entry readiness",
@@ -63,6 +63,15 @@ test("direct runner view shows simulation authority and clears unavailable evide
   );
   await expect(page.locator("#workflow-details")).toContainText(
     "Source provenance is not independently qualified",
+  );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "6 recorded replies",
+  );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "no verified model calls",
+  );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "Model cost is separate from trade P&L",
   );
   await page.route("**/api/overview", async (route) => {
     const response = await route.fetch();

@@ -199,3 +199,9 @@ The [typed source adapter](../engineering/m5-input-admission.md) now feeds retai
 market/bar/calendar/news evidence through the queue and simulator with shared safety
 checks and admission-time expiry. Dashboard channel labels are asserted provenance,
 not live connections or provider qualification. Trading remains disabled.
+
+### M5 recorded model-selection replies
+
+The runner now [validates recorded model replies](../engineering/m5-recorded-selectors.md)
+and shows reported latency, token usage and known/unknown model costs. Tests use only
+synthetic replies; no provider calls or production model qualification are implied.

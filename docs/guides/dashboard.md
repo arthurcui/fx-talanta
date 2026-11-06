@@ -624,3 +624,7 @@ quote freshness or producer liveness; the view has no processing controls.
 Runner inspection also shows normalized-input counts and asserted source channels.
 These describe recorded simulation envelopes, not live channel connectivity or
 qualified providers. See [typed input admission](../engineering/m5-input-admission.md).
+
+For recorded-selector runs, inspection separates known reported model costs and
+unknown-cost replies from trade P&L, and labels latency as reported rather than verified.
+See [recorded selector integration](../engineering/m5-recorded-selectors.md).
