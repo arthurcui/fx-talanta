@@ -1,0 +1,691 @@
+{
+  "schema": "m4-engineering-acceptance/1",
+  "scope": "OFFLINE_SIMULATOR_ONLY",
+  "result": "PASS",
+  "integration": true,
+  "passed": 162,
+  "skipped": 0,
+  "cases": [
+    {
+      "name": "tests.test_advisor_command_gateway::test_pause_blocks_entry_resume_preserves_gates[en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_pause_blocks_entry_resume_preserves_gates[zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_owned_close_actual_simulator_evidence_no_duplicate[en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_owned_close_actual_simulator_evidence_no_duplicate[zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_uncertainty_never_blind_resends[LOST_RESPONSE]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_uncertainty_never_blind_resends[TIMEOUT_BEFORE]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_flatten_cancels_remainders_closes_and_halts[None]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_flatten_cancels_remainders_closes_and_halts[ACK_ONLY]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_flatten_cancels_remainders_closes_and_halts[PARTIAL]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_state_change_stale_quote_and_ambiguous_text_do_not_close",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_reservation_storage_failure_fences_writer_before_mutation",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_deadline_after_cancel_stops_close",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_postgres_concurrent_close_restart_and_interrupted_receipt[False]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_command_gateway::test_postgres_concurrent_close_restart_and_interrupted_receipt[True]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_bilingual_semantic_parity_and_simulation_only[PAUSE_ENTRIES]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_bilingual_semantic_parity_and_simulation_only[RESUME_ENTRIES]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_bilingual_semantic_parity_and_simulation_only[CLOSE_OWNED_POSITION]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_bilingual_semantic_parity_and_simulation_only[FLATTEN_OWNED_AND_HALT]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>0-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>0-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>1-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>1-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>2-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>2-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>3-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>3-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>4-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>4-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>5-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>5-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>6-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>6-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>7-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>7-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>8-en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_negations_questions_quotes_injection_are_not_commands[<lambda>8-zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[loss_pause-True]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[hard_halt-True]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[integrity_halt-True]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[unresolved_orders-True]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[inputs_qualified-False]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[healthy-False]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[quote_at-None]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[quote_at-value7]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_resume_cannot_clear_any_other_gate[quote_at-value8]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_exact_two_second_ceiling",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_invalid_targets_and_state_never_transition[scope]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_invalid_targets_and_state_never_transition[expired]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_invalid_targets_and_state_never_transition[version]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_invalid_targets_and_state_never_transition[stale]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_invalid_targets_and_state_never_transition[future]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_invalid_targets_and_state_never_transition[permission]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_invalid_targets_and_state_never_transition[position]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_unknown_close_preserves_positions_and_cannot_retry_as_success[CLOSE_OWNED_POSITION]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_unknown_close_preserves_positions_and_cannot_retry_as_success[FLATTEN_OWNED_AND_HALT]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_live_fixture_never_accepted",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_commands::test_atomic_journal_concurrent_retry_and_unknown_retention",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_exact_citation_safe_projection_bilingual",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_scope_time_and_construct_bypass[target]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_scope_time_and_construct_bypass[snapshot]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_scope_time_and_construct_bypass[expired]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_scope_time_and_construct_bypass[future]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_scope_time_and_construct_bypass[bypass]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_missing_future_and_explicit_version_pinning",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_unresolved_link_does_not_invent_outcome",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_duplicate_snapshot_and_request_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_memory_point_in_time[QUALIFIED-activation0-known0-True-True]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_memory_point_in_time[PROPOSED-None-known1-True-False]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_memory_point_in_time[QUALIFIED-activation2-known2-True-False]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_memory_point_in_time[QUALIFIED-activation3-None-True-False]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_memory_point_in_time[QUALIFIED-activation4-known4-False-False]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_source_failure_is_not_empty_success",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_future_health_is_unavailable",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_live_or_demo_grant_cannot_use_projection",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_bounded_snapshot_and_query",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_evidence::test_postgres_projection_is_read_only",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_atomic_messages_exact_receipt_and_restart_retry",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_retry_rejects_changed_identity_or_expired_access[actor]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_retry_rejects_changed_identity_or_expired_access[query]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_retry_rejects_changed_identity_or_expired_access[conversation]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_retry_rejects_changed_identity_or_expired_access[language]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_retry_rejects_changed_identity_or_expired_access[expiry]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_missing_evidence_receipt_remains_original_after_later_arrival",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_outage_and_oversized_receipt_do_not_write",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_partial_receipt_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_secondary_unique_constraint_requires_verified_winner[message_identity]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_secondary_unique_constraint_requires_verified_winner[unrelated_unique_index]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_postgres_receipt_restart_and_no_execution",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_journal::test_postgres_concurrent_delivery_commits_one_pair",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_request_no_account_or_tools_and_exact_schema",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_one_call_and_restart_no_resend",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[unknown]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[duplicate]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[incomplete]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[refusal]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[tool]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[model]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[usage]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[extra]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[hold]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_bad_responses_hold_without_repair_retry[empty]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_timeout_expiry_and_storage_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_late_response_never_accepted",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_network_policy",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_model_cannot_add_prose_or_trade_command",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_concurrent_reservation_only_one_sender",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_http_error_sanitized_and_never_retried",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider::test_expired_request_no_network_or_reservation",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_commit_failure_and_restart_never_resend",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_provider_failure_is_sanitized_and_retained[failure0]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_provider_failure_is_sanitized_and_retained[failure1]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_expired_and_cross_account_never_reserve",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_late_response_is_not_explanation",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_invalid_budget[changes0]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_invalid_budget[changes1]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_invalid_budget[changes2]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_provider_ledger::test_postgres_budget_concurrency_restarts_and_immutability",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_end_to_end_links_retry_and_no_command[en]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_end_to_end_links_retry_and_no_command[zh]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_request_rebinding_rejected_before_provider[question]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_request_rebinding_rejected_before_provider[actor]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_request_rebinding_rejected_before_provider[language]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_request_rebinding_rejected_before_provider[conversation]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_request_rebinding_rejected_before_provider[expiry]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_request_rebinding_rejected_before_provider[budget]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_final_write_failure_resumes_without_new_provider_call",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_expired_access_after_call_never_delivers",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_unknown_provider_outcome_never_invents_saved_answer",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_invalid_scope_has_no_writes_or_calls[expired]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_invalid_scope_has_no_writes_or_calls[deadline]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_invalid_scope_has_no_writes_or_calls[account]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_invalid_scope_has_no_writes_or_calls[question]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_advisor_service::test_postgres_full_service_with_fake_transport",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_actual_proposal_smoke_preserves_source_and_hold",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_complete_authenticated_decision_risk_execution_close_read",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_access_denial_has_no_provider_or_gateway_effect[invalid]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_access_denial_has_no_provider_or_gateway_effect[revoked]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_access_denial_has_no_provider_or_gateway_effect[expired]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_access_denial_has_no_provider_or_gateway_effect[permission]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_access_denial_has_no_provider_or_gateway_effect[account]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_cross_account_read_and_command_denied",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[wrong_model]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[unknown_candidate]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[wrong_exit]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[extra]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[incomplete]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[tool]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[refusal]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[usage]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_malformed_or_failed_proposals_record_hold[timeout]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_late_model_never_reages_original_quote[2.001]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_late_model_never_reages_original_quote[31]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_revocation_during_provider_prevents_dispatch",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_valid_model_cannot_override_gateway_halts[administrative_pause]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_valid_model_cannot_override_gateway_halts[integrity_halt]",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_b01_and_changed_candidate_manifest_are_not_promoted",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_failed_provider_journal_never_resends",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_request_wire_excludes_account_and_ineligible_memory",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_candidate_stop_still_faces_deterministic_risk",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_read_permission_cannot_issue_commands",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_model_hold_and_changed_request_do_not_dispatch",
+      "status": "PASS"
+    },
+    {
+      "name": "tests.test_m4_consolidated::test_postgres_authenticated_pipeline_and_shared_budget",
+      "status": "PASS"
+    }
+  ],
+  "source_sha256": {
+    "src/fx_talanta/advisor/provider.py": "638738a3456b2b6df4564365eb309a7f823cef35dd43ce1c172053b92877b408",
+    "src/fx_talanta/advisor/rationale.py": "c82ff1f86c6c6b015833c29db378af1c779d25de5165a973b6034ead0af76350",
+    "src/fx_talanta/advisor/access.py": "52ec70aeddd38b669b3a9f8d7f7633a9d563e9c2a30476cde9480d813e60729a",
+    "src/fx_talanta/advisor/service.py": "d353a5ea850ae9757c0b7abbd6bc011ec1e60a390cd9d61399e3463654a8d2fd",
+    "src/fx_talanta/advisor/command_gateway.py": "e03e68118fa5a006a36b1a8b17d9d43ceda29fcafb67b37ea1f571bdf35bd99b",
+    "src/fx_talanta/advisor/proposals.py": "2d8e1fcb29f16ec4bab813dd1c145124bc85763116bc56e75592d4b2af4fa6be",
+    "src/fx_talanta/advisor/__init__.py": "93d470cbea2513b5f8ecbccf4de3236242128aa969bf45cd4190749f6daf0481",
+    "src/fx_talanta/advisor/journal.py": "059cc743acfa4282bfc00fc466f724ac2b50b5ed1da5c1cdc0cf045d44b53482",
+    "src/fx_talanta/advisor/commands.py": "e1aaeb91aaf199bf1159ce33d671c7e3a74a535c8169a12f79e245ee91ff9336",
+    "src/fx_talanta/advisor/proposal_contracts.py": "b9a8ab0b7e408161e8d5e382796b6ecce816c49862c1a681a2b1076a1984a764",
+    "src/fx_talanta/advisor/evidence.py": "2e18e7674b7aba5d37ec42f6888e4dc0793f5b3ea44a64d39ec3ad738176a6b6",
+    "src/fx_talanta/advisor/provider_ledger.py": "869135c14d536ac40feca131566593aff73f2e65a2a4e34faa9c0a40b731ba9e",
+    "tests/test_advisor_command_gateway.py": "abeb5835e292cc94147a8aedc16a08d33bda77b96a7b1d6b29d69eafb8427a48",
+    "tests/test_advisor_commands.py": "4738b0bb9988c363d7a8f290fd96efec825a07e27ea9863c8a47f8a18adb76ca",
+    "tests/test_advisor_evidence.py": "03adbb35df73780f3b75863cb5cc6aa8e1dee54a3f26c0d69eaf55a46371e0a4",
+    "tests/test_advisor_journal.py": "43b90676c11426b8c5539815f325d244ce622140773f117bfd9368b3bebe6e43",
+    "tests/test_advisor_provider.py": "592a3e399de9348033762be884d53cd8a419aa408c253967e5805ab15b5e1f51",
+    "tests/test_advisor_provider_ledger.py": "8b68d9bb582e18c8958722ea4a0eca28fe3b35fbac07e82aa47f341c1de81be8",
+    "tests/test_advisor_service.py": "46d3eff422c0cc7aa5eb4b2756c4cf8f6a7d6051bb29485f04bc23faf9bd947f",
+    "tests/test_m4_consolidated.py": "8ae72a60ee5e8043f9c5f13793ba4951614e9a596f004fa3027722e6ee0b0361",
+    "src/fx_talanta/gateway/offline.py": "d1354c966bc3025d9445d83d29cd150cb5e7ab0e18ecbfd845e9d887205b38b0",
+    "src/fx_talanta/risk/governor.py": "ab1ddea30ac9d668d4f0bc457a2e9b9917e976026ec7a00483752f151f579b4b",
+    "src/fx_talanta/brokers/simulator.py": "6eb10f7b43ffb3375915dd2843f2f919637aa89ca54170b6fb77b4f609f5b451",
+    "tools/qualification/m4_acceptance.py": "92461dee28f992783917f341853a98aae2e4d23e0acdfc6521ae0b0a3cba78e6",
+    "tests/fixtures/m4/candidate.json": "a47c671fc393adcbffa91f2ca19191910c30ead7c3bdc05e4bf9a59a859c66cd"
+  },
+  "external_model_calls": 0,
+  "broker_calls": 0,
+  "trading_enabled": false,
+  "economic_acceptance": false,
+  "B01": "REJECT_FOR_PROMOTION",
+  "M1_gaps_cleared": false
+}
