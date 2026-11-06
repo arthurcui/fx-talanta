@@ -48,6 +48,7 @@
             </p>
           </div>
           <div class="workspace-actions">
+            <button id="logout" class="secondary" hidden>Sign out</button>
             <button id="refresh" class="secondary">Refresh snapshot</button
             ><button id="export" class="secondary">
               Export inspection report
@@ -55,19 +56,25 @@
           </div>
         </div>
         <section id="login" class="panel" hidden>
-          <h2>Open your local session</h2>
-          <p>
-            Use the private URL printed by the dashboard command, or paste its
-            session token. The token stays in this page’s memory.
-          </p>
-          <form id="login-form">
-            <label for="token">Session token</label
+          <h2>Sign in to your workspace</h2>
+          <p id="login-help">Checking access mode�</p>
+          <form id="login-form" hidden>
+            <label for="username">Username</label
             ><input
-              id="token"
-              type="password"
-              autocomplete="off"
+              id="username"
+              autocomplete="username"
               required
-            /><button>Open workspace</button>
+              maxlength="64"
+            />
+            <label for="password">Passphrase</label
+            ><input
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              maxlength="256"
+            />
+            <button>Sign in</button>
           </form>
         </section>
         <div id="notice" role="status" aria-live="polite">

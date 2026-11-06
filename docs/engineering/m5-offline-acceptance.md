@@ -1,26 +1,26 @@
 # M5 offline engineering acceptance and remaining gates
 
-This consolidates the local operating workspace and offline comparison-validation
-scope. It does **not** close full M5 or claim that every feature possible with
-trading disabled has been implemented. In particular, connected read adapters,
-remote deployment, open-ended advisor chat and broker administrative UI integration remain
-separate engineering work; sustained candidate qualification cannot be replaced by
-an offline suite. Trading remains disabled, and no new campaign is authorized.
+This is the current engineering acceptance index. The sections below retain the
+chronological implementation evidence; their original limitations describe those
+individual deliveries. This matrix supersedes their old "not implemented" wording.
+**Full M5 remains OPEN.** Trading is disabled; software tests do not supply candidate
+qualification or elapsed PAPER evidence. No new campaign is authorized.
 
 ## Capability and evidence matrix
 
-| Requirement | Current implementation / decisive check | Boundary |
+| Requirement | Implemented and tested | Remaining boundary |
 | --- | --- | --- |
-| Local operating workspace | Loopback-only bearer session, Host/Origin checks, expiry, restart binding, state lock; backend and browser tests | No remote authentication/TLS deployment or PAPER/LIVE account selector |
-| Quote latency and channel status | Separate EA/Python/MCP connection, observation age, original quote age, transport delay and clock bound; file sequence/hash validation | Offline explicit file input, no attached broker collector; two-second entry rule unchanged |
-| Decisions, risk and outcomes | Searchable projections, explicit-reference trails, unresolved evidence, original rationale, hashes and cutoff | Historical evidence does not reconcile current positions or balances |
-| Operating summaries | Decision results, operational/compliance/economic record labels, corrections, distinct model traces and conflicting request detection | Record-version counts are not trade counts; fixture traces are not invoices; equity/net P&L/drawdown/exposure remain unknown |
-| Advisor and learning | Authenticated English/Chinese M4 evidence reader, durable answers, exact-cutoff lesson eligibility, no executable model prose | No open-ended model chat in UI or automatic promotion |
-| Calendar/news | Isolated manual BLS import, reminder, upcoming event/cancellation display and retained news/health evidence | USD/EUR/JPY coverage remains unqualified; no terminal calendar script or automatic provider qualification |
-| Incidents and recovery | Durable sampled transitions, missing/stale/invalid input, literal retained-history search and stable cursors | On-demand observations, not continuous notification delivery or campaign reliability |
-| Export | Authenticated bounded inspection report with reproducible payload digest and source hashes | Not a full archive, signed attestation or account-performance report |
-| Matched comparisons | `evaluation/matched.py` validates three separated offline ledgers, common safety, frozen AI policy/model/prompt, pre-outcome decisions, costs and paired exclusions | Descriptive input validation only; no runner, independently verified prospective delivery, uncertainty estimate or promotion verdict |
-| Reproducibility | `tools.qualification.m5_acceptance` runs the backend and headless-browser suites and records source hashes | PASS applies only to the named local inspection/evaluation scope |
+| Owner workspace access | HTTPS owner sign-in, salted password verifier, HttpOnly cookie, CSRF, logout/restart revocation, request-idle and absolute expiry; legacy private local launch | Single owner only; actual remote deployment, credential lifecycle/SSO and operating acceptance are not qualified |
+| Quote latency and channels | EA/Python/MCP health dimensions, exact-bound current demo read receipts, native-calendar timestamp mapping and host clock proof, aging/invalid/expired receipts | Recorded sampling, not execution readiness or sustained broker qualification; two-second entry rule unchanged |
+| Decisions, risk and outcomes | Searchable evidence projections, explicit-reference trails, original rationale, hashes and cutoff | Historical evidence alone never reconciles present broker exposure |
+| Broker state | Separate current demo inspection receipts for balances, positions, orders and protection; missing/stale/invalid receipts fail closed | UI does not attach MT5; complete connected fault matrix and unattended recovery remain unqualified |
+| Advisor and learning | English/Chinese cited evidence reader, optional bounded M4 model selection, durable call reservations/results and qualified-memory filtering | No unrestricted model commands, automatic strategy promotion or profitability claim |
+| Calendar/news | Manual BLS import/reminder, events/cancellations, news and health evidence | USD/EUR/JPY coverage/timeliness/reliability gaps retained |
+| Administration | Separate simulator capability, preview/confirmation, pause/resume/owned-close/flatten-halt, uncertainty reconciliation | No broker commands or strategy activation through this dashboard |
+| Monitoring/recovery | Background inspection, durable incidents, local notification spool/acknowledgment, stopped backup/restore verification | Local spool is not external alert delivery; inspection-worker health is not broker/feed health |
+| Deployment boundary | Explicit HTTPS and mutual-TLS remote access, exact Host/Origin, bounded requests, source-backed tests | Actual remote deployment and full operational acceptance remain open |
+| Matched comparisons | Offline study upload and three-ledger validation, common safety, pre-outcome decisions, costs and paired exclusions | No prospective matched runner, eligible candidate, qualified costs or economic promotion verdict |
+| Reproducibility | One source-hashed backend/headless-browser acceptance command; all earlier evidence retained | Software PASS never closes unattended PAPER gates |
 
 The [source-hashed Windows local acceptance report](../evidence/m5-local-offline-acceptance-20261106.json) records **48 backend tests and two browser
 tests passed, zero skipped**. CI reproduces the same entry point after installing
@@ -62,24 +62,23 @@ collect evidence, count broker closed trades or establish elapsed observation ti
 
 ## Exact remaining M5 scope
 
-1. **Connected input/UI integration:** explicitly authorized read adapters with exact
-   account binding, independently verified timestamp mapping, current positions,
-   balances/risk/protection and end-to-end failure acceptance. Existing file import
-   and historic execution records do not satisfy this requirement.
-2. **Administration and deployment:** authenticated account-scoped pause/close/halt UI,
-   controlled resume, model-independent protection, notification delivery, remote
-   TLS/access and deployment/recovery tests. M4 simulator commands are implemented;
-   the dashboard now exposes separately authenticated simulator-only controls.
-   Broker commands and remote owner authorization remain unavailable.
-3. **Evaluation:** bounded M4 model selection and offline study upload are integrated
-   in the UI. Still required: a qualified frozen candidate, prospective matched AI/no-AI and news/no-news ledgers, verified
-   costs/latency, predeclared uncertainty/economic criteria and promotion review.
-   This PR implements validation and descriptive comparison only, not that runner.
-4. **Unattended PAPER:** resolve applicable M1–M3 gates and obtain the required
-   authorization before connected strategy operation; collect at least **eight weeks
-   AND 100 closed trades per candidate**, with the specification's operational and
-   economic gates. No threshold reduction, retrospective relabeling or new campaign
-   follows from this PR. M6 remains blocked.
+1. **Connected operations qualification:** read-only current demo capture and quote
+   display are implemented. Complete connected recovery/failure acceptance and
+   independently qualified inputs remain open; historical receipts do not prove
+   present reconciliation. Broker administrative integration remains unavailable.
+2. **Deployment/operations:** owner sign-in and mutual-TLS access are implemented.
+   Actual remote deployment, external alert delivery and broker-scoped safe
+   administration/protection still require dedicated implementation and acceptance.
+3. **Evaluation:** matched offline input validation and bounded model inspection are
+   implemented. A prospective matched runner, eligible frozen candidate, qualified
+   cost/latency evidence and predeclared uncertainty/economic review remain open.
+4. **Unattended PAPER:** applicable M1–M3 prerequisites and explicit strategy
+   authorization must precede at least **eight weeks AND 100 closed trades per
+   candidate**, with the specification's operational/economic gates. No campaign,
+   threshold reduction or promotion is authorized here. M6 remains blocked.
+
+These are substantive remaining gates, not pending CI checks. The owner-access
+change closes a UI access gap; it does not rename the whole milestone "complete".
 
 B01 stays REJECT_FOR_PROMOTION. Failed/stopped qualification records are preserved.
 The dashboard's readiness matrix lists these requirements instead of treating a
@@ -289,3 +288,19 @@ for the bounded session. It does not measure transport latency or independently
 bound the broker's internal clock error. M1 provider/market-data gaps, broker
 disconnect recovery, current reconciliation, B01's rejection and M5's eight-week
 AND 100-closed-trade requirements remain open. No execution authority follows.
+
+## Owner access acceptance
+
+The consolidated owner-access change replaces manual browser token entry with
+normal single-owner sign-in when configured, and cookie exchange for development
+launches. Tests cover actual TLS, bearer-bypass rejection, CSRF/Origin rejection,
+logout, restart/expiry/certificate binding, throttling, browser reload and absence
+of operator authority. Setup and limitations are in the
+[owner guide](../guides/dashboard.md#owner-sign-in). No password, broker credential,
+trust-store installation, strategy campaign or remote deployment is part of this change.
+
+The [source-hashed owner-access report](../evidence/m5-owner-access-20261106.json)
+records **119 backend checks and eight headless browser scenarios passed**, with
+zero skipped or flaky checks. These include an ephemeral-CA HTTPS browser sign-in
+and the existing dashboard/model/simulator/quote-age flows. All broker and external
+model call counts are zero. The report explicitly leaves full M5 incomplete.

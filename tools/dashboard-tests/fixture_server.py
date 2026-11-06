@@ -33,8 +33,26 @@ app = Dashboard(
 )
 app.service = InspectionService(app, 1)
 app.service.start()
-server = make_server(app, 0)
-Path(sys.argv[2]).write_text(f"http://127.0.0.1:{server.server_port}/#token={app.token}")
+if "--owner" in sys.argv:
+    from test_dashboard_service import certificates
+
+    from fx_talanta.dashboard.sessions import Owner
+
+    certs = state / "test-certificates"
+    certs.mkdir()
+    certificates(certs)
+    server = make_server(
+        app,
+        0,
+        owner=Owner.create("owner", "fixture-only-long-passphrase"),
+        remote_cert=certs / "server.pem",
+        remote_key=certs / "server.key",
+    )
+    url = f"https://127.0.0.1:{server.server_port}/"
+else:
+    server = make_server(app, 0)
+    url = f"http://127.0.0.1:{server.server_port}/#token={app.token}"
+Path(sys.argv[2]).write_text(url)
 try:
     server.serve_forever()
 finally:

@@ -24,13 +24,52 @@ directory must be new unless explicitly using `--resume`; choose another name fo
 is retained, never reset by launch. Port 8765 is the default; `--port 0` selects an
 available port without taking over another process.
 
-The URL contains a random session capability in its fragment, which is removed
-from browser history after loading. It is not sent in the URL to the server or
-stored in browser storage. The page keeps it in memory and sends it in an
-Authorization header. Reloading requires reopening the private URL. Sessions
-expire after eight hours. Do not share the URL or the optional `--session-file`.
-Default launch uses a loopback/local-OS boundary. Optional remote inspection below
-requires additional client-certificate authentication; it is not an SSO login service.
+The default developer launch URL carries a private bootstrap capability in its
+fragment. The page removes the fragment, exchanges the capability for an HttpOnly,
+SameSite=Strict session cookie, and discards its JavaScript copy. Reload uses that
+cookie; there is no session-token text box or localStorage credential. Keep the
+launch URL and optional `--session-file` private: either can open another session
+until the server's eight-hour access window expires. Legacy programmatic bearer
+access remains available only when owner mode is not configured.
+
+### Owner sign-in
+
+Create an owner credential file privately from an interactive terminal. The command
+prompts twice without echoing the passphrase and refuses to overwrite a file:
+
+```powershell
+python -m fx_talanta.dashboard.sessions --output .local/dashboard-owner.json --username owner
+python -m fx_talanta.dashboard.server --state .local/dashboard-owner-session --owner-file .local/dashboard-owner.json --tls-cert .local/server.pem --tls-key .local/server.key
+```
+
+Use a passphrase of at least 16 characters. The file contains a salted scrypt
+verifier, not the passphrase; protect it using the operating system's account ACLs
+and keep it outside Git and inspection backups. POSIX mode 0600 is requested but
+is not a Windows ACL guarantee. Use a certificate trusted by your browser for the
+exact configured host; no trust-store changes are made by these commands. Missing
+TLS causes owner mode to fail before listening. Open the printed URL, sign in,
+and use **Sign out** when finished. Owner mode never emits a bootstrap URL and
+rejects the internal bearer capability as an alternate login.
+
+Sessions are server-side, certificate-bound when mutual TLS supplies a client
+certificate, and capped at 16 per process. Cookies use HttpOnly, SameSite=Strict,
+Path=/ and, under HTTPS, Secure with the `__Host-` prefix. Cookie-authenticated
+writes require an exact Origin and a session-specific CSRF header. Five failed
+sign-ins within a minute throttle further attempts. Session expiry is 30 minutes
+without authenticated requests (visible-page polling counts as activity), bounded
+by the server's original eight-hour window. Sign-out revokes that browser session;
+restart revokes all sessions. Changing credentials requires a controlled restart.
+An expired server window requires a new explicit launch/resume; login cannot extend it.
+
+Remote owner access **also** requires the existing mutual-TLS/client-certificate
+and exact-origin configuration below. This is a single-owner inspection login,
+not multi-user account management, passkeys, SSO, password recovery or production
+deployment qualification. Signing in grants no broker authority and does not replace
+the separate simulator operator capability. No real owner credentials or deployment
+are created by the software acceptance tests.
+
+Cookie and CSRF choices follow [MDN's cookie guidance](https://developer.mozilla.org/en-US/docs/Web/Security/Practical_implementation_guides/Cookies)
+and [OWASP's CSRF guidance](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html).
 
 The default tour is visibly **SYNTHETIC**, with fixed historical timestamps. It is
 not a broker account, live market or demonstration of strategy profitability.
@@ -198,7 +237,7 @@ compact separators and ASCII escaping (`json.dumps(payload, sort_keys=True,
 separators=(",", ":"), ensure_ascii=True)`). The digest detects content changes; it
 is not a signature or independent proof of broker activity.
 
-All search, trace and report endpoints use the existing bearer session and exact
+All search, trace and report endpoints use the authenticated inspection session and exact
 Host/Origin restrictions. Inspection endpoints cannot execute actions; optional
 operator routes below are separately authenticated and simulator-only. Backend tests cover cycles,
 missing links, unrelated correlated records, literal search, stable pagination,
@@ -224,7 +263,7 @@ offline comparison inputs and the exact unfinished scope.
 
 ## Optional read-only integrations
 
-All options use the same isolated inspection state, eight-hour bearer session,
+All options use the same isolated inspection state, eight-hour access ceiling,
 exact Host/Origin checks and, by default, a loopback listener. Optional remote access
 has the additional requirements below. Nothing here enables trading.
 Do not put credentials, account identities or private configuration in Git.

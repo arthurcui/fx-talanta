@@ -1,5 +1,8 @@
 "use strict";
-let token = new URLSearchParams(location.hash.slice(1)).get("token") || "";
+let bootstrap = new URLSearchParams(location.hash.slice(1)).get("token") || "";
+let authenticated = false,
+  csrf = "",
+  sessionEpoch = 0;
 history.replaceState(null, "", location.pathname);
 let lastIncident = null,
   retryExplanation = null;
@@ -29,13 +32,22 @@ function notice(text) {
   $("notice").textContent = text;
 }
 async function api(path, options = {}) {
+  const epoch = sessionEpoch;
   const response = await fetch(path, {
     ...options,
-    headers: { Authorization: `Bearer ${token}`, ...options.headers },
+    headers: { "X-FX-CSRF": csrf, ...options.headers },
+    credentials: "same-origin",
     cache: "no-store",
     signal: AbortSignal.timeout(path === "/api/explain" ? 25000 : 8000),
   });
   const data = await response.json();
+  if (epoch !== sessionEpoch) throw new Error("Session changed");
+  if (
+    response.status === 403 &&
+    !path.startsWith("/api/operator/") &&
+    path !== "/api/session"
+  )
+    signedOut();
   if (!response.ok) throw new Error(data.error || "Inspection unavailable");
   return data;
 }
@@ -252,9 +264,8 @@ function renderRecords() {
   );
 }
 async function refresh() {
-  if (!token) {
+  if (!authenticated) {
     $("login").hidden = false;
-    notice("Open the private local session URL to inspect the workspace.");
     return;
   }
   try {
@@ -323,7 +334,7 @@ function answer(data) {
 }
 $("chat-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (pending || !token) return;
+  if (pending || !authenticated) return;
   pending = true;
   $("send").disabled = true;
   $("question").disabled = true;
@@ -377,11 +388,63 @@ document.querySelectorAll("[data-question]").forEach((b) =>
 $("kind").addEventListener("change", renderRecords);
 $("evidence-search").addEventListener("input", renderRecords);
 $("refresh").addEventListener("click", refresh);
-$("login-form").addEventListener("submit", (e) => {
+function signedOut() {
+  authenticated = false;
+  csrf = "";
+  sessionEpoch++;
+  snapshot = null;
+  historyLoaded = false;
+  retryExplanation = null;
+  $("dashboard").hidden = true;
+  $("login").hidden = false;
+  $("logout").hidden = true;
+  $("operator-token").value = "";
+  $("password").value = "";
+  $("messages").replaceChildren();
+  notice("Signed out. Sign in again or reopen your private launch shortcut.");
+}
+async function openSession(data) {
+  try {
+    const result = await api(
+      "/api/session",
+      data
+        ? {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-FX-Session": "1",
+            },
+            body: JSON.stringify(data),
+          }
+        : {},
+    );
+    $("login-form").hidden = result.mode !== "OWNER";
+    $("login-help").textContent =
+      result.mode === "OWNER"
+        ? "Use your configured owner credentials. Trading remains disabled."
+        : "Open your private dashboard launch shortcut. No token needs to be pasted here.";
+    authenticated = result.authenticated;
+    csrf = result.csrf || "";
+    $("logout").hidden = !authenticated;
+    await refresh();
+  } catch (e) {
+    notice(e.message);
+    $("login").hidden = false;
+  }
+}
+$("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  token = $("token").value.trim();
-  $("token").value = "";
-  refresh();
+  const data = { username: $("username").value, password: $("password").value };
+  $("password").value = "";
+  await openSession(data);
+});
+$("logout").addEventListener("click", async () => {
+  try {
+    await api("/api/session/logout", { method: "POST" });
+    signedOut();
+  } catch (e) {
+    notice("Sign-out could not be confirmed: " + e.message);
+  }
 });
 $("upload-form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -586,7 +649,7 @@ document.addEventListener("visibilitychange", () => {
       panel.replaceChildren(
         node("p", "Quote display paused — a new server sample is required."),
       );
-  } else if (token && !$("broker-panel").hidden) {
+  } else if (authenticated && !$("broker-panel").hidden) {
     refreshBroker();
   }
 });
@@ -671,12 +734,13 @@ async function refreshBroker() {
 window.addEventListener("hashchange", () => {
   const supplied = new URLSearchParams(location.hash.slice(1)).get("token");
   if (!supplied) return;
-  token = supplied;
+  sessionEpoch++;
   history.replaceState(null, "", location.pathname);
   historyLoaded = false;
-  refresh();
+  openSession({ bootstrap: supplied });
 });
-refresh();
+openSession(bootstrap ? { bootstrap } : null);
+bootstrap = "";
 setInterval(() => {
   if (!document.hidden) refresh();
 }, 5000);

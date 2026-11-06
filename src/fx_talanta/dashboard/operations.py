@@ -6,7 +6,7 @@ GATES = (
     ("M1", "Broker and USD/EUR/JPY provider qualification", "OPEN"),
     ("M2", "Complete connected execution fault matrix", "OPEN"),
     ("M3", "Cost/source qualification and promoted strategy", "OPEN; B01 REJECT_FOR_PROMOTION"),
-    ("M5-CONNECTED", "Current broker collectors and broker-scoped administration", "NOT ENABLED"),
+    ("M5-CONNECTED", "Full connected fault acceptance and broker-scoped administration", "OPEN"),
     (
         "M5-REMOTE",
         "Target-host access, certificate lifecycle and deployment acceptance",

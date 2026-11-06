@@ -1,0 +1,668 @@
+{
+  "schema": "m5-offline-acceptance/1",
+  "scope": "LOCAL_INSPECTION_AND_OFFLINE_EVALUATION",
+  "result": "PASS",
+  "cases": [
+    {
+      "name": "tests.test_dashboard::test_import_existing_history_preserves_record_hashes_and_unknown_channels",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_channels_do_not_conflate_connection_age_or_delay",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_clock_bound_and_exact_two_second_ceiling[0-2-FRESH]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_clock_bound_and_exact_two_second_ceiling[1-2-STALE]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_clock_bound_and_exact_two_second_ceiling[101-0.1-CLOCK_UNVERIFIED]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_clock_bound_and_exact_two_second_ceiling[None-0.1-CLOCK_UNVERIFIED]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_clock_bound_and_exact_two_second_ceiling[0--0.1-CLOCK_UNVERIFIED]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_m4_citations_rationale_retry_and_no_commands",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_snapshot_scope_unknown_record_and_session_expiry",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_calendar_upload_isolated_deduplicated_and_failure_preserves_evidence",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_inspection_receipts_survive_restart_and_bind_snapshot",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard::test_http_auth_origin_paths_body_limits_and_no_order_routes",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_broker_projection_is_sanitized_historical_and_never_ready",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_recent_receipt_does_not_qualify_clock_or_quote[0-RECORDED_WINDOW_ONLY]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_recent_receipt_does_not_qualify_clock_or_quote[61-EXPIRED]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_missing_or_invalid_recorded_policy_never_becomes_verified",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_broker_scope_and_time_fail_closed[account]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_broker_scope_and_time_fail_closed[run]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_broker_scope_and_time_fail_closed[binding]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_broker_scope_and_time_fail_closed[future]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_broker::test_broker_scope_and_time_fail_closed[live]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_current_broker::test_actual_capture_contract_does_not_decode_unverified_ticks",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_current_broker::test_capture_rejects_unsafe_or_incomplete_identity[algo]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_current_broker::test_capture_rejects_unsafe_or_incomplete_identity[live]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_current_broker::test_capture_rejects_unsafe_or_incomplete_identity[switch]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_current_broker::test_capture_rejects_unsafe_or_incomplete_identity[disconnected]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_current_broker::test_capture_rejects_unsafe_or_incomplete_identity[missing]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_current_broker::test_feed_current_stale_missing_recovery_and_persistent_rollback",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_model_persistence_budget_and_conflicting_retry",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_interrupted_finish_stays_spent_after_restart",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_provider_failures_never_enable_commands[malformed]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_provider_failures_never_enable_commands[invented]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_provider_failures_never_enable_commands[network]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_provider_failures_never_enable_commands[expiry]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_concurrent_http_monitoring_and_duplicate_no_resend",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_study_failure_preserves_success_and_deduplicates",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_tls_loopback_host_origin_and_certificate_verification",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_model_disabled_and_expiry_are_denied",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_integration::test_broker_binding_cannot_change_on_resume",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_missing_invalid_and_recovery_preserve_evidence_and_deduplicate",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[run]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[account]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[sequence]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[conflict]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[future]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[timestamp]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[oversize]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[live]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_reject_untrusted_revisions[enabled]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_restart_binding_highwater_and_saved_answers",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_new_sequence_cannot_refresh_old_quote_and_calendar_shows_events",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_lesson_eligibility_requires_visible_evidence[True]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_monitor::test_lesson_eligibility_requires_visible_evidence[False]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_actual_simulator_close_is_confirmed_once_and_audited",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_pause_resume_and_halt_preserve_existing_risk_gates",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_expiry_stale_quotes_and_changed_state_reject",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_interruption_marker_survives_restart_and_never_dispatches",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_operator_http_requires_distinct_auth_origin_and_confirmation",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_backup_restore_checks_hashes_and_removes_authority",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_active_backup_is_refused_and_path_traversal_rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_explicit_reconcile_uses_gateway_and_cannot_reset_halt",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_operator::test_operator_rejects_account_mismatch_and_restore_incomplete",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_two_second_ceiling_includes_uncertainty_without_subtracting_age[0-FRESH]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_two_second_ceiling_includes_uncertainty_without_subtracting_age[1.95-FRESH]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_two_second_ceiling_includes_uncertainty_without_subtracting_age[1.96-STALE]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_two_second_ceiling_includes_uncertainty_without_subtracting_age[2-STALE]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_two_second_ceiling_includes_uncertainty_without_subtracting_age[8-STALE]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_two_second_ceiling_includes_uncertainty_without_subtracting_age[-0.1-FUTURE]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_clock_loss_never_retains_verified_age[expiry-CLOCK_EXPIRED]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_clock_loss_never_retains_verified_age[jump-CLOCK_CHANGED]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_clock_loss_never_retains_verified_age[reboot-CLOCK_CHANGED]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_clock_loss_never_retains_verified_age[host-CLOCK_HOST_MISMATCH]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_clock_loss_never_retains_verified_age[uncertainty-CLOCK_UNCERTAIN]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_missing_invalid_and_source_stale_are_distinct",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_future_at_receipt_never_becomes_fresh_when_wall_clock_catches_up",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_actual_capture_view_monitor_sequence",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_quote_clock::test_independent_anchor_requires_two_bls_series_and_exact_times",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_broker_health_dimensions_survive_outage_and_restart",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_sampling_without_http_and_spool_restart_idempotence",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_delivery_failure_is_retained_and_retry_does_not_overwrite",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_backlog_delivers_beyond_one_page",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_worker_stops_and_failure_is_not_healthy",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_access_rejects_incomplete_or_unsafe_config[changes0]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_access_rejects_incomplete_or_unsafe_config[changes1]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_access_rejects_incomplete_or_unsafe_config[changes2]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_access_rejects_incomplete_or_unsafe_config[changes3]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_access_rejects_incomplete_or_unsafe_config[changes4]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_access_rejects_incomplete_or_unsafe_config[changes5]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_access_rejects_incomplete_or_unsafe_config[changes6]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_access_rejects_incomplete_or_unsafe_config[changes7]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_actual_mutual_tls_requires_cert_and_bearer_and_exact_origin",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_remote_factory_refuses_plaintext_before_binding",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_notification_backup_restore_preserves_files_and_receipts",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_service::test_loopback_does_not_allow_operator_public_origin_configuration",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_sessions::test_session_expiry_revocation_binding_and_rate",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_sessions::test_owner_requires_tls_before_bind",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_sessions::test_real_https_owner_session_csrf_logout_and_no_bearer_bypass",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_workspace::test_trace_explicit_links_excludes_unlinked_health",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_workspace::test_missing_links_cycles_and_correlation_are_not_inferred",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_workspace::test_incident_literal_search_and_stable_cursor",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_workspace::test_export_hash_bounds_and_no_credentials",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_matched_costs_and_pairing_do_not_qualify",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[shared-ledger]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[safety]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[model]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[prompt]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[news]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[baseline]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[duplicate]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[post-outcome]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[late-freeze]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_mismatch_and_lookahead_rejected[future-decision]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_incomplete_pairs_are_explicit_not_zero[cost]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_incomplete_pairs_are_explicit_not_zero[outcome]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_incomplete_pairs_are_explicit_not_zero[arm]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_incomplete_pairs_are_explicit_not_zero[future]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_summary_keeps_account_economics_unknown_and_gates_open",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_summary_versions_and_conflicting_model_traces_not_double_counted",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_m5_engineering::test_cli_retains_output_and_unknown_costs",
+      "result": "PASS"
+    }
+  ],
+  "backend_passed": 119,
+  "browser_stats": {
+    "startTime": "2026-11-06T17:52:10.922Z",
+    "duration": 31747.249,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "source_sha256": {
+    "src/fx_talanta/bea_calendar.py": "6570967683feca4a97384c9597b0d3fdb887a015c54b5f2582ace13c9ceed434",
+    "src/fx_talanta/bls_calendar.py": "1a9928de69452254b13fd1fbfca3afb34156c74d88d52345224c1d21cc0fb839",
+    "src/fx_talanta/calendar_qualification.py": "8a1fc53ff3d04e6ccb22a52274c6f64d9c5a63fc8b427686b2873cad8d74d7f1",
+    "src/fx_talanta/cli.py": "35b480b70394a68e2035e0d3fff8880e99fbf6c439e5de03632a44a0a581ef88",
+    "src/fx_talanta/clock.py": "7d21b135eb3a4ceb96be1fe022236ffb489dc0fdc5d8737eb09b8d247317224f",
+    "src/fx_talanta/demo_lifecycle.py": "aba243596f15b2f79a3662b402fc56d09d2bf01d33ce37ebb9200bf52dcaee60",
+    "src/fx_talanta/fred_calendar.py": "d521852bbfe9db8690f53dc3658f3b3bb4798a0dee7eb4efb3e6761a20766370",
+    "src/fx_talanta/fred_calendar_html.py": "b6bfc95d1bd627ef9549bb918b0b2ea5f8c942e8bd2d97b3e4df59b76f8b1465",
+    "src/fx_talanta/input_readiness.py": "318d6857e59f7a159f63456915b760d8e853a7b6c349e93d94b81aae2d97d322",
+    "src/fx_talanta/manual_bls.py": "fd9d919f83c4f47cac952c795fd871f1595c1be26cdbbce5b1ca88890db3048c",
+    "src/fx_talanta/mcp_calendar.py": "50add0e6c40d55c30bcbe17ce4142e12a5fc00acc403faf2bfda7f6ccb4c58df",
+    "src/fx_talanta/mcp_client.py": "38cb7954b19a64cd7057641fa73d65055ff13f9add4825e39aed6addecae33de",
+    "src/fx_talanta/mt5_calendar.py": "80e7a5b485c33450e0d1ea1050ba8a925ff94ffcb2f06ed43a7aac62c19cd123",
+    "src/fx_talanta/news_filter.py": "d983a9bed1f3d9cc0ad86a78e9612a926f5aa67f52058e99fa14d5dfdf4cf59c",
+    "src/fx_talanta/provider_campaign.py": "b6ceb6122ee24e5b3f21469eff95b700aa29d60c8df59868f47c44abed7296f4",
+    "src/fx_talanta/provider_pipeline.py": "901a29f3326b3a767988ee54fcbddb9cae9626543bc404e136d75f3c0cdc1af4",
+    "src/fx_talanta/__init__.py": "756be3a6c1b2ad7d43675053298195506259d7b0988538539497de002c19d495",
+    "src/fx_talanta/acceptance/clock_probe.py": "ec46a4045349ffc529c8904b41e20f8ee04aedbbbcb843c4b5430ee970bdc581",
+    "src/fx_talanta/acceptance/probe.py": "ba5bc983be1986cc6674e59c4c2fd1b0995f588689351f94a527e6a451e36c2c",
+    "src/fx_talanta/acceptance/windows_process.py": "de390b13a5572a3835b9a4ce1f928579ae7f93a44b3cd27b39e3bff1bb515e80",
+    "src/fx_talanta/acceptance/__init__.py": "a0deb7325976db39b5640fcd9b074391a28a99b1d8c4c65a60336cfd88067504",
+    "src/fx_talanta/advisor/access.py": "52ec70aeddd38b669b3a9f8d7f7633a9d563e9c2a30476cde9480d813e60729a",
+    "src/fx_talanta/advisor/commands.py": "e1aaeb91aaf199bf1159ce33d671c7e3a74a535c8169a12f79e245ee91ff9336",
+    "src/fx_talanta/advisor/command_gateway.py": "e03e68118fa5a006a36b1a8b17d9d43ceda29fcafb67b37ea1f571bdf35bd99b",
+    "src/fx_talanta/advisor/evidence.py": "2e18e7674b7aba5d37ec42f6888e4dc0793f5b3ea44a64d39ec3ad738176a6b6",
+    "src/fx_talanta/advisor/journal.py": "059cc743acfa4282bfc00fc466f724ac2b50b5ed1da5c1cdc0cf045d44b53482",
+    "src/fx_talanta/advisor/proposals.py": "2d8e1fcb29f16ec4bab813dd1c145124bc85763116bc56e75592d4b2af4fa6be",
+    "src/fx_talanta/advisor/proposal_contracts.py": "b9a8ab0b7e408161e8d5e382796b6ecce816c49862c1a681a2b1076a1984a764",
+    "src/fx_talanta/advisor/provider.py": "638738a3456b2b6df4564365eb309a7f823cef35dd43ce1c172053b92877b408",
+    "src/fx_talanta/advisor/provider_ledger.py": "869135c14d536ac40feca131566593aff73f2e65a2a4e34faa9c0a40b731ba9e",
+    "src/fx_talanta/advisor/rationale.py": "c82ff1f86c6c6b015833c29db378af1c779d25de5165a973b6034ead0af76350",
+    "src/fx_talanta/advisor/service.py": "d353a5ea850ae9757c0b7abbd6bc011ec1e60a390cd9d61399e3463654a8d2fd",
+    "src/fx_talanta/advisor/__init__.py": "93d470cbea2513b5f8ecbccf4de3236242128aa969bf45cd4190749f6daf0481",
+    "src/fx_talanta/agent/__init__.py": "13a097894775f3c3ef21fef4f392a2f349f75c5728597ff24bc63367c53bf84d",
+    "src/fx_talanta/brokers/protocol.py": "520448b53bf85405c6b23ab766b19a63a87e89c97cde3e9aca24615d89575d11",
+    "src/fx_talanta/brokers/simulator.py": "6eb10f7b43ffb3375915dd2843f2f919637aa89ca54170b6fb77b4f609f5b451",
+    "src/fx_talanta/brokers/__init__.py": "ae8182e634ce5a19f0e489747f1464396945e05fa40adf6f48e4d058b87c9cfd",
+    "src/fx_talanta/connected_shadow/authority.py": "d2b13339873a369db7cf57d0da02b84d310b6b3839e4a65a2b6e15f76a91454b",
+    "src/fx_talanta/connected_shadow/clock.py": "45b69a15afa6fe4e1d0f41b4d258912e67f7128be76eaaf5717efa3ab3578932",
+    "src/fx_talanta/connected_shadow/host_clock.py": "756fba15e2b436af4394d347068edf7f304ddacc6263568c6001bb5e6a04cd72",
+    "src/fx_talanta/connected_shadow/inputs.py": "8c2388c46cc15d3a3d10c5b9586252da80865f2bac6d65e5e48f91c36ecce385",
+    "src/fx_talanta/connected_shadow/listener.py": "9219ed9999607169c6b4fa08e9ffa2ea218e7379b30fdb0f1d139389bbb1f826",
+    "src/fx_talanta/connected_shadow/native_checkpoint.py": "4febb2265d65f4f86576951077cfcd0342600eaee06262a73ddbc4f56fbf5376",
+    "src/fx_talanta/connected_shadow/service.py": "46cb3aaaf9ce3e15f41e8e2187d451987ed2eb8a92b7c8221715f2af4f83c327",
+    "src/fx_talanta/connected_shadow/__init__.py": "3a7ea7c46827fbd7922f377f2a14c0dd7776c71807fa29903fa67eb817027698",
+    "src/fx_talanta/dashboard/app.py": "d93c33e9da5a4a47094d2ef6ae54b269eda9b46cc4ee794211166a8c77297dd8",
+    "src/fx_talanta/dashboard/broker_view.py": "98464fc885fbbde3b5137b7086078c9bb7cef24b8a34d929f867e4187885bd7a",
+    "src/fx_talanta/dashboard/current_broker.py": "46b1086cbef02e552ac6e40f94ca5fb5d7f5343864aa2ce19372b9d91d0d7668",
+    "src/fx_talanta/dashboard/demo.py": "f79da13bd627da0010f345980adc7716bb21af8d3935b190e1f9d245d6d84bda",
+    "src/fx_talanta/dashboard/import_records.py": "8751ba03e81c0d428942d74172f98fe52eedfde01e78da751f2bf3c02179ca25",
+    "src/fx_talanta/dashboard/models.py": "10c62b0bcfef9276fa233d811afe6229cacb7bbe63ba10fbfaada1f1b5bc3894",
+    "src/fx_talanta/dashboard/model_advisor.py": "62a3785d06ee18e611e57278d225019715a930dba5d09709c490c67261b8d61e",
+    "src/fx_talanta/dashboard/monitor.py": "d4805298d0d3c4d0d2c69ed78aeb06b1b623019b12f6963264a1d7179461f732",
+    "src/fx_talanta/dashboard/operations.py": "99fd47329e02002f521d2020e12683765856bdd326c4d77c5617449294428bfa",
+    "src/fx_talanta/dashboard/operator.py": "3dea0c7560b405fff75e20de78bcdb113b67e354f5797004782cb6c1e37d4a1a",
+    "src/fx_talanta/dashboard/quote_clock.py": "b5b81b5f3d8065d41f55d53e90e36e6351629a55170e98c9fa6d7a1a0ceff876",
+    "src/fx_talanta/dashboard/recovery.py": "7ab561cf8421837220558ba7075605d448c167f82e885dbe6042560dcc96dd51",
+    "src/fx_talanta/dashboard/server.py": "70531d3f1cc82db8012bea8958149a382806d736ac687a56c88c74592ae863e8",
+    "src/fx_talanta/dashboard/service.py": "9075a440176f62ee24a1316a96a60cfc72c5f437ab42086f16bee2c35e828337",
+    "src/fx_talanta/dashboard/sessions.py": "95099bd40f6328c956818399c81afe03bfeee00266745c1139a881d19b64e6f8",
+    "src/fx_talanta/dashboard/store.py": "770415fc0be7f1bf2fe0d4d4d0e67362ae78a54cea0d2a3976197195e4eb71fc",
+    "src/fx_talanta/dashboard/trace.py": "f13a917d7dabd7a8f68e5aee024d23acda8c157c750e75efe4469fb2db66a222",
+    "src/fx_talanta/dashboard/__init__.py": "8f8d989aafce2dcb6bd7977b56612b682d1817463e132d46358a3c5566f2a9b4",
+    "src/fx_talanta/demo/acceptance_budget.py": "fce538dd555b30850309b3d939e28fc7a0d6619f07f05fe9cb693daec6815dc8",
+    "src/fx_talanta/demo/activation.py": "2d6c877c49c89c45661ba1f191d8708e41b7aa7c8c07c116a4294263cab30d81",
+    "src/fx_talanta/demo/bounded.py": "770022b678abd3b66a12a2698862fdc83d7741bf2e62ddae38046938f24a8217",
+    "src/fx_talanta/demo/coordinator.py": "2f30dd05d21c4df85d86ffa3be5915f1284dc3a425346171782776db9f4c0d95",
+    "src/fx_talanta/demo/projection.py": "8d53eba21330debb0e4d58a01c9c7c20b0703e957c22285aa940064fdbd2daa7",
+    "src/fx_talanta/demo/state.py": "159b845e8e4139444d7576927215b34c81f741700aeec438c9539a54729e311f",
+    "src/fx_talanta/demo/wire.py": "35bbc04d0d8646786105bdb172d60c4110fbf5deb0b13574271e0321430e6cb7",
+    "src/fx_talanta/demo/__init__.py": "36c45f2c6cf83e7ada6f7c7580ceefb4dd6d337dcf3adf1e6bf9ea587193d2ea",
+    "src/fx_talanta/domain/ea_protocol.py": "4a127bf803ff00fccc1d9fb2966f108f5f0a301a813525d9cd76937a9496fcaa",
+    "src/fx_talanta/domain/models.py": "9156cdce9e835b0f8ba9f4c74440cb9731953d08166837c3fe90f65b19692aaf",
+    "src/fx_talanta/domain/offline.py": "3d3626655597ae5601fcbe4a9e5603bfd440f02825983efc4d6cd4efdf35e404",
+    "src/fx_talanta/domain/__init__.py": "5e28112a11d0e6e7cb9e2c57ede991225963adb8566e822fff3b66c0b9f99015",
+    "src/fx_talanta/evaluation/matched.py": "725861ccb7d115361b07a00ce0317fa10c9c3f56fa02de69139b2d8013aa39ae",
+    "src/fx_talanta/evaluation/__init__.py": "5392893a403d2d23016977ae7cd952ad26e1d1d6c472a6750f5cc9540d9bc517",
+    "src/fx_talanta/execution_contracts/channel_recorder.py": "b6dffe48de868667b4332df3ba6c182e47f283013d4218a2940dd9c52f160299",
+    "src/fx_talanta/execution_contracts/ea_file.py": "f1e2de8d8dc51c98ac5dafd4b9977b396d77ca972763e5140d7725d1deb805d4",
+    "src/fx_talanta/execution_contracts/ea_journal.py": "24a5dbece49f3858bab9dd109bc0069066143ea7f06bc79168d85a5ea50a26e8",
+    "src/fx_talanta/execution_contracts/reference.py": "ae50f2d0a37ff1d41f3cf6f3fd67706e8e5eb3375bec8dd951b6af565ed6fcdb",
+    "src/fx_talanta/execution_contracts/replay.py": "15dca6bd7d6c6af32d2b4e2e46614b92c4d3d3119db2702a3a70794abf5eaeeb",
+    "src/fx_talanta/execution_contracts/__init__.py": "22c0a573f722df246632d1f02b88b7a38171024dfc905d2b3d2bca05436fa4f5",
+    "src/fx_talanta/gateway/offline.py": "d1354c966bc3025d9445d83d29cd150cb5e7ab0e18ecbfd845e9d887205b38b0",
+    "src/fx_talanta/gateway/__init__.py": "9ea369aefca41aa0c0bb34a30771ac90a3f61ab796d0549368dc6454d37c82cd",
+    "src/fx_talanta/integration/checkpoint.py": "048a443f5f1bf2c2cbc26970d693cdf1fd81b7f67dd0dedb6b91bb9eba7851d4",
+    "src/fx_talanta/integration/coordinator.py": "383fe38a10cd1f5941856145dfb4a6cb5c90d235744dc7b2d4917563e9652e6b",
+    "src/fx_talanta/integration/inputs.py": "4014b723d1bd62d7c2975c90cdba4fab91bd3e9906f82060481974f14c6bac57",
+    "src/fx_talanta/integration/__init__.py": "cc635daf342b1bb0e2dc7b24e175730b5dc18744375dabb9f445ffd997cde2ce",
+    "src/fx_talanta/integration/__main__.py": "685659c6b07f37f14079ba502a595e5b4f6979f7e85186561e19f85c4493b9f2",
+    "src/fx_talanta/observer/acceptance.py": "81e9a70567fcfd303eea68cbdd1d28d01365f369b9e66731e1a2d67d82975230",
+    "src/fx_talanta/observer/contracts.py": "367a96c548841d016011473b84cd68b2e9ba6ee80e3bb77f3abed32da296e2ff",
+    "src/fx_talanta/observer/mt5.py": "eeae9157b6eb17653d19700277d4b61bbdc17af37e087267abe9dacae7223fcc",
+    "src/fx_talanta/observer/quote_stream.py": "8718608cedb816fe023e22c0d057ec39d8a40657c6a260cd10fb84b34158c001",
+    "src/fx_talanta/observer/report.py": "a9f71d67698234c7340bbfe22f4c40c7a13a9fc94fbf0cc89be12a54d4830bde",
+    "src/fx_talanta/observer/runner.py": "9ab45b6f7dee11170efff65808cf4e2794fcb74106a04f6a6989128b3dcf3518",
+    "src/fx_talanta/observer/supervisor.py": "28ffae55d9f74a1c11756aa8298446c45e30e6e4d4bd66e9c1f0aa7189d124a6",
+    "src/fx_talanta/observer/__init__.py": "9b652352bd407dd2ac0e78eb79d3f67c6e3c78d317e03954f70f056608fa8a2f",
+    "src/fx_talanta/research/advisor.py": "66e131ee2e0904993d4ee726c21eca595a2d74e6e2ac73c6fa1c68d2d49cce80",
+    "src/fx_talanta/research/baseline.py": "7b983fbd458d96c2e66948a88fca1840f5cdb67209207b0ef1d217ff7710aea1",
+    "src/fx_talanta/research/broker_costs.py": "f15649612862f2e0aa085ecda49c1d40560613e11d924c5522656fc88cfcc507",
+    "src/fx_talanta/research/cost_calibration.py": "bc9c6154e60c05208e4f3b77d52ae447aedbc7db5cf9d28932760fb8bbae0134",
+    "src/fx_talanta/research/decisions.py": "99a2957f40feffbd17be8c7bad889ca1b2313aa3cf9d5f49f49a5152c23b5b57",
+    "src/fx_talanta/research/faults.py": "c1cdd2621b816869b5c0ceebab031d604a93d8e6704df70c33465e52666ac5a3",
+    "src/fx_talanta/research/historical.py": "a725dbb0a62eaa4780e2d4e66e4169e08b4081de410aff4d0535fd4720031868",
+    "src/fx_talanta/research/observation_demo.py": "250b48255d1e68156bbbb1ff45825fd72e5a5c8f64a98944ccf8a78133d53f6e",
+    "src/fx_talanta/research/observer.py": "9d5783e35aac65a2469c0d19d85bc4f8b28f56df2e0804dfd79719f471d34ec4",
+    "src/fx_talanta/research/offline.py": "cfe9cf2053005b4784033aeae9070428b450249e6a7349d8f2706fe03ea18f69",
+    "src/fx_talanta/research/records.py": "780080df89336ce677f74e358101e8abb8b79cb3a70bf9ddad8327790319499b",
+    "src/fx_talanta/research/replay.py": "3fad4901f26a8f1d3753a0a51713808c20f7ddb45513b584ce8cbecd89cb991e",
+    "src/fx_talanta/research/session_study.py": "6e9b5ea720a2d8a88bd916d9cd30c828619838f0a62e4ee5f8cbbe3ff718797e",
+    "src/fx_talanta/research/spool.py": "a7678284c2b01a51a609536496dc21cd173eeea5631782bbac3ac41d8dc77b2b",
+    "src/fx_talanta/research/store.py": "1f3d316da3a0e20627625ad56fa9c8cea335ac9760095a3b8b4a2f50d1787873",
+    "src/fx_talanta/research/tick_index.py": "ba59d32c2c56ab85f8645580f7ac87836963f5cc35d68ba20a7814c24cf78fd0",
+    "src/fx_talanta/research/__init__.py": "4d69e9c71860c3fcc57c9a446fc95bb9a2852d74b265d47f8f0c074f51f56e26",
+    "src/fx_talanta/risk/governor.py": "ab1ddea30ac9d668d4f0bc457a2e9b9917e976026ec7a00483752f151f579b4b",
+    "src/fx_talanta/risk/__init__.py": "4659714e41f0e484d1e400ea9819f0931084896d21354ab3ae7c6bed4ac770d4",
+    "src/fx_talanta/safety/control.py": "03cb2c859526193e759e0bc5119ad654469239eb91bc063b395ae4927b1d1e2b",
+    "src/fx_talanta/safety/exposure.py": "f8d6e809f546facdff4bd7b521276318edf151bbfbb8ac924719daa5f2fb23c5",
+    "src/fx_talanta/safety/journal.py": "34627f0d791f8ac232455775f51c5eb2679543bdabc31f3779faad4470b9eaa7",
+    "src/fx_talanta/safety/preflight.py": "2861249816d590665e9039fa254fc54c254162d294ff6a04c52ae4283c1b37ff",
+    "src/fx_talanta/safety/risk.py": "ab4d4db4cec68bdf71607d657727c3aac1f0f5a604ad80e55b6be0d42b251e36",
+    "src/fx_talanta/safety/__init__.py": "00cf7ebce9bb8f50e7caec244df55c289bd342caa244270aac9cfabb9fcd3370",
+    "src/fx_talanta/shadow/backend.py": "cc4a60845513489f88eea8d8fead8eac42b76d2dca8f086a262fd13fbfd3e8b8",
+    "src/fx_talanta/shadow/client.py": "7d994747921484556c09d91a1ea8aca8e6ec8401c0700212356e792cdc82c16f",
+    "src/fx_talanta/shadow/store.py": "99f988d0ad59f28a30078433ea094cff8cca71517d8fed6d494e7c1109f8d6c7",
+    "src/fx_talanta/shadow/wire.py": "f58e6f46a17b44b4385908b588fbdb8e1cc854a2e519e5788495f5c64cbd5d69",
+    "src/fx_talanta/shadow/work.py": "f2ff6d1461a2c24653d892af6af1813960788211b8e97e611864e47e68b07dcc",
+    "src/fx_talanta/shadow/__init__.py": "33b873b2d81a7edc7d8d79daf4a37ae1769e3d857a764f0e682d8edd90a54f59",
+    "src/fx_talanta/storage/archive.py": "6a51321482a509aeaba19eb45bfaa35a38e90e55f131e660be20d18092efc661",
+    "src/fx_talanta/storage/bootstrap.py": "05dea956f0975958bb0b9f986b069daa2a4c2df18944db75057f7ada4558ec33",
+    "src/fx_talanta/storage/config.py": "8f394883fcc25263a0090cbc8a2a334d3c15792b833351676c697a39714bd6fe",
+    "src/fx_talanta/storage/offline.py": "428a38969cc6372adcb25bc8a189ed322896624e32f3941b784bd318cab2f064",
+    "src/fx_talanta/storage/repository.py": "9f175bbf4628ea0f5b78cca5a941e12ff71f2cb4b1a0d08b7e851c3e1f0fb28a",
+    "src/fx_talanta/storage/__init__.py": "0430f536e5394ff0e355e5008c8d89f3b8f5c708a8aea2047b85bf166d906c78",
+    "src/fx_talanta/dashboard/static/app.js": "34de3a716230b13f54852d58d0839aac90cad82e07b36dea95135dfa4194dca2",
+    "src/fx_talanta/dashboard/static/index.html": "86486f4af3eee3f1dfe357db1bad0d74cdc5912d316cc790e37ee75e7fa25f28",
+    "src/fx_talanta/dashboard/static/style.css": "80b18e77b9f5242f76653d7d3e642bbd8e763696860c01d72a3f87ce5d0d8e0b",
+    "tests/test_dashboard.py": "d6dea9aa79ee46026a03f5939271ae835a2d5e7594c9d7d7461f85c3d5448c14",
+    "tests/test_dashboard_broker.py": "9875f83476e0e15d5a90ab5d0583e84f5d4a37f61b5f5a314cb07291f628adef",
+    "tests/test_dashboard_current_broker.py": "a2724b439efc40b59a63ec24258fa2c7348bf3653d9b64b9eaaaf1b642643034",
+    "tests/test_dashboard_integration.py": "fdbc66e67a31c71bf25c3a37fc9ef195be7ddc4eda11a90e4d79092cbbd304aa",
+    "tests/test_dashboard_monitor.py": "053e2f50e7d5ad0e882d7b10dc005f53f30aa345d6eb331362c8867219729da8",
+    "tests/test_dashboard_operator.py": "4e4f70b21530fe3bf4e46034c37d6b314f39a12b0b9a91d32187a63f02f00826",
+    "tests/test_dashboard_quote_clock.py": "8c57fb79ef4344128c094272e704864daa36dd5f227ffbc4d3c671371f1907b0",
+    "tests/test_dashboard_service.py": "3b3e82aeeb17401af70a8e3be4c2a7357d385275893762407d2f70026fb31d38",
+    "tests/test_dashboard_sessions.py": "00bc4f9cd5e24c70683694ae1d6dc195b793f9672c7b95bc057b9858d0650ba0",
+    "tests/test_dashboard_workspace.py": "d4c88e470393029325fa081d394136a6a3856fae918338e98c937383283d3f07",
+    "tests/test_m5_engineering.py": "f6719f61c60e56256d406a2695df705340b5d8f838d6b7155ad1dc6d473bc50c",
+    "tools/dashboard-tests/dashboard.spec.js": "30421b91869728d7398a9f93e1bce64cdb81e804896c61d48d9943ce374dd46b",
+    "tools/dashboard-tests/integration.spec.js": "60e6a4b350fa044c8186b8460b9888a22a10decb38a2f68163391d9dce07e978",
+    "tools/dashboard-tests/playwright.config.js": "7662a8dc93917ca5c3bdf096a2ddaaa1ce43a29cc177ed97e88ab63b2769bc0e",
+    "tools/dashboard-tests/sessions.spec.js": "cb40c75326d3975545253fb14fbdb2653282c599f4adaecd5f188c1b042c679f",
+    "tools/dashboard-tests/fixture_server.py": "5470a51157888827c8105419c421f34556096ba331f443a305e27f36a26fc423",
+    "tools/dashboard-tests/package.json": "c691c16a60605dc7fc2d0ed9f46dfee3f1224f279544447296f4b38417123817",
+    "tools/dashboard-tests/package-lock.json": "b93ec313909373582171b25217666381350577d6f6e878e85f8a8eaf8c956d35",
+    "tests/test_bls_calendar.py": "22ce2d7236bda0ed433d54c949e83e339002ae27c25f0f3e0f98d98148f3b044",
+    "tests/test_mt5.py": "fb05f992fb71a3715e0f8b01e63233e5411c136be3d23e67f2930d3e1e497901",
+    "tools/qualification/current_broker_capture.py": "9cb7ad350b5be21b5ee61428808befd1da33849233fdf7e6a08df3932f2833ff",
+    "tools/qualification/inspection_quote_clock.py": "36570790e7c6511af85354224863d70ecff758305e1669bfb8a88b9d18e2c0ac",
+    "tools/qualification/verified_quote_acceptance.py": "76580b70fca3053c228c69ef5f5992c0e8520030628b0f85591e57c9928e3f43",
+    "tools/qualification/m5_acceptance.py": "7d82fb59be7d28be23dd1a13b80f3c2207ac81937ffc579e1e5949171350ba27"
+  },
+  "broker_calls": 0,
+  "external_model_calls": 0,
+  "trading_enabled": false,
+  "full_M5_complete": false,
+  "unattended_paper_qualified": false,
+  "B01": "REJECT_FOR_PROMOTION",
+  "remaining": [
+    "Connected collectors and administrative UI acceptance",
+    "Remote authentication/TLS and deployment acceptance",
+    "M1-M3 prerequisites and prospective matched candidate evaluation",
+    "At least eight weeks AND 100 closed trades per candidate"
+  ]
+}

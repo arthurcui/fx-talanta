@@ -1,6 +1,7 @@
 """Inspection UI; optional mutual-TLS access, simulator operator restricted to loopback."""
 
 import argparse
+import hashlib
 import hmac
 import ipaddress
 import json
@@ -17,6 +18,7 @@ from fx_talanta.clock import SystemClock
 from fx_talanta.dashboard.app import Dashboard
 from fx_talanta.dashboard.demo import demo
 from fx_talanta.dashboard.models import Snapshot
+from fx_talanta.dashboard.sessions import Owner, Sessions, cookie_header, cookie_token
 from fx_talanta.provider_pipeline import status_lock
 
 LIMIT = 2 * 1024 * 1024
@@ -88,13 +90,23 @@ def validate_access(bind, origin, certificate, key, client_ca, operator=False):
 
 
 def make_server(
-    app, port=0, *, bind="127.0.0.1", origin=None, remote_cert=None, remote_key=None, remote_ca=None
+    app,
+    port=0,
+    *,
+    bind="127.0.0.1",
+    origin=None,
+    remote_cert=None,
+    remote_key=None,
+    remote_ca=None,
+    owner=None,
 ):
+    if owner is not None and not (remote_cert and remote_key):
+        raise ValueError("owner sign-in requires HTTPS")
+    sessions = Sessions(app, owner)
     remote = not ipaddress.ip_address(bind).is_loopback
     if app.operator is not None and (origin or remote_ca):
         raise ValueError("simulator operator cannot use public-origin/client-CA mode")
-    if remote:
-        validate_access(bind, origin, remote_cert, remote_key, remote_ca, app.operator is not None)
+    validate_access(bind, origin, remote_cert, remote_key, remote_ca, app.operator is not None)
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -106,7 +118,7 @@ def make_server(
             if isinstance(self.connection, ssl.SSLSocket):
                 self.connection.do_handshake()
 
-        def reply(self, status, body, mime="application/json"):
+        def reply(self, status, body, mime="application/json", headers=None):
             raw = json.dumps(body).encode() if mime == "application/json" else body
             self.send_response(status)
             for key, value in {
@@ -122,8 +134,76 @@ def make_server(
                 ),
             }.items():
                 self.send_header(key, value)
+            for key, value in (headers or {}).items():
+                self.send_header(key, value)
             self.end_headers()
             self.wfile.write(raw)
+
+        def origin(self):
+            return getattr(self.server, "public_origin", None) or (
+                f"{getattr(self.server, 'scheme', 'http')}://127.0.0.1:{self.server.server_port}"
+            )
+
+        def cookie_name(self):
+            prefix = "__Host-" if self.server.tls_context else ""
+            return f"{prefix}fx_session_{self.server.server_port}"
+
+        def session_token(self):
+            return cookie_token(self.headers.get("Cookie", ""), self.cookie_name())
+
+        def session(self, mutation=False):
+            if mutation and self.headers.get("Origin") != self.origin():
+                raise PermissionError("origin required")
+            cert = (
+                self.connection.getpeercert(binary_form=True)
+                if isinstance(self.connection, ssl.SSLSocket)
+                else None
+            )
+            return sessions.verify(
+                self.session_token(),
+                peer=hashlib.sha256(cert or b"").hexdigest(),
+                csrf=self.headers.get("X-FX-CSRF"),
+                mutation=mutation,
+            )
+
+        def session_request(self):
+            if (
+                not self.allowed()
+                or self.headers.get("Origin") != self.origin()
+                or self.headers.get("X-FX-Session") != "1"
+            ):
+                return self.reply(403, {"error": "Sign-in denied"})
+            try:
+                size = int(self.headers.get("Content-Length", "-1"))
+                if not 0 < size <= 8192 or self.headers.get("Transfer-Encoding"):
+                    return self.reply(413, {"error": "Invalid request size"})
+                if self.headers.get("Content-Type") != "application/json":
+                    return self.reply(415, {"error": "JSON required"})
+                raw = self.rfile.read(size)
+                data = json.loads(raw)
+                if len(raw) != size or not isinstance(data, dict):
+                    raise ValueError("invalid input")
+                cert = (
+                    self.connection.getpeercert(binary_form=True)
+                    if isinstance(self.connection, ssl.SSLSocket)
+                    else None
+                )
+                token, result = sessions.login(
+                    data,
+                    peer=hashlib.sha256(cert or b"").hexdigest(),
+                    secure=bool(self.server.tls_context),
+                )
+                return self.reply(
+                    200,
+                    result,
+                    headers={
+                        "Set-Cookie": cookie_header(
+                            self.cookie_name(), token, bool(self.server.tls_context)
+                        )
+                    },
+                )
+            except (ValueError, TypeError, PermissionError, UnicodeError):
+                return self.reply(403, {"error": "Sign-in denied or temporarily unavailable"})
 
         def allowed(self, private=False):
             origin = getattr(self.server, "public_origin", None) or (
@@ -135,6 +215,13 @@ def make_server(
                 return False
             if self.headers.get("Sec-Fetch-Site") not in (None, "same-origin", "none"):
                 return False
+            browser = False
+            if private and (owner is not None or self.session_token()):
+                try:
+                    self.session(mutation=self.command == "POST")
+                    browser = True
+                except PermissionError:
+                    return False
             if private and self.path.startswith("/api/operator/"):
                 if app.operator is None:
                     return False
@@ -145,7 +232,7 @@ def make_server(
                 except PermissionError:
                     return False
                 return True
-            if private:
+            if private and not browser:
                 supplied = self.headers.get("Authorization", "")
                 if not supplied.isascii() or not hmac.compare_digest(
                     supplied, "Bearer " + app.token
@@ -158,6 +245,14 @@ def make_server(
             return True
 
         def do_GET(self):
+            if self.path == "/api/session":
+                if not self.allowed():
+                    return self.reply(403, {"error": "Access denied"})
+                try:
+                    result = self.session()
+                except PermissionError:
+                    result = {"authenticated": False, "mode": "OWNER" if owner else "LOCAL_LAUNCH"}
+                return self.reply(200, result)
             if not self.allowed(private=self.path.startswith("/api/")):
                 return self.reply(403, {"error": "Access denied or session expired"})
             if self.path == "/api/operator/state":
@@ -220,6 +315,25 @@ def make_server(
             return self.reply(404, {"error": "Unknown read-only route"})
 
         def do_POST(self):
+            if self.path == "/api/session":
+                return self.session_request()
+            if self.path == "/api/session/logout":
+                try:
+                    if not self.allowed():
+                        raise PermissionError("access denied")
+                    self.session(mutation=True)
+                    sessions.logout(self.session_token())
+                    return self.reply(
+                        200,
+                        {"authenticated": False},
+                        headers={
+                            "Set-Cookie": cookie_header(
+                                self.cookie_name(), "", bool(self.server.tls_context), clear=True
+                            )
+                        },
+                    )
+                except PermissionError:
+                    return self.reply(403, {"error": "Session denied"})
             if not self.allowed(private=True):
                 return self.reply(403, {"error": "Access denied or session expired"})
             if self.path in (
@@ -307,7 +421,7 @@ def make_server(
 
     server = BoundedServer((bind, port), Handler)
     server.public_origin = origin
-    if remote:
+    if remote or remote_cert:
         try:
             configure_tls(server, remote_cert, remote_key, remote_ca)
         except BaseException:
@@ -358,6 +472,9 @@ def main():
     parser.add_argument("--telemetry-run", type=UUID, help="Exact producer run binding")
     parser.add_argument(
         "--session-file", type=Path, help="Write private local launch URL instead of printing"
+    )
+    parser.add_argument(
+        "--owner-file", type=Path, help="Private single-owner verifier; requires HTTPS"
     )
     parser.add_argument("--model-key-file", type=Path, help="Optional ignored OpenAI env file")
     parser.add_argument(
@@ -412,6 +529,8 @@ def main():
             args.tls_client_ca,
             bool(args.simulator_env),
         )
+        if args.owner_file and not args.tls_cert:
+            raise ValueError("owner sign-in requires HTTPS")
         if not 1 <= args.monitor_interval <= 60:
             raise ValueError("invalid monitor interval")
     except ValueError as error:
@@ -546,10 +665,13 @@ def serve(snapshot, args):
             remote_cert=args.tls_cert,
             remote_key=args.tls_key,
             remote_ca=args.tls_client_ca,
+            owner=Owner.model_validate_json(args.owner_file.read_bytes())
+            if args.owner_file
+            else None,
         )
         scheme = configure_tls(server, args.tls_cert, args.tls_key, args.tls_client_ca)
         origin = args.public_origin or f"{scheme}://{args.bind}:{server.server_port}"
-        url = f"{origin}/#token={app.token}"
+        url = f"{origin}/" if args.owner_file else f"{origin}/#token={app.token}"
         if args.session_file:
             with args.session_file.open("x", encoding="utf-8") as f:
                 f.write(url)
