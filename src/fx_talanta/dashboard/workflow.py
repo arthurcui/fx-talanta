@@ -7,6 +7,7 @@ from typing import Literal
 from pydantic import model_serializer
 
 from fx_talanta.domain.models import FrozenModel, Hash
+from fx_talanta.evaluation.dispatch import Dispatcher
 from fx_talanta.evaluation.ledger import Ledger
 from fx_talanta.evaluation.operations import Operations
 from fx_talanta.evaluation.runner import Runner
@@ -15,7 +16,7 @@ from fx_talanta.evaluation.runner import Runner
 class WorkflowConfig(FrozenModel):
     journal: str
     plan_hash: Hash
-    source_kind: Literal["RECEIPTS", "RUNNER", "OPERATIONS"] = "RECEIPTS"
+    source_kind: Literal["RECEIPTS", "RUNNER", "OPERATIONS", "DISPATCH"] = "RECEIPTS"
 
     @model_serializer(mode="wrap")
     def compatible_binding(self, handler):
@@ -56,11 +57,12 @@ class WorkflowView:
                 row = self.repo.conn.execute("SELECT seq,sha FROM workflow_cursor").fetchone()
                 checkpoint = tuple(row) if row and row[0] is not None else None
                 source_cursor = None
-                if self.config.source_kind == "OPERATIONS":
+                if self.config.source_kind in {"OPERATIONS", "DISPATCH"}:
                     saved = self.repo.conn.execute(
                         "SELECT payload FROM source_cursor WHERE id=1"
                     ).fetchone()
-                    source = Operations(self.config.journal, clock).report(
+                    reader = Dispatcher if self.config.source_kind == "DISPATCH" else Operations
+                    source = reader(self.config.journal, clock).report(
                         self.config.plan_hash, json.loads(saved[0]) if saved else None
                     )
                     result = source.pop("runner")

@@ -628,3 +628,8 @@ qualified providers. See [typed input admission](../engineering/m5-input-admissi
 For recorded-selector runs, inspection separates known reported model costs and
 unknown-cost replies from trade P&L, and labels latency as reported rather than verified.
 See [recorded selector integration](../engineering/m5-recorded-selectors.md).
+
+For dispatch reservations and uncertainty, bind `source_kind: DISPATCH` to the
+dispatcher journal and its binding hash. The [dispatch guide](../engineering/m5-selector-dispatch.md)
+explains reserved versus completed calls, unknown costs and rollback protection.
+This view never sends or retries requests.

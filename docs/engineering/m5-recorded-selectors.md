@@ -65,7 +65,8 @@ the independently rebuilt request hash, response-record hash, parsed selection, 
 reason and reported usage. Same-ID/content replay returns the existing receipt; changing
 the reply or cost under the same ID fails. Restart reconstructs stored transitions and
 never reissues a model request. Preparation itself is not a durable paid-call reservation;
-a future real transport must implement that separate uncertain-call/budget boundary.
+the dispatcher linked below now supplies that boundary for injected transports.
+A real provider adapter still needs timeout, billing and reconciliation acceptance.
 
 ## Timing and cost interpretation
 
@@ -98,8 +99,7 @@ news-content ablation and stale-quote rejection. Headless browser tests inspect 
 actual resulting runner and its model-accounting labels.
 
 This closes recorded-response simulation integration, not production model integration.
-Still required are authenticated real provider/source transports, durable paid-call
-reservation and uncertainty handling in this runner, independently qualified input and
+Still required are authenticated real provider/source transports, provider-enforced budgets/timeouts and unknown-call reconciliation, independently qualified input and
 model/cost evidence, eligible candidates, connected operations/deployment acceptance,
 and the specification's eight weeks **AND** 100 closed PAPER trades. M1–M3 gaps and
 historic failures remain preserved. Full M5 is open; trading remains disabled.
@@ -109,3 +109,9 @@ records 234 backend checks and 11 headless browser scenarios passed, with zero s
 or flaky results. The [six-input synthetic report](../evidence/m5-recorded-selector-synthetic-20261106.json)
 records 12 fixture model replies and one simulated close per arm. Both reports match
 the final tested code; external model and broker call counts are zero.
+
+## Durable dispatch integration
+
+The [simulation dispatcher](m5-selector-dispatch.md) now reserves call/token allowances
+and journals results before queue publication, with no automatic resend after uncertainty.
+Tests use injected fixtures only; real transport and provider reconciliation remain open.

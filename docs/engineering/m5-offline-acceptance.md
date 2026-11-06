@@ -368,3 +368,9 @@ collectors, qualified provenance and production model integration remain open.
 binding, strict selection validation, common risk and the durable simulator. Model
 latency/usage/cost remain reported evidence, with unknown costs explicitly retained.
 Actual provider transport and prospective model qualification remain open.
+
+## Durable selector dispatch
+
+The [dispatch guide](m5-selector-dispatch.md) records paired call/token reservation,
+per-arm result persistence, unknown-outcome blocking and idempotent queue publication.
+This completes the injected-transport simulation path; no real provider is configured.
