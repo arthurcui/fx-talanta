@@ -577,18 +577,33 @@ $("study-form").addEventListener("submit", async (e) => {
   }
 });
 let brokerPending = false;
+let brokerQuoteExpiry = null;
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    clearTimeout(brokerQuoteExpiry);
+    const panel = $("broker-quotes");
+    if (panel)
+      panel.replaceChildren(
+        node("p", "Quote display paused — a new server sample is required."),
+      );
+  } else if (token && !$("broker-panel").hidden) {
+    refreshBroker();
+  }
+});
 async function refreshBroker() {
   if (brokerPending) return;
   brokerPending = true;
+  const requestedAt = performance.now();
   try {
     const value = await api("/api/broker");
+    clearTimeout(brokerQuoteExpiry);
     $("broker-status").textContent =
       `${value.label ?? "Journal"}: ${value.state ?? value.status} · ${value.reason ?? ""} · current positions UNKNOWN; entry blocked`;
     $("broker-details").replaceChildren(
       node(
         "p",
         value.recorded_at
-          ? `Recorded ${stamp(value.recorded_at)} · transport at capture: ${value.transport_at_capture ?? "UNKNOWN"} · clock policy: ${value.recorded_clock_policy ?? "UNKNOWN"} · quote freshness: ${value.quote_freshness ?? "UNVERIFIED"}`
+          ? `Recorded ${stamp(value.recorded_at)} · transport at capture: ${value.transport_at_capture ?? "UNKNOWN"} · clock policy at sample: ${value.recorded_clock_policy ?? "UNKNOWN"} · quote freshness: ${value.quote_freshness ?? "UNVERIFIED"} (at server sample)`
           : "No observation",
       ),
       node("p", JSON.stringify(value.snapshot ?? {}), "news-item"),
@@ -599,7 +614,53 @@ async function refreshBroker() {
           : "Historical journal source",
       ),
     );
+    if (value.quote_observation) {
+      const observation = value.quote_observation;
+      const panel = node("div");
+      panel.id = "broker-quotes";
+      panel.append(
+        node(
+          "p",
+          "Original broker quote age — not network latency. Two-second ceiling; trading disabled. Broker clock accuracy is not independently bounded.",
+        ),
+      );
+      let expiresIn = Infinity;
+      for (const q of observation.quotes) {
+        const age =
+          q.age_seconds === null ? "Unknown" : `${q.age_seconds.toFixed(3)} s`;
+        const upper =
+          q.age_upper_bound_seconds === null
+            ? "Unknown"
+            : `${q.age_upper_bound_seconds.toFixed(3)} s`;
+        panel.append(
+          node(
+            "p",
+            `${q.symbol}: ${q.state} · sampled age ${age} · host-clock upper estimate ${upper}`,
+          ),
+        );
+        if (q.state === "FRESH")
+          expiresIn = Math.min(
+            expiresIn,
+            (2 - q.age_upper_bound_seconds) * 1000,
+          );
+      }
+      $("broker-details").append(panel);
+      if (Number.isFinite(expiresIn)) {
+        const expire = () => {
+          panel.replaceChildren(
+            node(
+              "p",
+              "Quote display expired — awaiting a new server sample. No current freshness inferred.",
+            ),
+          );
+        };
+        const remaining = expiresIn - (performance.now() - requestedAt);
+        if (remaining <= 0) expire();
+        else brokerQuoteExpiry = setTimeout(expire, remaining);
+      }
+    }
   } catch (e) {
+    clearTimeout(brokerQuoteExpiry);
     $("broker-status").textContent =
       `Broker journal unavailable. No current account state inferred. ${e.message}`;
     $("broker-details").replaceChildren();

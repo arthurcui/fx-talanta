@@ -91,6 +91,8 @@ def main():
         ROOT / "tests/test_bls_calendar.py",
         ROOT / "tests/test_mt5.py",
         ROOT / "tools/qualification/current_broker_capture.py",
+        ROOT / "tools/qualification/inspection_quote_clock.py",
+        ROOT / "tools/qualification/verified_quote_acceptance.py",
         ROOT / "src/fx_talanta/advisor/evidence.py",
         Path(__file__),
     ]
