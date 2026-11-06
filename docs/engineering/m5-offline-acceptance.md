@@ -3,7 +3,7 @@
 This consolidates the local operating workspace and offline comparison-validation
 scope. It does **not** close full M5 or claim that every feature possible with
 trading disabled has been implemented. In particular, connected read adapters,
-remote deployment, open-ended advisor chat and administrative UI integration remain
+remote deployment, open-ended advisor chat and broker administrative UI integration remain
 separate engineering work; sustained candidate qualification cannot be replaced by
 an offline suite. Trading remains disabled, and no new campaign is authorized.
 
@@ -69,7 +69,8 @@ collect evidence, count broker closed trades or establish elapsed observation ti
 2. **Administration and deployment:** authenticated account-scoped pause/close/halt UI,
    controlled resume, model-independent protection, notification delivery, remote
    TLS/access and deployment/recovery tests. M4 simulator commands are implemented;
-   no command route is exposed by the current dashboard.
+   the dashboard now exposes separately authenticated simulator-only controls.
+   Broker commands and remote owner authorization remain unavailable.
 3. **Evaluation:** bounded M4 model selection and offline study upload are integrated
    in the UI. Still required: a qualified frozen candidate, prospective matched AI/no-AI and news/no-news ledgers, verified
    costs/latency, predeclared uncertainty/economic criteria and promotion review.
@@ -119,3 +120,32 @@ loopback HTTP/TLS. No external model or broker call occurs in this harness.
 `tests/test_m5_broker_postgres.py` separately verifies PostgreSQL read-only enforcement
 and unchanged committed records against a disposable CI database. It is part of the
 full Engineering checks job, not the local offline report.
+
+
+## Simulator operator and recovery integration
+
+The operator panel integrates M4's actual offline Gateway/Simulator with a distinct
+capability, exact account/run, server-created preview, explicit confirmation, original
+market freshness and state-version checks. Request-start and result receipts survive
+restart in the inspection journal; uncertain confirmations never redispatch. Viewer
+chat, model responses, broker-view identity and inspection tokens grant no authority.
+There is no entry/proposal route. Reconciliation and protective management are
+simulator-only. Tests verify confirmed simulated close, no duplicate close, resume
+restrictions, expiry/staleness, changed-state rejection, interruption/restart, HTTP
+authorization, cross-origin denial and session revocation.
+
+Stopped-state backup/restore verifies SQLite integrity and per-file digests. The
+restore marker permanently restricts the restored launch to inspection: no model-call
+budget duplication or copied simulator authority. Active-workspace backup, overwrite,
+path traversal, corrupt archives and incomplete restores fail closed. These tests
+qualify local engineering recovery, not remote deployment, broker recovery, continuous
+notification delivery or unattended PAPER. Existing failed evidence and B01 remain.
+
+
+[Local operator/recovery acceptance evidence](../evidence/m5-operator-recovery-20261106.json)
+records 74 backend checks and five headless browser flows, all passed with no skips.
+These use synthetic markets and the real offline simulator, not broker accounts.
+`tests/test_m5_operator_postgres.py` additionally runs in CI against a disposable
+PostgreSQL database to verify confirmed simulated closure and no redispatch after
+reopening the durable gateway and inspection journal. No existing campaign or
+broker terminal is involved.

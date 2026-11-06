@@ -130,3 +130,15 @@ positions unknown and entry readiness false. No MT5 control, order route or stra
 activation is added. See [setup and limits](../guides/dashboard.md#optional-read-only-integrations).
 Full M5 still requires current reconciliation/admin/deployment acceptance, eligible
 candidates and the unchanged prospective observation gates. B01 and M1 gaps remain.
+
+
+### M5 simulator operator and local recovery
+
+Explicit optional operator mode now exposes M4 simulator pause/resume/owned-close/
+flatten-halt and reconciliation through separately authenticated preview/confirmation.
+It preserves the original two-second checks, state versions, durable uncertainty and
+existing risk gates. No broker order or strategy-entry route exists. Verified stopped
+workspace backup/restore retains evidence and removes model/operator authority from
+the copy. Remaining M5 work includes current broker reconciliation and administrative
+acceptance, remote deployment/access, continuous delivery and qualified prospective
+matched candidate evaluation; full M5 remains open.

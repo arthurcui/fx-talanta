@@ -120,3 +120,39 @@ test("sampled alert and broker outage clear stale displayed details", async ({
   );
   await expect(page.locator("#broker-details")).toBeEmpty();
 });
+
+test("operator confirmation, viewer denial, replay and revocation", async ({
+  page,
+}) => {
+  await page.goto(url);
+  await expect(page.locator("#operator-panel")).toBeVisible();
+  await page
+    .locator("#operator-token")
+    .fill("fixture-token-local-only-at-least-32-characters");
+  await page.locator("#operator-read").click();
+  await expect(page.locator("#operator-state")).toHaveText("Unavailable");
+  await page
+    .locator("#operator-token")
+    .fill("isolated-operator-fixture-" + "z".repeat(40));
+  await page.locator("#operator-read").click();
+  await expect(page.locator("#operator-state")).toContainText("SIMULATOR");
+  await page.locator("#operator-preview").click();
+  await expect(page.locator("#operator-preview-text")).toContainText(
+    "SIMULATOR ONLY",
+  );
+  await page.locator("#operator-confirmation").fill("yes");
+  await page.locator("#operator-confirm").click();
+  await expect(page.locator("#operator-result")).toContainText("Invalid");
+  await page.locator("#operator-confirmation").fill("SIMULATOR ONLY");
+  await page.locator("#operator-confirm").click();
+  await expect(page.locator("#operator-result")).toContainText("COMPLETED");
+  await page.locator("#operator-confirm").click();
+  await expect(page.locator("#operator-result")).toContainText("COMPLETED");
+  await page.locator("#operator-read").click();
+  await expect(page.locator("#operator-state")).toContainText(
+    '"administrative_pause": true',
+  );
+  await page.locator("#operator-revoke").click();
+  await expect(page.locator("#operator-result")).toContainText("revoked");
+  await expect(page.locator("#operator-token")).toHaveValue("");
+});
