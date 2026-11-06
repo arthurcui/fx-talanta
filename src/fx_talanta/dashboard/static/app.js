@@ -103,8 +103,9 @@ function render(data) {
     ? `Bounded model enabled · ${data.model.reserved_calls}/${data.model.max_calls} calls reserved · ${data.model.unresolved_calls} unresolved; no automatic refunds or retries.`
     : "Model calls disabled; local evidence reader available.";
   const workflow = data.matched_workflow || { status: "NOT_CONFIGURED" };
+  const runner = workflow.source_kind === "RUNNER";
   $("workflow-status").textContent =
-    `${workflow.status} · offline receipt workflow · trading disabled`;
+    `${workflow.status} · ${runner ? "simulation runner (direct read)" : "offline receipt workflow"} · trading disabled`;
   $("workflow-details").replaceChildren();
   if (workflow.receipt_sequence !== undefined) {
     $("workflow-details").append(
@@ -121,6 +122,22 @@ function render(data) {
         `Receipt ${workflow.receipt_sequence} · ${workflow.receipt_hash}. Prospective qualification remains unverified.`,
       ),
     );
+    if (runner) {
+      $("workflow-details").append(
+        node(
+          "p",
+          `Last input ${stamp(workflow.last_input_at)} · receipt age ${workflow.input_age_seconds}s. Receipt age is not quote latency or entry readiness. Selector: ${workflow.selector}.`,
+        ),
+      );
+      Object.entries(workflow.arms || {}).forEach(([name, arm]) => {
+        $("workflow-details").append(
+          node(
+            "p",
+            `${name}: last gateway state ${arm.state} · ${arm.entries} attempts · ${arm.open_positions} open / ${arm.closed_simulated_positions} closed simulated positions. No broker trades.`,
+          ),
+        );
+      });
+    }
   }
   const study = data.study;
   $("study-results").replaceChildren();

@@ -148,3 +148,9 @@ cannot bypass literal simulation-only fields or strict sequences. The final
 **188 backend checks and 10 browser scenarios passed**, zero skips/flaky results.
 The [matching synthetic report](../evidence/m5-paper-runner-api-synthetic-20261106.json)
 retains the same six-input lifecycle verdict. Earlier reports above remain preserved.
+
+## Direct operating integration
+
+The [bound source queue and direct dashboard view](m5-runner-operations.md) add
+crash-safe acknowledgement and audited stop without requiring receipt export for
+inspection. They remain simulation-only; external source/model qualification is open.

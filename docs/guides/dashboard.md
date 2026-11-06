@@ -608,3 +608,10 @@ It does not replace an existing preview or qualify remote operation.
 use the existing matched-study receipt panel. Bind a new isolated inspection
 workspace to the exported journal and returned plan hash. The panel remains read-only;
 exported simulation evidence never enables trading or qualifies a candidate.
+
+## Direct simulation runner inspection
+
+The study journal configuration accepts `source_kind: RUNNER` to inspect an exact-bound
+runner without exporting receipts. See the [operating guide](../engineering/m5-runner-operations.md)
+for its schema and recovery limits. Receipt age is not quote latency; displayed positions
+are simulated. The dashboard cannot enqueue, drain, stop or enable execution.

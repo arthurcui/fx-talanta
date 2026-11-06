@@ -340,3 +340,10 @@ and costed simulator, durable transitions, later outcomes and dashboard receipt
 export. Restart verifies prior transitions without broker resends. No new campaign
 or production model call is part of this acceptance; B01 remains rejected and
 prospective input/model/operating qualification remains open.
+
+## Runner operating integration
+
+The [operating guide](m5-runner-operations.md) documents the immutable source queue,
+commit/acknowledgement recovery, source sealing and direct read-only runner view.
+Synthetic and headless acceptance preserve original quote timestamps, pending evidence
+and terminal checkpoints. No campaign or connected execution is part of this scope.

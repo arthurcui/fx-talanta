@@ -179,3 +179,10 @@ send reservations, exact receiver acknowledgements, uncertain-send recovery and
 separate dashboard delivery status. It is disabled by default and tested only with
 synthetic transports and a local TLS receiver. Real-recipient delivery/deployment
 acceptance remains open; this adds no trading authority or campaign.
+
+### M5 simulation runner operations
+
+The [bound source queue and direct dashboard view](../engineering/m5-runner-operations.md)
+now provide durable input acknowledgements, restart recovery and audited stop for the
+local simulation runner. Source qualification, production model integration and all
+prospective operating gates remain open; no trading or campaign has been enabled.
