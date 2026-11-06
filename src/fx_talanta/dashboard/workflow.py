@@ -8,13 +8,14 @@ from pydantic import model_serializer
 
 from fx_talanta.domain.models import FrozenModel, Hash
 from fx_talanta.evaluation.ledger import Ledger
+from fx_talanta.evaluation.operations import Operations
 from fx_talanta.evaluation.runner import Runner
 
 
 class WorkflowConfig(FrozenModel):
     journal: str
     plan_hash: Hash
-    source_kind: Literal["RECEIPTS", "RUNNER"] = "RECEIPTS"
+    source_kind: Literal["RECEIPTS", "RUNNER", "OPERATIONS"] = "RECEIPTS"
 
     @model_serializer(mode="wrap")
     def compatible_binding(self, handler):
@@ -44,17 +45,38 @@ class WorkflowView:
                 raise ValueError("workflow cannot rebind on resume")
             if not old:
                 repo.conn.execute("INSERT INTO workflow_cursor VALUES (?,NULL,NULL)", (identity,))
+            repo.conn.execute(
+                "CREATE TABLE IF NOT EXISTS source_cursor "
+                "(id INTEGER PRIMARY KEY CHECK(id=1), payload TEXT NOT NULL)"
+            )
 
     def read(self, clock):
         try:
             with self.repo.lock:
                 row = self.repo.conn.execute("SELECT seq,sha FROM workflow_cursor").fetchone()
                 checkpoint = tuple(row) if row and row[0] is not None else None
-                reader = Runner if self.config.source_kind == "RUNNER" else Ledger
-                result = reader(self.config.journal, clock).report(
-                    self.config.plan_hash, checkpoint
-                )
+                source_cursor = None
+                if self.config.source_kind == "OPERATIONS":
+                    saved = self.repo.conn.execute(
+                        "SELECT payload FROM source_cursor WHERE id=1"
+                    ).fetchone()
+                    source = Operations(self.config.journal, clock).report(
+                        self.config.plan_hash, json.loads(saved[0]) if saved else None
+                    )
+                    result = source.pop("runner")
+                    source_cursor = source.pop("checkpoint")
+                    result["source_queue"] = source
+                else:
+                    reader = Runner if self.config.source_kind == "RUNNER" else Ledger
+                    result = reader(self.config.journal, clock).report(
+                        self.config.plan_hash, checkpoint
+                    )
                 with self.repo.conn:
+                    if source_cursor is not None:
+                        self.repo.conn.execute(
+                            "INSERT OR REPLACE INTO source_cursor VALUES (1,?)",
+                            (json.dumps(source_cursor),),
+                        )
                     self.repo.conn.execute(
                         "UPDATE workflow_cursor SET seq=?,sha=?",
                         (result["receipt_sequence"], result["receipt_hash"]),

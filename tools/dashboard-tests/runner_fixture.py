@@ -12,14 +12,20 @@ from fx_talanta.dashboard.workflow import WorkflowView
 from tools.qualification.runner_operations_acceptance import run
 
 root = Path(sys.argv[1])
-run(root / "simulation")
+result = run(root / "simulation")
 clock = FakeClock(demo().captured_at + timedelta(days=1))
 app = Dashboard(
     demo(),
     root / "ui",
     "fixture-runner-view-token-at-least-32-characters",
     clock,
-    workflow_view=WorkflowView.from_file(root / "simulation/view.json"),
+    workflow_view=WorkflowView(
+        dict(
+            source_kind="OPERATIONS",
+            journal=str(root / "simulation/source.sqlite"),
+            plan_hash=result["report"]["binding_hash"],
+        )
+    ),
 )
 server = make_server(app, 0)
 Path(sys.argv[2]).write_text(

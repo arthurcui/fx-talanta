@@ -202,11 +202,35 @@ class Operations:
                 (row[0], row[5], result["sha"], self.clock.now().isoformat()),
             )
 
-    def report(self, expected):
+    def report(self, expected, checkpoint=None):
         with closing(self.connect()) as conn:
             conn.execute("BEGIN")
             binding, rows, acks, sealed = self.load(conn, expected)
         _, report = self.target(binding, rows, acks)
+        if checkpoint:
+            seq, head, ack_count, ack_head, seal, runner_seq, runner_head = checkpoint
+            heads = {0: expected, **{r[0]: r[5] for r in rows}}
+            ack_heads = {0: expected, **{r[0]: r[2] for r in acks}}
+            if (
+                heads.get(seq) != head
+                or ack_heads.get(ack_count) != ack_head
+                or (seal and [list(s) for s in sealed] != seal)
+            ):
+                raise ValueError("source checkpoint rollback")
+            Runner(binding.runner, self.clock).report(
+                binding.registration_hash, (runner_seq, runner_head)
+            )
+        cursor = [
+            len(rows),
+            rows[-1][5] if rows else expected,
+            len(acks),
+            acks[-1][2] if acks else expected,
+            [list(s) for s in sealed],
+            report["receipt_sequence"],
+            report["receipt_hash"],
+        ]
+        # JSON checkpoints normalize SQL tuples to lists.
+        oldest = datetime.fromisoformat(rows[len(acks)][3]) if len(rows) > len(acks) else None
         return dict(
             version="simulation-source-report/1",
             source_id=str(binding.source_id),
@@ -224,6 +248,11 @@ class Operations:
             runner=report,
             execution_enabled=False,
             source_qualified=False,
+            checkpoint=cursor,
+            oldest_pending_age_seconds=(self.clock.now() - oldest).total_seconds()
+            if oldest
+            else None,
+            producer_liveness="UNVERIFIED",
         )
 
     def stop(self, expected, reason):
