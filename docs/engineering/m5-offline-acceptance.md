@@ -18,7 +18,7 @@ qualification or elapsed PAPER evidence. No new campaign is authorized.
 | Calendar/news | Manual BLS import/reminder, events/cancellations, news and health evidence | USD/EUR/JPY coverage/timeliness/reliability gaps retained |
 | Administration | Separate simulator capability, preview/confirmation, pause/resume/owned-close/flatten-halt, uncertainty reconciliation | No broker commands or strategy activation through this dashboard |
 | Monitoring/recovery | Background inspection, local spool/acknowledgment, [optional bounded HTTPS receiver delivery](m5-alert-delivery.md), durable uncertainty/reconciliation and stopped backup/restore | Receiver acceptance is not human acknowledgement; real destination delivery and deployment remain unqualified |
-| Deployment boundary | Explicit HTTPS and mutual-TLS remote access, exact Host/Origin, bounded requests, source-backed tests | Actual remote deployment and full operational acceptance remain open |
+| Deployment boundary | Explicit HTTPS and mutual-TLS remote access, exact Host/Origin, bounded requests, [pinned inspection launch and recovery preflight](m5-deployment-readiness.md), source-backed tests | Actual remote deployment and full operational acceptance remain open |
 | Matched comparisons | Offline study upload/validation plus [frozen registration and durable receipt workflow](m5-matched-workflow.md), corrections, restart/idempotency and read-only dashboard projection | No prospective strategy/model runner, eligible candidate, qualified costs or economic promotion verdict |
 | Reproducibility | One source-hashed backend/headless-browser acceptance command; all earlier evidence retained | Software PASS never closes unattended PAPER gates |
 
@@ -321,3 +321,13 @@ The [alert delivery guide](m5-alert-delivery.md) specifies explicit activation, 
 receiver contract, cumulative/deadline limits, crash uncertainty and bounded receipt
 lookup. This closes the local-spool-only implementation gap, not remote operating
 qualification. No real destination or credentials were provisioned during acceptance.
+
+## Inspection deployment lifecycle
+
+The [deployment guide](m5-deployment-readiness.md) adds private artifact/package
+pinning, socket-free TLS preflight, explicit NEW/RESUME modes and a foreground
+inspection-only launch. Isolated acceptance exercises HTTPS owner sign-in, denied
+operator access, running-workspace backup refusal, stop, verified backup/restore
+and resumed inspection. This is deployment engineering, not target-host or full M5
+qualification. Existing preview, broker terminals and all earlier evidence remain
+untouched.
