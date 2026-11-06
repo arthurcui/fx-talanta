@@ -1,5 +1,6 @@
 """Inspection-only broker receipts; never a quote clock or execution input."""
 
+import time
 from hashlib import sha256
 from pathlib import Path
 from typing import Annotated, Literal
@@ -7,6 +8,7 @@ from uuid import UUID
 
 from pydantic import Field
 
+from fx_talanta.dashboard.quote_clock import QuoteClock, QuoteSample, host_identity, project_quotes
 from fx_talanta.domain.models import Amount, FrozenModel, Hash, Timestamp
 
 
@@ -16,6 +18,7 @@ class CurrentConfig(FrozenModel):
     run_id: UUID
     binding_hash: Hash
     receipt_file: Path
+    quote_clock: QuoteClock | None = None
 
 
 class Receipt(FrozenModel):
@@ -34,14 +37,22 @@ class Receipt(FrozenModel):
     expected_quotes: Annotated[int, Field(ge=1, le=100)]
     execution_enabled: Literal[False] = False
     quote_freshness: Literal["UNVERIFIED"] = "UNVERIFIED"
+    quote_clock_hash: Hash | None = None
+    quotes: Annotated[tuple[QuoteSample, ...], Field(max_length=100)] = ()
 
 
 class CurrentBrokerView:
-    def __init__(self, config):
+    def __init__(self, config, *, monotonic=time.monotonic, host=host_identity):
         self.config = CurrentConfig.model_validate(config.model_dump(mode="json"))
         if not self.config.receipt_file.is_absolute():
             raise ValueError("absolute receipt path required")
         self.repo = None
+        self.monotonic, self.host = monotonic, host
+        if (
+            self.config.quote_clock
+            and self.config.quote_clock.binding_hash != self.config.binding_hash
+        ):
+            raise ValueError("clock binding mismatch")
 
     def bind_journal(self, repo):
         self.repo = repo
@@ -53,6 +64,7 @@ class CurrentBrokerView:
             )
 
     def read(self, now):
+        sampled_monotonic = self.monotonic()
         if self.repo is None:
             raise ValueError("inspection journal required")
         p = self.config.receipt_file
@@ -68,6 +80,22 @@ class CurrentBrokerView:
         if not r.started_at <= r.observed_at <= now or r.quotes_received > r.expected_quotes:
             raise ValueError("receipt time/count invalid")
         digest = sha256(raw).hexdigest()
+        proof = self.config.quote_clock
+        if proof:
+            if not proof.verified_at <= r.started_at <= r.observed_at < proof.valid_until:
+                raise ValueError("capture outside verified clock window")
+            if r.quote_clock_hash != proof.fingerprint():
+                raise ValueError("clock evidence mismatch")
+            if len(r.quotes) != r.expected_quotes or len({q.symbol for q in r.quotes}) != len(
+                r.quotes
+            ):
+                raise ValueError("quote coverage mismatch")
+            if set(q.symbol for q in r.quotes) != set(proof.symbols):
+                raise ValueError("quote symbol binding mismatch")
+            if any(not r.started_at <= q.received_at <= r.observed_at for q in r.quotes):
+                raise ValueError("quote receipt outside capture")
+        elif r.quote_clock_hash or r.quotes:
+            raise ValueError("unbound quote evidence")
         from datetime import datetime
 
         with self.repo.lock, self.repo.conn:
@@ -88,6 +116,11 @@ class CurrentBrokerView:
         # Oldest read bounds age: a slow capture cannot refresh earlier account fields.
         age = (now - r.started_at).total_seconds()
         recent = age <= 15
+        quote_view = (
+            project_quotes(r.quotes, proof, now, sampled_monotonic, self.host(), recent)
+            if proof
+            else None
+        )
         return dict(
             label=self.config.label,
             scope="DEMO_INSPECTION_NOT_RECONCILIATION",
@@ -98,9 +131,12 @@ class CurrentBrokerView:
             entry_ready=False,
             current_positions="UNKNOWN",
             transport_at_capture="CONNECTED",
-            recorded_clock_policy="NOT_VERIFIED",
-            quote_clock="NOT_INDEPENDENTLY_VERIFIED_BY_DASHBOARD",
-            quote_freshness="UNVERIFIED",
+            recorded_clock_policy=quote_view["clock_status"] if quote_view else "NOT_VERIFIED",
+            quote_clock=quote_view["clock_status"]
+            if quote_view
+            else "NOT_INDEPENDENTLY_VERIFIED_BY_DASHBOARD",
+            quote_freshness=quote_view["freshness"] if quote_view else "UNVERIFIED",
+            quote_observation=quote_view,
             channels={
                 "Python": "RECENT_RECEIPT" if recent else "STALE_RECEIPT",
                 "EA": "NOT_OBSERVED",

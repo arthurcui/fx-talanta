@@ -6,6 +6,7 @@ certify quotes or populate strategy/reconciliation journals.
 
 import argparse
 import json
+import math
 import multiprocessing
 import os
 import subprocess
@@ -15,8 +16,9 @@ from pathlib import Path
 from uuid import uuid4
 
 from fx_talanta.dashboard.current_broker import CurrentConfig, Receipt
+from fx_talanta.dashboard.quote_clock import QuoteClock, QuoteSample, host_identity
 from fx_talanta.observer.contracts import Binding, windows_path
-from fx_talanta.observer.mt5 import ReadOnlySDK, number, validate_terminal
+from fx_talanta.observer.mt5 import ObservationFailure, ReadOnlySDK, number, validate_terminal
 
 
 def existing_terminal(binding):
@@ -49,12 +51,20 @@ def existing_terminal(binding):
     return matches[0]["ProcessId"]
 
 
-def capture(module, binding, run, sequence, now):
+def capture(module, binding, run, sequence, now, proof=None, monotonic=time.monotonic):
     binding.require_permissions()
     if binding.source != "MT5" or module.__version__ != binding.sdk_version:
         raise ValueError("pinned MT5 reader required")
     api = ReadOnlySDK(module)
     started = now()
+    started_monotonic = monotonic()
+    if proof and (
+        proof.binding_hash != binding.fingerprint()
+        or proof.server_offset_seconds != binding.sdk_time_offset_seconds
+        or proof.symbols != binding.symbols
+        or proof.status(started, started_monotonic, host_identity())[0] != "VERIFIED_BOUNDED"
+    ):
+        raise ValueError("current clock evidence required")
     try:
         if not api.call("initialize", binding.terminal_path, timeout=5000):
             raise ValueError("terminal attach failed")
@@ -62,9 +72,31 @@ def capture(module, binding, run, sequence, now):
         if terminal.trade_allowed:
             raise ValueError("Algo Trading must be disabled")
         positions, orders = api.call("positions_get"), api.call("orders_get")
-        quotes = sum(
-            api.call("symbol_info_tick", symbol).time_msc > 0 for symbol in binding.symbols
-        )
+        samples, quotes = [], 0
+        for symbol in binding.symbols:
+            try:
+                tick = api.call("symbol_info_tick", symbol)
+            except ObservationFailure:
+                if not proof:
+                    raise
+                tick = None
+            if tick is not None and tick.time_msc > 0:
+                quotes += 1
+            if proof:
+                valid = (
+                    tick is not None
+                    and tick.time_msc > 0
+                    and all(math.isfinite(v) and v > 0 for v in (tick.bid, tick.ask))
+                    and tick.ask >= tick.bid
+                )
+                samples.append(
+                    QuoteSample(
+                        symbol=symbol,
+                        received_at=now(),
+                        native_time_ms=int(tick.time_msc) if valid else None,
+                        state="AVAILABLE" if valid else "MISSING" if tick is None else "INVALID",
+                    )
+                )
         terminal, _ = validate_terminal(api, binding)
         if terminal.trade_allowed:
             raise ValueError("Algo Trading changed")
@@ -81,16 +113,18 @@ def capture(module, binding, run, sequence, now):
             orders=len(orders),
             quotes_received=quotes,
             expected_quotes=len(binding.symbols),
+            quote_clock_hash=proof.fingerprint() if proof else None,
+            quotes=tuple(samples),
         )
     finally:
         api.call("shutdown")
 
 
-def _worker(pipe, binding, run, sequence):
+def _worker(pipe, binding, run, sequence, proof):
     try:
         import MetaTrader5 as mt5
 
-        receipt = capture(mt5, binding, run, sequence, lambda: datetime.now(UTC))
+        receipt = capture(mt5, binding, run, sequence, lambda: datetime.now(UTC), proof)
         pipe.send(receipt.model_dump_json())
     except Exception:
         pipe.send(None)
@@ -98,10 +132,10 @@ def _worker(pipe, binding, run, sequence):
         pipe.close()
 
 
-def bounded_capture(binding, run, sequence):
+def bounded_capture(binding, run, sequence, proof=None):
     ctx = multiprocessing.get_context("spawn")
     reader, writer = ctx.Pipe(duplex=False)
-    child = ctx.Process(target=_worker, args=(writer, binding, run, sequence))
+    child = ctx.Process(target=_worker, args=(writer, binding, run, sequence, proof))
     child.start()
     writer.close()
     try:
@@ -124,10 +158,16 @@ def main():
     parser.add_argument("--binding", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--samples", type=int, default=10)
+    parser.add_argument(
+        "--quote-clock", type=Path, help="Fresh independently corroborated clock JSON"
+    )
     args = parser.parse_args()
     if not 1 <= args.samples <= 60:
         parser.error("samples must be 1..60")
     binding = Binding.model_validate_json(args.binding.read_bytes())
+    proof = (
+        QuoteClock.model_validate_json(args.quote_clock.read_bytes()) if args.quote_clock else None
+    )
     pid = existing_terminal(binding)
     args.output.mkdir(parents=True, exist_ok=False)
     out = args.output.resolve()
@@ -137,13 +177,14 @@ def main():
         run_id=run,
         binding_hash=binding.fingerprint(),
         receipt_file=out / "latest.json",
+        quote_clock=proof,
     )
     (out / "view.json").write_text(config.model_dump_json(indent=2), encoding="utf-8")
     try:
         for sequence in range(1, args.samples + 1):
             if existing_terminal(binding) != pid:
                 raise ValueError("terminal process changed")
-            receipt = bounded_capture(binding, run, sequence)
+            receipt = bounded_capture(binding, run, sequence, proof)
             if existing_terminal(binding) != pid:
                 raise ValueError("terminal process changed during capture")
             raw = receipt.model_dump_json(indent=2)

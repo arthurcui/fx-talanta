@@ -481,3 +481,53 @@ This inspection path deliberately makes no clock-qualified quote claim. The stri
 observer's expired-clock rejection and the two-second entry rule are unchanged.
 Fresh independent timestamp mapping and proper observer evidence remain required
 before qualifying quote latency or entry readiness.
+
+## Verified timestamp mapping and reported quote age
+
+The optional verified receipt mode now shows each symbol's original broker quote
+age, its host-clock upper estimate and `FRESH`, `STALE`, `MISSING` or `INVALID`
+state. This is **age since the reported broker timestamp, not network latency**.
+The estimate includes the independently sampled host-clock error, a 100 ppm drift
+allowance and 1 ms timestamp quantization. It does not independently bound the
+broker's internal clock error. `FRESH` requires a nonnegative age with the upper
+estimate at most **2 seconds**. The observer's separate five-second ceiling and
+the execution entry rule are unchanged. Every dashboard result keeps entry
+readiness and execution authority false, including a fresh quote.
+
+Clock evidence pins the terminal binding, symbol set, host, UTC/monotonic anchor,
+offset and evidence digest. It lasts at most five minutes and becomes unusable
+earlier if total host uncertainty exceeds 100 ms. Host mismatch, reboot/monotonic
+regression, UTC clock jump, expiry and missing/changed evidence never leave a
+verified age on screen. A source receipt older than 15 seconds is separately
+marked stale. Restoring an old receipt cannot refresh its original timestamp.
+
+The browser labels ages as server samples. A fresh display expires conservatively
+using the remaining two-second budget minus the full request elapsed time; it
+also clears when the tab is hidden. This browser timer can only withdraw freshness,
+never create or extend it. Server-side assessment remains authoritative.
+
+For a bounded qualification session, the current helper supports an exact saved
+BLS **Employment Situation** anchor on the same UTC day, corroborated against both
+native Nonfarm Payrolls and Unemployment Rate calendar series. It checks live MCP
+listener ownership before transmitting the private export, then terminal identity,
+current UTC/server-time agreement and two independent NTP references. It does not
+infer an offset from tick arrival time. This narrowly scoped helper is not a daily
+clock service; on other dates it refuses issuance rather than reusing old evidence.
+
+```powershell
+python -m tools.qualification.inspection_quote_clock `
+  --binding <existing-private-demo-binding.json> `
+  --export <refreshed-private-MCP-export.txt> --reference <saved-bls.ics> `
+  --output <new-private-clock-directory>
+
+python -m tools.qualification.current_broker_capture `
+  --binding <new-private-clock-directory>/binding.private.json `
+  --quote-clock <new-private-clock-directory>/clock.json `
+  --output <new-private-capture-directory> --samples 10
+```
+
+Launch the dashboard with that capture directory's `view.json` as described above.
+The original binding, expired policies, failed campaigns and previous receipts
+are preserved. The helper creates a new isolated binding; it never changes host
+or terminal time. No unattended collector, automatic requalification, new campaign
+or order path is installed. The default receipt mode remains explicitly unverified.

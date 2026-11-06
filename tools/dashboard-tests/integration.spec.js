@@ -194,3 +194,69 @@ test("local notifications remain acknowledged after reopening", async ({
     "0 undelivered",
   );
 });
+
+test("quote-age display expires and handles missing, recovered and stale inputs", async ({
+  page,
+}) => {
+  test.setTimeout(40000);
+  let phase = "fresh";
+  await page.route("**/api/overview", async (route) => {
+    const body = await (await route.fetch()).json();
+    body.broker_view_enabled = true;
+    await route.fulfill({ json: body });
+  });
+  await page.route("**/api/broker", async (route) => {
+    if (phase === "missing")
+      return route.fulfill({
+        status: 503,
+        json: { error: "Fixture feed missing" },
+      });
+    const stale = phase === "stale";
+    await route.fulfill({
+      json: {
+        label: "Quote fixture",
+        state: "RECENT_RECORDED",
+        recorded_at: "2026-11-06T17:00:00Z",
+        transport_at_capture: "CONNECTED",
+        recorded_clock_policy: "VERIFIED_BOUNDED",
+        quote_freshness: stale ? "NOT_FRESH" : "FRESH",
+        channels: {
+          Python: "RECENT_RECEIPT",
+          EA: "NOT_OBSERVED",
+          MCP: "NOT_OBSERVED",
+        },
+        snapshot: { quote_latency_seconds: null },
+        quote_observation: {
+          quotes: [
+            {
+              symbol: "EURUSD",
+              state: stale ? "STALE" : "FRESH",
+              age_seconds: stale ? 3 : 0.2,
+              age_upper_bound_seconds: stale ? 3.04 : 0.24,
+            },
+          ],
+        },
+      },
+    });
+  });
+  await page.goto(url);
+  await expect(page.locator("#broker-quotes")).toContainText("EURUSD: FRESH");
+  await expect(page.locator("#broker-quotes")).toContainText(
+    "not network latency",
+  );
+  await expect(page.locator("#broker-quotes")).toContainText(
+    "display expired",
+    { timeout: 4000 },
+  );
+  phase = "missing";
+  await expect(page.locator("#broker-details")).toBeEmpty({ timeout: 12000 });
+  phase = "fresh";
+  await expect(page.locator("#broker-quotes")).toContainText("EURUSD: FRESH", {
+    timeout: 12000,
+  });
+  phase = "stale";
+  await expect(page.locator("#broker-quotes")).toContainText("EURUSD: STALE", {
+    timeout: 12000,
+  });
+  await expect(page.locator("#broker-status")).toContainText("entry blocked");
+});

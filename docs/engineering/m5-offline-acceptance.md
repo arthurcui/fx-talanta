@@ -242,3 +242,50 @@ No independent current FOREX timestamp mapping was established. Quote latency
 remains unknown, and real broker disconnect
 recovery, current reconciliation, full M1 and sustained M5 remain unqualified.
 Existing expired clock policies and failed campaign evidence were not changed.
+
+## Verified quote-age UI acceptance — November 6
+
+The refreshed private FOREX MCP export authenticated successfully. Fresh verification
+matched the saved BLS Employment Situation schedule (13:30 UTC) to both native
+employment series (15:30 server time), corroborating +7,200 seconds independently
+of quote arrival. Current terminal time agreed, and the independent host-clock
+probe returned a 41.82 ms error bound in the final check. A new five-minute private binding was used;
+the original expired configuration was preserved. Unauthenticated NTP corroboration
+is a bounded host observation, not a permanent clock guarantee.
+
+[Actual quote-age acceptance](../evidence/m5-verified-quotes-actual-20261106.json)
+records six captures and twelve quotes through the authenticated loopback dashboard.
+Five quotes met the unchanged two-second ceiling with host uncertainty included;
+reported ages ranged from 1.564 to 3.897 seconds. The check observed real elapsed
+staleness, HTTP 503 for isolated feed-file loss, rejection of a changed clock hash,
+and fresh actual quotes after the file fault. It preserved the pre-loss receipt
+and delivered all local notifications without a browser. No broker disconnection
+was injected, no terminal setting changed and no order was submitted.
+
+[Final-review UI acceptance](../evidence/m5-verified-quotes-review-20261106.json) records
+116 passing backend checks and seven passing headless browser flows with no skips,
+including the two-second boundary with
+uncertainty, future timestamps, missing/invalid quotes, clock expiry/jump/host loss,
+receipt provenance, recovery and browser freshness expiry. The real broker check
+uses HTTP; fixture-driven headless browser tests verify rendering and interaction.
+These are separate evidence scopes, not a claim of a live browser trading session.
+The final review also prevents a future-dated-at-receipt quote from becoming fresh
+merely as time passes. All twelve saved actual quotes were independently checked
+against their receipt times and were not future-dated. The
+[preceding local report](../evidence/m5-verified-quotes-local-20261106.json) remains retained.
+The [earlier development check](../evidence/m5-verified-quotes-preliminary-20261106.json)
+is retained separately; the final actual check followed the UTC/monotonic sampling
+alignment fix. Neither short check substitutes for sustained qualification.
+
+Reproduce the bounded actual check with `tools.qualification.verified_quote_acceptance`
+using `--binding`, `--clock`, a new `--output` directory and a new `--report` file.
+It performs six reads, injects faults only into its own receipt pointer and stops
+its own loopback listener and worker. The source terminal remains running and
+Algo Trading must remain off. Evidence issuance and capture are separate explicit
+commands; expired evidence is never refreshed by the UI.
+
+This completes reported quote-age display with independently corroborated mapping
+for the bounded session. It does not measure transport latency or independently
+bound the broker's internal clock error. M1 provider/market-data gaps, broker
+disconnect recovery, current reconciliation, B01's rejection and M5's eight-week
+AND 100-closed-trade requirements remain open. No execution authority follows.
