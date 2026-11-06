@@ -156,3 +156,62 @@ callers. It does not complete authenticated access, unrestricted chat, original
 rationale narration, strategy selection, simulated administrative commands, or M4
 as a whole. Questions and imperatives have no administrative interpretation in this
 service. M1/M3 gaps, B01 rejection and the two-second entry rule remain unchanged.
+
+## Simulated administrative command boundary
+
+`advisor.commands` implements a pure command evaluator and an append-only
+PostgreSQL evaluation journal. It does **not** call the offline execution gateway,
+change its state, dispatch an EA request, or operate a broker. This closes the
+interpretation/state-transition test slice; end-to-end simulated gateway wiring
+and authenticated command intake remain open M4 work.
+
+The trusted harness supplies a `SimulatedScope`, a typed request and explicit state.
+The scope is test authority, not authentication. Only PAPER/SIMULATOR bindings are
+accepted. Receipts remain unauthenticated READ_ONLY messages with
+`simulation_only=true` and `execution_enabled=false`; they are deliberately not
+executable AdministrativeCommand records.
+
+Supported commands are PAUSE_ENTRIES, RESUME_ENTRIES, CLOSE_OWNED_POSITION and
+FLATTEN_OWNED_AND_HALT. `command_text` exposes the exact English/Chinese grammar,
+including canonical full account identity and an exact owned position UUID for a
+close. This narrow grammar is intended for deterministic evaluation, not a polished
+chat UI. No substring, fuzzy match or model interpretation is used. Questions,
+negations, quotes, extra clauses and unsupported wording are rejected without a
+transition. Dashboard account selection cannot supply a missing target.
+
+Evaluation checks scope, action permission, request/grant expiry, expected state
+version and a state snapshot no older than two seconds. Resume additionally needs
+healthy/qualified inputs, no unresolved orders, no loss/integrity/hard halt and an
+original quote between zero and two seconds old inclusive. It clears only the
+administrative pause in the returned simulation state; it never enables trading.
+Pause and flatten never clear existing halts. Flatten sets pause and hard halt
+before its simulated closure outcome is evaluated.
+
+The harness must explicitly inject a simulated confirmed-close observation.
+Without one, positions remain present and the result is SIMULATED_OUTCOME_UNKNOWN.
+Already unresolved orders cannot be turned into success by another confirmation
+flag. Reconciliation is deliberately not invented here. Confirmed close removes
+only the specified owned position; flatten removes only the supplied owned set.
+There is no volume, reverse-position or new-entry action in this evaluator.
+
+`evaluate_and_record` commits one request/result pair atomically under a PostgreSQL
+transaction lock. Concurrent identical deliveries return the original pair.
+Changed content under a request ID conflicts; retrying an unknown result with a
+confirmation flag cannot rewrite it as completed. Records capture before/after
+simulation state, reason, action and scope; the original request remains linked.
+An expired scope cannot retrieve a receipt. A valid scope can retrieve a prior
+receipt after request expiry without re-evaluating it. Storage failure returns an
+error, not a claimed simulated action. These receipts are historical evaluation
+results, never proof of current gateway state or broker closure. The harness owns
+state sequencing; this journal does not serialize autonomous gateway entries.
+
+Verification:
+
+```text
+python -m pytest tests/test_advisor_commands.py
+python -m pytest tests/test_advisor_commands.py --integration
+```
+
+Tests cover bilingual parity, hostile/ambiguous wording, target/version/time
+checks, two-second boundaries, resume restrictions, unknown closes and concurrent
+PostgreSQL replay. Existing M1/M2/M3 gaps and B01 rejection remain unchanged.
