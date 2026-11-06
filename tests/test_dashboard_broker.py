@@ -59,6 +59,40 @@ def test_broker_projection_is_sanitized_historical_and_never_ready():
     assert "terminal.exe" not in str(result) and "bid" not in str(result)
 
 
+@pytest.mark.parametrize("offset,expected", [(0, "RECORDED_WINDOW_ONLY"), (61, "EXPIRED")])
+def test_recent_receipt_does_not_qualify_clock_or_quote(offset, expected):
+    record, config = observation()
+    snap = record.body.snapshot.model_copy(
+        update={
+            "time_policy_from": AT - timedelta(minutes=1),
+            "time_policy_until": AT + timedelta(minutes=1),
+            "time_policy_evidence": "fixture evidence",
+        }
+    )
+    record = record.model_copy(update={"body": record.body.model_copy(update={"snapshot": snap})})
+    result = project_observation(record, config, AT + timedelta(seconds=offset))
+    assert result["recorded_clock_policy"] == expected
+    assert result["transport_at_capture"] == "CONNECTED"
+    assert result["quote_freshness"] == "UNVERIFIED"
+    assert all(v is None for v in result["snapshot"]["quote_ages_seconds"].values())
+    assert result["snapshot"]["recorded_quote_ages_seconds"]
+    assert not result["entry_ready"]
+
+
+def test_missing_or_invalid_recorded_policy_never_becomes_verified():
+    record, config = observation()
+    assert project_observation(record, config, AT)["recorded_clock_policy"] == "UNKNOWN"
+    snap = record.body.snapshot.model_copy(
+        update={
+            "time_policy_from": AT + timedelta(seconds=1),
+            "time_policy_until": AT + timedelta(minutes=1),
+            "time_policy_evidence": "fixture evidence",
+        }
+    )
+    record = record.model_copy(update={"body": record.body.model_copy(update={"snapshot": snap})})
+    assert project_observation(record, config, AT)["recorded_clock_policy"] == "INVALID_AT_CAPTURE"
+
+
 @pytest.mark.parametrize("fault", ["account", "run", "binding", "future", "live"])
 def test_broker_scope_and_time_fail_closed(fault):
     record, config = observation()

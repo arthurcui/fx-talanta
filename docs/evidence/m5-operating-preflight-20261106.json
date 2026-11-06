@@ -1,0 +1,14 @@
+{
+  "schema": "m5-operating-preflight/1",
+  "checked_at": "2026-11-06T07:01:20.254724+00:00",
+  "broker": "FOREX.com demo",
+  "clock_policy_status": "REJECTED_EXPIRED_CLOCK_POLICY",
+  "policy_until": "2026-11-04T00:00:00+00:00",
+  "native_sdk_initialized": false,
+  "terminal_changed": false,
+  "orders_submitted": 0,
+  "configuration_unchanged": true,
+  "current_broker_acceptance": "NOT_PERFORMED",
+  "reason": "Fresh independent broker timestamp mapping required; saved policy was not extended.",
+  "full_m5_qualified": false
+}

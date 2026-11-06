@@ -421,3 +421,19 @@ policy, certificate lifecycle and host supervision require separate deployment
 review. Test acceptance uses ephemeral certificates and loopback sockets only; no
 public or cloud deployment has been performed and remote operational qualification
 remains open. Never expose the service without the required client-certificate policy.
+
+## Reading broker health correctly
+
+The broker panel separates transport **at capture**, saved clock-policy status and
+quote freshness. A recent journal receipt is not an independently verified quote.
+`RECORDED_WINDOW_ONLY` means the stored policy covers the saved observation and the
+current display time; the dashboard has not independently verified that policy.
+`EXPIRED`, `INVALID_AT_CAPTURE` and `UNKNOWN` must not be treated as fresh inputs.
+
+For this historical reader, `quote_freshness` remains `UNVERIFIED` and
+`quote_ages_seconds` contains null values. `recorded_quote_ages_seconds` retains
+the age calculated from saved timestamps for investigation. It is not measured
+end-to-end latency. Current positions remain unknown and entry readiness is false.
+The inspection worker records these dimensions separately, including an unavailable
+journal and subsequent recovery, and delivers local notifications without a browser.
+Recovery of the journal does not qualify its clock or quotes.

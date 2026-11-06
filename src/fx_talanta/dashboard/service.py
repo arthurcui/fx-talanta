@@ -141,11 +141,22 @@ class InspectionService:
                     if sample
                     else result.get("reason", result.get("status", "UNKNOWN"))
                 )
+                states = {
+                    "broker-journal": state,
+                    "broker-transport-at-capture": result.get("transport_at_capture", "UNKNOWN"),
+                    "broker-clock-policy": result.get("recorded_clock_policy", "UNKNOWN"),
+                    "broker-quote-freshness": result.get("quote_freshness", "UNVERIFIED"),
+                }
             except Exception:
-                state = "UNAVAILABLE"
+                states = {
+                    "broker-journal": "UNAVAILABLE",
+                    "broker-transport-at-capture": "UNKNOWN",
+                    "broker-clock-policy": "UNKNOWN",
+                    "broker-quote-freshness": "UNVERIFIED",
+                }
             with self.app.repo.lock:
                 self.app.monitor.transitions(
-                    {"broker-journal": state},
+                    states,
                     self.app.clock.now(),
                     {"default": "BROKER_JOURNAL_SAMPLE"},
                 )

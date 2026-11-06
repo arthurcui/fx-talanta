@@ -588,7 +588,7 @@ async function refreshBroker() {
       node(
         "p",
         value.recorded_at
-          ? `Recorded ${stamp(value.recorded_at)} · ${value.quote_clock}`
+          ? `Recorded ${stamp(value.recorded_at)} · transport at capture: ${value.transport_at_capture ?? "UNKNOWN"} · clock policy: ${value.recorded_clock_policy ?? "UNKNOWN"} · quote freshness: ${value.quote_freshness ?? "UNVERIFIED"}`
           : "No observation",
       ),
       node("p", JSON.stringify(value.snapshot ?? {}), "news-item"),

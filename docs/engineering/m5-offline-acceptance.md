@@ -181,3 +181,35 @@ local files, multi-page backlog, persisted acknowledgment, backup/restore, worke
 failure/shutdown, mutual TLS and separation of remote inspection from local operator
 configuration. Certificates are ephemeral test files; no certificate or remote
 listener was installed on the owner's host.
+
+## Operating acceptance checkpoint — November 6
+
+The [local acceptance report](../evidence/m5-operating-local-20261106.json)
+contains 94 passing backend checks and six passing headless browser flows, with
+zero skips. It includes independent broker-health dimensions and a no-browser
+journal outage/recovery test with durable notifications and restart idempotence.
+These are fixture-driven integration results, not observations of a running broker.
+
+The [actual saved-binding preflight](../evidence/m5-operating-preflight-20261106.json)
+rejected FOREX.com's expired clock policy. The policy ended November 4 at 00:00 UTC;
+the check ran November 6. The original binding remained byte-for-byte unchanged.
+The SDK was not initialized, no account was sampled, and no order was submitted.
+No clock-policy extension, desktop interaction or new campaign was performed.
+
+| Acceptance item | Result |
+| --- | --- |
+| Browser-independent inspection and local notifications | Local integration passed |
+| Separate journal transport, clock policy and quote freshness | Local integration passed |
+| Journal outage/recovery without promoting quote readiness | Local integration passed |
+| Current FOREX account and quote observation | Not performed: expired clock evidence |
+| Independent current broker timestamp mapping | Still required |
+| Remote host deployment and external notification delivery | Not performed |
+| Sustained unattended PAPER / full M5 | Not qualified |
+
+To close current-broker operating acceptance, independently establish a new bounded
+timestamp mapping, then capture through an isolated read-only observer and verify
+the dashboard against those committed records, including loss and recovery of that
+input. Preserve the original failed campaigns and expired configuration. Merely
+changing the policy's expiry or receiving a recent file cannot satisfy this check.
+The two-second entry ceiling, M1–M3 gaps, B01 rejection and eight-week/100-trade M5
+requirements remain unchanged. This checkpoint adds no broker execution authority.
