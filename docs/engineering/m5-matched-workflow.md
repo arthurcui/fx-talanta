@@ -134,3 +134,10 @@ weeks AND 100 closed PAPER trades per candidate after its prerequisites; M6 stay
 **135 backend checks and nine headless browser scenarios passed**, zero skipped/flaky.
 The report pins source hashes and explicitly records zero broker/model calls, trading
 disabled and full M5 incomplete. Earlier acceptance reports remain unchanged.
+
+## Incremental producer
+
+The [simulation runner](m5-paper-runner.md) now produces these receipts from an
+actual incremental strategy/risk/simulator loop. Export is derived from its original
+atomic transition journal and remains offline-only. This adds an engineering
+producer; the prospective qualification gaps above still apply.

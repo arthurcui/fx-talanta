@@ -21,6 +21,11 @@ HTTPS owner sign-in are implemented. A [pinned inspection-only deployment profil
 expose broker order controls. Actual remote deployment and unattended PAPER remain
 unqualified. Historical execution does not imply current positions.
 
+The [incremental PAPER runner](../engineering/m5-paper-runner.md) is implemented
+for simulation only: frozen B01 research signals, scripted selection, three isolated
+risk/execution arms, restart-safe evidence and dashboard receipt exports. It has no
+broker/live-model adapter and does not qualify B01 or start a PAPER campaign.
+
 ## What the demo proved
 
 The [PR #25 fixed-build result](../evidence/m2-one-entry-closeout-20261105-02.json)

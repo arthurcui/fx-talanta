@@ -19,7 +19,7 @@ qualification or elapsed PAPER evidence. No new campaign is authorized.
 | Administration | Separate simulator capability, preview/confirmation, pause/resume/owned-close/flatten-halt, uncertainty reconciliation | No broker commands or strategy activation through this dashboard |
 | Monitoring/recovery | Background inspection, local spool/acknowledgment, [optional bounded HTTPS receiver delivery](m5-alert-delivery.md), durable uncertainty/reconciliation and stopped backup/restore | Receiver acceptance is not human acknowledgement; real destination delivery and deployment remain unqualified |
 | Deployment boundary | Explicit HTTPS and mutual-TLS remote access, exact Host/Origin, bounded requests, [pinned inspection launch and recovery preflight](m5-deployment-readiness.md), source-backed tests | Actual remote deployment and full operational acceptance remain open |
-| Matched comparisons | Offline study upload/validation plus [frozen registration and durable receipt workflow](m5-matched-workflow.md), corrections, restart/idempotency and read-only dashboard projection | No prospective strategy/model runner, eligible candidate, qualified costs or economic promotion verdict |
+| Matched comparisons | [Incremental simulation runner](m5-paper-runner.md), offline study upload/validation plus [frozen registration and durable receipt workflow](m5-matched-workflow.md), corrections, restart/idempotency and read-only dashboard projection | No qualified prospective source/model adapters, eligible candidate, qualified costs or economic promotion verdict |
 | Reproducibility | One source-hashed backend/headless-browser acceptance command; all earlier evidence retained | Software PASS never closes unattended PAPER gates |
 
 The [source-hashed Windows local acceptance report](../evidence/m5-local-offline-acceptance-20261106.json) records **48 backend tests and two browser
@@ -331,3 +331,12 @@ operator access, running-workspace backup refusal, stop, verified backup/restore
 and resumed inspection. This is deployment engineering, not target-host or full M5
 qualification. Existing preview, broker terminals and all earlier evidence remain
 untouched.
+
+## Incremental PAPER runner, simulation only
+
+The [runner guide](m5-paper-runner.md) connects B01 research observations, three
+separate comparison arms, scripted selection, the existing deterministic governor
+and costed simulator, durable transitions, later outcomes and dashboard receipt
+export. Restart verifies prior transitions without broker resends. No new campaign
+or production model call is part of this acceptance; B01 remains rejected and
+prospective input/model/operating qualification remains open.
