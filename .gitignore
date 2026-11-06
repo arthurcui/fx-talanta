@@ -16,3 +16,6 @@ bridges/mt5/*.log
 
 # Native build products belong in ignored isolated build directories.
 *.ex5
+node_modules/
+tools/dashboard-tests/test-results/
+tools/dashboard-tests/playwright-report/

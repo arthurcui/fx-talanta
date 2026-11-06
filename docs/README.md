@@ -17,6 +17,7 @@ its limits, read [status](product/status.md) before using a historical milestone
 ## Run and develop
 
 - [Offline quick start](guides/getting-started.md): Windows, Unix, containers and archive transfer.
+- [Read-only dashboard](guides/dashboard.md): local UI, evidence chat, timing and calendar upload.
 - [Development guide](guides/development.md): checks, packaging, native tests and contribution rules.
 - [Operating guides](operations/README.md): read-only observation, calendar upload,
   demo account rollover and channel setup. A guide is not authorization to trade.

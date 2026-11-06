@@ -13,7 +13,10 @@ management, restart reconciliation and portable archive/restore profiles.
 The repository also contains read-only MT5 observation, EA quote streaming,
 calendar/news filtering and journaling, manual BLS upload with reminders, optional
 native MCP calendar import, and a fixed EA with deterministic execution controls.
-The manual file chooser is a utility; a trading dashboard is not implemented.
+The M5 [read-only dashboard](../guides/dashboard.md) now provides a local browser
+workspace for offline records, EA/Python/MCP timing, cited English/Chinese evidence
+chat and isolated manual BLS uploads. It has no live collector, model calls, remote
+deployment or trading controls. Historical execution does not imply current positions.
 
 ## What the demo proved
 
@@ -80,7 +83,7 @@ still block connected strategy PAPER. Trading remains disabled.
   simulator. The legacy cost model and B01 verdict are unchanged; synthetic tests
   prove integration, not historical account-cost calibration.
 - **M4 and later:** consolidated offline engineering implementation is complete;
-  remote deployment, dashboard, strategy quality, unattended PAPER and capped LIVE
+  remote deployment, live dashboard integration, strategy quality, unattended PAPER and capped LIVE
   remain gated. See the [M4 acceptance boundary](../engineering/m4-completion.md).
 
 Broader M2 acceptance must preserve the historical closure recovery and reconcile

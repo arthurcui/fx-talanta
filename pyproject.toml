@@ -15,12 +15,14 @@ mt5 = ["MetaTrader5==5.0.6231; sys_platform == 'win32'"]
 
 [project.scripts]
 fx-talanta = "fx_talanta.cli:main"
+fx-talanta-dashboard = "fx_talanta.dashboard.server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
 fx_talanta = ["storage/migrations/*.sql"]
+"fx_talanta.dashboard" = ["static/*.html", "static/*.css", "static/*.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
