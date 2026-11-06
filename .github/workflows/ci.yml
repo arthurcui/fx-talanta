@@ -11,7 +11,7 @@ permissions:
 jobs:
   checks:
     # Stable required-check context in the main branch ruleset.
-    name: M0A checks
+    name: Engineering checks
     runs-on: ubuntu-latest
     env:
       FX_DB_HOST: 127.0.0.1
