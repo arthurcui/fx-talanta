@@ -25,7 +25,8 @@ EA, Python MT5 package and MCP. It must distinguish connection health, quote fre
 clock uncertainty and entry readiness. A healthy connection is not a fresh-market pass.
 The offline UI also retains sampled incidents and advisor answers across resume,
 accepts explicitly bound telemetry files, and displays manual calendar events and
-lesson eligibility. Live collectors and remote deployment remain separate work.
+lesson eligibility. Searchable evidence trails, retained-incident pagination and
+bounded report export support operational review. Live collectors and remote deployment remain separate work.
 
 The owner authorized M4 development after closing M3's completed research scope.
 This does not relax the two-second entry ceiling or authorize connected trading.

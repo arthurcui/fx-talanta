@@ -7,6 +7,7 @@ import secrets
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from importlib.resources import files
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 from uuid import UUID
 
 from fx_talanta.clock import SystemClock
@@ -79,11 +80,37 @@ def make_server(app, port=0):
                 return self.reply(
                     200, files("fx_talanta.dashboard").joinpath("static", name).read_bytes(), mime
                 )
-            if self.path in ("/api/overview", "/api/history"):
+            route = urlsplit(self.path)
+            if route.path in (
+                "/api/overview",
+                "/api/history",
+                "/api/report",
+                "/api/incidents",
+            ) or route.path.startswith("/api/trace/"):
                 try:
-                    return self.reply(
-                        200, app.overview() if self.path == "/api/overview" else app.history()
-                    )
+                    query = parse_qs(route.query, keep_blank_values=True, strict_parsing=True)
+                    if len(self.path) > 1024 or any(len(v) != 1 for v in query.values()):
+                        raise ValueError("invalid query")
+                    if route.path != "/api/incidents" and query:
+                        raise ValueError("unexpected query")
+                    if route.path == "/api/incidents":
+                        if set(query) - {"q", "before"}:
+                            raise ValueError("invalid filter")
+                        result = app.incidents(
+                            query.get("q", [""])[0],
+                            int(query["before"][0]) if "before" in query else None,
+                        )
+                    elif route.path.startswith("/api/trace/"):
+                        result = app.trace(route.path.removeprefix("/api/trace/"))
+                    else:
+                        result = {
+                            "/api/overview": app.overview,
+                            "/api/history": app.history,
+                            "/api/report": app.report,
+                        }[route.path]()
+                    return self.reply(200, result)
+                except ValueError:
+                    return self.reply(400, {"error": "Invalid inspection request"})
                 except Exception:
                     return self.reply(503, {"error": "Snapshot unavailable; readiness unknown"})
             return self.reply(404, {"error": "Unknown read-only route"})

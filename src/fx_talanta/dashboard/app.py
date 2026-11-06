@@ -14,6 +14,7 @@ from fx_talanta.advisor.rationale import from_receipt
 from fx_talanta.dashboard.models import Channel
 from fx_talanta.dashboard.monitor import Monitor
 from fx_talanta.dashboard.store import InspectionJournal
+from fx_talanta.dashboard.trace import trace
 from fx_talanta.provider_pipeline import Journal
 
 BLOCKERS = [
@@ -138,6 +139,56 @@ class Dashboard:
             calendar_events=self.calendar_events(now),
             advisor_mode="M4_EVIDENCE_READER_NO_MODEL",
             session_expires_at=self.expires_at.isoformat(),
+        )
+
+    def trace(self, record_id):
+        return trace(self.snapshot, record_id)
+
+    def incidents(self, query="", before=None):
+        if len(query) > 128 or (before is not None and before < 1):
+            raise ValueError("invalid incident filter")
+        with self.repo.lock:
+            # instr uses literal matching: user '%' and '_' are not SQL wildcards.
+            where = "instr(lower(kind || ' ' || state || ' ' || evidence), lower(?)) > 0"
+            total = self.repo.conn.execute(
+                "SELECT count(*) FROM incidents WHERE " + where, (query,)
+            ).fetchone()[0]
+            cursor = " AND seq < ?" if before is not None else ""
+            args = (query, before) if before is not None else (query,)
+            rows = self.repo.conn.execute(
+                "SELECT seq,kind,state,at,evidence FROM incidents WHERE "
+                + where
+                + cursor
+                + " ORDER BY seq DESC LIMIT 101",
+                args,
+            ).fetchall()
+            shown = rows[:100]
+            return dict(
+                total=total,
+                shown=len(shown),
+                next_before=shown[-1][0] if len(rows) > 100 else None,
+                events=[
+                    dict(zip(("id", "kind", "state", "at", "evidence"), r, strict=True))
+                    for r in shown
+                ],
+            )
+
+    def report(self):
+        overview = self.overview()
+        overview.pop("session_expires_at")
+        payload = dict(
+            version="dashboard-inspection-report/1",
+            scope="OFFLINE_INSPECTION_NOT_QUALIFICATION",
+            snapshot_sha256=hashlib.sha256(self.snapshot.model_dump_json().encode()).hexdigest(),
+            overview=overview,
+            limits=dict(records=1000, incident_events=100, calendar_events=100),
+            execution_enabled=False,
+        )
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+        return dict(
+            payload=payload,
+            sha256=hashlib.sha256(canonical.encode()).hexdigest(),
+            hash_encoding="UTF-8 JSON sorted keys, compact separators, ensure_ascii=true",
         )
 
     def calendar_events(self, now):
