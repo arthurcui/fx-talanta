@@ -89,6 +89,8 @@ def main():
         browser_dir / "package.json",
         browser_dir / "package-lock.json",
         ROOT / "tests/test_bls_calendar.py",
+        ROOT / "tests/test_mt5.py",
+        ROOT / "tools/qualification/current_broker_capture.py",
         ROOT / "src/fx_talanta/advisor/evidence.py",
         Path(__file__),
     ]

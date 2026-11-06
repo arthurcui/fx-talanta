@@ -1,0 +1,20 @@
+{
+  "schema": "m5-current-demo-inspection/1",
+  "broker": "FOREX.com demo",
+  "samples": 5,
+  "authenticated_loopback_api": true,
+  "recent_receipt_observed": true,
+  "isolated_file_loss_returns_503": true,
+  "unchanged_file_restore_readable": true,
+  "stale_after_collector_stops": true,
+  "browser_required": false,
+  "notifications_undelivered": 0,
+  "clock_mapping_verified": false,
+  "quote_latency_qualified": false,
+  "current_reconciliation_qualified": false,
+  "trading_enabled": false,
+  "terminal_settings_changed": false,
+  "orders_submitted": 0,
+  "full_M5_complete": false,
+  "limitation": "Only receipt-file loss/recovery was injected; broker disconnection and independent clock mapping were not qualified."
+}
