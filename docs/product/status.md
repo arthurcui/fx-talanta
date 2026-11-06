@@ -142,3 +142,13 @@ workspace backup/restore retains evidence and removes model/operator authority f
 the copy. Remaining M5 work includes current broker reconciliation and administrative
 acceptance, remote deployment/access, continuous delivery and qualified prospective
 matched candidate evaluation; full M5 remains open.
+
+
+### M5 inspection service and authenticated access
+
+Browser-independent inspection, durable local incident delivery/acknowledgment and
+optional certificate-authenticated HTTPS inspection are implemented. Remote mode
+requires mutual TLS plus the viewer capability, has no operator route authority,
+and is tested only through isolated loopback handshakes. No remote deployment,
+external notifications, collector startup or strategy operation is implied. The
+qualification gaps and B01 verdict remain unchanged.

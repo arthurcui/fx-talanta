@@ -7,7 +7,11 @@ GATES = (
     ("M2", "Complete connected execution fault matrix", "OPEN"),
     ("M3", "Cost/source qualification and promoted strategy", "OPEN; B01 REJECT_FOR_PROMOTION"),
     ("M5-CONNECTED", "Current broker collectors and broker-scoped administration", "NOT ENABLED"),
-    ("M5-REMOTE", "Remote authentication/TLS and deployment acceptance", "NOT IMPLEMENTED"),
+    (
+        "M5-REMOTE",
+        "Target-host access, certificate lifecycle and deployment acceptance",
+        "NOT QUALIFIED",
+    ),
     ("M5-EVALUATION", "Prospective matched AI/no-AI and news/no-news evidence", "NOT QUALIFIED"),
     ("M5-DURATION", "At least eight weeks AND 100 closed trades per candidate", "NOT QUALIFIED"),
 )

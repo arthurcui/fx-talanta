@@ -126,6 +126,20 @@
                   ><span>Fresh ≠ permission to enter</span>
                 </div>
               </section>
+              <section class="panel" id="notifications-panel">
+                <h2>Service and local notifications</h2>
+                <p id="service-status" role="status"></p>
+                <p>
+                  Inspection continues while the service runs, even when this
+                  page is closed. Delivery means a verified local file, not an
+                  email or external alert.
+                </p>
+                <p id="notification-status" role="status"></p>
+                <button id="notification-refresh" type="button">
+                  Refresh local notifications
+                </button>
+                <div id="notification-list"></div>
+              </section>
               <section class="panel" id="operator-panel" hidden>
                 <h2>Simulator administration</h2>
                 <p>

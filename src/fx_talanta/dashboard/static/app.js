@@ -41,6 +41,8 @@ async function api(path, options = {}) {
 }
 function render(data) {
   snapshot = data;
+  $("service-status").textContent =
+    `Inspection worker: ${data.service.status}; last successful sample ${stamp(data.service.last_sample_at)}. This is not sustained qualification.`;
   $("operator-panel").hidden = !data.operator_enabled;
   $("dashboard").hidden = false;
   $("login").hidden = true;
@@ -681,3 +683,53 @@ $("operator-revoke").addEventListener("click", async () => {
     $("operator-result").textContent = e.message;
   }
 });
+
+async function refreshNotifications() {
+  try {
+    const value = await api("/api/notifications");
+    $("notification-status").textContent =
+      `${value.total} local incidents; ${value.undelivered} undelivered; ${value.unacknowledged} unacknowledged. Latest ${value.events.length} shown.`;
+    $("notification-list").replaceChildren(
+      ...value.events.map((item) => {
+        const row = node("article", undefined, "news-item");
+        row.append(
+          node(
+            "p",
+            `${item.event.kind}: ${item.event.state} at ${stamp(item.event.at)}. ${item.delivered ? "Local file verified" : "Delivery unavailable"}`,
+          ),
+        );
+        if (item.acknowledged)
+          row.append(node("p", `Acknowledged ${stamp(item.acknowledged)}`));
+        else {
+          const button = node(
+            "button",
+            `Acknowledge incident ${item.event.id}`,
+          );
+          button.disabled = !item.delivered;
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+            try {
+              await api("/api/notifications/ack", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: item.event.id }),
+              });
+              await refreshNotifications();
+            } catch (e) {
+              $("notification-status").textContent =
+                `Acknowledgment unavailable: ${e.message}`;
+              button.disabled = false;
+            }
+          });
+          row.append(button);
+        }
+        return row;
+      }),
+    );
+  } catch (e) {
+    $("notification-status").textContent =
+      `Notifications unavailable: ${e.message}`;
+    $("notification-list").replaceChildren();
+  }
+}
+$("notification-refresh").addEventListener("click", refreshNotifications);

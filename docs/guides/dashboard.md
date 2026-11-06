@@ -29,7 +29,8 @@ from browser history after loading. It is not sent in the URL to the server or
 stored in browser storage. The page keeps it in memory and sends it in an
 Authorization header. Reloading requires reopening the private URL. Sessions
 expire after eight hours. Do not share the URL or the optional `--session-file`.
-This is a loopback/local-OS boundary, not a remotely deployable login service.
+Default launch uses a loopback/local-OS boundary. Optional remote inspection below
+requires additional client-certificate authentication; it is not an SSO login service.
 
 The default tour is visibly **SYNTHETIC**, with fixed historical timestamps. It is
 not a broker account, live market or demonstration of strategy profitability.
@@ -224,7 +225,8 @@ offline comparison inputs and the exact unfinished scope.
 ## Optional read-only integrations
 
 All options use the same isolated inspection state, eight-hour bearer session,
-exact Host/Origin checks and loopback listener. Nothing here enables trading.
+exact Host/Origin checks and, by default, a loopback listener. Optional remote access
+has the additional requirements below. Nothing here enables trading.
 Do not put credentials, account identities or private configuration in Git.
 
 **Bounded model explanations.** Supply both `--model-key-file .local/openai.env`
@@ -347,3 +349,75 @@ and without model/operator options. The original database is not restored or cha
 its recovery uses the existing storage procedure. Session/key/DSN files and arbitrary
 state-directory files are not backed up. Do not delete the restoration marker to
 bypass this boundary. Backup and restore do not retire or transfer execution authority.
+
+
+## Browser-independent inspection and local notifications
+
+The launcher now runs an inspection worker at `--monitor-interval 5` seconds
+(allowed range 1–60). It reads configured inspection inputs while the server runs,
+even with all browsers closed. It never starts MT5, collects native quotes, calls a
+model, reconciles/operates the simulator or activates a strategy. Optional broker
+journal reads remain read-only. Source timestamps and the two-second entry ceiling
+are unchanged. This is monitoring of supplied inputs, not a new qualification run.
+
+The UI exposes worker status and its last successful sample. A failed, stopped,
+clock-invalid or overdue sampler is unavailable; a persisted old heartbeat alone
+cannot make a new worker healthy. Shutdown joins the worker before closing its
+journal. Running the web service does not establish unattended broker protection.
+
+Incident transitions enter a durable local queue and produce immutable
+`notifications/incident-<id>.json` files in the inspection state. Each includes its
+incident ID, original sample time, condition, state and evidence reference, with no
+credentials or raw quotes. File hashes are verified before marking delivery. A crash
+between file creation and receipt reuses the matching file on restart. Conflicting
+files are preserved and delivery remains unavailable; failed deliveries retry in
+bounded batches without dropping older queued events. An already acknowledged
+incident is not erased when the condition recovers.
+
+Use **Refresh local notifications** and acknowledge individual delivered incidents.
+Acknowledgment does not suppress monitoring, repair the source or authorize trading.
+The panel shows the latest 100 notifications and total pending counts; the full local
+queue remains retained. Local-file delivery is not email, push, external delivery or
+proof that a human read it. No outbound notification endpoint is configured or called.
+Verified backups now also include this spool and its database receipts.
+
+## Optional remote inspection access
+
+Default launch still binds only 127.0.0.1. No remote listener is started by installation,
+upgrade or tests. Explicit remote inspection requires **all** of:
+
+```text
+--bind <explicit-IPv4-interface>
+--public-origin https://<exact-host>:<port>
+--tls-cert <server-certificate-chain.pem>
+--tls-key <private-server-key.pem>
+--tls-client-ca <dedicated-owner-client-CA.pem>
+```
+
+The server requires a valid client certificate at the TLS handshake **and** its
+separate eight-hour viewer bearer capability for private APIs. The configured exact
+HTTPS Host/Origin must match; forwarded headers are ignored. No plaintext remote
+fallback, cross-origin access or remote simulator-operator mode exists. Remote
+configuration with operator options is rejected before attachment, including
+a loopback listener configured with a public origin or client CA. Do not forward
+the local operator listener through a proxy or tunnel. A network-visible
+listener also rejects missing TLS/client-CA configuration at the server factory.
+
+Obtain server/client certificates through your controlled certificate process. The
+server certificate must match the public hostname; clients must trust its chain.
+Issue client certificates from a dedicated CA only to intended owners and keep client
+keys private. Provision that certificate in the intended browser/client yourself;
+this service does not install certificates, modify trust stores, firewall rules,
+DNS, browser settings or OS services. Use short-lived client certificates and rotate
+CA/session credentials with a controlled restart to revoke access. There is no SSO,
+per-person user directory or online certificate-revocation service in this release.
+A CA shared with unintended users is not an owner authentication boundary.
+
+Eight concurrent request workers and five-second socket/handshake timeouts bound
+slow connections; TLS handshakes occur within workers so one stalled handshake does
+not stop other clients. This is a single-owner inspection service, not an Internet
+edge proxy or a complete denial-of-service defense. Production ingress, network
+policy, certificate lifecycle and host supervision require separate deployment
+review. Test acceptance uses ephemeral certificates and loopback sockets only; no
+public or cloud deployment has been performed and remote operational qualification
+remains open. Never expose the service without the required client-certificate policy.

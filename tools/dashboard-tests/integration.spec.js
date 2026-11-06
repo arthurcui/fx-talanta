@@ -156,3 +156,28 @@ test("operator confirmation, viewer denial, replay and revocation", async ({
   await expect(page.locator("#operator-result")).toContainText("revoked");
   await expect(page.locator("#operator-token")).toHaveValue("");
 });
+
+test("local notifications remain acknowledged after reopening", async ({
+  page,
+}) => {
+  await page.goto(url);
+  await expect(page.locator("#service-status")).toContainText("RECENT", {
+    timeout: 12000,
+  });
+  await page.locator("#notification-refresh").click();
+  await expect(page.locator("#notification-list")).toContainText(
+    "Local file verified",
+  );
+  await page.locator("#notification-list button").first().click();
+  await expect(page.locator("#notification-list")).toContainText(
+    "Acknowledged",
+  );
+  await page.goto(url);
+  await page.locator("#notification-refresh").click();
+  await expect(page.locator("#notification-list")).toContainText(
+    "Acknowledged",
+  );
+  await expect(page.locator("#notification-status")).toContainText(
+    "0 undelivered",
+  );
+});
