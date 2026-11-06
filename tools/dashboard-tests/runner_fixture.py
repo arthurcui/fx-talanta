@@ -12,7 +12,7 @@ from fx_talanta.dashboard.workflow import WorkflowView
 from tools.qualification.runner_selector_acceptance import run
 
 root = Path(sys.argv[1])
-result = run(root / "simulation")
+result = run(root / "simulation", dispatch_mode=True)
 clock = FakeClock(demo().captured_at + timedelta(days=1))
 app = Dashboard(
     demo(),
@@ -21,9 +21,9 @@ app = Dashboard(
     clock,
     workflow_view=WorkflowView(
         dict(
-            source_kind="OPERATIONS",
-            journal=str(root / "simulation/source.sqlite"),
-            plan_hash=result["report"]["binding_hash"],
+            source_kind="DISPATCH",
+            journal=str(root / "simulation/dispatcher.sqlite"),
+            plan_hash=result["dispatch_hash"],
         )
     ),
 )

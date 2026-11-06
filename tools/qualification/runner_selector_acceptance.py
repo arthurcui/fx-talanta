@@ -9,6 +9,7 @@ from pathlib import Path
 from uuid import UUID, uuid5
 
 from fx_talanta.clock import FakeClock
+from fx_talanta.evaluation.dispatch import Delivery, Dispatcher, Policy
 from fx_talanta.evaluation.inputs import Envelope, SafetyEvidence, normalize
 from fx_talanta.evaluation.operations import Binding, Operations
 from fx_talanta.evaluation.runner import Config, Runner, Tick, engine_hash
@@ -40,7 +41,7 @@ def fixture_batch(prepared, milliseconds=250):
     return Batch(requested_at=at, replies=replies)
 
 
-def run(destination):
+def run(destination, dispatch_mode=False):
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
     dataset, experiment = scenario()
@@ -71,6 +72,42 @@ def run(destination):
         ),
         clock,
     )
+    dispatch_hash = None
+    if dispatch_mode:
+        dispatcher, dispatch_hash = Dispatcher.create(
+            destination / "dispatcher.sqlite",
+            Policy(
+                queue=str(ops.path.resolve()),
+                source_hash=binding,
+                deadline=config.deadline,
+                max_calls=12,
+                tokens_per_call=200,
+                max_reserved_tokens=2400,
+            ),
+            clock,
+        )
+    calls = []
+
+    def transport(request):
+        calls.append(request["request_hash"])
+        can_select = bool(request["payload"]["allowed_exits"])
+        clock.advance(timedelta(milliseconds=125))
+        return Delivery(
+            status="RESPONSE",
+            returned_model="fixture-model/1",
+            response=json.dumps(
+                dict(
+                    action="SELECT" if can_select else "HOLD",
+                    candidate_id=request["payload"]["candidate_id"] if can_select else None,
+                    exit_option="TIME_EXIT" if can_select else None,
+                    reason="CANDIDATE_SELECTED" if can_select else "INSUFFICIENT_EVIDENCE",
+                )
+            ),
+            input_tokens=100,
+            output_tokens=20,
+            reported_cost_usd="0.0001",
+        )
+
     sent = set()
     for sequence, event in enumerate(dataset.events, 1):
         clock.advance(event.available_at - clock.now())
@@ -103,15 +140,24 @@ def run(destination):
         prepared = runner.prepare_selector(tick, registration)
         assert original == runner.path.read_bytes()
         assert "news" not in prepared["requests"]["AI_NO_NEWS"]["payload"]
-        batch = fixture_batch(prepared)
-        clock.advance(timedelta(milliseconds=250))
-        tick = Tick.model_validate(tick.model_dump() | {"model_batch": batch.model_dump()})
-        ops.enqueue(tick, binding)
+        if dispatch_mode:
+            dispatcher = Dispatcher(dispatcher.path, clock)
+            assert dispatcher.dispatch(tick, dispatch_hash, transport)["status"] == "PUBLISHED"
+        else:
+            batch = fixture_batch(prepared)
+            clock.advance(timedelta(milliseconds=250))
+            tick = Tick.model_validate(tick.model_dump() | {"model_batch": batch.model_dump()})
+            ops.enqueue(tick, binding)
         ops = Operations(ops.path, clock)
         ops.drain_one(binding)
-        assert ops.enqueue(tick, binding)["replayed"]
+        if dispatch_mode:
+            assert dispatcher.dispatch(tick, dispatch_hash, transport)["replayed"]
+        else:
+            assert ops.enqueue(tick, binding)["replayed"]
     ops.stop(binding, "recorded selector synthetic acceptance complete")
-    report = ops.report(binding)
+    if dispatch_mode:
+        dispatcher.stop(dispatch_hash)
+    report = dispatcher.report(dispatch_hash) if dispatch_mode else ops.report(binding)
     passed = (
         report["acknowledged"] == 6
         and all(a["closed_simulated_positions"] == 1 for a in report["runner"]["arms"].values())
@@ -120,6 +166,13 @@ def run(destination):
             for s in report["runner"]["recorded_model_summary"].values()
         )
     )
+    if dispatch_mode:
+        passed = (
+            passed
+            and len(calls) == 12
+            and report["model_dispatch"]["reserved_calls"] == 12
+            and report["model_dispatch"]["unresolved_reserved_calls"] == 0
+        )
     result = dict(
         schema="recorded-selector-synthetic/1",
         result="PASS" if passed else "FAIL",
@@ -129,6 +182,8 @@ def run(destination):
         external_model_calls=0,
         campaign_started=False,
         full_M5_complete=False,
+        dispatch_hash=dispatch_hash,
+        fixture_transport_calls=len(calls),
     )
     (destination / "report.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     return result
@@ -137,7 +192,9 @@ def run(destination):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    result = run(parser.parse_args().output)
+    parser.add_argument("--dispatch", action="store_true")
+    args = parser.parse_args()
+    result = run(args.output, args.dispatch)
     print(
         json.dumps(dict(result=result["result"], external_model_calls=0, execution_enabled=False))
     )

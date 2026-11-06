@@ -103,7 +103,9 @@ function render(data) {
     ? `Bounded model enabled · ${data.model.reserved_calls}/${data.model.max_calls} calls reserved · ${data.model.unresolved_calls} unresolved; no automatic refunds or retries.`
     : "Model calls disabled; local evidence reader available.";
   const workflow = data.matched_workflow || { status: "NOT_CONFIGURED" };
-  const runner = ["RUNNER", "OPERATIONS"].includes(workflow.source_kind);
+  const runner = ["RUNNER", "OPERATIONS", "DISPATCH"].includes(
+    workflow.source_kind,
+  );
   $("workflow-status").textContent =
     `${workflow.status} · ${runner ? "simulation runner (direct read)" : "offline receipt workflow"} · trading disabled`;
   $("workflow-details").replaceChildren();
@@ -143,6 +145,15 @@ function render(data) {
       );
       if (workflow.source_queue) {
         const q = workflow.source_queue;
+        if (q.model_dispatch) {
+          const d = q.model_dispatch;
+          $("workflow-details").append(
+            node(
+              "p",
+              `Model dispatch ${d.status}: ${d.reserved_calls}/${d.max_calls} calls reserved · ${d.reserved_tokens}/${d.max_reserved_tokens} tokens reserved · ${d.unresolved_reserved_calls} unresolved reserved calls · ${d.unknown_cost_calls} unknown-cost calls. No automatic refunds or resends; transport unverified.`,
+            ),
+          );
+        }
         $("workflow-details").append(
           node(
             "p",
