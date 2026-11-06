@@ -48,6 +48,7 @@ class Dashboard:
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
         self.broker_view = broker_view
         self.state.mkdir(parents=True, exist_ok=True)
+        self.service = None
         self.operator = None
         marker = self.state / "restored-inspection-only.json"
         if (
@@ -82,6 +83,9 @@ class Dashboard:
         self.repo.conn.commit()
         try:
             self.monitor = Monitor(self.repo, telemetry, telemetry_run)
+            from fx_talanta.dashboard.service import Notifications
+
+            self.notifications = Notifications(self)
             if operator_gateway is not None:
                 from fx_talanta.dashboard.operator import Operator
 
@@ -200,6 +204,9 @@ class Dashboard:
             else "M4_EVIDENCE_READER_NO_MODEL",
             model=self.model.ledger.status() if self.model else dict(enabled=False),
             study=self.study(),
+            service=self.service.status()
+            if self.service
+            else dict(status="NOT_RUNNING", worker_running=False),
             operator_enabled=self.operator is not None,
             broker_view_enabled=self.broker_view is not None,
             session_expires_at=self.expires_at.isoformat(),

@@ -11,6 +11,7 @@ from fx_talanta.clock import FakeClock
 from fx_talanta.dashboard.app import Dashboard
 from fx_talanta.dashboard.demo import AT, demo
 from fx_talanta.dashboard.server import make_server
+from fx_talanta.dashboard.service import InspectionService
 from fx_talanta.domain.offline import Policy
 from fx_talanta.gateway.offline import Gateway
 from fx_talanta.research.offline import market_at, warmup
@@ -30,11 +31,14 @@ app = Dashboard(
     model_budget=BUDGET,
     model_transport=response,
 )
+app.service = InspectionService(app, 1)
+app.service.start()
 server = make_server(app, 0)
 Path(sys.argv[2]).write_text(f"http://127.0.0.1:{server.server_port}/#token={app.token}")
 try:
     server.serve_forever()
 finally:
     server.server_close()
+    app.service.stop()
     app.close()
     gateway.close()

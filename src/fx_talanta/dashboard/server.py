@@ -1,10 +1,12 @@
-"""Loopback-only UI. Exact Host/Origin, bearer capability, no CORS or execution routes."""
+"""Inspection UI; optional mutual-TLS access, simulator operator restricted to loopback."""
 
 import argparse
 import hmac
+import ipaddress
 import json
 import secrets
 import ssl
+import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
@@ -20,7 +22,80 @@ from fx_talanta.provider_pipeline import status_lock
 LIMIT = 2 * 1024 * 1024
 
 
-def make_server(app, port=0):
+class BoundedServer(ThreadingHTTPServer):
+    def __init__(self, *args, **kwargs):
+        self.slots = threading.BoundedSemaphore(8)
+        self.tls_context = None
+        super().__init__(*args, **kwargs)
+
+    def get_request(self):
+        connection, address = super().get_request()
+        connection.settimeout(5)
+        if self.tls_context:
+            connection = self.tls_context.wrap_socket(
+                connection, server_side=True, do_handshake_on_connect=False
+            )
+        return connection, address
+
+    def process_request(self, request, address):
+        if not self.slots.acquire(blocking=False):
+            self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, address)
+        except BaseException:
+            self.slots.release()
+            raise
+
+    def process_request_thread(self, request, address):
+        try:
+            super().process_request_thread(request, address)
+        finally:
+            self.slots.release()
+
+
+def validate_access(bind, origin, certificate, key, client_ca, operator=False):
+    address = ipaddress.ip_address(bind)
+    if address.version != 4:
+        raise ValueError("IPv4 bind required")
+    if bool(certificate) != bool(key):
+        raise ValueError("TLS pair required")
+    remote = not address.is_loopback
+    if operator and (remote or origin or client_ca):
+        raise ValueError("simulator operator requires local-only configuration")
+    if remote and (not all((origin, certificate, key, client_ca)) or operator):
+        raise ValueError("remote inspection requires mutual TLS, exact origin, and no operator")
+    if client_ca and not certificate:
+        raise ValueError("client CA requires TLS")
+    if origin:
+        parsed = urlsplit(origin)
+        if (
+            parsed.scheme != "https"
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+            or parsed.path
+            or parsed.query
+            or parsed.fragment
+            or parsed.netloc != parsed.netloc.lower()
+        ):
+            raise ValueError("canonical HTTPS origin required")
+        if parsed.port is not None and not 1 <= parsed.port <= 65535:
+            raise ValueError("invalid origin port")
+        if not certificate:
+            raise ValueError("explicit HTTPS origin requires TLS")
+    return remote
+
+
+def make_server(
+    app, port=0, *, bind="127.0.0.1", origin=None, remote_cert=None, remote_key=None, remote_ca=None
+):
+    remote = not ipaddress.ip_address(bind).is_loopback
+    if app.operator is not None and (origin or remote_ca):
+        raise ValueError("simulator operator cannot use public-origin/client-CA mode")
+    if remote:
+        validate_access(bind, origin, remote_cert, remote_key, remote_ca, app.operator is not None)
+
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
             pass  # Never log credentials, queries or account data.
@@ -28,6 +103,8 @@ def make_server(app, port=0):
         def setup(self):
             super().setup()
             self.connection.settimeout(5)
+            if isinstance(self.connection, ssl.SSLSocket):
+                self.connection.do_handshake()
 
         def reply(self, status, body, mime="application/json"):
             raw = json.dumps(body).encode() if mime == "application/json" else body
@@ -49,7 +126,7 @@ def make_server(app, port=0):
             self.wfile.write(raw)
 
         def allowed(self, private=False):
-            origin = (
+            origin = getattr(self.server, "public_origin", None) or (
                 f"{getattr(self.server, 'scheme', 'http')}://127.0.0.1:{self.server.server_port}"
             )
             if self.headers.get("Host") != origin.split("://", 1)[1]:
@@ -108,6 +185,7 @@ def make_server(app, port=0):
                 "/api/report",
                 "/api/incidents",
                 "/api/broker",
+                "/api/notifications",
             ) or route.path.startswith("/api/trace/"):
                 try:
                     query = parse_qs(route.query, keep_blank_values=True, strict_parsing=True)
@@ -130,6 +208,7 @@ def make_server(app, port=0):
                             "/api/history": app.history,
                             "/api/report": app.report,
                             "/api/broker": app.broker,
+                            "/api/notifications": app.notifications.summary,
                         }[route.path]()
                     if not self.allowed(private=True):
                         return self.reply(403, {"error": "Session expired"})
@@ -172,13 +251,19 @@ def make_server(app, port=0):
                     return self.reply(
                         503, {"error": "Outcome unknown; inspect the same request, never resend"}
                     )
-            if self.path not in ("/api/chat", "/api/calendar", "/api/explain", "/api/study"):
+            if self.path not in (
+                "/api/chat",
+                "/api/calendar",
+                "/api/explain",
+                "/api/study",
+                "/api/notifications/ack",
+            ):
                 return self.reply(404, {"error": "No execution route"})
             try:
                 size = int(self.headers.get("Content-Length", "-1"))
                 maximum = (
                     4096
-                    if self.path in ("/api/chat", "/api/explain")
+                    if self.path in ("/api/chat", "/api/explain", "/api/notifications/ack")
                     else 16 * 1024 * 1024
                     if self.path == "/api/study"
                     else LIMIT
@@ -194,7 +279,9 @@ def make_server(app, port=0):
                 raw = self.rfile.read(size)
                 if len(raw) != size:
                     raise ValueError("short request")
-                if self.path == "/api/chat":
+                if self.path == "/api/notifications/ack":
+                    result = app.notifications.acknowledge(json.loads(raw))
+                elif self.path == "/api/chat":
                     result = app.chat(json.loads(raw))
                 elif self.path == "/api/explain":
                     result = app.explain(json.loads(raw))
@@ -218,18 +305,31 @@ def make_server(app, port=0):
                     503, {"error": "Inspection unavailable; no trading action performed"}
                 )
 
-    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    server = BoundedServer((bind, port), Handler)
+    server.public_origin = origin
+    if remote:
+        try:
+            configure_tls(server, remote_cert, remote_key, remote_ca)
+        except BaseException:
+            server.server_close()
+            raise
+    return server
 
 
-def configure_tls(server, certificate=None, key=None):
+def configure_tls(server, certificate=None, key=None, client_ca=None):
     scheme = "http"
+    if client_ca and not certificate:
+        raise ValueError("client CA requires TLS")
     if bool(certificate) != bool(key):
         raise ValueError("TLS certificate and key required together")
     if certificate:
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         context.minimum_version = ssl.TLSVersion.TLSv1_2
         context.load_cert_chain(certificate, key)
-        server.socket = context.wrap_socket(server.socket, server_side=True)
+        if client_ca:
+            context.load_verify_locations(cafile=client_ca)
+            context.verify_mode = ssl.CERT_REQUIRED
+        server.tls_context = context
         scheme = "https"
     server.scheme = scheme
     return scheme
@@ -285,7 +385,32 @@ def main():
         type=Path,
         help="Private file containing separate operator capability",
     )
+    parser.add_argument(
+        "--bind", default="127.0.0.1", help="Explicit IPv4 listener; remote requires mutual TLS"
+    )
+    parser.add_argument(
+        "--public-origin", help="Exact canonical HTTPS origin; forwarded headers never trusted"
+    )
+    parser.add_argument(
+        "--tls-client-ca", type=Path, help="Required client-certificate CA for remote inspection"
+    )
+    parser.add_argument(
+        "--monitor-interval", type=int, default=5, help="Inspection sampling cadence, 1..60 seconds"
+    )
     args = parser.parse_args()
+    try:
+        validate_access(
+            args.bind,
+            args.public_origin,
+            args.tls_cert,
+            args.tls_key,
+            args.tls_client_ca,
+            bool(args.simulator_env),
+        )
+        if not 1 <= args.monitor_interval <= 60:
+            raise ValueError("invalid monitor interval")
+    except ValueError as error:
+        parser.error(str(error))
     if any(
         (args.simulator_env, args.simulator_run, args.simulator_market, args.operator_token_file)
     ) and not all(
@@ -400,14 +525,27 @@ def serve(snapshot, args):
             operator_market=market_source,
             operator_token=operator_token,
         )
-        server = make_server(app, args.port)
-        scheme = configure_tls(server, args.tls_cert, args.tls_key)
-        url = f"{scheme}://127.0.0.1:{server.server_port}/#token={app.token}"
+        server = make_server(
+            app,
+            args.port,
+            bind=args.bind,
+            origin=args.public_origin,
+            remote_cert=args.tls_cert,
+            remote_key=args.tls_key,
+            remote_ca=args.tls_client_ca,
+        )
+        scheme = configure_tls(server, args.tls_cert, args.tls_key, args.tls_client_ca)
+        origin = args.public_origin or f"{scheme}://{args.bind}:{server.server_port}"
+        url = f"{origin}/#token={app.token}"
         if args.session_file:
             with args.session_file.open("x", encoding="utf-8") as f:
                 f.write(url)
         else:
             print("Private local dashboard URL (do not share): " + url, flush=True)
+        from fx_talanta.dashboard.service import InspectionService
+
+        app.service = InspectionService(app, args.monitor_interval)
+        app.service.start()
         try:
             server.serve_forever()
         except KeyboardInterrupt:
@@ -416,6 +554,8 @@ def serve(snapshot, args):
         if server is not None:
             server.server_close()
         if app is not None:
+            if app.service is not None:
+                app.service.stop()
             app.close()
         if gateway is not None:
             gateway.close()

@@ -149,3 +149,35 @@ These use synthetic markets and the real offline simulator, not broker accounts.
 PostgreSQL database to verify confirmed simulated closure and no redispatch after
 reopening the durable gateway and inspection journal. No existing campaign or
 broker terminal is involved.
+
+
+## Inspection service and access integration
+
+The service worker samples configured inputs independently of browser requests and
+persists heartbeat/incident evidence. The durable local notification queue verifies
+immutable spool files, preserves conflicts, survives restart and retains explicit
+acknowledgments. No external message transport is claimed. Backup/restore retains
+these files and receipts while preserving the inspection-only restore boundary.
+
+Optional remote inspection requires client-certificate mutual TLS, the viewer bearer
+capability and exact origin validation. Remote operator configuration is rejected;
+there is no remote broker/strategy authority. TLS handshakes are bounded and isolated
+from the accept loop. Tests use loopback only and verify missing/untrusted client
+certificates, invalid bearer, wrong origin/Host, expired session and a stalled TLS
+client. The certificate fixture includes proper CA key usage; verification is not
+weakened to make tests pass.
+
+Remaining deployment acceptance includes the actual target host/ingress, certificate
+issuance/revocation, supervision, resource limits, external alert delivery if required,
+and current broker collector/protection integration. The local service's recent
+heartbeat is not sustained acceptance and does not close M1–M3 gaps or M5's eight-week
+AND 100-closed-trade gate. No campaign or remote deployment follows from this PR.
+
+
+[Committed service/access evidence](../evidence/m5-service-access-20261106.json)
+records 90 backend checks and six headless browser flows passing with zero skips.
+It covers no-browser sampling, delivery/restart idempotence, failed/conflicting
+local files, multi-page backlog, persisted acknowledgment, backup/restore, worker
+failure/shutdown, mutual TLS and separation of remote inspection from local operator
+configuration. Certificates are ephemeral test files; no certificate or remote
+listener was installed on the owner's host.

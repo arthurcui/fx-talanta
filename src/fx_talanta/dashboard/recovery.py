@@ -16,7 +16,10 @@ def allowed(name):
         not p.is_absolute()
         and ".." not in p.parts
         and "\\" not in name
-        and (name == "inspection.sqlite" or (p.parts[0] == "calendar" and len(p.parts) > 1))
+        and (
+            name == "inspection.sqlite"
+            or (p.parts[0] in ("calendar", "notifications") and len(p.parts) > 1)
+        )
         and not name.endswith((".lock", "-wal", "-shm"))
     )
 
@@ -61,8 +64,9 @@ def backup(source, destination):
         raise ValueError("inspection journal missing")
     with status_lock(source / "dashboard.lock"):
         files = [source / "inspection.sqlite"]
-        if (source / "calendar").exists():
-            files += [p for p in (source / "calendar").rglob("*") if p.is_file()]
+        for folder in ("calendar", "notifications"):
+            if (source / folder).exists():
+                files += [p for p in (source / folder).rglob("*") if p.is_file()]
         destination.mkdir(parents=True, exist_ok=False)
         hashes = {}
         for path in files:
