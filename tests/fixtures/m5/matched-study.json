@@ -1,0 +1,83 @@
+{
+  "schema_version": "matched-offline-study/1",
+  "provenance": "SYNTHETIC",
+  "candidate_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "dataset_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "criteria_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "feature_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "lessons_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "news_interpretation_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "frozen_at": "2026-11-05T17:00:00Z",
+  "cutoff": "2026-11-05T18:00:00Z",
+  "arms": [
+    {
+      "name": "NO_AI",
+      "ledger": "ledger-0",
+      "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "safety_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "model_hash": null,
+      "prompt_hash": null,
+      "news_content": false
+    },
+    {
+      "name": "AI_NO_NEWS",
+      "ledger": "ledger-1",
+      "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "safety_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "model_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "prompt_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "news_content": false
+    },
+    {
+      "name": "AI_NEWS",
+      "ledger": "ledger-2",
+      "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "safety_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "model_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "prompt_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "news_content": true
+    }
+  ],
+  "samples": [
+    {
+      "snapshot_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "snapshot_at": "2026-11-05T17:00:00Z",
+      "arm": "NO_AI",
+      "decision_id": "00000000-0000-0000-0000-000000000001",
+      "decision_at": "2026-11-05T17:00:01Z",
+      "outcome_at": "2026-11-05T17:00:10Z",
+      "gross_pnl": "1",
+      "cost": "0.5",
+      "latency_ms": 100,
+      "missed_entry": false,
+      "currency": "USD"
+    },
+    {
+      "snapshot_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "snapshot_at": "2026-11-05T17:00:00Z",
+      "arm": "AI_NO_NEWS",
+      "decision_id": "00000000-0000-0000-0000-000000000002",
+      "decision_at": "2026-11-05T17:00:01Z",
+      "outcome_at": "2026-11-05T17:00:10Z",
+      "gross_pnl": "2",
+      "cost": "0.5",
+      "latency_ms": 100,
+      "missed_entry": false,
+      "currency": "USD"
+    },
+    {
+      "snapshot_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "snapshot_at": "2026-11-05T17:00:00Z",
+      "arm": "AI_NEWS",
+      "decision_id": "00000000-0000-0000-0000-000000000003",
+      "decision_at": "2026-11-05T17:00:01Z",
+      "outcome_at": "2026-11-05T17:00:10Z",
+      "gross_pnl": "3",
+      "cost": "0.5",
+      "latency_ms": 100,
+      "missed_entry": false,
+      "currency": "USD"
+    }
+  ],
+  "execution_enabled": false
+}

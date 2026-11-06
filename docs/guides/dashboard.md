@@ -199,3 +199,19 @@ Host/Origin restrictions. There is no execution route. Backend tests cover cycle
 missing links, unrelated correlated records, literal search, stable pagination,
 export hashes and authentication. Headless browser acceptance exercises search,
 trace, download and desktop/mobile layouts without opening user applications.
+
+## Historical operating summary and M5 readiness
+
+The outcomes/model-usage panel counts record versions at the imported cutoff,
+including corrections. It deliberately does not add experience P&L into an account
+balance or treat records as independent closed trades. Economic labels with unknown
+or future outcome times remain unavailable. Model request IDs deduplicate repeated
+identical traces; conflicting traces are excluded and counted separately. Usage
+includes fixtures and is not billing evidence. Equity, net P&L, drawdown, exposure
+and current positions stay unknown without authoritative reconciliation.
+
+The qualification matrix shows M1–M3 gaps and the remaining connected, deployment,
+matched-evaluation and sustained M5 requirements. These are explicit tracked gates,
+not live monitoring or an activation switch. See the consolidated
+[M5 engineering matrix](../engineering/m5-offline-acceptance.md) for reproduction,
+offline comparison inputs and the exact unfinished scope.
