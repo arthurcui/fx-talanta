@@ -162,8 +162,8 @@ service. M1/M3 gaps, B01 rejection and the two-second entry rule remain unchange
 `advisor.commands` implements a pure command evaluator and an append-only
 PostgreSQL evaluation journal. It does **not** call the offline execution gateway,
 change its state, dispatch an EA request, or operate a broker. This closes the
-interpretation/state-transition test slice; end-to-end simulated gateway wiring
-and authenticated command intake remain open M4 work.
+interpretation/state-transition test slice; the [offline gateway adapter](m4-command-gateway.md) now supplies execution wiring.
+Authenticated command intake remains open M4 work.
 
 The trusted harness supplies a `SimulatedScope`, a typed request and explicit state.
 The scope is test authority, not authentication. Only PAPER/SIMULATOR bindings are
@@ -215,3 +215,7 @@ python -m pytest tests/test_advisor_commands.py --integration
 Tests cover bilingual parity, hostile/ambiguous wording, target/version/time
 checks, two-second boundaries, resume restrictions, unknown closes and concurrent
 PostgreSQL replay. Existing M1/M2/M3 gaps and B01 rejection remain unchanged.
+
+The [offline command gateway](m4-command-gateway.md) derives state from the existing
+gateway and routes management through its journaled simulator lifecycle. It does
+not use the evaluator's injected confirmation flag as execution evidence.
