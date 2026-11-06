@@ -186,3 +186,9 @@ The [bound source queue and direct dashboard view](../engineering/m5-runner-oper
 now provide durable input acknowledgements, restart recovery and audited stop for the
 local simulation runner. Source qualification, production model integration and all
 prospective operating gates remain open; no trading or campaign has been enabled.
+
+### M5 source inspection and recovery evidence
+
+[Queue-aware inspection and verified paired archives](../engineering/m5-runner-recovery.md)
+are implemented for the simulation runner. Restore is inspection-only; prospective
+source/model qualification, connected operating acceptance and full M5 remain open.

@@ -93,3 +93,9 @@ fault/administrative acceptance, deployment and real receiver delivery, eligible
 and cost qualification, and the specification's eight weeks **AND** 100 closed PAPER
 trades. These bounded synthetic closes do not count toward that gate. Existing M1–M3
 failures and gaps remain preserved; full M5 is not complete.
+
+## Queue inspection and paired recovery
+
+The [recovery guide](m5-runner-recovery.md) adds queue-aware dashboard binding,
+persisted source/acknowledgement checkpoints and stopped paired archive verification.
+Restored evidence is inspection-only; no producer, model or trading is activated.

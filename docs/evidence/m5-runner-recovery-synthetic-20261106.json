@@ -1,0 +1,99 @@
+{
+  "schema": "runner-recovery-synthetic/1",
+  "result": "PASS",
+  "archive": {
+    "schema": "simulation-archive-verification/1",
+    "result": "VERIFIED",
+    "manifest_hash": "5db6b4b9ac82a9a966b040df97f9b34ab67db7eaca583837b12b89e827d9785f",
+    "captured_at": "2026-11-05T16:00:01+00:00",
+    "inspection_only": true,
+    "current_readiness": false,
+    "execution_enabled": false,
+    "full_M5_complete": false,
+    "report": {
+      "version": "simulation-source-report/1",
+      "source_id": "204b5b54-33b8-519e-b195-cb7fe5ef2296",
+      "binding_hash": "af3c38a7561f6c421d21fdd2381c554951716bebd2317d58c135f63452f83f71",
+      "queued": 6,
+      "acknowledged": 6,
+      "pending": 0,
+      "source_head": "2b858ae1626f4b31d3f204d02a6f0832efbdae8868d700638e2b40d5f7a9204b",
+      "status": "SEALED",
+      "unacknowledged_runner_commit": false,
+      "runner": {
+        "version": "paper-simulation-report/1",
+        "run_id": "7271101e-8d10-4385-8197-620a101223df",
+        "status": "STOPPED",
+        "provenance": "SYNTHETIC",
+        "registered_at": "2026-11-05T11:59:57+00:00",
+        "deadline": "2026-11-05T19:00:00+00:00",
+        "observations": 6,
+        "max_observations": 100,
+        "decisions": 18,
+        "outcomes": 15,
+        "revisions": 0,
+        "missing_decisions": 0,
+        "last_input_at": "2026-11-05T16:00:01+00:00",
+        "input_age_seconds": 0.0,
+        "receipt_sequence": 7,
+        "receipt_hash": "df989a0d0f434d577cb544418aeacad0363d76267992f745c67e0ab56ee7d194",
+        "registration_hash": "5357343a5f288e17732d975e5cf666a8e0823924962e06a8d1d326025645e014",
+        "arms": {
+          "NO_AI": {
+            "state": "RUNNING",
+            "entries": 1,
+            "closed_simulated_positions": 1,
+            "open_positions": 0,
+            "balance": "9997.975003125000000000000000000000"
+          },
+          "AI_NO_NEWS": {
+            "state": "RUNNING",
+            "entries": 1,
+            "closed_simulated_positions": 1,
+            "open_positions": 0,
+            "balance": "9997.975003125000000000000000000000"
+          },
+          "AI_NEWS": {
+            "state": "RUNNING",
+            "entries": 1,
+            "closed_simulated_positions": 1,
+            "open_positions": 0,
+            "balance": "9997.975003125000000000000000000000"
+          }
+        },
+        "pending_outcomes": 3,
+        "execution_enabled": false,
+        "broker_calls": 0,
+        "external_model_calls": 0,
+        "selector": "SCRIPTED_TEST_DOUBLE",
+        "qualified_for_unattended_paper": false,
+        "prospective_evidence_verified": false,
+        "full_M5_complete": false,
+        "B01": "REJECT_FOR_PROMOTION"
+      },
+      "execution_enabled": false,
+      "source_qualified": false,
+      "checkpoint": [
+        6,
+        "2b858ae1626f4b31d3f204d02a6f0832efbdae8868d700638e2b40d5f7a9204b",
+        6,
+        "9d27dd3c5d877793733c76d7bdf50afa04b772bcc527c18d1317610c97273ce7",
+        [
+          [
+            "synthetic operating acceptance complete",
+            "2b858ae1626f4b31d3f204d02a6f0832efbdae8868d700638e2b40d5f7a9204b"
+          ]
+        ],
+        7,
+        "df989a0d0f434d577cb544418aeacad0363d76267992f745c67e0ab56ee7d194"
+      ],
+      "oldest_pending_age_seconds": null,
+      "producer_liveness": "UNVERIFIED"
+    }
+  },
+  "broker_calls": 0,
+  "external_model_calls": 0,
+  "trading_enabled": false,
+  "campaign_started": false,
+  "full_M5_complete": false
+}

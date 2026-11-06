@@ -52,6 +52,12 @@ test("direct runner view shows simulation authority and clears unavailable evide
   await expect(page.locator("#workflow-details")).toContainText(
     "No broker trades",
   );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "6 queued / 6 acknowledged / 0 pending",
+  );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "Producer liveness UNVERIFIED",
+  );
   await page.route("**/api/overview", async (route) => {
     const response = await route.fetch();
     const body = await response.json();

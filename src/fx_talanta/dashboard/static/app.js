@@ -103,7 +103,7 @@ function render(data) {
     ? `Bounded model enabled · ${data.model.reserved_calls}/${data.model.max_calls} calls reserved · ${data.model.unresolved_calls} unresolved; no automatic refunds or retries.`
     : "Model calls disabled; local evidence reader available.";
   const workflow = data.matched_workflow || { status: "NOT_CONFIGURED" };
-  const runner = workflow.source_kind === "RUNNER";
+  const runner = ["RUNNER", "OPERATIONS"].includes(workflow.source_kind);
   $("workflow-status").textContent =
     `${workflow.status} · ${runner ? "simulation runner (direct read)" : "offline receipt workflow"} · trading disabled`;
   $("workflow-details").replaceChildren();
@@ -123,6 +123,15 @@ function render(data) {
       ),
     );
     if (runner) {
+      if (workflow.source_queue) {
+        const q = workflow.source_queue;
+        $("workflow-details").append(
+          node(
+            "p",
+            `Source queue ${q.status}: ${q.queued} queued / ${q.acknowledged} acknowledged / ${q.pending} pending. Oldest pending age: ${q.oldest_pending_age_seconds ?? "none"}s. Unacknowledged runner commit: ${q.unacknowledged_runner_commit}. Producer liveness UNVERIFIED; source not qualified.`,
+          ),
+        );
+      }
       $("workflow-details").append(
         node(
           "p",

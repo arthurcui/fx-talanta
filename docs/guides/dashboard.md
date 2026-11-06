@@ -615,3 +615,8 @@ The study journal configuration accepts `source_kind: RUNNER` to inspect an exac
 runner without exporting receipts. See the [operating guide](../engineering/m5-runner-operations.md)
 for its schema and recovery limits. Receipt age is not quote latency; displayed positions
 are simulated. The dashboard cannot enqueue, drain, stop or enable execution.
+
+For queue counts and acknowledgement status, use `source_kind: OPERATIONS` with the
+source journal and source binding hash. The [recovery guide](../engineering/m5-runner-recovery.md)
+explains persistent rollback checks. Queue age and an empty queue do not establish
+quote freshness or producer liveness; the view has no processing controls.

@@ -347,3 +347,9 @@ The [operating guide](m5-runner-operations.md) documents the immutable source qu
 commit/acknowledgement recovery, source sealing and direct read-only runner view.
 Synthetic and headless acceptance preserve original quote timestamps, pending evidence
 and terminal checkpoints. No campaign or connected execution is part of this scope.
+
+## Source inspection and paired archive recovery
+
+The [runner recovery guide](m5-runner-recovery.md) covers queue visibility, source
+rollback detection and portable stopped-journal verification. The simulation exercise
+preserves pending and unacknowledged evidence; restored bundles grant no authority.
