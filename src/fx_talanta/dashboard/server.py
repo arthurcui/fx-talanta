@@ -372,6 +372,11 @@ def main():
         "--broker-env-file", type=Path, help="Ignored file containing BROKER_READ_DSN"
     )
     parser.add_argument(
+        "--broker-receipt-config",
+        type=Path,
+        help="Isolated current demo inspection view.json (no terminal attachment by UI)",
+    )
+    parser.add_argument(
         "--simulator-env", type=Path, help="Explicit disabled PAPER/SIMULATOR database settings"
     )
     parser.add_argument("--simulator-run", type=UUID)
@@ -419,6 +424,8 @@ def main():
         parser.error("all four simulator/operator options required")
     if bool(args.broker_config) != bool(args.broker_env_file):
         parser.error("broker config and private DSN file required together")
+    if args.broker_receipt_config and args.broker_config:
+        parser.error("choose a broker journal or inspection receipts, not both")
     if bool(args.tls_cert) != bool(args.tls_key):
         parser.error("TLS certificate and key must be supplied together")
     if bool(args.model_key_file) != bool(args.model_budget_file):
@@ -451,6 +458,12 @@ def serve(snapshot, args):
         budget = ProviderBudget.model_validate_json(args.model_budget_file.read_bytes())
         transport = OpenAITransport(dotenv_values(args.model_key_file).get("OPENAI_API_KEY", ""))
     broker_view = None
+    if args.broker_receipt_config:
+        from fx_talanta.dashboard.current_broker import CurrentBrokerView, CurrentConfig
+
+        broker_view = CurrentBrokerView(
+            CurrentConfig.model_validate_json(args.broker_receipt_config.read_bytes())
+        )
     if args.broker_config:
         from dotenv import dotenv_values
 

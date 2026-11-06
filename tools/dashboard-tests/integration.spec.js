@@ -104,6 +104,15 @@ test("sampled alert and broker outage clear stale displayed details", async ({
           label: "Fixture broker",
           state: "HEALTHY",
           reason: "CURRENT",
+          recorded_at: "2026-11-06T00:00:00Z",
+          transport_at_capture: "CONNECTED",
+          recorded_clock_policy: "NOT_VERIFIED",
+          quote_freshness: "UNVERIFIED",
+          channels: {
+            Python: "RECENT_RECEIPT",
+            EA: "NOT_OBSERVED",
+            MCP: "NOT_OBSERVED",
+          },
           current_positions: "UNKNOWN",
           snapshot: { display_status: "STALE_RECORDED" },
         },
@@ -111,6 +120,10 @@ test("sampled alert and broker outage clear stale displayed details", async ({
   });
   await page.goto(url);
   await expect(page.locator("#broker-details")).toContainText("STALE_RECORDED");
+  await expect(page.locator("#broker-details")).toContainText(
+    "quote freshness: UNVERIFIED",
+  );
+  await expect(page.locator("#broker-details")).toContainText("NOT_OBSERVED");
   await page.locator("#alert-changes").check();
   changed = true;
   failed = true;

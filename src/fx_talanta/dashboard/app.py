@@ -109,6 +109,8 @@ class Dashboard:
             if not old:
                 self.repo.conn.execute("INSERT INTO broker_view_binding VALUES (?)", (identity,))
             self.repo.conn.commit()
+            if broker_view and hasattr(broker_view, "bind_journal"):
+                broker_view.bind_journal(self.repo)
         except Exception:
             self.repo.close()
             raise

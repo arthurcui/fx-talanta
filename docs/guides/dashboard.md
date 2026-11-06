@@ -437,3 +437,47 @@ end-to-end latency. Current positions remain unknown and entry readiness is fals
 The inspection worker records these dimensions separately, including an unavailable
 journal and subsequent recovery, and delivers local notifications without a browser.
 Recovery of the journal does not qualify its clock or quotes.
+
+## Current demo account inspection
+
+The optional current receipt view displays recent demo account counts and balances
+separately from strategy history. Python receipt recency is not quote latency. EA
+and MCP are `NOT_OBSERVED` in this view, and quote latency remains null. No account
+receipt is a reconciliation result or a strategy input.
+
+With the intended demo terminal **already running** and Algo Trading off, a bounded
+background capture can write to a new private directory:
+
+```powershell
+python -m tools.qualification.current_broker_capture `
+  --binding <private-demo-binding.json> `
+  --output <new-private-inspection-directory> --samples 10
+```
+
+The tool pins terminal path/process, account identity, build, SDK version and demo
+mode, and checks Algo Trading before and after each read. It does not change
+terminal settings, select symbols, log in, request history, send orders or decode
+broker timestamps. Up to 60 samples are permitted, with a 15-second SDK child
+watchdog per sample. It stops on failure, invalidates the latest pointer and
+retains prior receipts. It does not restart itself or run a qualification campaign.
+The SDK has no documented attach-only switch: process checks bracket attachment,
+but cannot eliminate a process-exit race inside SDK initialization. Do not use this
+tool as a terminal supervisor or run it while closing/restarting the terminal.
+
+Start the dashboard with `--broker-receipt-config <directory>/view.json` and a new
+private `--state` directory. This is mutually exclusive with the historical
+`--broker-config`/`--broker-env-file` options. The dashboard reads files only and
+never starts the collector. Resume requires the identical source configuration.
+Do not copy a configuration to adopt another account or collection run.
+
+Receipts expire for display after 15 seconds, measured from the beginning of the
+capture, not publication time. A missing or invalid receipt clears displayed
+details; restoration cannot refresh its timestamp. A durable inspection cursor
+rejects rollback, same-sequence content changes, future timestamps and rebinding
+across restart. Original per-sample receipts remain private and immutable under
+normal collector operation. A new capture uses a new run and a new directory.
+
+This inspection path deliberately makes no clock-qualified quote claim. The strict
+observer's expired-clock rejection and the two-second entry rule are unchanged.
+Fresh independent timestamp mapping and proper observer evidence remain required
+before qualifying quote latency or entry readiness.

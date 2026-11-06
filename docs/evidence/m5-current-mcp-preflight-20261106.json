@@ -1,0 +1,14 @@
+{
+  "schema": "m5-current-mcp-preflight/1",
+  "broker": "FOREX.com demo",
+  "live_listener_owner_matches_expected_terminal_path": true,
+  "legacy_metadata_rejected_initial_attempt": true,
+  "generic_saved_export_initialization": "HTTP_FAILURE",
+  "distinct_forex_saved_export_initialization_http_status": 401,
+  "terminal_identity_returned_by_mcp": false,
+  "calendar_or_time_tool_called": false,
+  "independent_clock_mapping_verified": false,
+  "saved_credentials_modified": false,
+  "terminal_settings_changed": false,
+  "required_action": "Refresh the FOREX terminal MCP export in a new private file before independent calendar/time verification. Do not send credentials in chat."
+}

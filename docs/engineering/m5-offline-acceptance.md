@@ -213,3 +213,32 @@ input. Preserve the original failed campaigns and expired configuration. Merely
 changing the policy's expiry or receiving a recent file cannot satisfy this check.
 The two-second entry ceiling, M1–M3 gaps, B01 rejection and eight-week/100-trade M5
 requirements remain unchanged. This checkpoint adds no broker execution authority.
+
+## Current demo inspection integration — November 6
+
+[Actual FOREX inspection evidence](../evidence/m5-current-demo-inspection-20261106.json)
+records five fresh read-only receipts consumed through the authenticated loopback
+dashboard API. An earlier separate five-sample capture checked the reader; both
+private directories are retained. Exact demo identity/build and disabled Algo
+Trading were checked around SDK reads. No credentials, account IDs or raw prices
+are included in the public report.
+
+With no browser open, the worker delivered local notifications. Removing only the
+isolated latest-receipt file produced HTTP 503; restoring its unchanged bytes made
+it readable again. After collection stopped, real elapsed time made it stale.
+The listener and worker were stopped after verification. No desktop application
+was focused, no terminal setting changed and no order was sent.
+
+This closes the bounded current-account **inspection plumbing** check, not full
+current-broker or quote acceptance. Native ticks were counted, not normalized.
+The saved FOREX MCP configuration was initially flagged as pointing to CMC and
+rejected before transmission. A subsequent live process-owner check identified
+the existing endpoint as FOREX. The generic saved export failed initialization;
+the distinct FOREX export then returned HTTP 401. The
+[sanitized MCP preflight](../evidence/m5-current-mcp-preflight-20261106.json)
+retains these findings; neither attempt reached calendar or time tools. Refreshing
+the FOREX export in a new private file is required for this verification route.
+No independent current FOREX timestamp mapping was established. Quote latency
+remains unknown, and real broker disconnect
+recovery, current reconciliation, full M1 and sustained M5 remain unqualified.
+Existing expired clock policies and failed campaign evidence were not changed.

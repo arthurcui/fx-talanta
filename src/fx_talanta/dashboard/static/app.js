@@ -592,6 +592,12 @@ async function refreshBroker() {
           : "No observation",
       ),
       node("p", JSON.stringify(value.snapshot ?? {}), "news-item"),
+      node(
+        "p",
+        value.channels
+          ? JSON.stringify(value.channels)
+          : "Historical journal source",
+      ),
     );
   } catch (e) {
     $("broker-status").textContent =
