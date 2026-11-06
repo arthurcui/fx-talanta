@@ -70,8 +70,8 @@ collect evidence, count broker closed trades or establish elapsed observation ti
    controlled resume, model-independent protection, notification delivery, remote
    TLS/access and deployment/recovery tests. M4 simulator commands are implemented;
    no command route is exposed by the current dashboard.
-3. **Model and evaluation:** UI model integration with existing bounds, a qualified
-   frozen candidate, prospective matched AI/no-AI and news/no-news ledgers, verified
+3. **Evaluation:** bounded M4 model selection and offline study upload are integrated
+   in the UI. Still required: a qualified frozen candidate, prospective matched AI/no-AI and news/no-news ledgers, verified
    costs/latency, predeclared uncertainty/economic criteria and promotion review.
    This PR implements validation and descriptive comparison only, not that runner.
 4. **Unattended PAPER:** resolve applicable M1–M3 gates and obtain the required
@@ -83,3 +83,39 @@ collect evidence, count broker closed trades or establish elapsed observation ti
 B01 stays REJECT_FOR_PROMOTION. Failed/stopped qualification records are preserved.
 The dashboard's readiness matrix lists these requirements instead of treating a
 passing software suite as operational qualification.
+
+## Consolidated read-only integration
+
+The dashboard now connects optional bounded M4 model selection, immutable local
+call reservations, offline study upload/results, sampled incident alerts, optional
+loopback TLS, and an explicitly bound PostgreSQL observation reader. See the
+[operator setup](../guides/dashboard.md#optional-read-only-integrations).
+
+The model adapter persists reservations and results in the isolated inspection
+SQLite journal, reusing M4 request/response validation. It does not expose the
+M4 execution gateway. A request ID binds its input and evidence; retries reuse
+results, pending/uncertain calls remain spent across restart, and a changed budget
+cannot silently reset that journal. Model calls run outside the journal lock.
+A provider failure returns HOLD. Free-form model prose is not shown: the model
+selects allowed citations and the server renders the original evidence.
+
+The PostgreSQL reader verifies the configured demo account, disabled source binding,
+run and terminal binding hash on each request. It opens a read-only transaction with
+connection/query timeouts. The separate panel displays captured balances/protection
+and original timestamps, never current reconciliation or entry readiness. It neither
+starts collectors nor connects to terminals. Historical broker data is not supplied
+to model chat or mixed into the simulator snapshot. Missing/latest failed evidence
+is not replaced with an older successful record.
+
+Local alerts are in-page sampled changes only; they do not prove background or
+external notification delivery. TLS is optional and loopback-only, using explicitly
+supplied certificate files without installing trust or enabling remote access.
+These integrations do not close the four operational requirements above.
+
+
+Consolidated local evidence: [65 backend checks and four headless browser flows](../evidence/m5-readonly-integration-20261106.json).
+These tests use synthetic model responses and broker projections, plus actual
+loopback HTTP/TLS. No external model or broker call occurs in this harness.
+`tests/test_m5_broker_postgres.py` separately verifies PostgreSQL read-only enforcement
+and unchanged committed records against a disposable CI database. It is part of the
+full Engineering checks job, not the local offline report.

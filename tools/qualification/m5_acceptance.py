@@ -85,6 +85,7 @@ def main():
         *ROOT.glob("src/fx_talanta/dashboard/static/*"),
         *TESTS,
         *browser_dir.glob("*.js"),
+        *browser_dir.glob("*.py"),
         browser_dir / "package.json",
         browser_dir / "package-lock.json",
         ROOT / "tests/test_bls_calendar.py",

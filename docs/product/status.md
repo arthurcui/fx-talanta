@@ -115,6 +115,18 @@ trading. M5 unattended PAPER prerequisites and observation gates remain unchange
 The consolidated [M5 engineering matrix](../engineering/m5-offline-acceptance.md)
 adds historical operating/model-usage summaries, explicit qualification gates,
 matched offline comparison validation and one source-hashed acceptance entry point.
-It records the exact connected/admin/model/deployment work still unfinished; this
+It records the exact current-reconciliation/admin/remote-deployment work still unfinished; this
 is not full M5 completion. Historical counts do not establish current account
 performance, and synthetic paired results do not qualify a strategy.
+
+
+### M5 read-only integration
+
+The dashboard supports opt-in bounded M4 citation selection with durable call
+budgets and retry-safe receipts; offline matched-study uploads; sampled in-page
+incident alerts; optional loopback TLS; and an explicitly bound, read-only
+PostgreSQL broker-observation panel. Broker samples remain historical, with current
+positions unknown and entry readiness false. No MT5 control, order route or strategy
+activation is added. See [setup and limits](../guides/dashboard.md#optional-read-only-integrations).
+Full M5 still requires current reconciliation/admin/deployment acceptance, eligible
+candidates and the unchanged prospective observation gates. B01 and M1 gaps remain.
