@@ -99,3 +99,9 @@ failures and gaps remain preserved; full M5 is not complete.
 The [recovery guide](m5-runner-recovery.md) adds queue-aware dashboard binding,
 persisted source/acknowledgement checkpoints and stopped paired archive verification.
 Restored evidence is inspection-only; no producer, model or trading is activated.
+
+## Typed input admission
+
+The [input adapter](m5-input-admission.md) accepts retained source envelopes through
+`enqueue-envelope`, checks currency coverage and availability, and rechecks safety
+expiry at runner admission. It grants no provider qualification or execution authority.

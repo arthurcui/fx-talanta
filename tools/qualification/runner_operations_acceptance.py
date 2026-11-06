@@ -4,16 +4,18 @@ import argparse
 import json
 import sqlite3
 from contextlib import closing
+from datetime import timedelta
 from pathlib import Path
 from uuid import UUID, uuid5
 
 from fx_talanta.clock import FakeClock
+from fx_talanta.evaluation.inputs import Envelope, SafetyEvidence
 from fx_talanta.evaluation.operations import Binding, Operations
 from fx_talanta.evaluation.runner import Config, Runner, Tick, engine_hash
 from tools.fixtures.b01_replay import scenario
 
 
-def run(destination):
+def run(destination, normalized=False):
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
     dataset, experiment = scenario()
@@ -53,15 +55,44 @@ def run(destination):
             bars=bars,
             news="NEUTRAL",
         )
-        operations.enqueue(tick, binding)
+        source = None
+        if normalized:
+            safety = SafetyEvidence(
+                state="CLEAR",
+                currencies=("EUR", "USD"),
+                available_at=clock.now(),
+                expires_at=clock.now() + timedelta(minutes=1),
+                reference_hash="a" * 64,
+            )
+            source = Envelope(
+                source_id=uuid5(config.run_id, "source"),
+                event_id=tick.event_id,
+                sequence=sequence,
+                provenance="SYNTHETIC",
+                channel="FIXTURE",
+                received_at=clock.now(),
+                market=tick.market,
+                bars=tick.bars,
+                calendar=safety,
+                news=safety,
+                news_content="NEUTRAL",
+            )
+            operations.enqueue_envelope(source, binding)
+        else:
+            operations.enqueue(tick, binding)
         operations = Operations(operations.path, clock)
         operations.drain_one(binding)
-        assert operations.enqueue(tick, binding)["replayed"]
+        assert (
+            operations.enqueue_envelope(source, binding)
+            if source
+            else operations.enqueue(tick, binding)
+        )["replayed"]
     operations.stop(binding, "synthetic operating acceptance complete")
     report = operations.report(binding)
     passed = (
         report["queued"] == report["acknowledged"] == 6
         and report["pending"] == 0
+        and report["runner"]["normalized_inputs"] == (6 if normalized else 0)
         and all(
             a["closed_simulated_positions"] == 1 and a["open_positions"] == 0
             for a in report["runner"]["arms"].values()
@@ -90,7 +121,9 @@ def run(destination):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    result = run(parser.parse_args().output)
+    parser.add_argument("--normalized-inputs", action="store_true")
+    args = parser.parse_args()
+    result = run(args.output, args.normalized_inputs)
     print(
         json.dumps(dict(result=result["result"], execution_enabled=False, campaign_started=False))
     )

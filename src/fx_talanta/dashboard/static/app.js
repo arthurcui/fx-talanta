@@ -123,6 +123,12 @@ function render(data) {
       ),
     );
     if (runner) {
+      $("workflow-details").append(
+        node(
+          "p",
+          `${workflow.normalized_inputs ?? 0} normalized inputs · asserted channels ${(workflow.input_channels || []).join(", ") || "manual fixtures"}. Source provenance is not independently qualified.`,
+        ),
+      );
       if (workflow.source_queue) {
         const q = workflow.source_queue;
         $("workflow-details").append(

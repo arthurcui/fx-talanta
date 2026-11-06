@@ -620,3 +620,7 @@ For queue counts and acknowledgement status, use `source_kind: OPERATIONS` with 
 source journal and source binding hash. The [recovery guide](../engineering/m5-runner-recovery.md)
 explains persistent rollback checks. Queue age and an empty queue do not establish
 quote freshness or producer liveness; the view has no processing controls.
+
+Runner inspection also shows normalized-input counts and asserted source channels.
+These describe recorded simulation envelopes, not live channel connectivity or
+qualified providers. See [typed input admission](../engineering/m5-input-admission.md).
