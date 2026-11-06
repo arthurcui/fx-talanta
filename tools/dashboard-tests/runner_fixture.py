@@ -9,10 +9,10 @@ from fx_talanta.dashboard.app import Dashboard
 from fx_talanta.dashboard.demo import demo
 from fx_talanta.dashboard.server import make_server
 from fx_talanta.dashboard.workflow import WorkflowView
-from tools.qualification.runner_operations_acceptance import run
+from tools.qualification.runner_selector_acceptance import run
 
 root = Path(sys.argv[1])
-result = run(root / "simulation", normalized=True)
+result = run(root / "simulation")
 clock = FakeClock(demo().captured_at + timedelta(days=1))
 app = Dashboard(
     demo(),

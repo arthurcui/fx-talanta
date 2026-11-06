@@ -96,6 +96,7 @@ def main():
         ROOT / "tools/qualification/paper_runner_acceptance.py",
         ROOT / "tools/qualification/runner_operations_acceptance.py",
         ROOT / "tools/qualification/runner_recovery_acceptance.py",
+        ROOT / "tools/qualification/runner_selector_acceptance.py",
         ROOT / "tools/fixtures/b01_replay.py",
         ROOT / "src/fx_talanta/advisor/evidence.py",
         Path(__file__),

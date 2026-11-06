@@ -1,4 +1,4 @@
-"""Incremental PAPER runner engineering: simulator and scripted selectors only.
+"""Incremental PAPER simulation: scripted or recorded-response selectors, no provider calls.
 
 Every admission commits its input and deterministic transition atomically. Restart
 rebuilds only local simulator state; no broker, provider, credential or network path.
@@ -33,12 +33,45 @@ from fx_talanta.domain.offline import EntryIntent, Fault, Instrument, Market, Po
 from fx_talanta.evaluation.inputs import SourceRecord, bars_hash, project
 from fx_talanta.evaluation.ledger import Ledger, Registration, canonical, digest
 from fx_talanta.evaluation.matched import ARM_NAMES
+from fx_talanta.evaluation.selectors import Batch, Profile, assess, request
 from fx_talanta.gateway.offline import TERMINAL, Gateway
 from fx_talanta.research.baseline import VERSION, Bar, evaluate, visible
 from fx_talanta.research.replay import Costs, CostSimulator, priced
 from fx_talanta.risk.governor import health_reason
 
 LIMIT = 64 * 1024 * 1024
+
+
+def model_summary(rows):
+    summary = {}
+    for arm in ("AI_NO_NEWS", "AI_NEWS"):
+        traces = []
+        for row in rows:
+            for receipt in json.loads(row[4])["receipts"]:
+                if receipt["kind"] == "DECIDE" and receipt["payload"]["arm"] == arm:
+                    trace = json.loads(receipt["payload"]["decision_content"]).get("model_trace")
+                    if trace:
+                        traces.append(trace)
+        summary[arm] = dict(
+            recorded_replies=len(traces),
+            rejected_or_hold=sum(not t["allowed"] for t in traces),
+            input_tokens=sum(t["input_tokens"] for t in traces),
+            output_tokens=sum(t["output_tokens"] for t in traces),
+            known_reported_cost_usd=str(
+                sum(
+                    (
+                        Decimal(t["reported_cost_usd"])
+                        for t in traces
+                        if t["reported_cost_usd"] is not None
+                    ),
+                    Decimal(0),
+                )
+            ),
+            unknown_cost_replies=sum(t["reported_cost_usd"] is None for t in traces),
+            maximum_reported_latency_ms=max((t["latency_ms"] for t in traces), default=0),
+            external_call_verified=False,
+        )
+    return summary
 
 
 class Config(FrozenModel):
@@ -50,7 +83,8 @@ class Config(FrozenModel):
     venue: Literal["SIMULATOR"] = "SIMULATOR"
     execution_enabled: Literal[False] = False
     strategy: Literal["B01-research/1"] = VERSION
-    selector: Literal["SCRIPTED_TEST_DOUBLE"] = "SCRIPTED_TEST_DOUBLE"
+    selector: Literal["SCRIPTED_TEST_DOUBLE", "RECORDED_MODEL_RESPONSES"] = "SCRIPTED_TEST_DOUBLE"
+    selector_profile: Profile | None = None
     symbol: Literal["EURUSD", "USDJPY"]
     instrument: Instrument
     history_complete: bool = False
@@ -61,6 +95,8 @@ class Config(FrozenModel):
 
     @model_validator(mode="after")
     def bounded(self):
+        if (self.selector == "RECORDED_MODEL_RESPONSES") != (self.selector_profile is not None):
+            raise ValueError("recorded selector requires an exact frozen profile")
         if self.deadline <= self.start or self.policy.maximum_positions != 1:
             raise ValueError("positive fixed window and one position per arm required")
         if self.instrument.symbol != self.symbol:
@@ -77,6 +113,7 @@ class Tick(FrozenModel):
     selector_result: Literal["SELECT", "HOLD", "TIMEOUT", "MALFORMED"] = "SELECT"
     fault: Fault = Fault()
     source_record: SourceRecord | None = None
+    model_batch: Batch | None = None
 
     @model_validator(mode="after")
     def deterministic_fault(self):
@@ -121,7 +158,16 @@ def registration(config):
         return sha
 
     shared = artifact(config.policy.model_dump(mode="json"))
-    model, prompt = artifact(config.selector), artifact("fixture selection over B01 or HOLD/1")
+    model = artifact(
+        config.selector_profile.model_dump(mode="json")
+        if config.selector_profile
+        else config.selector
+    )
+    prompt = artifact(
+        config.selector_profile.prompt_hash
+        if config.selector_profile
+        else "fixture selection over B01 or HOLD/1"
+    )
     ai_policy = artifact("shared scripted selector policy/1")
     return Registration.model_validate(
         dict(
@@ -182,14 +228,28 @@ class Engine:
         for gateway in self.gateways.values():
             gateway.close()
 
-    def step(self, tick, at):
+    def step(self, tick, at, prepare=False):
         with localcontext() as context:
             context.prec = 34
-            return self._step(tick, at)
+            return self._step(tick, at, prepare)
 
-    def _step(self, tick, at):
+    def _step(self, tick, at, prepare=False):
+        previous_at = self.clock.now()
         self.clock.advance(at - self.clock.now())
         config = self.config
+        recorded = config.selector == "RECORDED_MODEL_RESPONSES"
+        if not prepare and recorded != (tick.model_batch is not None):
+            raise ValueError("selector mode does not match input")
+        if recorded and tick.selector_result != "SELECT":
+            raise ValueError("scripted override forbidden in recorded mode")
+        cutoff = tick.model_batch.requested_at if tick.model_batch else at
+        if recorded and (
+            not max(tick.market.at, previous_at) <= cutoff <= at
+            or any(b.available_at > cutoff for b in tick.bars)
+        ):
+            raise ValueError("input unavailable at model request cutoff")
+        if tick.source_record and tick.source_record.normalized_at > cutoff:
+            raise ValueError("source normalization follows model request")
         if tick.market.at > at or any(b.available_at > at for b in tick.bars):
             raise ValueError("future input")
         if {q.symbol for q in tick.market.quotes} != {config.symbol}:
@@ -273,12 +333,13 @@ class Engine:
             )
             self.settled.add(key)
 
-        candidates = {}
+        candidates, requests = {}, {}
+        selector_input_hash = digest(tick.model_dump(mode="json", exclude={"model_batch"}))
         for name, gateway in self.gateways.items():
             candidate = evaluate(
                 self.bars,
                 config.symbol,
-                at,
+                cutoff,
                 history_complete=config.history_complete,
                 position_open=any(p.volume for p in gateway.broker.book.positions),
             )
@@ -296,10 +357,35 @@ class Engine:
             ):
                 allowed, reason = False, "SIGNAL_CONSUMED_OR_ENTRY_CAP"
             selector_input = dict(candidate=candidate)
+            model_trace = None
             if name != "NO_AI":
                 if name == "AI_NEWS":
                     selector_input["news"] = source_news
-                if tick.selector_result != "SELECT":
+                if recorded:
+                    requested_news = (
+                        project(tick.source_record, cutoff)[1] if tick.source_record else tick.news
+                    )
+                    prepared = request(
+                        config.selector_profile,
+                        selector_input_hash,
+                        name,
+                        candidate,
+                        decision_id,
+                        cutoff,
+                        requested_news,
+                    )
+                    requests[name] = prepared
+                    if not prepare:
+                        model_trace = assess(
+                            config.selector_profile,
+                            prepared,
+                            tick.model_batch.replies[name],
+                            cutoff,
+                            at,
+                        )
+                        if not model_trace["allowed"]:
+                            allowed, reason = False, model_trace["reason"]
+                elif tick.selector_result != "SELECT":
                     allowed, reason = False, "SCRIPTED_" + tick.selector_result
                 if name == "AI_NEWS" and source_news != "NEUTRAL":
                     allowed, reason = False, "NEWS_UNAVAILABLE_OR_ADVERSE"
@@ -315,6 +401,7 @@ class Engine:
                     reason=reason,
                     selector_input=selector_input,
                     selector="NO_AI" if name == "NO_AI" else config.selector,
+                    model_trace=model_trace,
                 )
             )
             receipts.append(
@@ -326,7 +413,7 @@ class Engine:
                         arm=name,
                         decision_id=str(decision_id),
                         decision_at=at.isoformat(),
-                        latency_ms=0,
+                        latency_ms=model_trace["latency_ms"] if model_trace else 0,
                         missed_entry=not allowed and candidate["action"] == "CANDIDATE",
                         decision_hash=hashlib.sha256(detail.encode()).hexdigest(),
                         decision_content=detail,
@@ -335,6 +422,8 @@ class Engine:
             )
             self.decisions[decision_id] = dict(arm=name, snapshot=sha, at=at, entry=None)
             candidates[name] = (candidate, allowed, decision_id, signal)
+        if prepare:
+            return dict(requested_at=at.isoformat(), requests=requests, execution_enabled=False)
         # All three decisions are constructed before any local simulator submission.
         for name, (candidate, allowed, decision_id, signal) in candidates.items():
             if not allowed:
@@ -350,7 +439,7 @@ class Engine:
                 symbol=config.symbol,
                 side=candidate["side"],
                 expires_at=expires,
-                rationale="Frozen research signal; scripted simulation selector",
+                rationale="Frozen research signal; simulation selector",
             )
             gateway.store.append_batch(
                 (
@@ -425,6 +514,30 @@ class Engine:
 class Runner:
     def __init__(self, path, clock=None):
         self.path, self.clock = Path(path), clock or SystemClock()
+
+    def prepare_selector(self, tick, expected_hash):
+        tick = Tick.model_validate(tick.model_dump() if isinstance(tick, Tick) else tick)
+        if tick.model_batch or len(tick.model_dump_json().encode()) > 65536:
+            raise ValueError("bounded unselected tick required")
+        with closing(sqlite3.connect(self.path.resolve().as_uri() + "?mode=ro", uri=True)) as conn:
+            conn.execute("BEGIN")
+            _, config, rows, engine, _, last_at, market_at, stops = self._load(conn, expected_hash)
+        try:
+            at = self.clock.now()
+            if (
+                config.selector != "RECORDED_MODEL_RESPONSES"
+                or stops
+                or not last_at <= at <= config.deadline
+                or len(rows) >= config.max_observations
+                or tick.sequence != len(rows) + 1
+                or tick.market.at < market_at
+                or (rows and tick.market.at == market_at)
+                or any(r[1] == str(tick.event_id) for r in rows)
+            ):
+                raise ValueError("selector preparation outside frozen runner mandate")
+            return engine.step(tick, at, prepare=True)
+        finally:
+            engine.close()
 
     @classmethod
     def create(cls, path, config, clock=None):
@@ -674,6 +787,7 @@ class Runner:
                 broker_calls=0,
                 external_model_calls=0,
                 selector=config.selector,
+                recorded_model_summary=model_summary(rows),
                 qualified_for_unattended_paper=False,
                 prospective_evidence_verified=False,
                 full_M5_complete=False,
@@ -719,7 +833,9 @@ class Runner:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["register", "admit", "report", "stop", "export"])
+    parser.add_argument(
+        "action", choices=["register", "admit", "prepare-selector", "report", "stop", "export"]
+    )
     parser.add_argument("--journal", type=Path, required=True)
     parser.add_argument("--input", type=Path)
     parser.add_argument("--registration-hash")
@@ -727,7 +843,7 @@ def main():
     parser.add_argument("--reason")
     args = parser.parse_args()
     runner = Runner(args.journal)
-    if args.action in {"register", "admit"}:
+    if args.action in {"register", "admit", "prepare-selector"}:
         if not args.input:
             parser.error("input required")
         with args.input.open("rb") as stream:
@@ -743,6 +859,8 @@ def main():
             parser.error("exact registration hash required")
         if args.action == "admit":
             result = runner.admit(Tick.model_validate_json(raw), args.registration_hash)
+        elif args.action == "prepare-selector":
+            result = runner.prepare_selector(Tick.model_validate_json(raw), args.registration_hash)
         elif args.action == "stop":
             runner.stop(args.registration_hash, args.reason)
             result = runner.report(args.registration_hash)

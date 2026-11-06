@@ -123,6 +123,18 @@ function render(data) {
       ),
     );
     if (runner) {
+      if (workflow.selector === "RECORDED_MODEL_RESPONSES") {
+        Object.entries(workflow.recorded_model_summary || {}).forEach(
+          ([arm, m]) => {
+            $("workflow-details").append(
+              node(
+                "p",
+                `${arm}: ${m.recorded_replies} recorded replies · ${m.rejected_or_hold} rejected/HOLD · ${m.input_tokens}/${m.output_tokens} reported input/output tokens · known reported model cost USD ${m.known_reported_cost_usd} · ${m.unknown_cost_replies} unknown-cost replies · maximum reported latency ${m.maximum_reported_latency_ms}ms. Recorded simulation evidence; no verified model calls. Model cost is separate from trade P&L.`,
+              ),
+            );
+          },
+        );
+      }
       $("workflow-details").append(
         node(
           "p",

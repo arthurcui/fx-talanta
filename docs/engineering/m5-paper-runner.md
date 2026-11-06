@@ -8,8 +8,9 @@ runner does not enable trading. Neither this document nor its test results autho
 a new campaign.
 
 The available strategy is the existing B01 research kernel. B01 remains
-`REJECT_FOR_PROMOTION`; executing it in simulation does not promote it. The two AI
-arms use an explicitly named `SCRIPTED_TEST_DOUBLE`, not a production model.
+`REJECT_FOR_PROMOTION`; executing it in simulation does not promote it. By default the two AI
+arms use an explicitly named `SCRIPTED_TEST_DOUBLE`. The optional recorded-response
+mode is described below; neither mode calls a production model.
 Qualified live input and model adapters are still needed before prospective
 operating acceptance. Simulation receipt order is not verified external provenance.
 
@@ -154,3 +155,9 @@ retains the same six-input lifecycle verdict. Earlier reports above remain prese
 The [bound source queue and direct dashboard view](m5-runner-operations.md) add
 crash-safe acknowledgement and audited stop without requiring receipt export for
 inspection. They remain simulation-only; external source/model qualification is open.
+
+## Recorded model replies
+
+The [recorded-selector integration](m5-recorded-selectors.md) adds a separately frozen
+mode for bounded reply validation, response timing and reported cost accounting.
+It is simulation-only and does not add a provider transport or paid-call authority.

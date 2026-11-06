@@ -361,3 +361,10 @@ The [input admission guide](m5-input-admission.md) specifies source identity, re
 original evidence, shared calendar/news safety, immutable retry and admission-time
 expiry. This completes the local normalized-input-to-simulator connection; external
 collectors, qualified provenance and production model integration remain open.
+
+## Recorded selector simulation integration
+
+[Recorded model replies](m5-recorded-selectors.md) now pass through frozen request
+binding, strict selection validation, common risk and the durable simulator. Model
+latency/usage/cost remain reported evidence, with unknown costs explicitly retained.
+Actual provider transport and prospective model qualification remain open.
