@@ -15,8 +15,11 @@ calendar/news filtering and journaling, manual BLS upload with reminders, option
 native MCP calendar import, and a fixed EA with deterministic execution controls.
 The M5 [read-only dashboard](../guides/dashboard.md) now provides a local browser
 workspace for offline records, EA/Python/MCP timing, cited English/Chinese evidence
-chat and isolated manual BLS uploads. It has no live collector, model calls, remote
-deployment or trading controls. Historical execution does not imply current positions.
+chat and isolated manual BLS uploads. Optional bounded model inspection, current
+broker receipt views, simulator-only administration, background inspection and
+HTTPS owner sign-in are implemented. The UI does not attach broker terminals or
+expose broker order controls. Actual remote deployment and unattended PAPER remain
+unqualified. Historical execution does not imply current positions.
 
 ## What the demo proved
 
@@ -42,8 +45,8 @@ and Algo Trading disabled at verification. This document is not a live terminal 
 
 ## Current development milestone
 
-The owner approved **M4 offline development** after closing the completed M3 research
-scope. The [M3 closure](../engineering/m3-research-closeout.md) retains M3-Q1–Q4
+Current work is **M5 operating UI and unattended PAPER qualification**. M4 offline
+engineering is implemented after the owner closed the completed M3 research scope. The [M3 closure](../engineering/m3-research-closeout.md) retains M3-Q1–Q4
 qualification gaps and B01's REJECT_FOR_PROMOTION verdict. The
 [M4 consolidated implementation](../engineering/m4-completion.md) provides authenticated
 local access, bounded candidate/HOLD proposals, deterministic simulator risk and
@@ -115,7 +118,7 @@ trading. M5 unattended PAPER prerequisites and observation gates remain unchange
 The consolidated [M5 engineering matrix](../engineering/m5-offline-acceptance.md)
 adds historical operating/model-usage summaries, explicit qualification gates,
 matched offline comparison validation and one source-hashed acceptance entry point.
-It records the exact current-reconciliation/admin/remote-deployment work still unfinished; this
+Its current matrix records completed read-only integration and the remaining broker administration, evaluation and deployment gates; this
 is not full M5 completion. Historical counts do not establish current account
 performance, and synthetic paired results do not qualify a strategy.
 
