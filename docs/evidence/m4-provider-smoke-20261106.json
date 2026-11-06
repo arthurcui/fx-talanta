@@ -1,0 +1,30 @@
+{
+  "schema": "m4-provider-smoke/1",
+  "source": "CONSTRUCTED_FIXTURE_ONLY",
+  "adapter_sha256": "638738a3456b2b6df4564365eb309a7f823cef35dd43ce1c172053b92877b408",
+  "result": {
+    "version": "bounded-evidence-provider/1",
+    "status": "EXPLAIN",
+    "reason": "EVIDENCE_SELECTED",
+    "requested_model": "gpt-6-luna",
+    "returned_model": "gpt-6-luna",
+    "prompt_version": "evidence-selection/1",
+    "request_sha256": "0ed54af56dc555d83166334686280bc8c2069da39569c5a4ae664d860145f40a",
+    "evidence_sha256": "fad5abf5ea3d5000dcc06f6a292ad7f919cc87b4b29c0de50be943b94be9b583",
+    "response_sha256": "dfbdd90fa55af4e1ff5f6a6040d02de716a1977d667d24d8a8c22f9d8b4ecefc",
+    "latency_ms": 2611,
+    "input_tokens": 435,
+    "output_tokens": 45,
+    "citation_ids": [
+      "00000000-0000-0000-0000-000000000001"
+    ],
+    "completed_at": "2026-11-06T00:02:04.130992Z",
+    "execution_enabled": false
+  },
+  "max_external_calls": 1,
+  "broker_calls": 0,
+  "execution_enabled": false,
+  "economic_acceptance": false,
+  "m1_qualified": false,
+  "b01_verdict": "REJECT_FOR_PROMOTION_UNCHANGED"
+}

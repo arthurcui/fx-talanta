@@ -6,6 +6,7 @@ See [current status](../product/status.md) for what the product may claim today.
 
 | Evidence | What it establishes | What it does not establish |
 | --- | --- | --- |
+| [M4 provider smoke](m4-provider-smoke-20261106.json) | One real API request selecting the supplied synthetic citation; model/schema/usage and 2,611 ms latency | Strategy readiness, two-second entry acceptance, general model quality, authentication or economic value |
 | [Retained cost calibration](m3-retained-cost-calibration-20261105.json) | Three matched demo round trips, observed CAD fees per filled lot, explicit non-identifiable costs | Historical tariffs, swap/slippage calibration, account-wide charges or a new replay profile |
 | [Broker-aware replay costs](m3-broker-cost-integration-20261105.json) | Synthetic per-fill commission/rollover integration, ledger reconstruction and exact legacy fixture compatibility | Historical broker-cost calibration, CAD ledger support, broker billing equivalence or any new trading authority |
 | [Frozen multi-fold result](m3-walkforward-result-20261105.json) | Three advancing origins and a separate final outcome holdout, base/stress costs, flat boundaries and a reproducible rejection screen | Calibrated broker costs, statistical profitability, full M3 qualification or permission to trade |

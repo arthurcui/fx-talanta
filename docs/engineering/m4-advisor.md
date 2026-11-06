@@ -85,8 +85,10 @@ natural-language conversation/command handling remain unfinished.
 | Simulated administrative commands | Explicit account/position/expiry/state version; questions, quotations, negations and ambiguity cannot mutate; retries retain one identity; simulator only |
 | Evaluation | Frozen fixtures plus malformed/timeout/budget/expiry/injection cases; separate engineering success from any AI economic claim; prospective benefit remains an M5 gate |
 
-No provider SDK/API calls or key setup are included in this first slice. Completing
-it does not mark all M4 acceptance passed. The model cannot create execution
+The [bounded provider evaluation](m4-provider.md) adds a real API smoke for selecting
+supplied evidence, with deterministic rendering and no trade authority. Production
+spend reservation/journaling, strategy proposals and authentication remain pending.
+Completing these slices does not mark all M4 acceptance passed. The model cannot create execution
 authority, qualify missing market inputs, alter policy or deploy itself.
 
 ## Verification
