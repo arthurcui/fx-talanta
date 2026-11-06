@@ -84,10 +84,47 @@ bundled into containers or CI. Run directories and their reservations must be
 preserved. Creating another directory is another explicit evaluation attempt,
 not an automatic retry or cumulative budget reset.
 
-This file reservation is an evaluation artifact, **not a replacement for the
-PostgreSQL production journal**. The next integration must reserve model spending
-and request identity durably under account-scoped concurrency control before sending,
-persist provider outcomes/traces alongside the existing conversation receipts, and
-enforce a cumulative configured spend cap. The current one-call/token/byte bounds
-do not claim a service-wide monetary cap across arbitrary new directories. No
-unattended worker or production caller is enabled by this module.
+## Durable provider reservation service
+
+`advisor/provider_ledger.py` adds simulator-only PostgreSQL orchestration. Before
+sending, one transaction verifies the database binding, locks the shared budget,
+and appends the immutable policy and request reservation. Request identity binds
+serialized input, evidence and expiry. Concurrent workers cannot consume the same
+request twice or exceed the configured call/reserve allowances.
+
+The policy is one lifetime budget per bound database: maximum calls, a positive
+USD reserve per call, total reserved USD and a stated costing basis. It cannot be
+changed or reset. A reservation remains spent after timeout, failure or process
+interruption. This is a conservative configured reserve, **not actual billing**:
+the operator must justify the reserve against input/output limits and current
+pricing. No invoice, hard billing limit across other clients, or automatic refund
+is claimed. Usage is retained separately in accepted result receipts.
+
+The result is committed before returning. An identical retry retrieves a stored
+result; an unresolved reservation returns OUTCOME_UNKNOWN_NO_RESEND without a
+network request. A result-commit failure propagates and keeps the reservation
+spent. Budget exhaustion returns HOLD. Unknown outcomes require investigation;
+there is no automatic resend, reconciliation against provider billing or reset.
+The service does not hold a database transaction open during the network call.
+
+Policy, reservation and result use append-only conversation-message records with
+versioned components and deterministic IDs. They are service receipts, marked
+unauthenticated and READ_ONLY, not owner instructions. No schema migration or
+broker authority is introduced. A trusted caller supplies an already authorized
+projection; authentication and full conversation/request linking remain separate
+integration work. The two-second trading rule is unchanged.
+
+The standalone file-based smoke remains a separately authorized evaluation tool;
+it does not use or bypass this service as a production worker. No unattended
+worker, public endpoint or deployment is enabled. Tests use constructed evidence
+and fake transport: no additional paid API call or broker operation is needed.
+
+Run `python -m pytest tests/test_advisor_provider_ledger.py` for offline failure
+checks. With the existing isolated CI PostgreSQL bootstrap, `--integration`
+additionally exercises concurrent last-slot admission, restart idempotency,
+unknown outcomes, immutable policy and cumulative exhaustion. Run that integration
+suite in a fresh test database because its append-only lifetime budget is retained.
+
+Remaining M4 acceptance includes authenticated access, strategy proposals and
+risk integration, simulated administrative commands, and broader model evaluation.
+This service completes durable reservation mechanics, not those acceptance gates.
