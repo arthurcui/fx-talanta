@@ -14,15 +14,16 @@ gates. [Current status](status.md) distinguishes implemented features from quali
 | M2D | Connected PAPER execution acceptance | Bounded same-session demo closeout verified without recovery (PR #25); full fault-matrix acceptance remains open |
 | M3 | Strategy baseline and replay | [Research scope closed](../engineering/m3-research-closeout.md); B01 remains REJECT_FOR_PROMOTION. M3-Q1–Q4 cost/availability qualification gaps remain open |
 | M4 | Bounded AI and conversational advisor | Consolidated offline implementation complete; [engineering acceptance](../engineering/m4-completion.md) records authentication, proposals, risk integration, evidence, memory and simulated commands. No connected or economic qualification implied |
-| M5 | Unattended PAPER and operating UI | All prerequisites plus at least eight weeks AND 100 closed trades under the specification's gates |
+| M5 | Unattended PAPER and operating UI | [Read-only offline UI](../guides/dashboard.md) implemented; full acceptance still requires all prerequisites plus at least eight weeks AND 100 closed trades under the specification's gates |
 | M6 | Capped LIVE | Explicit approval and bounded live risk after PAPER acceptance |
 | M7 | Evaluated evolution | Evidence-based lessons, candidate evaluation, promotion and rollback; no self-modified execution authority |
 
 ## UI requirements carried forward
 
-The operating dashboard must show quote latency and separate channel status for the
+The read-only dashboard shows recorded quote timing and separate channel status for the
 EA, Python MT5 package and MCP. It must distinguish connection health, quote freshness,
 clock uncertainty and entry readiness. A healthy connection is not a fresh-market pass.
+Live telemetry and remote deployment are not enabled by the offline UI slice.
 
 The owner authorized M4 development after closing M3's completed research scope.
 This does not relax the two-second entry ceiling or authorize connected trading.

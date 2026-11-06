@@ -50,6 +50,22 @@ jobs:
       - run: docker compose build app codex-test
       - run: docker compose run --rm --no-deps codex-test
       - run: python tools/dev/profile_acceptance.py
+      - name: Read-only dashboard browser acceptance
+        working-directory: tools/dashboard-tests
+        run: |
+          npm ci
+          npx prettier --check ../../src/fx_talanta/dashboard/static/* *.js package.json
+          npx playwright install --with-deps chromium --only-shell
+          npm test
+      - name: Verify packaged dashboard assets
+        run: |
+          python -m pip wheel --no-deps . --wheel-dir .local/wheels
+          python -c "import pathlib,zipfile; p=next(pathlib.Path('.local/wheels').glob('fx_talanta-*.whl')); names=zipfile.ZipFile(p).namelist(); assert all('fx_talanta/dashboard/static/'+n in names for n in ('index.html','app.js','style.css'))"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m5-dashboard-browser-evidence
+          path: tools/dashboard-tests/test-results/
       - uses: actions/upload-artifact@v4
         with:
           name: m0c-fixture-parity

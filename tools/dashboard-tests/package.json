@@ -1,0 +1,12 @@
+{
+  "name": "fx-talanta-dashboard-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "prettier": "3.6.2"
+  }
+}

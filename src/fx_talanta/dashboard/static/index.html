@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FX-Talanta · Observatory</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a href="#workspace" class="skip">Skip to workspace</a>
+    <aside class="sidebar">
+      <a class="brand" href="#workspace"
+        ><span class="mark">F<span>×</span></span
+        ><span>FX-Talanta<small>OPERATING WORKSPACE</small></span></a
+      >
+      <div class="nav-label">OBSERVATORY</div>
+      <nav aria-label="Workspace">
+        <a href="#workspace" class="active">◈ &nbsp; Overview</a
+        ><a href="#channels">≋ &nbsp; Data channels</a
+        ><a href="#journal">▤ &nbsp; Evidence journal</a
+        ><a href="#calendar">▦ &nbsp; Calendar & news</a
+        ><a href="#advisor">◇ &nbsp; Advisor</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <span class="dot"></span> READ-ONLY WORKSPACE
+        <p>No order controls.<br />No broker connections.</p>
+        <span class="version">M5 / Inspection surface</span>
+      </div>
+    </aside>
+    <div class="shell">
+      <header class="topbar">
+        <span
+          >Workspace <span class="slash">/</span>
+          <strong>Observatory</strong></span
+        ><span class="pill locked">Trading disabled</span>
+      </header>
+      <main id="workspace">
+        <div class="heading">
+          <div>
+            <div class="eyebrow">
+              SEE THE EVIDENCE. UNDERSTAND THE DECISION.
+            </div>
+            <h1>Market observatory</h1>
+            <p class="subtitle">
+              A clear view of inputs, decisions and the reasons to wait.
+            </p>
+          </div>
+          <button id="refresh" class="secondary">Refresh snapshot</button>
+        </div>
+        <section id="login" class="panel" hidden>
+          <h2>Open your local session</h2>
+          <p>
+            Use the private URL printed by the dashboard command, or paste its
+            session token. The token stays in this page’s memory.
+          </p>
+          <form id="login-form">
+            <label for="token">Session token</label
+            ><input
+              id="token"
+              type="password"
+              autocomplete="off"
+              required
+            /><button>Open workspace</button>
+          </form>
+        </section>
+        <div id="notice" role="status" aria-live="polite">
+          Connecting to the local inspection service…
+        </div>
+        <div id="dashboard" hidden>
+          <section class="source-banner">
+            <span class="pill" id="source">—</span>
+            <div>
+              <strong id="source-label">—</strong>
+              <p id="capture">—</p>
+            </div>
+            <span class="source-note">Recorded inputs · never live</span>
+          </section>
+          <section class="metrics" aria-label="Workspace summary">
+            <article>
+              <span class="metric-label">EXECUTION AUTHORITY</span
+              ><strong class="metric-value teal">Disabled</strong>
+              <p>No gateway attached</p>
+            </article>
+            <article>
+              <span class="metric-label">ENTRY QUOTE CEILING</span
+              ><strong class="metric-value">2,000 <small>ms</small></strong>
+              <p>Original timestamp + clock bound</p>
+            </article>
+            <article>
+              <span class="metric-label">BROKER POSITIONS</span
+              ><strong class="metric-value smaller">Unknown</strong>
+              <p>No current reconciliation</p>
+            </article>
+            <article>
+              <span class="metric-label">STRATEGY PROMOTION</span
+              ><strong class="metric-value smaller">Not qualified</strong>
+              <p>B01 · rejected for promotion</p>
+            </article>
+          </section>
+          <div class="workspace-grid">
+            <div class="content-column">
+              <section class="panel" id="channels">
+                <div class="section-title">
+                  <div>
+                    <span class="eyebrow">INPUT OBSERVABILITY</span>
+                    <h2>Channel health & quote timing</h2>
+                  </div>
+                  <span class="pill muted">EA / Python / MCP</span>
+                </div>
+                <p class="section-note">
+                  Connection is the state at capture. Quote age is measured now;
+                  transport delay belongs to that recorded sample.
+                </p>
+                <div id="channel-cards" class="channel-grid"></div>
+                <div class="legend">
+                  <span>Fresh ≤ 2s including clock uncertainty</span
+                  ><span>Observer ceiling: 5s</span
+                  ><span>Fresh ≠ permission to enter</span>
+                </div>
+              </section>
+              <section class="panel" id="journal">
+                <div class="section-title">
+                  <div>
+                    <span class="eyebrow">DECISIONS & RISK</span>
+                    <h2>Evidence journal</h2>
+                  </div>
+                  <label class="filter"
+                    >Show
+                    <select id="kind">
+                      <option value="all">All evidence</option>
+                      <option value="decision">Decisions</option>
+                      <option value="risk">Risk checks</option>
+                      <option value="execution">Execution</option>
+                      <option value="experience">Experience</option>
+                    </select></label
+                  >
+                </div>
+                <p class="section-note">
+                  Select a record to inspect it with the advisor. Historical
+                  execution observations do not establish current positions.
+                </p>
+                <div id="records"></div>
+                <p id="empty" hidden>No matching records in this snapshot.</p>
+              </section>
+              <section class="panel" id="calendar">
+                <div class="section-title">
+                  <div>
+                    <span class="eyebrow">EVENT READINESS</span>
+                    <h2>Calendar & news</h2>
+                  </div>
+                  <span class="pill warning">Coverage unqualified</span>
+                </div>
+                <div class="calendar-grid">
+                  <div>
+                    <h3>BLS calendar</h3>
+                    <p id="calendar-message"></p>
+                    <dl id="calendar-details"></dl>
+                    <form id="upload-form">
+                      <label for="ics">Import a BLS .ics file</label
+                      ><input
+                        id="ics"
+                        type="file"
+                        accept=".ics,text/calendar"
+                        required
+                      /><button id="upload">Save to inspection journal</button>
+                    </form>
+                    <p class="fine">
+                      Local development copy only. Duplicate uploads do not
+                      postpone the review reminder. No source refresh is
+                      implied.
+                    </p>
+                    <p id="upload-result" role="status"></p>
+                  </div>
+                  <div>
+                    <h3>USD / EUR / JPY</h3>
+                    <p>
+                      Required category coverage and ongoing delivery
+                      reliability remain unqualified.
+                    </p>
+                    <div id="news"></div>
+                    <p class="fine">
+                      A successful feed connection does not establish complete
+                      calendar or news coverage.
+                    </p>
+                  </div>
+                </div>
+              </section>
+              <section class="panel blockers">
+                <span class="eyebrow">SAFETY BOUNDARY</span>
+                <h2>Why trading stays blocked</h2>
+                <ul id="blockers"></ul>
+              </section>
+            </div>
+            <aside class="panel advisor" id="advisor">
+              <div class="section-title">
+                <div>
+                  <span class="eyebrow">EVIDENCE, NOT ASSUMPTIONS</span>
+                  <h2>Advisor</h2>
+                </div>
+                <span class="advisor-icon">◇</span>
+              </div>
+              <p class="section-note">
+                M4 evidence reader · no model calls. Read-only English / 中文
+                inspection, not an open-ended AI conversation.
+              </p>
+              <label for="selected">Record in focus</label
+              ><select id="selected">
+                <option value="">Workspace questions</option>
+              </select>
+              <div class="prompts">
+                <button
+                  class="suggestion"
+                  data-question="Why is trading blocked?"
+                >
+                  Why are we waiting?</button
+                ><button
+                  class="suggestion"
+                  data-question="Explain quote latency"
+                >
+                  Explain quote latency
+                </button>
+              </div>
+              <div id="messages" role="log" aria-live="polite">
+                <article class="answer">
+                  <strong>Welcome to your evidence workspace.</strong>
+                  <p>
+                    Ask about input timing and safety boundaries, or select a
+                    journal record. Answers retain their source and cutoff.
+                  </p>
+                </article>
+              </div>
+              <form id="chat-form">
+                <label for="question">Ask about this workspace</label
+                ><textarea
+                  id="question"
+                  rows="3"
+                  maxlength="512"
+                  placeholder="Why was this decision held?"
+                  required
+                ></textarea>
+                <div class="chat-actions">
+                  <label for="language" class="sr-only">Answer language</label
+                  ><select id="language">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option></select
+                  ><button id="send">Ask advisor <span>↗</span></button>
+                </div>
+              </form>
+              <p class="fine">
+                No order, pause, resume or policy command is exposed.
+              </p>
+            </aside>
+          </div>
+          <footer>
+            FX-Talanta <span>Evidence first. Authority bounded.</span
+            ><span id="updated"></span>
+          </footer>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

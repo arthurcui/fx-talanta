@@ -13,6 +13,7 @@ and same-session closure acknowledgement without recovery. Full connected accept
 live and unattended strategy trading are **not enabled**.
 
 [Try the offline demo](docs/guides/getting-started.md) ·
+[Open the dashboard](docs/guides/dashboard.md) ·
 [Technical documentation](docs/README.md) ·
 [Current status](docs/product/status.md) ·
 [Roadmap](docs/product/roadmap.md)
@@ -70,11 +71,15 @@ implementation code is merged. There is no automatic broker failover.
 | Fixed EA and bounded demo execution (M2) | Bounded same-session demo closeout verified; full fault-matrix acceptance remains |
 | Strategy baseline and replay (M3) | Research scope complete; B01 rejected for promotion; cost/availability gaps tracked |
 | Bounded AI/advisor (M4) | Offline engineering acceptance passed; authenticated local access, bounded proposals and simulator integration; connected/economic qualification remains gated |
-| Trading dashboard | Planned |
+| Read-only dashboard (M5 UI slice) | Local offline workspace: cited advisor, channel timing, journal and BLS upload; no live telemetry or trading controls |
 | Unattended PAPER, capped LIVE and evaluated evolution | Later gated milestones |
 
-See the [roadmap and acceptance boundaries](docs/product/roadmap.md). The dashboard
-will show quote latency and the status of EA, Python-package and MCP channels.
+See the [roadmap and acceptance boundaries](docs/product/roadmap.md). The
+[dashboard guide](docs/guides/dashboard.md) explains how to open the local UI and
+inspect existing offline records. Synthetic tour data is labeled; channel status
+and quote timing are recorded observations, never implied live connectivity.
+
+![Read-only dashboard showing recorded channel timing, evidence and advisor](docs/images/dashboard-desktop.png)
 
 ## Engineering behind the product
 

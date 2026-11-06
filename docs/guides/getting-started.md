@@ -76,7 +76,8 @@ docker compose run --rm app offline-demo
 filesystem, and uses an internal network. `admin` is the separate migration and
 archive tool with both fixture database credentials. Images contain code and
 dependencies; the existing `fx-talanta-m0a_postgres_data` volume retains history.
-No UI or externally connected broker is included.
+This CLI demo includes no externally connected broker. For the separate local
+read-only UI, see the [dashboard guide](dashboard.md).
 
 For a Linux Codex task with Python/venv and native PostgreSQL 17 available:
 
