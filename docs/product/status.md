@@ -42,11 +42,12 @@ and Algo Trading disabled at verification. This document is not a live terminal 
 The owner approved **M4 offline development** after closing the completed M3 research
 scope. The [M3 closure](../engineering/m3-research-closeout.md) retains M3-Q1–Q4
 qualification gaps and B01's REJECT_FOR_PROMOTION verdict. The
-[M4 evidence foundation](../engineering/m4-advisor.md) provides typed simulator-only
-reads and atomic, idempotent conversation receipts; model integration,
-authenticated API and simulated command acceptance remain
-pending. M1 [open requirements](../engineering/m1-open-requirements.md) still block
-connected strategy PAPER. This does not enable strategy orders.
+[M4 consolidated implementation](../engineering/m4-completion.md) provides authenticated
+local access, bounded candidate/HOLD proposals, deterministic simulator risk and
+execution, evidence-backed explanations, qualified-memory filtering and simulated
+administrative commands. Its acceptance report separates software checks from real
+model/strategy quality. M1 [open requirements](../engineering/m1-open-requirements.md)
+still block connected strategy PAPER. Trading remains disabled.
 
 ## Remaining gates
 
@@ -78,9 +79,9 @@ connected strategy PAPER. This does not enable strategy orders.
   per-fill USD-notional commissions and dated signed rollover postings in the USD
   simulator. The legacy cost model and B01 verdict are unchanged; synthetic tests
   prove integration, not historical account-cost calibration.
-- **M4 and later:** the offline evidence-reader slice is implemented; production model
-  integration, authenticated conversational advisor, dashboard, unattended PAPER and
-  capped LIVE remain gated.
+- **M4 and later:** consolidated offline engineering implementation is complete;
+  remote deployment, dashboard, strategy quality, unattended PAPER and capped LIVE
+  remain gated. See the [M4 acceptance boundary](../engineering/m4-completion.md).
 
 Broader M2 acceptance must preserve the historical closure recovery and reconcile
 existing evidence for lost replies, restart while exposed, partial fills, rejected

@@ -28,8 +28,10 @@ live and unattended strategy trading are **not enabled**.
 - **Make outcomes inspectable:** decisions, risk reservations, execution observations
   and corrections are recorded so explanations can point to evidence.
 
-Production AI strategy selection, the conversational advisor and evaluated learning
-are roadmap work. Scripted demonstrations are not autonomous intelligence.
+Authenticated local advisor access, bounded model proposals and simulated command
+handling are implemented for offline evaluation. Connected AI strategy operation
+and evaluated economic improvement remain gated; synthetic tests are not proof of
+profitable autonomous trading.
 
 ## How it works
 
@@ -41,7 +43,8 @@ flowchart LR
     D --> E[Broker]
     E --> F[Reconciliation and journal]
     F --> B
-    F -. planned .-> G[Advisor and evaluated learning]
+    F --> G[Evidence-backed advisor]
+    F -. gated .-> H[Evaluated learning]
 ```
 
 Python proposes; risk controls may veto; the EA independently checks authority,
@@ -66,7 +69,7 @@ implementation code is merged. There is no automatic broker failover.
 | Broker and USD/EUR/JPY news/calendar qualification (M1) | Incomplete; campaigns concluded without full qualification |
 | Fixed EA and bounded demo execution (M2) | Bounded same-session demo closeout verified; full fault-matrix acceptance remains |
 | Strategy baseline and replay (M3) | Research scope complete; B01 rejected for promotion; cost/availability gaps tracked |
-| Bounded AI/advisor (M4) | Offline evidence foundation in development; production models and authentication pending |
+| Bounded AI/advisor (M4) | Offline engineering acceptance passed; authenticated local access, bounded proposals and simulator integration; connected/economic qualification remains gated |
 | Trading dashboard | Planned |
 | Unattended PAPER, capped LIVE and evaluated evolution | Later gated milestones |
 

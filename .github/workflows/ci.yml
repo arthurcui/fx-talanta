@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   checks:
+    # Stable required-check context in the main branch ruleset.
     name: M0A checks
     runs-on: ubuntu-latest
     env:
@@ -39,6 +40,13 @@ jobs:
           include-hidden-files: true
       - run: docker compose up -d --wait postgres
       - run: python -m pytest --integration -q
+      - run: python -m tools.qualification.m4_acceptance --integration --output .local/m4-acceptance.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m4-engineering-acceptance
+          path: .local/m4-acceptance.json
+          include-hidden-files: true
       - run: docker compose build app codex-test
       - run: docker compose run --rm --no-deps codex-test
       - run: python tools/dev/profile_acceptance.py
