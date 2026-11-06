@@ -60,13 +60,11 @@ test("desktop: channels, cited advisor, filters, safe calendar failure", async (
   );
   const ics =
     "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:ui-test\r\nDTSTART:20261206T133000Z\r\nSUMMARY:Employment Situation\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
-  await page
-    .locator("#ics")
-    .setInputFiles({
-      name: "bls.ics",
-      mimeType: "text/calendar",
-      buffer: Buffer.from(ics),
-    });
+  await page.locator("#ics").setInputFiles({
+    name: "bls.ics",
+    mimeType: "text/calendar",
+    buffer: Buffer.from(ics),
+  });
   await page.locator("#upload").click();
   await expect(page.locator("#upload-result")).toContainText("Saved locally");
   await expect(page.locator("#calendar-details")).toContainText("1");
@@ -75,13 +73,11 @@ test("desktop: channels, cited advisor, filters, safe calendar failure", async (
     path: "test-results/dashboard-desktop.png",
     fullPage: true,
   });
-  await page
-    .locator("#ics")
-    .setInputFiles({
-      name: "bad.ics",
-      mimeType: "text/calendar",
-      buffer: Buffer.from("bad file"),
-    });
+  await page.locator("#ics").setInputFiles({
+    name: "bad.ics",
+    mimeType: "text/calendar",
+    buffer: Buffer.from("bad file"),
+  });
   await page.locator("#upload").click();
   await expect(page.locator("#upload-result")).toContainText("Upload rejected");
   await page.locator("#refresh").click();
