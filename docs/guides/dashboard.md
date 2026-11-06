@@ -601,3 +601,10 @@ For an explicit HTTPS launch with artifact/code drift checks and verified journa
 backup/restore, use the [inspection deployment guide](../engineering/m5-deployment-readiness.md).
 This restricted profile exposes no broker, model, operator or alert activation flags.
 It does not replace an existing preview or qualify remote operation.
+
+## Simulation runner results
+
+[Incremental runner exports](../engineering/m5-paper-runner.md#existing-dashboard-integration)
+use the existing matched-study receipt panel. Bind a new isolated inspection
+workspace to the exported journal and returned plan hash. The panel remains read-only;
+exported simulation evidence never enables trading or qualifies a candidate.

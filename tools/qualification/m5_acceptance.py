@@ -93,6 +93,8 @@ def main():
         ROOT / "tools/qualification/current_broker_capture.py",
         ROOT / "tools/qualification/inspection_quote_clock.py",
         ROOT / "tools/qualification/verified_quote_acceptance.py",
+        ROOT / "tools/qualification/paper_runner_acceptance.py",
+        ROOT / "tools/fixtures/b01_replay.py",
         ROOT / "src/fx_talanta/advisor/evidence.py",
         Path(__file__),
     ]
