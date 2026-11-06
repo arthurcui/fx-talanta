@@ -192,3 +192,10 @@ prospective operating gates remain open; no trading or campaign has been enabled
 [Queue-aware inspection and verified paired archives](../engineering/m5-runner-recovery.md)
 are implemented for the simulation runner. Restore is inspection-only; prospective
 source/model qualification, connected operating acceptance and full M5 remain open.
+
+### M5 normalized simulation inputs
+
+The [typed source adapter](../engineering/m5-input-admission.md) now feeds retained
+market/bar/calendar/news evidence through the queue and simulator with shared safety
+checks and admission-time expiry. Dashboard channel labels are asserted provenance,
+not live connections or provider qualification. Trading remains disabled.

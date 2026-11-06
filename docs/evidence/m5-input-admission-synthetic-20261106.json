@@ -1,0 +1,93 @@
+{
+  "schema": "runner-operations-synthetic/1",
+  "result": "PASS",
+  "engine_sha256": "69867e83f02338df37416d23ffd547934a67cc91a7f847f28166ee60d5dc2a1e",
+  "report": {
+    "version": "simulation-source-report/1",
+    "source_id": "204b5b54-33b8-519e-b195-cb7fe5ef2296",
+    "binding_hash": "69ea926da807927ecd187c91faa8c7eb557a47b7461845d65280ad63a6eeaeb4",
+    "queued": 6,
+    "acknowledged": 6,
+    "pending": 0,
+    "source_head": "ac05ddd8b37a1d27e71a69a0a84da27108dd1b6be640e31a64d2c456265cf2de",
+    "status": "SEALED",
+    "unacknowledged_runner_commit": false,
+    "runner": {
+      "version": "paper-simulation-report/1",
+      "run_id": "7271101e-8d10-4385-8197-620a101223df",
+      "status": "STOPPED",
+      "provenance": "SYNTHETIC",
+      "registered_at": "2026-11-05T11:59:57+00:00",
+      "deadline": "2026-11-05T19:00:00+00:00",
+      "observations": 6,
+      "normalized_inputs": 6,
+      "input_channels": [
+        "FIXTURE"
+      ],
+      "max_observations": 100,
+      "decisions": 18,
+      "outcomes": 15,
+      "revisions": 0,
+      "missing_decisions": 0,
+      "last_input_at": "2026-11-05T16:00:01+00:00",
+      "input_age_seconds": 0.0,
+      "receipt_sequence": 7,
+      "receipt_hash": "c91d5760de27b030db4125cabda02f2bf1d8d04b83188fd9aad981e738dd5b5b",
+      "registration_hash": "175e1d8ebff32926bd4fdb749f3c135c3ffce447875d8c89fc2f06b4c11dd865",
+      "arms": {
+        "NO_AI": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        },
+        "AI_NO_NEWS": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        },
+        "AI_NEWS": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        }
+      },
+      "pending_outcomes": 3,
+      "execution_enabled": false,
+      "broker_calls": 0,
+      "external_model_calls": 0,
+      "selector": "SCRIPTED_TEST_DOUBLE",
+      "qualified_for_unattended_paper": false,
+      "prospective_evidence_verified": false,
+      "full_M5_complete": false,
+      "B01": "REJECT_FOR_PROMOTION"
+    },
+    "execution_enabled": false,
+    "source_qualified": false,
+    "checkpoint": [
+      6,
+      "ac05ddd8b37a1d27e71a69a0a84da27108dd1b6be640e31a64d2c456265cf2de",
+      6,
+      "783e276550003dd4e8af12701c09eaf48630964d5b751394d0dfdbcc1c77cf29",
+      [
+        [
+          "synthetic operating acceptance complete",
+          "ac05ddd8b37a1d27e71a69a0a84da27108dd1b6be640e31a64d2c456265cf2de"
+        ]
+      ],
+      7,
+      "c91d5760de27b030db4125cabda02f2bf1d8d04b83188fd9aad981e738dd5b5b"
+    ],
+    "oldest_pending_age_seconds": null,
+    "producer_liveness": "UNVERIFIED"
+  },
+  "broker_calls": 0,
+  "external_model_calls": 0,
+  "campaign_started": false,
+  "full_M5_complete": false
+}

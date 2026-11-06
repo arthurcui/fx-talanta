@@ -30,6 +30,7 @@ from fx_talanta.domain.models import (
     Versions,
 )
 from fx_talanta.domain.offline import EntryIntent, Fault, Instrument, Market, Policy
+from fx_talanta.evaluation.inputs import SourceRecord, bars_hash, project
 from fx_talanta.evaluation.ledger import Ledger, Registration, canonical, digest
 from fx_talanta.evaluation.matched import ARM_NAMES
 from fx_talanta.gateway.offline import TERMINAL, Gateway
@@ -75,6 +76,7 @@ class Tick(FrozenModel):
     news: Literal["NEUTRAL", "ADVERSE", "UNAVAILABLE"] = "UNAVAILABLE"
     selector_result: Literal["SELECT", "HOLD", "TIMEOUT", "MALFORMED"] = "SELECT"
     fault: Fault = Fault()
+    source_record: SourceRecord | None = None
 
     @model_validator(mode="after")
     def deterministic_fault(self):
@@ -82,6 +84,20 @@ class Tick(FrozenModel):
             raise ValueError("unsupported runner fault")
         if self.fault.price_delta:
             raise ValueError("use frozen cost terms, not arbitrary fill deltas")
+        if self.source_record:
+            source = self.source_record
+            market, news = project(source, source.normalized_at)
+            if (
+                self.market != market
+                or self.news != news
+                or self.event_id != source.event_id
+                or self.sequence != source.sequence
+                or bars_hash(self.bars) != source.bars_hash
+                or any(b.available_at > source.received_at for b in self.bars)
+                or self.selector_result != "SELECT"
+                or self.fault != Fault()
+            ):
+                raise ValueError("normalized input differs from preserved source")
         return self
 
 
@@ -184,7 +200,12 @@ class Engine:
         if len(self.bars) > 20000:
             raise ValueError("bar capacity exhausted")
         visible(self.bars, config.symbol, at)  # Revision conflicts also fail on HOLD paths.
-        market = priced(tick.market, config.costs, at)
+        source_market, source_news = tick.market, tick.news
+        if tick.source_record:
+            if tick.source_record.provenance != config.provenance:
+                raise ValueError("source provenance differs from registration")
+            source_market, source_news = project(tick.source_record, at)
+        market = priced(source_market, config.costs, at)
         snapshot = tick.model_dump_json()
         sha = hashlib.sha256(snapshot.encode()).hexdigest()
         receipts = [
@@ -277,10 +298,10 @@ class Engine:
             selector_input = dict(candidate=candidate)
             if name != "NO_AI":
                 if name == "AI_NEWS":
-                    selector_input["news"] = tick.news
+                    selector_input["news"] = source_news
                 if tick.selector_result != "SELECT":
                     allowed, reason = False, "SCRIPTED_" + tick.selector_result
-                if name == "AI_NEWS" and tick.news != "NEUTRAL":
+                if name == "AI_NEWS" and source_news != "NEUTRAL":
                     allowed, reason = False, "NEWS_UNAVAILABLE_OR_ADVERSE"
             choice = Selection(
                 action="SELECT" if allowed else "HOLD",
@@ -616,6 +637,16 @@ class Runner:
                 registered_at=body["registered_at"],
                 deadline=config.deadline.isoformat(),
                 observations=len(rows),
+                normalized_inputs=sum(
+                    Tick.model_validate_json(r[2]).source_record is not None for r in rows
+                ),
+                input_channels=sorted(
+                    {
+                        Tick.model_validate_json(r[2]).source_record.channel
+                        for r in rows
+                        if Tick.model_validate_json(r[2]).source_record
+                    }
+                ),
                 max_observations=config.max_observations,
                 decisions=len(engine.decisions),
                 outcomes=len(engine.settled),

@@ -13,6 +13,7 @@ from pydantic import Field
 
 from fx_talanta.clock import SystemClock
 from fx_talanta.domain.models import FrozenModel, Hash
+from fx_talanta.evaluation.inputs import Envelope, normalize
 from fx_talanta.evaluation.ledger import canonical, digest
 from fx_talanta.evaluation.runner import Runner, Tick
 from fx_talanta.provider_pipeline import status_lock
@@ -130,6 +131,17 @@ class Operations:
         with closing(self.connect("rw")) as conn, conn:
             conn.execute("BEGIN IMMEDIATE")
             binding, rows, _, sealed = self.load(conn, expected)
+            if tick.source_record and tick.source_record.source_id != binding.source_id:
+                raise ValueError("normalized source identity mismatch")
+            if rows:
+                first = Tick.model_validate_json(rows[0][2]).source_record
+                current = tick.source_record
+                if bool(first) != bool(current) or (
+                    first
+                    and current
+                    and (first.channel, first.provenance) != (current.channel, current.provenance)
+                ):
+                    raise ValueError("source mode, channel or provenance changed")
             old = next((r for r in rows if r[1] == str(tick.event_id)), None)
             if old:
                 if old[2] != payload:
@@ -138,6 +150,8 @@ class Operations:
             if sealed or len(rows) >= binding.capacity or tick.sequence != len(rows) + 1:
                 raise ValueError("source sealed, full or out of order")
             now = self.clock.now()
+            if tick.source_record and tick.source_record.normalized_at > now:
+                raise ValueError("future source normalization")
             if tick.market.at > now or any(b.available_at > now for b in tick.bars):
                 raise ValueError("future source data")
             row = [
@@ -150,6 +164,22 @@ class Operations:
             sha = digest(row)
             conn.execute("INSERT INTO inputs VALUES (?,?,?,?,?,?)", (*row, sha))
             return dict(sequence=tick.sequence, source_sha=sha, replayed=False)
+
+    def enqueue_envelope(self, envelope, expected):
+        envelope = Envelope.model_validate(
+            envelope.model_dump() if isinstance(envelope, Envelope) else envelope
+        )
+        with status_lock(self.path.with_suffix(".consumer.lock")):
+            with closing(self.connect()) as conn:
+                _, rows, _, _ = self.load(conn, expected)
+            old = next((r for r in rows if r[1] == str(envelope.event_id)), None)
+            at = self.clock.now()
+            if old:
+                prior = Tick.model_validate_json(old[2]).source_record
+                if not prior:
+                    raise ValueError("cannot adopt manual input")
+                at = prior.normalized_at
+            return self.enqueue(normalize(envelope, at), expected)
 
     def target(self, binding, rows, acks):
         runner = Runner(binding.runner, self.clock)
@@ -276,13 +306,15 @@ class Operations:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["create", "enqueue", "drain-one", "report", "stop"])
+    parser.add_argument(
+        "action", choices=["create", "enqueue", "enqueue-envelope", "drain-one", "report", "stop"]
+    )
     parser.add_argument("--queue", type=Path, required=True)
     parser.add_argument("--input", type=Path)
     parser.add_argument("--binding-hash")
     parser.add_argument("--reason")
     args = parser.parse_args()
-    if args.action in {"create", "enqueue"}:
+    if args.action in {"create", "enqueue", "enqueue-envelope"}:
         if not args.input:
             parser.error("input required")
         with args.input.open("rb") as stream:
@@ -298,6 +330,8 @@ def main():
             parser.error("exact binding hash required")
         if args.action == "enqueue":
             result = obj.enqueue(Tick.model_validate_json(raw), args.binding_hash)
+        elif args.action == "enqueue-envelope":
+            result = obj.enqueue_envelope(Envelope.model_validate_json(raw), args.binding_hash)
         elif args.action == "drain-one":
             result = obj.drain_one(args.binding_hash)
         elif args.action == "stop":

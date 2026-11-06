@@ -71,7 +71,8 @@ collect evidence, count broker closed trades or establish elapsed observation ti
    real-recipient delivery acceptance and broker-scoped safe
    administration/protection still require dedicated implementation and acceptance.
 3. **Evaluation:** matched offline validation, durable registered receipt workflow
-   and bounded model inspection are implemented. A prospective matched runner, eligible frozen candidate, qualified
+   and bounded model inspection are implemented. The incremental simulation runner and typed local input integration are implemented.
+   Qualified prospective source/model integration, an eligible frozen candidate, qualified
    cost/latency evidence and predeclared uncertainty/economic review remain open.
 4. **Unattended PAPER:** applicable M1–M3 prerequisites and explicit strategy
    authorization must precede at least **eight weeks AND 100 closed trades per
@@ -353,3 +354,10 @@ and terminal checkpoints. No campaign or connected execution is part of this sco
 The [runner recovery guide](m5-runner-recovery.md) covers queue visibility, source
 rollback detection and portable stopped-journal verification. The simulation exercise
 preserves pending and unacknowledged evidence; restored bundles grant no authority.
+
+## Typed simulation input integration
+
+The [input admission guide](m5-input-admission.md) specifies source identity, retained
+original evidence, shared calendar/news safety, immutable retry and admission-time
+expiry. This completes the local normalized-input-to-simulator connection; external
+collectors, qualified provenance and production model integration remain open.

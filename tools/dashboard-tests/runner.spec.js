@@ -58,6 +58,12 @@ test("direct runner view shows simulation authority and clears unavailable evide
   await expect(page.locator("#workflow-details")).toContainText(
     "Producer liveness UNVERIFIED",
   );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "6 normalized inputs",
+  );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "Source provenance is not independently qualified",
+  );
   await page.route("**/api/overview", async (route) => {
     const response = await route.fetch();
     const body = await response.json();
