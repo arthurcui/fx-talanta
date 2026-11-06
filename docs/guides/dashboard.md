@@ -17,7 +17,7 @@ python -m fx_talanta.dashboard.server --state .local/dashboard-session-01
 Or use `fx-talanta-dashboard --state .local/dashboard-session-01` after installing
 the package. Open the **private URL printed by the command** in your browser.
 The server does not open a browser automatically. Stop it with Ctrl+C. The state
-directory must be new; choose another name for another session. Existing evidence
+directory must be new unless explicitly using `--resume`; choose another name for another session. Existing evidence
 is retained, never reset by launch. Port 8765 is the default; `--port 0` selects an
 available port without taking over another process.
 
@@ -68,8 +68,8 @@ must be supplied by a separately verified collector; the dashboard cannot qualif
 | Entry | Always blocked; five-second observer and two-second entry ceilings are unchanged |
 | Positions | Unknown without current reconciliation; historical fills never imply current flatness |
 
-The page polls its **local immutable snapshot** every five seconds to update age
-and reminders, not to collect live prices. On service failure, the page explicitly
+The page requests local inspection every five seconds while visible to update age
+and reminders and optionally read the explicitly bound telemetry file, not to collect live prices. On service failure, the page explicitly
 marks its retained display as last received and unavailable. Local clock rollback,
 future quote/receipt times or negative delay prevent a valid freshness claim.
 
@@ -114,3 +114,51 @@ not a runtime dependency. No CDN, external fonts or external assets are loaded.
 This completes the **read-only UI slice**, not full M5. Live telemetry adapters,
 open-ended model chat, authenticated remote deployment and unattended PAPER
 qualification remain separate work. M1–M3 gaps and B01's rejection remain unchanged.
+
+## Resume inspection and inspect a telemetry file
+
+Resume the **same** snapshot and local state with `--resume`. A new private session
+URL is issued; previous credentials expire with the old process. Saved advisor
+answers, incident transitions and upload evidence are retained. Questions are not
+stored. The UI loads the latest 50 answers and indicates the total retained count.
+A process lock prevents simultaneous servers from using the same state directory.
+For an imported snapshot, repeat the original `--snapshot` argument on resume.
+
+```powershell
+python -m fx_talanta.dashboard.server --state .local/dashboard-session-01 --resume
+```
+
+An optional `--telemetry .local/inspection-feed.json --telemetry-run <UUID>` binds an
+explicitly selected file and producer run to the inspection state. Both arguments
+must be supplied together and repeated unchanged on resume. This is a **file input
+contract**, not an installed broker collector. No terminal or credential discovery
+occurs; only offline PAPER/SIMULATOR identity matching the snapshot is accepted.
+The producer is separately responsible for verified UTC mapping and clock bounds.
+
+`dashboard-telemetry/1` contains `account`, `run_id`, a positive integer `sequence`,
+UTC `generated_at`, `provenance` (`SIMULATED` or `RECORDED`), `channels` (the same
+channel contract as the snapshot), and `execution_enabled: false`. Files are bounded
+to 64 KiB. Producers should replace files atomically, keep identical bytes for retries,
+advance sequences, and preserve original timestamps. A sequence gap is allowed for
+latest-state inspection; it does not prove uninterrupted observation coverage.
+
+Accepted revisions are retained with raw-content SHA-256 hashes. Conflicting hashes
+for the same sequence, sequence rollback, mismatched bindings, future publication,
+negative latency and timestamp regression are rejected. Missing, invalid or over
+15-second-old publication marks quotes SOURCE_UNAVAILABLE; retained evidence remains
+inspectable. A newer sequence never renews an old quote's age. Inspection clock
+rollback fails closed, including after restart. File contents are trusted local
+inputs, not signed proof of broker delivery or qualification.
+
+Incident history records initial states and subsequent changes only, with inspection
+timestamps and evidence hashes. The UI displays the latest 100 transitions and total
+retained count. These are sampled when the local overview is requested (normally every
+five seconds while the page is visible), not continuous monitoring or a campaign.
+Recovery adds a transition; it never deletes earlier failures. No acknowledgement,
+auto-restart, failover, order route or execution authority is introduced.
+
+The calendar lists up to 100 upcoming scheduled events, including cancellation state,
+with an explicit shown/total count. Original timestamps and source hashes remain in
+the local archive. Lesson records show M4's evidence-based memory eligibility at the
+snapshot cutoff; a QUALIFIED label alone is insufficient. Neither view qualifies
+provider coverage or promotes a strategy.

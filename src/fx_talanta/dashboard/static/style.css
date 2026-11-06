@@ -7,6 +7,26 @@
   --bg: #f3f5f3;
   --amber: #91641f;
 }
+.incident-list {
+  max-height: 300px;
+  overflow: auto;
+}
+.incident {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+}
+.incident strong,
+.incident span,
+.incident code {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.incident span,
+.incident code {
+  font-size: 10px;
+  color: var(--muted);
+}
 * {
   box-sizing: border-box;
 }

@@ -2,7 +2,8 @@
 let token = new URLSearchParams(location.hash.slice(1)).get("token") || "";
 history.replaceState(null, "", location.pathname);
 let snapshot = null,
-  pending = false;
+  pending = false,
+  historyLoaded = false;
 const $ = (id) => document.getElementById(id);
 const node = (tag, text, cls) => {
   const e = document.createElement(tag);
@@ -73,6 +74,24 @@ function render(data) {
     return card;
   });
   $("channel-cards").replaceChildren(...cards);
+  const feed = data.telemetry_source;
+  $("feed-status").textContent =
+    feed.status === "NOT_CONFIGURED"
+      ? "Snapshot only · no telemetry file configured"
+      : `Telemetry file: ${feed.status} · sequence ${feed.sequence ?? "unknown"} · ${feed.provenance || "retained evidence only"}. No broker collector is attached.`;
+  $("incident-count").textContent =
+    `${data.incidents.total} retained transitions · showing latest ${data.incidents.shown}`;
+  $("incident-events").replaceChildren(
+    ...data.incidents.events.map((event) => {
+      const e = node("article", undefined, "incident");
+      e.append(
+        node("strong", `${event.kind}: ${event.state}`),
+        node("span", stamp(event.at)),
+        node("code", `Evidence ${event.evidence}`),
+      );
+      return e;
+    }),
+  );
   const selected = $("selected").value;
   $("selected").replaceChildren(
     new Option("Workspace questions", ""),
@@ -100,6 +119,19 @@ function render(data) {
   ])
     details.append(node("dt", label), node("dd", value));
   $("calendar-details").replaceChildren(...details.childNodes);
+  $("calendar-events").replaceChildren(
+    node(
+      "p",
+      `Upcoming schedule: showing ${data.calendar_events.shown} of ${data.calendar_events.total} (including cancellations)`,
+    ),
+    ...data.calendar_events.events.map((event) =>
+      node(
+        "p",
+        `${event.release} · ${stamp(event.scheduled_at)} · ${event.status}`,
+        "news-item",
+      ),
+    ),
+  );
   const news = data.records.filter(
     (r) => r.kind === "health" || r.kind === "news",
   );
@@ -143,6 +175,14 @@ function renderRecords() {
         summary,
         node("span", "↗", "record-arrow"),
       );
+      if (r.kind === "lesson")
+        summary.append(
+          node(
+            "span",
+            `Memory eligible at cutoff: ${r.memory_eligible ? "yes" : "no"}`,
+            "record-meta",
+          ),
+        );
       b.addEventListener("click", () => {
         $("selected").value = r.id;
         $("question").value = "Explain this recorded evidence";
@@ -161,6 +201,18 @@ async function refresh() {
   }
   try {
     render(await api("/api/overview"));
+    if (!historyLoaded) {
+      const history = await api("/api/history");
+      historyLoaded = true;
+      $("history-note").textContent =
+        `${history.total} saved answers · latest ${history.shown} loaded. Questions are not retained.`;
+      if (
+        !pending &&
+        $("messages").children.length === 1 &&
+        history.answers.length
+      )
+        $("messages").replaceChildren(...history.answers.map(answer));
+    }
     document.body.classList.remove("unavailable");
     notice("");
   } catch (e) {
@@ -285,6 +337,14 @@ $("upload-form").addEventListener("submit", async (e) => {
   } finally {
     $("upload").disabled = false;
   }
+});
+window.addEventListener("hashchange", () => {
+  const supplied = new URLSearchParams(location.hash.slice(1)).get("token");
+  if (!supplied) return;
+  token = supplied;
+  history.replaceState(null, "", location.pathname);
+  historyLoaded = false;
+  refresh();
 });
 refresh();
 setInterval(() => {

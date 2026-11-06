@@ -23,7 +23,9 @@ gates. [Current status](status.md) distinguishes implemented features from quali
 The read-only dashboard shows recorded quote timing and separate channel status for the
 EA, Python MT5 package and MCP. It must distinguish connection health, quote freshness,
 clock uncertainty and entry readiness. A healthy connection is not a fresh-market pass.
-Live telemetry and remote deployment are not enabled by the offline UI slice.
+The offline UI also retains sampled incidents and advisor answers across resume,
+accepts explicitly bound telemetry files, and displays manual calendar events and
+lesson eligibility. Live collectors and remote deployment remain separate work.
 
 The owner authorized M4 development after closing M3's completed research scope.
 This does not relax the two-second entry ceiling or authorize connected trading.
