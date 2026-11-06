@@ -62,7 +62,14 @@ class ProviderLedger:
             recorded_at=now,
             correlation_id=BUDGET_ID,
             provenance="OFFLINE_SIMULATION",
-            versions=Versions(component=component, model=MODEL, prompt="evidence-selection/1"),
+            versions=Versions(
+                component=component,
+                model=MODEL,
+                prompt=data.get(
+                    "prompt_version",
+                    data.get("identity", {}).get("prompt_version", "evidence-selection/1"),
+                ),
+            ),
             body=ConversationMessage(
                 conversation_id=BUDGET_ID,
                 message_id=rid,
@@ -143,7 +150,10 @@ class ProviderLedger:
         return allowed, None, "RESERVED" if allowed else "BUDGET_EXHAUSTED"
 
     def finish(self, request_id, identity, result):
-        result = ProviderResult.model_validate(result.model_dump(mode="json"))
+        from fx_talanta.advisor.proposal_contracts import ProposalReceipt
+
+        model = ProposalReceipt if isinstance(result, ProposalReceipt) else ProviderResult
+        result = model.model_validate(result.model_dump(mode="json"))
         with psycopg.connect(self.repository._dsn) as conn:
             conn.execute("SELECT pg_advisory_xact_lock(%s)", (LOCK_ID,))
             self.repository._check_binding(conn)

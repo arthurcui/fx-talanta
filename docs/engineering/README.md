@@ -24,3 +24,6 @@ Return to the [documentation index](../README.md).
 - [M3 research closure and qualification-gap register](m3-research-closeout.md)
 - [M4 advisor evidence foundation and acceptance](m4-advisor.md)
 - [M4 bounded provider adapter and actual API smoke](m4-provider.md)
+
+- [M4 consolidated engineering acceptance](m4-completion.md)
+- [M4 offline command gateway integration](m4-command-gateway.md)

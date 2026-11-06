@@ -1,0 +1,9 @@
+{
+  "candidate_id": "bcf0845d-544c-4d89-9970-d1327ba3f3cf",
+  "strategy": "M4-synthetic/1",
+  "symbol": "EURUSD",
+  "side": "BUY",
+  "stop": "1.0980",
+  "benchmark": "1.1002",
+  "exits": [{"name": "FIXED", "target": "1.1040", "maximum_holding_seconds": 30}]
+}

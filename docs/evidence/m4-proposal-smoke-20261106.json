@@ -1,0 +1,30 @@
+{
+  "schema": "m4-proposal-smoke/1",
+  "source": "CONSTRUCTED_INPUT_ONLY",
+  "model": "gpt-6-luna",
+  "request_sha256": "3ff86d69183f4c5082379a849f252ec4c0e2e41f36646064653ae177a258053a",
+  "status": "HOLD",
+  "reason": "INSUFFICIENT_EVIDENCE",
+  "broker_calls": 0,
+  "trading_enabled": false,
+  "economic_acceptance": false,
+  "schema_valid": true,
+  "response_sha256": "58c3fff17a850e84fc8044d68b53b42326930eaea5cdf1b32c578a23ae9cedcb",
+  "latency_ms": 1874,
+  "original_quote_age_ms": 1875,
+  "input_tokens": 297,
+  "output_tokens": 34,
+  "selection": {
+    "action": "HOLD",
+    "candidate_id": null,
+    "exit_option": null,
+    "reason": "INSUFFICIENT_EVIDENCE"
+  },
+  "completed_at": "2026-11-06T03:04:36.408637+00:00",
+  "source_sha256": {
+    "src/fx_talanta/advisor/proposals.py": "ce5f8c5bdc2fc8002a00d758df8041f88a3cf42a50c16e9d0473e4fc0ba1df5f",
+    "src/fx_talanta/advisor/proposal_contracts.py": "b9a8ab0b7e408161e8d5e382796b6ecce816c49862c1a681a2b1076a1984a764",
+    "src/fx_talanta/advisor/provider.py": "638738a3456b2b6df4564365eb309a7f823cef35dd43ce1c172053b92877b408",
+    "tools/qualification/proposal_smoke.py": "aa123cff651c191f875cce6bb61c6550ae69c49f16e385a29102e5f2a07d0c00"
+  }
+}

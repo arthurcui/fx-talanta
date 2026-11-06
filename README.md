@@ -28,8 +28,10 @@ live and unattended strategy trading are **not enabled**.
 - **Make outcomes inspectable:** decisions, risk reservations, execution observations
   and corrections are recorded so explanations can point to evidence.
 
-Production AI strategy selection, the conversational advisor and evaluated learning
-are roadmap work. Scripted demonstrations are not autonomous intelligence.
+Authenticated local advisor access, bounded model proposals and simulated command
+handling are implemented for offline evaluation. Connected AI strategy operation
+and evaluated economic improvement remain gated; synthetic tests are not proof of
+profitable autonomous trading.
 
 ## How it works
 
@@ -41,7 +43,8 @@ flowchart LR
     D --> E[Broker]
     E --> F[Reconciliation and journal]
     F --> B
-    F -. planned .-> G[Advisor and evaluated learning]
+    F --> G[Evidence-backed advisor]
+    F -. gated .-> H[Evaluated learning]
 ```
 
 Python proposes; risk controls may veto; the EA independently checks authority,
