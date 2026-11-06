@@ -290,3 +290,46 @@ test("registered receipt workflow displays missing outcomes and clears invalid d
     "2 pending outcomes",
   );
 });
+
+test("external receiver acceptance stays distinct from local acknowledgement and failure", async ({
+  page,
+}) => {
+  await page.goto(url);
+  await page.locator("#notification-refresh").click();
+  await expect(page.locator("#notification-status")).toContainText(
+    "Receiver acceptance does not mean a person read the alert",
+  );
+  await expect(page.locator("#notification-list")).toContainText(
+    "RECEIVER_ACCEPTED",
+  );
+  await page.route("**/api/notifications", async (route) => {
+    const response = await route.fetch();
+    const body = await response.json();
+    body.external = {
+      status: "ATTENTION_REQUIRED",
+      states: { UNKNOWN: 1 },
+      recent: [],
+    };
+    await route.fulfill({ response, json: body });
+  });
+  await page.locator("#notification-refresh").click();
+  await expect(page.locator("#notification-status")).toContainText(
+    "1 uncertain",
+  );
+  await expect(page.locator("#notification-list")).not.toContainText(
+    "RECEIVER_ACCEPTED",
+  );
+  await page.unroute("**/api/notifications");
+  await page.route("**/api/notifications", (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "fixture outage" }),
+    }),
+  );
+  await page.locator("#notification-refresh").click();
+  await expect(page.locator("#notification-status")).toContainText(
+    "Notifications unavailable",
+  );
+  await expect(page.locator("#notification-list")).toBeEmpty();
+});

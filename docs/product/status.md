@@ -165,3 +165,12 @@ receipts in an isolated journal. Corrections, idempotent retries, restart, deadl
 checks and dashboard rollback detection are implemented and tested synthetically.
 This supplements offline study upload; it does not execute strategy/model arms or
 start a prospective campaign. The remaining M5 operating/economic gates are unchanged.
+
+
+### M5 bounded alert delivery
+
+An opt-in [HTTPS alert outbox](../engineering/m5-alert-delivery.md) now adds durable
+send reservations, exact receiver acknowledgements, uncertain-send recovery and
+separate dashboard delivery status. It is disabled by default and tested only with
+synthetic transports and a local TLS receiver. Real-recipient delivery/deployment
+acceptance remains open; this adds no trading authority or campaign.

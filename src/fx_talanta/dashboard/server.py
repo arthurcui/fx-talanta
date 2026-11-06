@@ -479,6 +479,14 @@ def main():
     parser.add_argument(
         "--study-journal-config", type=Path, help="Read-only exact matched-receipt journal binding"
     )
+    parser.add_argument(
+        "--alert-config", type=Path, help="Explicit bounded webhook delivery configuration"
+    )
+    parser.add_argument(
+        "--enable-alert-delivery",
+        action="store_true",
+        help="Authorize this configured alert receiver; disabled by default",
+    )
     parser.add_argument("--model-key-file", type=Path, help="Optional ignored OpenAI env file")
     parser.add_argument(
         "--model-budget-file", type=Path, help="Explicit immutable ProviderBudget JSON"
@@ -538,6 +546,8 @@ def main():
             raise ValueError("invalid monitor interval")
     except ValueError as error:
         parser.error(str(error))
+    if bool(args.alert_config) != args.enable_alert_delivery:
+        parser.error("alert config and explicit --enable-alert-delivery required together")
     if any(
         (args.simulator_env, args.simulator_run, args.simulator_market, args.operator_token_file)
     ) and not all(
@@ -649,6 +659,9 @@ def serve(snapshot, args):
     workflow_view = (
         WorkflowView.from_file(args.study_journal_config) if args.study_journal_config else None
     )
+    from fx_talanta.dashboard.alerts import load_config
+
+    alert_config = load_config(args.alert_config) if args.enable_alert_delivery else None
     app = server = None
     try:
         app = Dashboard(
@@ -665,6 +678,7 @@ def serve(snapshot, args):
             operator_market=market_source,
             operator_token=operator_token,
             workflow_view=workflow_view,
+            alert_config=alert_config,
         )
         server = make_server(
             app,

@@ -582,3 +582,15 @@ Missing/invalid/rolled-back journals become unavailable and clear old details.
 Binding and accepted-prefix checks survive dashboard restart. Follow the
 [workflow operating guide](../engineering/m5-matched-workflow.md) for CLI schemas,
 export and separate journal retention. Receipt counts are never broker trade counts.
+
+
+## Optional bounded alert receiver
+
+Local file delivery remains the default. External delivery requires both
+`--alert-config .local/alert-receiver.json` and `--enable-alert-delivery`, a private
+receiver token, exact HTTPS destination, fixed expiry and cumulative message cap.
+See the [receiver protocol and recovery guide](../engineering/m5-alert-delivery.md).
+This is not a generic email/Slack integration. A receiver must implement exact-ID/
+digest acknowledgement and receipt lookup; uncertain POSTs are never blindly resent.
+The UI separates local acknowledgement from receiver acceptance. Restored inspection
+backups cannot reactivate delivery. No real receiver is configured by the tests.
