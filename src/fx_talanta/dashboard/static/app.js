@@ -1,6 +1,8 @@
 "use strict";
 let token = new URLSearchParams(location.hash.slice(1)).get("token") || "";
 history.replaceState(null, "", location.pathname);
+let lastIncident = null,
+  retryExplanation = null;
 let snapshot = null,
   pending = false,
   historyLoaded = false;
@@ -31,7 +33,7 @@ async function api(path, options = {}) {
     ...options,
     headers: { Authorization: `Bearer ${token}`, ...options.headers },
     cache: "no-store",
-    signal: AbortSignal.timeout(8000),
+    signal: AbortSignal.timeout(path === "/api/explain" ? 25000 : 8000),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Inspection unavailable");
@@ -80,6 +82,42 @@ function render(data) {
       ? "Snapshot only · no telemetry file configured"
       : `Telemetry file: ${feed.status} · sequence ${feed.sequence ?? "unknown"} · ${feed.provenance || "retained evidence only"}. No broker collector is attached.`;
   if (!incidentBrowsing) renderIncidents(data.incidents);
+  $("use-model").disabled = !data.model.enabled;
+  if (!data.model.enabled) $("use-model").checked = false;
+  $("model-status").textContent = data.model.enabled
+    ? `Bounded model enabled · ${data.model.reserved_calls}/${data.model.max_calls} calls reserved · ${data.model.unresolved_calls} unresolved; no automatic refunds or retries.`
+    : "Model calls disabled; local evidence reader available.";
+  const study = data.study;
+  $("study-results").replaceChildren();
+  if (study) {
+    $("study-results").append(
+      node(
+        "p",
+        `${study.report.provenance} · ${study.report.result} · source ${study.source_sha256}`,
+        "news-item",
+      ),
+    );
+    study.report.comparisons.forEach((c) =>
+      $("study-results").append(
+        node(
+          "p",
+          `${c.left} vs ${c.right}: ${c.complete_pairs} complete / ${c.excluded_pairs} excluded pairs; mean net difference USD ${c.mean_net_difference_usd ?? "unknown"}. ${c.uncertainty}`,
+          "news-item",
+        ),
+      ),
+    );
+  } else $("study-results").append(node("p", "No imported comparison."));
+  const latestIncident = data.incidents.events[0]?.id ?? 0;
+  if (
+    lastIncident !== null &&
+    latestIncident > lastIncident &&
+    $("alert-changes").checked
+  ) {
+    const changes = data.incidents.events.filter((e) => e.id > lastIncident);
+    $("incident-alert").textContent =
+      `New sampled changes: ${changes.map((e) => `${e.kind}: ${e.state}`).join("; ")}. Open incident history for evidence.`;
+  }
+  lastIncident = latestIncident;
   const ops = data.operations;
   const lines = [
     `Cutoff ${stamp(ops.cutoff)} · ${ops.record_versions} record versions · ${ops.corrections} corrections`,
@@ -217,7 +255,10 @@ async function refresh() {
     return;
   }
   try {
-    render(await api("/api/overview"));
+    const overview = await api("/api/overview");
+    render(overview);
+    $("broker-panel").hidden = !overview.broker_view_enabled;
+    if (overview.broker_view_enabled) refreshBroker();
     if (!historyLoaded) {
       const history = await api("/api/history");
       historyLoaded = true;
@@ -242,9 +283,10 @@ async function refresh() {
 function answer(data) {
   const article = node("article", undefined, "answer");
   article.append(
-    node("strong", "Advisor · evidence reader"),
+    node("strong", data.mode || "Advisor · evidence reader"),
     node("p", data.text),
   );
+  if (data.status) article.append(node("p", `${data.status}: ${data.reason}`));
   if (data.rationale)
     article.append(
       node("small", "Original recorded rationale · untrusted quotation"),
@@ -290,17 +332,23 @@ $("chat-form").addEventListener("submit", async (e) => {
     record_id: $("selected").value || null,
     language: $("language").value,
   };
+  const useModel = $("use-model").checked;
+  if (useModel) {
+    retryExplanation = data;
+    $("retry-explanation").hidden = false;
+  }
   try {
-    $("messages").append(
-      answer(
-        await api("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }),
-      ),
-    );
+    const value = await api(useModel ? "/api/explain" : "/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    $("messages").append(answer(value));
     $("question").value = "";
+    if (useModel && value.reason !== "OUTCOME_UNKNOWN_NO_RESEND") {
+      retryExplanation = null;
+      $("retry-explanation").hidden = true;
+    }
   } catch (err) {
     $("messages").append(
       node(
@@ -477,6 +525,79 @@ $("export").addEventListener("click", async () => {
     $("export").disabled = false;
   }
 });
+$("retry-explanation").addEventListener("click", async () => {
+  if (!retryExplanation || pending) return;
+  pending = true;
+  $("retry-explanation").disabled = true;
+  try {
+    const value = await api("/api/explain", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(retryExplanation),
+    });
+    $("messages").append(answer(value));
+    if (value.reason !== "OUTCOME_UNKNOWN_NO_RESEND") {
+      retryExplanation = null;
+      $("retry-explanation").hidden = true;
+    }
+  } catch (e) {
+    notice(
+      `Same request remains unresolved: ${e.message}. No new request was created.`,
+    );
+  } finally {
+    pending = false;
+    $("retry-explanation").disabled = false;
+  }
+});
+$("study-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = $("study-file").files[0];
+  if (!file || file.size > 16 * 1024 * 1024) {
+    $("study-message").textContent = "Study must be at most 16 MiB.";
+    return;
+  }
+  $("study-upload").disabled = true;
+  try {
+    await api("/api/study", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: await file.arrayBuffer(),
+    });
+    $("study-message").textContent =
+      "Validated and retained offline study. No qualification or execution enabled.";
+    await refresh();
+  } catch (err) {
+    $("study-message").textContent =
+      `Study rejected; previous result retained. ${err.message}`;
+  } finally {
+    $("study-upload").disabled = false;
+  }
+});
+let brokerPending = false;
+async function refreshBroker() {
+  if (brokerPending) return;
+  brokerPending = true;
+  try {
+    const value = await api("/api/broker");
+    $("broker-status").textContent =
+      `${value.label ?? "Journal"}: ${value.state ?? value.status} · ${value.reason ?? ""} · current positions UNKNOWN; entry blocked`;
+    $("broker-details").replaceChildren(
+      node(
+        "p",
+        value.recorded_at
+          ? `Recorded ${stamp(value.recorded_at)} · ${value.quote_clock}`
+          : "No observation",
+      ),
+      node("p", JSON.stringify(value.snapshot ?? {}), "news-item"),
+    );
+  } catch (e) {
+    $("broker-status").textContent =
+      `Broker journal unavailable. No current account state inferred. ${e.message}`;
+    $("broker-details").replaceChildren();
+  } finally {
+    brokerPending = false;
+  }
+}
 window.addEventListener("hashchange", () => {
   const supplied = new URLSearchParams(location.hash.slice(1)).get("token");
   if (!supplied) return;

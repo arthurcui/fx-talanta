@@ -14,7 +14,7 @@ gates. [Current status](status.md) distinguishes implemented features from quali
 | M2D | Connected PAPER execution acceptance | Bounded same-session demo closeout verified without recovery (PR #25); full fault-matrix acceptance remains open |
 | M3 | Strategy baseline and replay | [Research scope closed](../engineering/m3-research-closeout.md); B01 remains REJECT_FOR_PROMOTION. M3-Q1–Q4 cost/availability qualification gaps remain open |
 | M4 | Bounded AI and conversational advisor | Consolidated offline implementation complete; [engineering acceptance](../engineering/m4-completion.md) records authentication, proposals, risk integration, evidence, memory and simulated commands. No connected or economic qualification implied |
-| M5 | Unattended PAPER and operating UI | [Local operating UI and offline evaluation validation](../engineering/m5-offline-acceptance.md) implemented and tested; connected/admin/model/deployment integration remains open; full acceptance still requires all prerequisites plus at least eight weeks AND 100 closed trades under the specification's gates |
+| M5 | Unattended PAPER and operating UI | [Local operating UI and offline evaluation validation](../engineering/m5-offline-acceptance.md) implemented and tested; bounded model, historical broker-journal and comparison UI integration implemented; current reconciliation/admin/remote deployment remains open; full acceptance still requires all prerequisites plus at least eight weeks AND 100 closed trades under the specification's gates |
 | M6 | Capped LIVE | Explicit approval and bounded live risk after PAPER acceptance |
 | M7 | Evaluated evolution | Evidence-based lessons, candidate evaluation, promotion and rollback; no self-modified execution authority |
 

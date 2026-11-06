@@ -4,7 +4,8 @@ import argparse
 import hmac
 import json
 import secrets
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import ssl
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -48,8 +49,10 @@ def make_server(app, port=0):
             self.wfile.write(raw)
 
         def allowed(self, private=False):
-            origin = f"http://127.0.0.1:{self.server.server_port}"
-            if self.headers.get("Host") != origin.removeprefix("http://"):
+            origin = (
+                f"{getattr(self.server, 'scheme', 'http')}://127.0.0.1:{self.server.server_port}"
+            )
+            if self.headers.get("Host") != origin.split("://", 1)[1]:
                 return False
             if self.headers.get("Origin") not in (None, origin):
                 return False
@@ -86,6 +89,7 @@ def make_server(app, port=0):
                 "/api/history",
                 "/api/report",
                 "/api/incidents",
+                "/api/broker",
             ) or route.path.startswith("/api/trace/"):
                 try:
                     query = parse_qs(route.query, keep_blank_values=True, strict_parsing=True)
@@ -107,7 +111,10 @@ def make_server(app, port=0):
                             "/api/overview": app.overview,
                             "/api/history": app.history,
                             "/api/report": app.report,
+                            "/api/broker": app.broker,
                         }[route.path]()
+                    if not self.allowed(private=True):
+                        return self.reply(403, {"error": "Session expired"})
                     return self.reply(200, result)
                 except ValueError:
                     return self.reply(400, {"error": "Invalid inspection request"})
@@ -118,28 +125,42 @@ def make_server(app, port=0):
         def do_POST(self):
             if not self.allowed(private=True):
                 return self.reply(403, {"error": "Access denied or session expired"})
-            if self.path not in ("/api/chat", "/api/calendar"):
+            if self.path not in ("/api/chat", "/api/calendar", "/api/explain", "/api/study"):
                 return self.reply(404, {"error": "No execution route"})
             try:
                 size = int(self.headers.get("Content-Length", "-1"))
-                maximum = 4096 if self.path == "/api/chat" else LIMIT
+                maximum = (
+                    4096
+                    if self.path in ("/api/chat", "/api/explain")
+                    else 16 * 1024 * 1024
+                    if self.path == "/api/study"
+                    else LIMIT
+                )
                 if not 0 < size <= maximum or self.headers.get("Transfer-Encoding"):
                     # Drain only bounded rejected bodies so Windows can deliver the error.
                     if maximum < size <= LIMIT and not self.headers.get("Transfer-Encoding"):
                         self.rfile.read(size)
                     return self.reply(413, {"error": "Invalid request size"})
-                mime = "application/json" if self.path == "/api/chat" else "text/calendar"
+                mime = "text/calendar" if self.path == "/api/calendar" else "application/json"
                 if self.headers.get("Content-Type") != mime:
                     return self.reply(415, {"error": "Unsupported content type"})
                 raw = self.rfile.read(size)
                 if len(raw) != size:
                     raise ValueError("short request")
-                result = (
-                    app.chat(json.loads(raw))
-                    if self.path == "/api/chat"
-                    else app.upload_calendar(raw)
-                )
+                if self.path == "/api/chat":
+                    result = app.chat(json.loads(raw))
+                elif self.path == "/api/explain":
+                    result = app.explain(json.loads(raw))
+                elif self.path == "/api/study":
+                    result = app.upload_study(raw)
+                else:
+                    result = app.upload_calendar(raw)
+                # Access may expire while an external model is working.
+                if not self.allowed(private=True):
+                    return self.reply(403, {"error": "Session expired"})
                 return self.reply(200, result)
+            except PermissionError:
+                return self.reply(403, {"error": "Capability unavailable or session expired"})
             except (ValueError, KeyError, TypeError, UnicodeError):
                 return self.reply(
                     400,
@@ -150,7 +171,21 @@ def make_server(app, port=0):
                     503, {"error": "Inspection unavailable; no trading action performed"}
                 )
 
-    return HTTPServer(("127.0.0.1", port), Handler)
+    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+
+
+def configure_tls(server, certificate=None, key=None):
+    scheme = "http"
+    if bool(certificate) != bool(key):
+        raise ValueError("TLS certificate and key required together")
+    if certificate:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
+        context.load_cert_chain(certificate, key)
+        server.socket = context.wrap_socket(server.socket, server_side=True)
+        scheme = "https"
+    server.scheme = scheme
+    return scheme
 
 
 def main():
@@ -177,7 +212,25 @@ def main():
     parser.add_argument(
         "--session-file", type=Path, help="Write private local launch URL instead of printing"
     )
+    parser.add_argument("--model-key-file", type=Path, help="Optional ignored OpenAI env file")
+    parser.add_argument(
+        "--model-budget-file", type=Path, help="Explicit immutable ProviderBudget JSON"
+    )
+    parser.add_argument("--tls-cert", type=Path, help="Optional server certificate chain")
+    parser.add_argument("--tls-key", type=Path, help="Private key for optional loopback TLS")
+    parser.add_argument(
+        "--broker-config", type=Path, help="Exact private broker journal/run binding JSON"
+    )
+    parser.add_argument(
+        "--broker-env-file", type=Path, help="Ignored file containing BROKER_READ_DSN"
+    )
     args = parser.parse_args()
+    if bool(args.broker_config) != bool(args.broker_env_file):
+        parser.error("broker config and private DSN file required together")
+    if bool(args.tls_cert) != bool(args.tls_key):
+        parser.error("TLS certificate and key must be supplied together")
+    if bool(args.model_key_file) != bool(args.model_budget_file):
+        parser.error("model key and budget files must be supplied together")
     if args.snapshot:
         with args.snapshot.open("rb") as f:
             raw = f.read(8 * 1024 * 1024 + 1)
@@ -196,6 +249,26 @@ def main():
 
 
 def serve(snapshot, args):
+    budget = transport = None
+    if args.model_key_file:
+        from dotenv import dotenv_values
+
+        from fx_talanta.advisor.provider import OpenAITransport
+        from fx_talanta.advisor.provider_ledger import ProviderBudget
+
+        budget = ProviderBudget.model_validate_json(args.model_budget_file.read_bytes())
+        transport = OpenAITransport(dotenv_values(args.model_key_file).get("OPENAI_API_KEY", ""))
+    broker_view = None
+    if args.broker_config:
+        from dotenv import dotenv_values
+
+        from fx_talanta.dashboard.broker_view import BrokerView, BrokerViewConfig
+
+        config = BrokerViewConfig.model_validate_json(args.broker_config.read_bytes())
+        dsn = dotenv_values(args.broker_env_file).get("BROKER_READ_DSN", "")
+        if not dsn:
+            raise ValueError("broker read DSN missing")
+        broker_view = BrokerView(config, dsn)
     app = Dashboard(
         snapshot,
         args.state,
@@ -203,9 +276,13 @@ def serve(snapshot, args):
         SystemClock(),
         telemetry=args.telemetry,
         telemetry_run=args.telemetry_run,
+        model_budget=budget,
+        model_transport=transport,
+        broker_view=broker_view,
     )
     server = make_server(app, args.port)
-    url = f"http://127.0.0.1:{server.server_port}/#token={app.token}"
+    scheme = configure_tls(server, args.tls_cert, args.tls_key)
+    url = f"{scheme}://127.0.0.1:{server.server_port}/#token={app.token}"
     if args.session_file:
         with args.session_file.open("x", encoding="utf-8") as f:
             f.write(url)

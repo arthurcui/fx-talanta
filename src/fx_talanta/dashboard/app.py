@@ -11,11 +11,13 @@ from fx_talanta import bls_calendar, manual_bls
 from fx_talanta.advisor.access import AccessControl, AdvisorAPI, Principal, token_digest
 from fx_talanta.advisor.evidence import FIELDS, EvidenceQuery, ReadGrant, project
 from fx_talanta.advisor.rationale import from_receipt
+from fx_talanta.dashboard.model_advisor import ModelAdvisor
 from fx_talanta.dashboard.models import Channel
 from fx_talanta.dashboard.monitor import Monitor
 from fx_talanta.dashboard.operations import summary
 from fx_talanta.dashboard.store import InspectionJournal
 from fx_talanta.dashboard.trace import trace
+from fx_talanta.evaluation.matched import Study, evaluate
 from fx_talanta.provider_pipeline import Journal
 
 BLOCKERS = [
@@ -27,8 +29,21 @@ BLOCKERS = [
 
 
 class Dashboard:
-    def __init__(self, snapshot, state, token, clock, *, telemetry=None, telemetry_run=None):
+    def __init__(
+        self,
+        snapshot,
+        state,
+        token,
+        clock,
+        *,
+        telemetry=None,
+        telemetry_run=None,
+        model_budget=None,
+        model_transport=None,
+        broker_view=None,
+    ):
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
+        self.broker_view = broker_view
         self.state.mkdir(parents=True, exist_ok=True)
         if snapshot.captured_at > clock.now():
             raise ValueError("future snapshot")
@@ -53,6 +68,23 @@ class Dashboard:
         self.repo.conn.commit()
         try:
             self.monitor = Monitor(self.repo, telemetry, telemetry_run)
+            if (model_budget is None) != (model_transport is None):
+                raise ValueError("model budget and transport required together")
+            self.model = ModelAdvisor(self, model_budget, model_transport) if model_budget else None
+            self.repo.conn.execute(
+                "CREATE TABLE IF NOT EXISTS studies (seq INTEGER PRIMARY KEY, sha TEXT UNIQUE, "
+                "payload TEXT, report TEXT)"
+            )
+            self.repo.conn.execute(
+                "CREATE TABLE IF NOT EXISTS broker_view_binding (payload TEXT NOT NULL)"
+            )
+            identity = broker_view.config.model_dump_json() if broker_view else "DISABLED"
+            old = self.repo.conn.execute("SELECT payload FROM broker_view_binding").fetchone()
+            if old and old[0] != identity:
+                raise ValueError("broker view cannot rebind on resume")
+            if not old:
+                self.repo.conn.execute("INSERT INTO broker_view_binding VALUES (?)", (identity,))
+            self.repo.conn.commit()
         except Exception:
             self.repo.close()
             raise
@@ -61,6 +93,10 @@ class Dashboard:
         self.access.verify(token, self.snapshot.account, "read", self.clock.now())
 
     def overview(self):
+        with self.repo.lock:
+            return self._overview()
+
+    def _overview(self):
         now = self.clock.now()
         feed, observed = self.monitor.read(now)
         channels = {c.name: c for c in (self.snapshot.channels if observed is None else observed)}
@@ -139,9 +175,45 @@ class Dashboard:
             incidents=incidents,
             calendar=calendar,
             calendar_events=self.calendar_events(now),
-            advisor_mode="M4_EVIDENCE_READER_NO_MODEL",
+            advisor_mode="M4_BOUNDED_MODEL_OPTIONAL"
+            if self.model
+            else "M4_EVIDENCE_READER_NO_MODEL",
+            model=self.model.ledger.status() if self.model else dict(enabled=False),
+            study=self.study(),
+            broker_view_enabled=self.broker_view is not None,
             session_expires_at=self.expires_at.isoformat(),
         )
+
+    def broker(self):
+        if self.broker_view is None:
+            return dict(status="NOT_CONFIGURED", execution_enabled=False)
+        return self.broker_view.read(self.clock.now())
+
+    def explain(self, data):
+        if self.model is None:
+            raise PermissionError("model explanation is not enabled")
+        return self.model.answer(data)
+
+    def upload_study(self, raw):
+        if len(raw) > 16 * 1024 * 1024:
+            raise ValueError("study too large")
+        study = Study.model_validate_json(raw)
+        report = evaluate(study)
+        digest = hashlib.sha256(raw).hexdigest()
+        with self.repo.lock, self.repo.conn:
+            self.repo.conn.execute(
+                "INSERT INTO studies(sha,payload,report) VALUES (?,?,?) "
+                "ON CONFLICT(sha) DO NOTHING",
+                (digest, raw.decode(), json.dumps(report)),
+            )
+        return dict(source_sha256=digest, report=report)
+
+    def study(self):
+        with self.repo.lock:
+            row = self.repo.conn.execute(
+                "SELECT sha,report FROM studies ORDER BY seq DESC LIMIT 1"
+            ).fetchone()
+            return dict(source_sha256=row[0], report=json.loads(row[1])) if row else None
 
     def trace(self, record_id):
         return trace(self.snapshot, record_id)
@@ -326,6 +398,10 @@ class Dashboard:
         return result
 
     def upload_calendar(self, raw):
+        with self.repo.lock:
+            return self._upload_calendar(raw)
+
+    def _upload_calendar(self, raw):
         # Browser supplies bytes, never a filesystem path. Existing importer validates and archives.
         if len(raw) > bls_calendar.LIMIT:
             raise ValueError("calendar too large")

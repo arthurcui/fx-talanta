@@ -2,8 +2,10 @@
 
 The M5 dashboard is a working local browser interface for **offline inspection**.
 It shows EA/Python/MCP timing, evidence-backed advisor conversations, decision/risk
-records and manual BLS calendar uploads. It does not connect to MT5, read broker
-credentials, call a model, attach a gateway or enable any trading operation.
+records and manual BLS calendar uploads. Default launch is entirely local and
+offline. Optional explicit configuration adds bounded model citation selection
+and a read-only historical broker-journal panel, as described below. It never
+connects to MT5, attaches an execution gateway or enables trading.
 
 ## Open the UI
 
@@ -215,3 +217,60 @@ matched-evaluation and sustained M5 requirements. These are explicit tracked gat
 not live monitoring or an activation switch. See the consolidated
 [M5 engineering matrix](../engineering/m5-offline-acceptance.md) for reproduction,
 offline comparison inputs and the exact unfinished scope.
+
+
+## Optional read-only integrations
+
+All options use the same isolated inspection state, eight-hour bearer session,
+exact Host/Origin checks and loopback listener. Nothing here enables trading.
+Do not put credentials, account identities or private configuration in Git.
+
+**Bounded model explanations.** Supply both `--model-key-file .local/openai.env`
+(containing `OPENAI_API_KEY`) and `--model-budget-file .local/advisor-budget.json`.
+For a one-call development limit, the budget file is:
+
+```json
+{"max_calls":1,"reserve_per_call_usd":"0.02","total_reserved_usd":"0.02","basis":"One bounded development explanation"}
+```
+
+This is a conservative reservation policy, not measured API billing. The model
+checkbox is opt-in per browser session. With it off, chat stays deterministic/local.
+With it on, the question and bounded projected simulator evidence are sent to the
+fixed M4 OpenAI transport. Credentials and broker-observation records are excluded.
+The model can select citations or HOLD; it cannot execute or generate trusted facts.
+Unknown responses expose a same-request retry button, which inspects/reuses the
+original request rather than resending. Failures consume reservations; restart and
+resume do not refund them. Keep the state directory: a new directory constitutes
+a separate budget, not a way to retry uncertain calls. Omit both flags to disable
+model calls. The UI shows reserved/unresolved counts, not a billing total.
+
+**Offline comparison.** Upload a matched-study input through the comparison
+panel (see the actual schema in `evaluation/matched.py` and the fixture referenced
+by the engineering matrix). Inputs are bounded to 16 MiB, validated, hashed and
+retained in the isolated journal; duplicates are idempotent. Invalid input preserves
+the previous result. Results remain descriptive, retain excluded pairs and unknown
+uncertainty, and never qualify a candidate or count broker trades.
+
+**Broker observation journal.** Supply both `--broker-config .local/broker-view.json`
+and `--broker-env-file .local/broker-view.env`. The env file contains only the
+private `BROKER_READ_DSN` connection string. Prefer a separately provisioned
+SELECT-only role; the reader additionally enforces read-only transactions.
+Configuration must contain `label`, the exact `account` identity (PAPER/BROKER_DEMO),
+`run_id`, `binding_hash`, and `source: "COMMITTED_OBSERVER_JOURNAL"`. Obtain expected
+values from the preserved authorized campaign manifest, never by adopting an
+unknown database's identity. Resume rejects a changed binding. No automatic source
+discovery, role provisioning, broker login or collector startup occurs.
+
+The separate panel refreshes latest committed records while open. Captured balances,
+position/order/protection counts and quote ages are explicitly historical. Current
+positions stay UNKNOWN and entry readiness stays false. Source errors clear the
+panel. Native quote clock mapping is not certified by this reader. Do not infer
+current flatness, usable prices or present account health from old records.
+
+**Local alerts and TLS.** Enable the incident-alert checkbox for in-page notices on
+new sampled transitions while the page is polling. No OS permission, email or
+background notification is used. Optional `--tls-cert` and `--tls-key` must be
+supplied together; the certificate must be valid for 127.0.0.1 and trusted by your
+client. The service does not create/install certificates or change trust settings.
+The printed/session-file URL switches to HTTPS; Host/Origin checks remain exact.
+This is local TLS transport, not remote authentication/deployment qualification.

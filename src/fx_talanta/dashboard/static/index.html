@@ -126,6 +126,16 @@
                   ><span>Fresh ≠ permission to enter</span>
                 </div>
               </section>
+              <section class="panel" id="broker-panel" hidden>
+                <span class="eyebrow">SEPARATE READ-ONLY JOURNAL</span>
+                <h2>Recorded broker observation</h2>
+                <p class="section-note">
+                  Not the simulator account shown below. Historical positions
+                  and balances do not establish current exposure or readiness.
+                </p>
+                <p id="broker-status" role="status"></p>
+                <div id="broker-details"></div>
+              </section>
               <section class="panel" id="operations">
                 <span class="eyebrow">HISTORICAL OPERATING SUMMARY</span>
                 <h2>Outcomes & model usage</h2>
@@ -226,6 +236,26 @@
                   </div>
                 </div>
               </section>
+              <section class="panel" id="comparison">
+                <span class="eyebrow">OFFLINE EXPERIMENTS</span>
+                <h2>Matched comparison</h2>
+                <p class="section-note">
+                  Separate study input, not an account ledger or prospective
+                  qualification. Missing costs/outcomes remain exclusions.
+                </p>
+                <form id="study-form">
+                  <label for="study-file"
+                    >Import matched-offline-study/1 JSON</label
+                  ><input
+                    id="study-file"
+                    type="file"
+                    accept=".json,application/json"
+                    required
+                  /><button id="study-upload">Validate and retain study</button>
+                </form>
+                <p id="study-message" role="status"></p>
+                <div id="study-results"></div>
+              </section>
               <section class="panel" id="incidents">
                 <span class="eyebrow">LOCAL INSPECTION HISTORY</span>
                 <h2>Incidents & state transitions</h2>
@@ -242,6 +272,11 @@
                     placeholder="Channel, state or evidence hash"
                   /><button class="secondary">Search incidents</button>
                 </form>
+                <label
+                  ><input id="alert-changes" type="checkbox" />Show new incident
+                  changes in this page</label
+                >
+                <p id="incident-alert" role="status" aria-live="polite"></p>
                 <p id="incident-count" role="status"></p>
                 <div id="incident-events" class="incident-list"></div>
                 <button id="incident-older" class="secondary" disabled>
@@ -297,6 +332,14 @@
                 </article>
               </div>
               <p id="history-note" class="fine"></p>
+              <p id="model-status" class="fine" role="status"></p>
+              <label
+                ><input id="use-model" type="checkbox" disabled />Use bounded
+                model evidence selection</label
+              >
+              <button id="retry-explanation" class="secondary" hidden>
+                Check same explanation request
+              </button>
               <form id="chat-form">
                 <label for="question">Ask about this workspace</label
                 ><textarea
