@@ -2,8 +2,10 @@
 
 The M5 dashboard is a working local browser interface for **offline inspection**.
 It shows EA/Python/MCP timing, evidence-backed advisor conversations, decision/risk
-records and manual BLS calendar uploads. It does not connect to MT5, read broker
-credentials, call a model, attach a gateway or enable any trading operation.
+records and manual BLS calendar uploads. Default launch is entirely local and
+offline. Optional explicit configuration adds bounded model citation selection
+and a read-only historical broker-journal panel, as described below. It never
+connects to MT5, attaches an execution gateway or enables trading.
 
 ## Open the UI
 
