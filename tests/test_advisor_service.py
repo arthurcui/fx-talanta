@@ -225,12 +225,17 @@ def test_invalid_scope_has_no_writes_or_calls(fake_provider, change):
 
 @pytest.mark.integration
 def test_postgres_full_service_with_fake_transport(settings):
+    from dataclasses import replace
+
     from fx_talanta.domain.models import Environment
+    from fx_talanta.storage.bootstrap import bootstrap
     from fx_talanta.storage.config import fixture_account
     from fx_talanta.storage.repository import Repository
 
-    # Separate disabled SIMULATOR namespace from the PAPER ledger budget test.
-    repo = Repository(settings.runtime_dsn(Environment.LIVE), fixture_account(Environment.LIVE))
+    # Independent PAPER simulator budget; never reuse the broker-bound LIVE fixture.
+    settings = replace(settings, namespace="m4_service_" + uuid4().hex[:8])
+    bootstrap(settings)
+    repo = Repository(settings.runtime_dsn(Environment.PAPER), fixture_account(Environment.PAPER))
     repo, grant, query, options = setup(repo)
     calls = []
 
@@ -264,7 +269,7 @@ def test_postgres_full_service_with_fake_transport(settings):
     options["transport"] = transport
     result = service.answer_question(repo, grant, query, "Explain recorded risk", **options)
     restarted = Repository(
-        settings.runtime_dsn(Environment.LIVE), fixture_account(Environment.LIVE)
+        settings.runtime_dsn(Environment.PAPER), fixture_account(Environment.PAPER)
     )
     assert (
         service.answer_question(restarted, grant, query, "Explain recorded risk", **options)
