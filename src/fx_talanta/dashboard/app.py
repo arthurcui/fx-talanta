@@ -2,16 +2,19 @@
 
 import hashlib
 import json
+from contextlib import closing
 from datetime import timedelta
 from pathlib import Path
 from uuid import UUID, uuid4
 
 from fx_talanta import bls_calendar, manual_bls
 from fx_talanta.advisor.access import AccessControl, AdvisorAPI, Principal, token_digest
-from fx_talanta.advisor.evidence import FIELDS, EvidenceQuery
+from fx_talanta.advisor.evidence import FIELDS, EvidenceQuery, ReadGrant, project
 from fx_talanta.advisor.rationale import from_receipt
 from fx_talanta.dashboard.models import Channel
+from fx_talanta.dashboard.monitor import Monitor
 from fx_talanta.dashboard.store import InspectionJournal
+from fx_talanta.provider_pipeline import Journal
 
 BLOCKERS = [
     "Read-only dashboard: no execution capability is installed in this service.",
@@ -22,7 +25,7 @@ BLOCKERS = [
 
 
 class Dashboard:
-    def __init__(self, snapshot, state, token, clock):
+    def __init__(self, snapshot, state, token, clock, *, telemetry=None, telemetry_run=None):
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
         self.state.mkdir(parents=True, exist_ok=True)
         if snapshot.captured_at > clock.now():
@@ -46,14 +49,61 @@ class Dashboard:
             "CREATE TABLE IF NOT EXISTS chats (id TEXT PRIMARY KEY, fingerprint TEXT, result TEXT)"
         )
         self.repo.conn.commit()
+        try:
+            self.monitor = Monitor(self.repo, telemetry, telemetry_run)
+        except Exception:
+            self.repo.close()
+            raise
 
     def authorize(self, token):
         self.access.verify(token, self.snapshot.account, "read", self.clock.now())
 
     def overview(self):
         now = self.clock.now()
-        channels = {c.name: c for c in self.snapshot.channels}
+        feed, observed = self.monitor.read(now)
+        channels = {c.name: c for c in (self.snapshot.channels if observed is None else observed)}
+        metrics = [channels.get(n, Channel(name=n)).metrics(now) for n in ("EA", "Python", "MCP")]
+        if feed["status"] in {"MISSING", "INVALID", "STALE"}:
+            for metric in metrics:
+                metric["freshness"] = "SOURCE_UNAVAILABLE"
+                metric["telemetry_status"] = feed["status"]
+        calendar = manual_bls.status(self.state / "calendar", clock=self.clock.now)
+        states = {
+            "telemetry-source": feed["status"],
+            "calendar-review": "DUE" if calendar["reminder_due"] else "NOT_DUE",
+        }
+        for metric in metrics:
+            states[metric["name"] + "-quotes"] = metric["freshness"]
+            states[metric["name"] + "-connection"] = metric["connection"]
+            states[metric["name"] + "-telemetry"] = metric["telemetry_status"]
+        incidents = self.monitor.transitions(
+            states,
+            now,
+            {
+                "default": feed.get("sha256")
+                or hashlib.sha256(self.snapshot.model_dump_json().encode()).hexdigest(),
+                "calendar-review": calendar.get("source_hash", "NO_UPLOAD"),
+            },
+        )
         records = []
+        lessons = {}
+        lesson_ids = [r.record_id for r in self.snapshot.records if r.body.kind == "lesson"]
+        for i in range(0, len(lesson_ids), 32):
+            receipt = project(
+                self.snapshot.records,
+                ReadGrant(
+                    actor_id="dashboard-view",
+                    account=self.snapshot.account,
+                    expires_at=now + timedelta(seconds=1),
+                ),
+                EvidenceQuery(
+                    account=self.snapshot.account,
+                    as_of=self.snapshot.captured_at,
+                    record_ids=tuple(lesson_ids[i : i + 32]),
+                ),
+                now=now,
+            )
+            lessons.update({str(c.record_id): c.memory_eligible for c in receipt.citations})
         for r in reversed(self.snapshot.records):
             if r.body.kind not in FIELDS:
                 continue
@@ -67,6 +117,7 @@ class Dashboard:
                     facts={k: body[k] for k in FIELDS[r.body.kind]},
                     sha256=hashlib.sha256(r.model_dump_json().encode()).hexdigest(),
                     supersedes=str(r.supersedes) if r.supersedes else None,
+                    memory_eligible=lessons.get(str(r.record_id), False),
                 )
             )
         return dict(
@@ -80,13 +131,52 @@ class Dashboard:
             blockers=BLOCKERS,
             records=records,
             positions_status="NOT_RECONCILED",
-            channels=[
-                channels.get(n, Channel(name=n)).metrics(now) for n in ("EA", "Python", "MCP")
-            ],
-            calendar=manual_bls.status(self.state / "calendar", clock=self.clock.now),
+            channels=metrics,
+            telemetry_source=feed,
+            incidents=incidents,
+            calendar=calendar,
+            calendar_events=self.calendar_events(now),
             advisor_mode="M4_EVIDENCE_READER_NO_MODEL",
             session_expires_at=self.expires_at.isoformat(),
         )
+
+    def calendar_events(self, now):
+        path = self.state / "calendar" / "journal.sqlite"
+        if not path.exists():
+            return dict(total=0, shown=0, events=[])
+        with closing(Journal(path)) as journal:
+            value = manual_bls.latest(journal)
+            events = (
+                sorted(
+                    (e for e in value.events if e.scheduled_at >= now), key=lambda e: e.scheduled_at
+                )
+                if value
+                else []
+            )
+            return dict(
+                total=len(events),
+                shown=min(100, len(events)),
+                events=[
+                    dict(
+                        release=bls_calendar.RELEASES[e.release_id],
+                        scheduled_at=e.scheduled_at.isoformat(),
+                        status=e.status,
+                        uid=e.uid,
+                        source_hash=value.source_hash,
+                    )
+                    for e in events[:100]
+                ],
+            )
+
+    def history(self):
+        with self.repo.lock:
+            rows = self.repo.conn.execute(
+                "SELECT result FROM chats ORDER BY rowid DESC LIMIT 50"
+            ).fetchall()
+            total = self.repo.conn.execute("SELECT count(*) FROM chats").fetchone()[0]
+            return dict(
+                total=total, shown=len(rows), answers=[json.loads(r[0]) for r in reversed(rows)]
+            )
 
     def chat(self, data):
         if not isinstance(data, dict) or set(data) != {

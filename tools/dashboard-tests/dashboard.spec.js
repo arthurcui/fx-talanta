@@ -68,6 +68,18 @@ test("desktop: channels, cited advisor, filters, safe calendar failure", async (
   await page.locator("#upload").click();
   await expect(page.locator("#upload-result")).toContainText("Saved locally");
   await expect(page.locator("#calendar-details")).toContainText("1");
+  await expect(page.locator("#calendar-events")).toContainText(
+    "Employment Situation",
+  );
+  await expect(page.locator("#incident-events")).toContainText(
+    "calendar-review",
+  );
+  await page.goto("about:blank");
+  await page.goto(url);
+  await expect(page.locator("#history-note")).toContainText("saved answers");
+  await expect(page.locator("#messages")).toContainText(
+    "NEWS_COVERAGE_INCOMPLETE",
+  );
   await page.locator("#kind").selectOption("all");
   await page.screenshot({
     path: "test-results/dashboard-desktop.png",

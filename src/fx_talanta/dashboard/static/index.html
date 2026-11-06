@@ -19,6 +19,7 @@
         <a href="#workspace" class="active">◈ &nbsp; Overview</a
         ><a href="#channels">≋ &nbsp; Data channels</a
         ><a href="#journal">▤ &nbsp; Evidence journal</a
+        ><a href="#incidents">! &nbsp; Incidents</a
         ><a href="#calendar">▦ &nbsp; Calendar & news</a
         ><a href="#advisor">◇ &nbsp; Advisor</a>
       </nav>
@@ -113,6 +114,7 @@
                   transport delay belongs to that recorded sample.
                 </p>
                 <div id="channel-cards" class="channel-grid"></div>
+                <p id="feed-status" class="section-note" role="status"></p>
                 <div class="legend">
                   <span>Fresh ≤ 2s including clock uncertainty</span
                   ><span>Observer ceiling: 5s</span
@@ -133,6 +135,7 @@
                       <option value="risk">Risk checks</option>
                       <option value="execution">Execution</option>
                       <option value="experience">Experience</option>
+                      <option value="lesson">Lessons</option>
                     </select></label
                   >
                 </div>
@@ -156,6 +159,7 @@
                     <h3>BLS calendar</h3>
                     <p id="calendar-message"></p>
                     <dl id="calendar-details"></dl>
+                    <div id="calendar-events"></div>
                     <form id="upload-form">
                       <label for="ics">Import a BLS .ics file</label
                       ><input
@@ -185,6 +189,16 @@
                     </p>
                   </div>
                 </div>
+              </section>
+              <section class="panel" id="incidents">
+                <span class="eyebrow">LOCAL INSPECTION HISTORY</span>
+                <h2>Incidents & state transitions</h2>
+                <p class="section-note">
+                  Recorded when the dashboard is inspected. This is not
+                  continuous monitoring or campaign acceptance.
+                </p>
+                <p id="incident-count" role="status"></p>
+                <div id="incident-events" class="incident-list"></div>
               </section>
               <section class="panel blockers">
                 <span class="eyebrow">SAFETY BOUNDARY</span>
@@ -230,6 +244,7 @@
                   </p>
                 </article>
               </div>
+              <p id="history-note" class="fine"></p>
               <form id="chat-form">
                 <label for="question">Ask about this workspace</label
                 ><textarea

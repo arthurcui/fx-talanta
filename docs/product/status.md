@@ -95,3 +95,12 @@ this documentation or repository cleanup.
 See [demo execution details](../engineering/m2-demo-execution.md),
 [broker conclusions](../history/broker-campaign-conclusion.md) and
 [provider conclusions](../history/provider-campaign-conclusion.md).
+
+### Read-only monitoring continuation
+
+The dashboard also supports explicitly bound offline telemetry-file inspection,
+durable sampled incident transitions, resumed inspection state, saved advisor answers,
+upcoming manual-calendar events and M4 lesson eligibility at the snapshot cutoff.
+Missing/invalid/stale telemetry remains unavailable; old evidence is preserved.
+This is not a connected collector, continuous monitoring campaign or unattended
+PAPER qualification. See the [dashboard operating guide](../guides/dashboard.md).

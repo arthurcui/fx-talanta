@@ -7,11 +7,13 @@ import secrets
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from importlib.resources import files
 from pathlib import Path
+from uuid import UUID
 
 from fx_talanta.clock import SystemClock
 from fx_talanta.dashboard.app import Dashboard
 from fx_talanta.dashboard.demo import demo
 from fx_talanta.dashboard.models import Snapshot
+from fx_talanta.provider_pipeline import status_lock
 
 LIMIT = 2 * 1024 * 1024
 
@@ -77,9 +79,11 @@ def make_server(app, port=0):
                 return self.reply(
                     200, files("fx_talanta.dashboard").joinpath("static", name).read_bytes(), mime
                 )
-            if self.path == "/api/overview":
+            if self.path in ("/api/overview", "/api/history"):
                 try:
-                    return self.reply(200, app.overview())
+                    return self.reply(
+                        200, app.overview() if self.path == "/api/overview" else app.history()
+                    )
                 except Exception:
                     return self.reply(503, {"error": "Snapshot unavailable; readiness unknown"})
             return self.reply(404, {"error": "Unknown read-only route"})
@@ -93,6 +97,9 @@ def make_server(app, port=0):
                 size = int(self.headers.get("Content-Length", "-1"))
                 maximum = 4096 if self.path == "/api/chat" else LIMIT
                 if not 0 < size <= maximum or self.headers.get("Transfer-Encoding"):
+                    # Drain only bounded rejected bodies so Windows can deliver the error.
+                    if maximum < size <= LIMIT and not self.headers.get("Transfer-Encoding"):
+                        self.rfile.read(size)
                     return self.reply(413, {"error": "Invalid request size"})
                 mime = "application/json" if self.path == "/api/chat" else "text/calendar"
                 if self.headers.get("Content-Type") != mime:
@@ -134,6 +141,13 @@ def main():
     )
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument(
+        "--resume", action="store_true", help="Resume the same inspection state and binding"
+    )
+    parser.add_argument(
+        "--telemetry", type=Path, help="Explicit dashboard-telemetry/1 file; never auto-discovered"
+    )
+    parser.add_argument("--telemetry-run", type=UUID, help="Exact producer run binding")
+    parser.add_argument(
         "--session-file", type=Path, help="Write private local launch URL instead of printing"
     )
     args = parser.parse_args()
@@ -145,8 +159,24 @@ def main():
         snapshot = Snapshot.model_validate_json(raw)
     else:
         snapshot = demo()
-    args.state.mkdir(parents=True, exist_ok=False)
-    app = Dashboard(snapshot, args.state, secrets.token_urlsafe(32), SystemClock())
+    if args.resume:
+        if not (args.state / "inspection.sqlite").is_file():
+            parser.error("resume requires an existing inspection journal")
+    else:
+        args.state.mkdir(parents=True, exist_ok=False)
+    with status_lock(args.state / "dashboard.lock"):
+        serve(snapshot, args)
+
+
+def serve(snapshot, args):
+    app = Dashboard(
+        snapshot,
+        args.state,
+        secrets.token_urlsafe(32),
+        SystemClock(),
+        telemetry=args.telemetry,
+        telemetry_run=args.telemetry_run,
+    )
     server = make_server(app, args.port)
     url = f"http://127.0.0.1:{server.server_port}/#token={app.token}"
     if args.session_file:
