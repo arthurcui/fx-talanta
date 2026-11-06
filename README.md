@@ -69,7 +69,7 @@ implementation code is merged. There is no automatic broker failover.
 | Broker and USD/EUR/JPY news/calendar qualification (M1) | Incomplete; campaigns concluded without full qualification |
 | Fixed EA and bounded demo execution (M2) | Bounded same-session demo closeout verified; full fault-matrix acceptance remains |
 | Strategy baseline and replay (M3) | Research scope complete; B01 rejected for promotion; cost/availability gaps tracked |
-| Bounded AI/advisor (M4) | Offline evidence foundation in development; production models and authentication pending |
+| Bounded AI/advisor (M4) | Offline engineering acceptance passed; authenticated local access, bounded proposals and simulator integration; connected/economic qualification remains gated |
 | Trading dashboard | Planned |
 | Unattended PAPER, capped LIVE and evaluated evolution | Later gated milestones |
 
