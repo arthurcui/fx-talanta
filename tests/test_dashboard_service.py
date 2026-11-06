@@ -17,6 +17,68 @@ from fx_talanta.dashboard.server import configure_tls, make_server, validate_acc
 from fx_talanta.dashboard.service import InspectionService
 
 
+def test_broker_health_dimensions_survive_outage_and_restart(tmp_path):
+    from test_dashboard_broker import observation
+
+    from fx_talanta.dashboard.broker_view import project_observation
+
+    record, config = observation()
+
+    class Source:
+        fail = False
+
+        def read(self, now):
+            if self.fail:
+                raise ValueError("fixture unavailable")
+            return project_observation(record, config, now)
+
+    source = Source()
+    app = build(tmp_path)
+    try:
+        app.broker_view = source
+        worker = InspectionService(app)
+        worker.sample()  # No HTTP client or browser exists.
+        rows = dict(
+            app.repo.conn.execute(
+                "SELECT kind,state FROM incidents WHERE kind LIKE 'broker-%' ORDER BY seq"
+            ).fetchall()
+        )
+        assert rows["broker-journal"] == "RECENT_RECORDED"
+        assert rows["broker-transport-at-capture"] == "CONNECTED"
+        assert rows["broker-clock-policy"] == "UNKNOWN"
+        assert rows["broker-quote-freshness"] == "UNVERIFIED"
+        source.fail = True
+        worker.sample()
+        rows = dict(
+            app.repo.conn.execute(
+                "SELECT kind,state FROM incidents WHERE kind LIKE 'broker-%' ORDER BY seq"
+            ).fetchall()
+        )
+        assert rows["broker-journal"] == "UNAVAILABLE"
+        assert rows["broker-transport-at-capture"] == "UNKNOWN"
+        assert app.notifications.summary()["undelivered"] == 0
+    finally:
+        app.close()
+    app = build(tmp_path)
+    try:
+        app.broker_view = source
+        source.fail = False
+        worker = InspectionService(app)
+        worker.sample()
+        count = app.notifications.summary()["total"]
+        worker.sample()
+        assert app.notifications.summary()["total"] == count
+        rows = dict(
+            app.repo.conn.execute(
+                "SELECT kind,state FROM incidents WHERE kind LIKE 'broker-%' ORDER BY seq"
+            ).fetchall()
+        )
+        assert rows["broker-journal"] == "RECENT_RECORDED"
+        assert rows["broker-quote-freshness"] == "UNVERIFIED"
+    finally:
+        app.close()
+
+
 def build(path):
     return Dashboard(demo(), path, TOKEN, FakeClock(AT))
 

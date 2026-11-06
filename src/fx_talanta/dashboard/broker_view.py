@@ -63,6 +63,9 @@ def project_observation(record, config, now):
         current_positions="UNKNOWN",
         quote_clock="NOT_INDEPENDENTLY_VERIFIED_BY_DASHBOARD",
         snapshot=None,
+        transport_at_capture="UNKNOWN",
+        recorded_clock_policy="UNKNOWN",
+        quote_freshness="UNVERIFIED",
     )
     if body.snapshot:
         s = body.snapshot
@@ -73,6 +76,14 @@ def project_observation(record, config, now):
         ):
             raise ValueError("snapshot scope/time mismatch")
         age = (now - s.observed_at).total_seconds()
+        result["transport_at_capture"] = "CONNECTED" if s.connected else "DISCONNECTED"
+        if s.time_policy_from and s.time_policy_until and s.time_policy_evidence:
+            if not s.time_policy_from <= s.observed_at <= s.time_policy_until:
+                result["recorded_clock_policy"] = "INVALID_AT_CAPTURE"
+            elif now > s.time_policy_until:
+                result["recorded_clock_policy"] = "EXPIRED"
+            else:
+                result["recorded_clock_policy"] = "RECORDED_WINDOW_ONLY"
         result["snapshot"] = dict(
             observed_at=s.observed_at.isoformat(),
             age_seconds=age,
@@ -85,7 +96,9 @@ def project_observation(record, config, now):
             orders_at_capture=len(s.orders),
             positions_with_stop_at_capture=sum(p.stop_loss > 0 for p in s.positions),
             history_complete_at_capture=s.history_complete,
-            quote_ages_seconds={t.symbol: (now - t.at).total_seconds() for t in s.ticks},
+            # These ages describe saved timestamps, not independently verified latency.
+            recorded_quote_ages_seconds={t.symbol: (now - t.at).total_seconds() for t in s.ticks},
+            quote_ages_seconds={t.symbol: None for t in s.ticks},
         )
     return result
 
