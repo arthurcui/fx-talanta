@@ -86,8 +86,8 @@ natural-language conversation/command handling remain unfinished.
 | Evaluation | Frozen fixtures plus malformed/timeout/budget/expiry/injection cases; separate engineering success from any AI economic claim; prospective benefit remains an M5 gate |
 
 The [bounded provider evaluation](m4-provider.md) adds a real API smoke for selecting
-supplied evidence, with deterministic rendering and no trade authority. Production
-spend reservation/journaling, strategy proposals and authentication remain pending.
+supplied evidence, with deterministic rendering and no trade authority. Durable simulator
+provider reservations are implemented; strategy proposals and authentication remain pending.
 Completing these slices does not mark all M4 acceptance passed. The model cannot create execution
 authority, qualify missing market inputs, alter policy or deploy itself.
 
@@ -107,3 +107,52 @@ Journal tests additionally cover restart/re-delivery, changed request identity,
 late-arriving evidence, storage failure, oversized receipts and concurrent delivery.
 The PostgreSQL cases verify exactly two durable messages and unchanged source
 records. Test doubles are unit fixtures, not a SQLite substitute for production.
+
+## Integrated simulator advisor service
+
+`advisor.service.answer_question` connects a trusted read grant and explicit
+account/as-of/record IDs to the durable evidence journal, provider budget ledger
+and a saved, deterministically rendered answer. It does not take caller-supplied
+model evidence or expose an HTTP endpoint. The provider transport is injected;
+there is no auto-started worker or broker path.
+
+The append-only trail is:
+
+1. A service request binds actor, account, conversation, language, query, question
+   hash, deadline, budget and deterministic provider request ID. Raw question text
+   is not saved in the journal; it is still sent to the provider. A trusted caller
+   must avoid including secrets. Hashing is not authentication or redaction.
+2. The existing journal saves the exact evidence projection before any model call.
+3. The provider ledger reserves budget before sending and saves the result. Unknown
+   outcomes cannot become a successful saved answer or trigger another call.
+4. The service rechecks read access, renders the selected original facts, then saves
+   an answer with references to the service request, evidence and provider result.
+   No answer is returned until this final write commits.
+
+An answer is explicitly labeled `LATER_EVIDENCE_SELECTION_NOT_ORIGINAL_RATIONALE`.
+Its as-of/scope remain visible; historical evidence never becomes a current-account
+health claim. English/Chinese explanations share cited typed facts. HOLD reason
+codes are retained; the existing HOLD display string remains English.
+
+Identical retries within the original deadline return the same saved answer.
+Changed questions, actor, account, language, conversation, budget or deadline fail
+before another provider call. A failed final write can be retried using the saved
+provider result without another call. Expired grants/deadlines fail closed; expiry
+never authorizes a new request ID. An unresolved reservation raises an explicit
+error, preserving all intermediate receipts for investigation. This is a staged
+workflow, not one transaction held open across the external request.
+
+Tests use fake transport and isolated CI PostgreSQL, including a separate disabled
+SIMULATOR database fixture for the service's immutable lifetime budget. There are
+no real API calls or terminal operations in these tests. Verify with:
+
+```text
+python -m pytest tests/test_advisor_service.py
+python -m pytest tests/test_advisor_service.py --integration
+```
+
+This completes the evidence-selection conversation path for trusted simulator
+callers. It does not complete authenticated access, unrestricted chat, original
+rationale narration, strategy selection, simulated administrative commands, or M4
+as a whole. Questions and imperatives have no administrative interpretation in this
+service. M1/M3 gaps, B01 rejection and the two-second entry rule remain unchanged.
