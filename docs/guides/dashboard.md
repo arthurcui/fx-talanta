@@ -5,7 +5,8 @@ It shows EA/Python/MCP timing, evidence-backed advisor conversations, decision/r
 records and manual BLS calendar uploads. Default launch is entirely local and
 offline. Optional explicit configuration adds bounded model citation selection
 and a read-only historical broker-journal panel, as described below. It never
-connects to MT5, attaches an execution gateway or enables trading.
+connects to MT5 or enables broker trading. The optional operator mode below
+attaches only the existing offline PAPER simulator gateway.
 
 ## Open the UI
 
@@ -197,7 +198,8 @@ separators=(",", ":"), ensure_ascii=True)`). The digest detects content changes;
 is not a signature or independent proof of broker activity.
 
 All search, trace and report endpoints use the existing bearer session and exact
-Host/Origin restrictions. There is no execution route. Backend tests cover cycles,
+Host/Origin restrictions. Inspection endpoints cannot execute actions; optional
+operator routes below are separately authenticated and simulator-only. Backend tests cover cycles,
 missing links, unrelated correlated records, literal search, stable pagination,
 export hashes and authentication. Headless browser acceptance exercises search,
 trace, download and desktop/mobile layouts without opening user applications.
@@ -274,3 +276,74 @@ supplied together; the certificate must be valid for 127.0.0.1 and trusted by yo
 client. The service does not create/install certificates or change trust settings.
 The printed/session-file URL switches to HTTPS; Host/Origin checks remain exact.
 This is local TLS transport, not remote authentication/deployment qualification.
+
+
+## Simulator operator workflow
+
+Optional operator mode integrates the existing M4 gateway with the UI. It is
+restricted to **PAPER/SIMULATOR**, uses an existing disabled simulation database/run,
+and has no entry, proposal, LIVE or broker-management route. It does not create a
+run, generate market observations or start a collector. Broker-view configuration
+is entirely separate and never grants administration rights.
+
+Supply all four options alongside the exact simulator snapshot:
+
+```text
+--simulator-env .local/simulator.env
+--simulator-run <existing-simulator-run-uuid>
+--simulator-market .local/original-market.json
+--operator-token-file .local/operator-capability.txt
+```
+
+The env file uses the existing Settings format (FX_DB_* and PAPER password).
+The original-market file is a validated `Market` JSON, bounded to 1 MiB. The UI
+never updates its timestamps. Provide a separate, privately generated random ASCII
+operator capability of at least 32 characters; do not reuse the viewer URL token.
+No secret is stored in browser storage, the inspection journal or request logs.
+Keep the capability file outside the inspection state directory. The session expires
+with the viewer's eight-hour session. Revocation disables operator actions until a
+new explicitly configured server session; it cannot undo a completed action.
+
+Open the simulator panel, enter the capability and inspect the exact account/state.
+Preview one action; verify its account and position; type `SIMULATOR ONLY` and
+confirm within 20 seconds. The server binds the action to its original state version
+and account. Concurrent state changes, expired requests and stale original market
+inputs reject instead of silently changing intent. Confirmation retries inspect the
+same durable request; an interrupted request stays unknown and is never redispatched.
+A new preview is a new action, not a recovery mechanism for an uncertain result.
+
+Supported actions are pause, resume, close an owned simulated position, flatten
+owned positions and halt, and explicit simulator reconciliation. Startup places the
+gateway in reconciliation state. Use explicit reconciliation with new original
+market observations until the existing gateway's recovery conditions pass. This may
+manage simulated protection/exposure; it never creates an entry. Resume clears only
+the administrative pause and preserves loss, integrity, unresolved-order, news,
+calendar and two-second quote gates. Close/flatten success requires the simulator's
+confirmed state, not the button click or model response. All results are prominently
+simulation-only; they are not evidence of broker execution or M5 qualification.
+
+## Verified inspection backup and restore
+
+Stop the dashboard first. Backups acquire the same exclusive state lock; an active
+server is refused. Use new destination directories outside the source:
+
+```powershell
+python -m fx_talanta.dashboard.recovery backup --source .local/dashboard-session-01 --destination .local/dashboard-backup-01
+python -m fx_talanta.dashboard.recovery verify --source .local/dashboard-backup-01
+python -m fx_talanta.dashboard.recovery restore --source .local/dashboard-backup-01 --destination .local/dashboard-restored-01
+```
+
+The backup includes the inspection SQLite database and calendar evidence, uses
+SQLite's backup API, checks integrity and records SHA-256 per file. Restore verifies
+paths/hashes before creating a new destination and checks copied bytes. It refuses
+overwrite and nested source/destination paths. A partial restore is marked incomplete
+and cannot launch. Hashes detect corruption, not malicious replacement of the entire
+archive; keep these private evidence archives in trusted storage.
+
+A restored workspace is **inspection only**. It retains receipts, model reservations,
+operator uncertainty and historical data, but cannot acquire model-call or simulator
+operator authority. Resume it with the original immutable snapshot/broker-view binding
+and without model/operator options. The original database is not restored or changed;
+its recovery uses the existing storage procedure. Session/key/DSN files and arbitrary
+state-directory files are not backed up. Do not delete the restoration marker to
+bypass this boundary. Backup and restore do not retire or transfer execution authority.

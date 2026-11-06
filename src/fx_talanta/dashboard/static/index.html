@@ -126,6 +126,52 @@
                   ><span>Fresh ≠ permission to enter</span>
                 </div>
               </section>
+              <section class="panel" id="operator-panel" hidden>
+                <h2>Simulator administration</h2>
+                <p>
+                  Isolated PAPER simulator only. No broker orders or strategy
+                  activation. Viewer and advisor cannot authorize actions.
+                </p>
+                <label
+                  >Operator capability
+                  <input id="operator-token" type="password" autocomplete="off"
+                /></label>
+                <button id="operator-read" type="button">
+                  Inspect simulator
+                </button>
+                <pre id="operator-state"></pre>
+                <label
+                  >Action
+                  <select id="operator-action">
+                    <option>PAUSE_ENTRIES</option>
+                    <option>RECONCILE_SIMULATOR</option>
+                    <option>RESUME_ENTRIES</option>
+                    <option>CLOSE_OWNED_POSITION</option>
+                    <option>FLATTEN_OWNED_AND_HALT</option>
+                  </select></label
+                >
+                <label
+                  >Owned position
+                  <select id="operator-position">
+                    <option value="">None</option>
+                  </select></label
+                >
+                <button id="operator-preview" type="button">
+                  Preview simulator action
+                </button>
+                <p id="operator-preview-text"></p>
+                <label
+                  >Type SIMULATOR ONLY to confirm
+                  <input id="operator-confirmation" autocomplete="off"
+                /></label>
+                <button id="operator-confirm" type="button" disabled>
+                  Confirm preview
+                </button>
+                <button id="operator-revoke" type="button">
+                  Revoke this operator session
+                </button>
+                <p id="operator-result" role="status"></p>
+              </section>
               <section class="panel" id="broker-panel" hidden>
                 <span class="eyebrow">SEPARATE READ-ONLY JOURNAL</span>
                 <h2>Recorded broker observation</h2>

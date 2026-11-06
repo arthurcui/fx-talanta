@@ -21,7 +21,7 @@ from fx_talanta.evaluation.matched import Study, evaluate
 from fx_talanta.provider_pipeline import Journal
 
 BLOCKERS = [
-    "Read-only dashboard: no execution capability is installed in this service.",
+    "Broker trading disabled: optional operator actions affect only the offline simulator.",
     "M1 broker and USD/EUR/JPY provider qualification gaps remain open.",
     "M2 connected fault-matrix and M3 cost/source qualification remain open.",
     "B01 remains REJECT_FOR_PROMOTION; unattended PAPER is not qualified.",
@@ -41,10 +41,24 @@ class Dashboard:
         model_budget=None,
         model_transport=None,
         broker_view=None,
+        operator_gateway=None,
+        operator_market=None,
+        operator_token=None,
     ):
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
         self.broker_view = broker_view
         self.state.mkdir(parents=True, exist_ok=True)
+        self.operator = None
+        marker = self.state / "restored-inspection-only.json"
+        if (
+            marker.exists()
+            and json.loads(marker.read_text()).get("status") != "VERIFIED_INSPECTION_ONLY"
+        ):
+            raise PermissionError("restore incomplete")
+        if (self.state / "restored-inspection-only.json").exists() and (
+            model_budget or operator_gateway
+        ):
+            raise PermissionError("restored state is inspection only; no copied authority")
         if snapshot.captured_at > clock.now():
             raise ValueError("future snapshot")
         self.repo = InspectionJournal(self.state / "inspection.sqlite", snapshot)
@@ -68,6 +82,12 @@ class Dashboard:
         self.repo.conn.commit()
         try:
             self.monitor = Monitor(self.repo, telemetry, telemetry_run)
+            if operator_gateway is not None:
+                from fx_talanta.dashboard.operator import Operator
+
+                self.operator = Operator(self, operator_gateway, operator_market, operator_token)
+            elif operator_market is not None or operator_token is not None:
+                raise ValueError("complete operator configuration required")
             if (model_budget is None) != (model_transport is None):
                 raise ValueError("model budget and transport required together")
             self.model = ModelAdvisor(self, model_budget, model_transport) if model_budget else None
@@ -180,6 +200,7 @@ class Dashboard:
             else "M4_EVIDENCE_READER_NO_MODEL",
             model=self.model.ledger.status() if self.model else dict(enabled=False),
             study=self.study(),
+            operator_enabled=self.operator is not None,
             broker_view_enabled=self.broker_view is not None,
             session_expires_at=self.expires_at.isoformat(),
         )

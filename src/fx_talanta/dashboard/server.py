@@ -58,6 +58,16 @@ def make_server(app, port=0):
                 return False
             if self.headers.get("Sec-Fetch-Site") not in (None, "same-origin", "none"):
                 return False
+            if private and self.path.startswith("/api/operator/"):
+                if app.operator is None:
+                    return False
+                try:
+                    app.operator.authorize(
+                        self.headers.get("Authorization", "").removeprefix("Bearer ")
+                    )
+                except PermissionError:
+                    return False
+                return True
             if private:
                 supplied = self.headers.get("Authorization", "")
                 if not supplied.isascii() or not hmac.compare_digest(
@@ -73,6 +83,14 @@ def make_server(app, port=0):
         def do_GET(self):
             if not self.allowed(private=self.path.startswith("/api/")):
                 return self.reply(403, {"error": "Access denied or session expired"})
+            if self.path == "/api/operator/state":
+                try:
+                    result = app.operator.status(
+                        self.headers.get("Authorization", "").removeprefix("Bearer ")
+                    )
+                    return self.reply(200, result)
+                except Exception:
+                    return self.reply(503, {"error": "Simulator state unavailable"})
             assets = {
                 "/": ("index.html", "text/html; charset=utf-8"),
                 "/app.js": ("app.js", "text/javascript"),
@@ -125,6 +143,35 @@ def make_server(app, port=0):
         def do_POST(self):
             if not self.allowed(private=True):
                 return self.reply(403, {"error": "Access denied or session expired"})
+            if self.path in (
+                "/api/operator/preview",
+                "/api/operator/confirm",
+                "/api/operator/revoke",
+            ):
+                try:
+                    size = int(self.headers.get("Content-Length", "-1"))
+                    if not 0 < size <= 4096 or self.headers.get("Transfer-Encoding"):
+                        return self.reply(413, {"error": "Invalid request size"})
+                    if self.headers.get("Content-Type") != "application/json":
+                        return self.reply(415, {"error": "JSON required"})
+                    raw = self.rfile.read(size)
+                    data = json.loads(raw)
+                    token = self.headers.get("Authorization", "").removeprefix("Bearer ")
+                    method = self.path.rsplit("/", 1)[1]
+                    result = (
+                        app.operator.revoke(token)
+                        if method == "revoke"
+                        else getattr(app.operator, method)(token, data)
+                    )
+                    return self.reply(200, result)
+                except PermissionError:
+                    return self.reply(403, {"error": "Operator denied"})
+                except (ValueError, TypeError, KeyError):
+                    return self.reply(400, {"error": "Invalid or stale simulator command"})
+                except Exception:
+                    return self.reply(
+                        503, {"error": "Outcome unknown; inspect the same request, never resend"}
+                    )
             if self.path not in ("/api/chat", "/api/calendar", "/api/explain", "/api/study"):
                 return self.reply(404, {"error": "No execution route"})
             try:
@@ -224,7 +271,27 @@ def main():
     parser.add_argument(
         "--broker-env-file", type=Path, help="Ignored file containing BROKER_READ_DSN"
     )
+    parser.add_argument(
+        "--simulator-env", type=Path, help="Explicit disabled PAPER/SIMULATOR database settings"
+    )
+    parser.add_argument("--simulator-run", type=UUID)
+    parser.add_argument(
+        "--simulator-market",
+        type=Path,
+        help="Original timestamped Market JSON; never refreshed by UI",
+    )
+    parser.add_argument(
+        "--operator-token-file",
+        type=Path,
+        help="Private file containing separate operator capability",
+    )
     args = parser.parse_args()
+    if any(
+        (args.simulator_env, args.simulator_run, args.simulator_market, args.operator_token_file)
+    ) and not all(
+        (args.simulator_env, args.simulator_run, args.simulator_market, args.operator_token_file)
+    ):
+        parser.error("all four simulator/operator options required")
     if bool(args.broker_config) != bool(args.broker_env_file):
         parser.error("broker config and private DSN file required together")
     if bool(args.tls_cert) != bool(args.tls_key):
@@ -269,32 +336,89 @@ def serve(snapshot, args):
         if not dsn:
             raise ValueError("broker read DSN missing")
         broker_view = BrokerView(config, dsn)
-    app = Dashboard(
-        snapshot,
-        args.state,
-        secrets.token_urlsafe(32),
-        SystemClock(),
-        telemetry=args.telemetry,
-        telemetry_run=args.telemetry_run,
-        model_budget=budget,
-        model_transport=transport,
-        broker_view=broker_view,
-    )
-    server = make_server(app, args.port)
-    scheme = configure_tls(server, args.tls_cert, args.tls_key)
-    url = f"{scheme}://127.0.0.1:{server.server_port}/#token={app.token}"
-    if args.session_file:
-        with args.session_file.open("x", encoding="utf-8") as f:
-            f.write(url)
-    else:
-        print("Private local dashboard URL (do not share): " + url, flush=True)
+    gateway = market_source = operator_token = None
+    if args.simulator_env:
+        from fx_talanta.domain.models import Environment
+        from fx_talanta.domain.offline import Market
+        from fx_talanta.gateway.offline import Gateway
+        from fx_talanta.storage.config import Settings
+
+        if snapshot.account.venue != "SIMULATOR" or snapshot.account.environment != "PAPER":
+            raise ValueError("operator requires explicit simulator snapshot")
+        if (args.state / "restored-inspection-only.json").exists():
+            raise PermissionError("restored workspace cannot acquire simulator authority")
+        operator_token = args.operator_token_file.read_text().strip()
+        if len(operator_token) < 32 or not operator_token.isascii():
+            raise ValueError("invalid operator capability")
+
+        def market_source():
+            with args.simulator_market.open("rb") as stream:
+                raw = stream.read(1024 * 1024 + 1)
+            if len(raw) > 1024 * 1024:
+                raise ValueError("market file too large")
+            return Market.model_validate_json(raw)
+
+        # Existing database only: no bootstrap, account adoption, terminal or entry path.
+        settings = Settings.load(args.simulator_env, runtime=Environment.PAPER)
+        import psycopg
+
+        from fx_talanta.domain.offline import GatewayBook
+
+        dsn = settings.runtime_dsn(Environment.PAPER)
+        with psycopg.connect(
+            dsn,
+            connect_timeout=3,
+            options="-c default_transaction_read_only=on -c statement_timeout=3000",
+        ) as conn:
+            binding = conn.execute(
+                "SELECT identity,execution_enabled FROM fx.account_binding"
+            ).fetchone()
+            if not binding or binding[0] != snapshot.account.model_dump(mode="json") or binding[1]:
+                raise PermissionError("disabled simulator binding required")
+            row = conn.execute(
+                "SELECT payload FROM fx.offline_journal WHERE run_id=%s AND stream='gateway' "
+                "ORDER BY revision DESC LIMIT 1",
+                (args.simulator_run,),
+            ).fetchone()
+            if not row:
+                raise ValueError("existing simulator run required")
+            book = GatewayBook.model_validate(row[0])
+        gateway = Gateway(dsn, snapshot.account, args.simulator_run, SystemClock(), book.policy)
+    app = server = None
     try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
+        app = Dashboard(
+            snapshot,
+            args.state,
+            secrets.token_urlsafe(32),
+            SystemClock(),
+            telemetry=args.telemetry,
+            telemetry_run=args.telemetry_run,
+            model_budget=budget,
+            model_transport=transport,
+            broker_view=broker_view,
+            operator_gateway=gateway,
+            operator_market=market_source,
+            operator_token=operator_token,
+        )
+        server = make_server(app, args.port)
+        scheme = configure_tls(server, args.tls_cert, args.tls_key)
+        url = f"{scheme}://127.0.0.1:{server.server_port}/#token={app.token}"
+        if args.session_file:
+            with args.session_file.open("x", encoding="utf-8") as f:
+                f.write(url)
+        else:
+            print("Private local dashboard URL (do not share): " + url, flush=True)
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
     finally:
-        server.server_close()
-        app.close()
+        if server is not None:
+            server.server_close()
+        if app is not None:
+            app.close()
+        if gateway is not None:
+            gateway.close()
 
 
 if __name__ == "__main__":

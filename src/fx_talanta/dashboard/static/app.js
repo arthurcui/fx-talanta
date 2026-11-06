@@ -41,6 +41,7 @@ async function api(path, options = {}) {
 }
 function render(data) {
   snapshot = data;
+  $("operator-panel").hidden = !data.operator_enabled;
   $("dashboard").hidden = false;
   $("login").hidden = true;
   $("source").textContent =
@@ -610,3 +611,73 @@ refresh();
 setInterval(() => {
   if (!document.hidden) refresh();
 }, 5000);
+
+let operatorPreview = null;
+async function operatorCall(path, data) {
+  return api("/api/operator/" + path, {
+    method: data ? "POST" : "GET",
+    headers: {
+      Authorization: `Bearer ${$("operator-token").value}`,
+      "Content-Type": "application/json",
+    },
+    ...(data ? { body: JSON.stringify(data) } : {}),
+  });
+}
+$("operator-read").addEventListener("click", async () => {
+  try {
+    const value = await operatorCall("state");
+    $("operator-state").textContent = JSON.stringify(value.state, null, 2);
+    $("operator-position").replaceChildren(
+      new Option("None", ""),
+      ...value.state.owned_positions.map((id) => new Option(id, id)),
+    );
+  } catch (e) {
+    $("operator-state").textContent = "Unavailable";
+    $("operator-result").textContent = e.message;
+  }
+});
+$("operator-preview").addEventListener("click", async () => {
+  operatorPreview = null;
+  $("operator-confirm").disabled = true;
+  try {
+    operatorPreview = await operatorCall("preview", {
+      action: $("operator-action").value,
+      position_id: $("operator-position").value || null,
+    });
+    $("operator-preview-text").textContent =
+      `SIMULATOR ONLY: ${operatorPreview.text}. Expires ${stamp(operatorPreview.expires_at)}`;
+    $("operator-confirmation").value = "";
+    $("operator-confirm").disabled = false;
+  } catch (e) {
+    $("operator-preview-text").textContent = "No valid preview";
+    $("operator-result").textContent = e.message;
+  }
+});
+$("operator-confirm").addEventListener("click", async () => {
+  if (!operatorPreview) return;
+  $("operator-confirm").disabled = true;
+  try {
+    const result = await operatorCall("confirm", {
+      request_id: operatorPreview.request_id,
+      confirmation: $("operator-confirmation").value,
+    });
+    $("operator-result").textContent =
+      `Simulator: ${result.status} / ${result.reason}. Trading disabled.`;
+  } catch (e) {
+    $("operator-result").textContent =
+      `${e.message}. Retain this preview to inspect the same request; do not create another action.`;
+  } finally {
+    $("operator-confirm").disabled = false;
+  }
+});
+$("operator-revoke").addEventListener("click", async () => {
+  try {
+    await operatorCall("revoke", {});
+    $("operator-token").value = "";
+    operatorPreview = null;
+    $("operator-confirm").disabled = true;
+    $("operator-result").textContent = "Operator session revoked.";
+  } catch (e) {
+    $("operator-result").textContent = e.message;
+  }
+});
