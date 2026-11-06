@@ -94,6 +94,15 @@ def test_missing_invalid_and_source_stale_are_distinct():
     assert value["freshness"] == "SOURCE_STALE"
 
 
+def test_future_at_receipt_never_becomes_fresh_when_wall_clock_catches_up():
+    value = project_quotes(
+        (quote(-0.5),), proof(), AT + timedelta(seconds=1), 1001, host_identity(), True
+    )
+    assert value["quotes"][0]["age_seconds"] == 0.5
+    assert value["quotes"][0]["state"] == "FUTURE"
+    assert value["freshness"] == "NOT_FRESH"
+
+
 def test_actual_capture_view_monitor_sequence(tmp_path, demo_binding):
     binding = demo_binding.model_copy(
         update={

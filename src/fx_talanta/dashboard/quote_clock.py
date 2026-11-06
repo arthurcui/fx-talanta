@@ -80,7 +80,14 @@ def project_quotes(samples, proof, now, monotonic, host, source_recent):
             )
             age = (now - original).total_seconds()
             upper = age + error / 1000
-            state = "FUTURE" if age < 0 else "FRESH" if upper <= 2 else "STALE"
+            # A timestamp future-dated at receipt cannot become valid merely by waiting.
+            state = (
+                "FUTURE"
+                if original > sample.received_at or age < 0
+                else "FRESH"
+                if upper <= 2
+                else "STALE"
+            )
         if not source_recent:
             state = "SOURCE_STALE"
         rows.append(

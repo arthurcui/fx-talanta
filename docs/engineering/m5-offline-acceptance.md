@@ -262,13 +262,17 @@ and fresh actual quotes after the file fault. It preserved the pre-loss receipt
 and delivered all local notifications without a browser. No broker disconnection
 was injected, no terminal setting changed and no order was submitted.
 
-[Local UI acceptance](../evidence/m5-verified-quotes-local-20261106.json) records
-115 passing backend checks and seven passing headless browser flows with no skips,
+[Final-review UI acceptance](../evidence/m5-verified-quotes-review-20261106.json) records
+116 passing backend checks and seven passing headless browser flows with no skips,
 including the two-second boundary with
 uncertainty, future timestamps, missing/invalid quotes, clock expiry/jump/host loss,
 receipt provenance, recovery and browser freshness expiry. The real broker check
 uses HTTP; fixture-driven headless browser tests verify rendering and interaction.
 These are separate evidence scopes, not a claim of a live browser trading session.
+The final review also prevents a future-dated-at-receipt quote from becoming fresh
+merely as time passes. All twelve saved actual quotes were independently checked
+against their receipt times and were not future-dated. The
+[preceding local report](../evidence/m5-verified-quotes-local-20261106.json) remains retained.
 The [earlier development check](../evidence/m5-verified-quotes-preliminary-20261106.json)
 is retained separately; the final actual check followed the UTC/monotonic sampling
 alignment fix. Neither short check substitutes for sustained qualification.
