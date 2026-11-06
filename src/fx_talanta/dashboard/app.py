@@ -13,6 +13,7 @@ from fx_talanta.advisor.evidence import FIELDS, EvidenceQuery, ReadGrant, projec
 from fx_talanta.advisor.rationale import from_receipt
 from fx_talanta.dashboard.models import Channel
 from fx_talanta.dashboard.monitor import Monitor
+from fx_talanta.dashboard.operations import summary
 from fx_talanta.dashboard.store import InspectionJournal
 from fx_talanta.dashboard.trace import trace
 from fx_talanta.provider_pipeline import Journal
@@ -132,6 +133,7 @@ class Dashboard:
             blockers=BLOCKERS,
             records=records,
             positions_status="NOT_RECONCILED",
+            operations=summary(self.snapshot),
             channels=metrics,
             telemetry_source=feed,
             incidents=incidents,

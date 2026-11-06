@@ -80,6 +80,26 @@ function render(data) {
       ? "Snapshot only · no telemetry file configured"
       : `Telemetry file: ${feed.status} · sequence ${feed.sequence ?? "unknown"} · ${feed.provenance || "retained evidence only"}. No broker collector is attached.`;
   if (!incidentBrowsing) renderIncidents(data.incidents);
+  const ops = data.operations;
+  const lines = [
+    `Cutoff ${stamp(ops.cutoff)} · ${ops.record_versions} record versions · ${ops.corrections} corrections`,
+    `Decisions: ${JSON.stringify(ops.decisions)}`,
+    `Operational outcomes: ${JSON.stringify(ops.operational_outcomes)}`,
+    `Compliance: ${JSON.stringify(ops.compliance)}`,
+    `Known economic labels: ${JSON.stringify(ops.known_economic_labels)} · ${ops.economics_unavailable} unavailable`,
+    `Equity / net P&L / drawdown / exposure / open positions: Unknown. ${ops.account_metrics_reason}`,
+  ];
+  $("operation-summary").replaceChildren(
+    ...lines.map((text) => node("p", text, "news-item")),
+  );
+  const usage = ops.model_usage;
+  $("usage-summary").textContent =
+    `Recorded traces (including fixtures, not billing): ${usage.distinct_requests} distinct requests; ${usage.conflicting_requests} conflicts excluded; ${usage.input_tokens} input / ${usage.output_tokens} output tokens; maximum latency ${ms(usage.max_latency_ms)}.`;
+  $("qualification-gates").replaceChildren(
+    ...ops.gates.map((g) =>
+      node("p", `${g.id}: ${g.requirement} — ${g.status}`, "news-item"),
+    ),
+  );
   const selected = $("selected").value;
   $("selected").replaceChildren(
     new Option("Workspace questions", ""),

@@ -110,3 +110,11 @@ full retained-incident search with stable pagination, and hashed bounded inspect
 report downloads. It exposes gaps rather than synthesizing missing execution or
 learning evidence; all routes remain authenticated and read-only with respect to
 trading. M5 unattended PAPER prerequisites and observation gates remain unchanged.
+
+
+The consolidated [M5 engineering matrix](../engineering/m5-offline-acceptance.md)
+adds historical operating/model-usage summaries, explicit qualification gates,
+matched offline comparison validation and one source-hashed acceptance entry point.
+It records the exact connected/admin/model/deployment work still unfinished; this
+is not full M5 completion. Historical counts do not establish current account
+performance, and synthetic paired results do not qualify a strategy.

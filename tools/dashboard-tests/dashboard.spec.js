@@ -44,6 +44,16 @@ test("desktop: channels, cited advisor, filters, safe calendar failure", async (
   await page.goto(url);
   await expect(page.getByText("SYNTHETIC TOUR", { exact: true })).toBeVisible();
   await expect(page.locator("#channel-cards .channel")).toHaveCount(3);
+  await expect(page.locator("#operation-summary")).toContainText(
+    "record versions",
+  );
+  await expect(page.locator("#usage-summary")).toContainText("not billing");
+  await expect(page.locator("#qualification-gates")).toContainText(
+    "eight weeks AND 100 closed trades",
+  );
+  await expect(page.locator("#qualification-gates")).toContainText(
+    "NOT QUALIFIED",
+  );
   await expect(page.locator("#channel-cards")).toContainText("30 ms");
   await expect(page.locator("#channel-cards")).toContainText("entry blocked");
   await page.getByRole("button", { name: "Why are we waiting?" }).click();

@@ -1,0 +1,66 @@
+{
+  "schema_version": "matched-offline-report/1",
+  "provenance": "SYNTHETIC",
+  "study_sha256": "c1872408612dca77ddb1ffeff537c2f73c198941707b125fcf99b0127c9ced86",
+  "candidate_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "cutoff": "2026-11-05T18:00:00+00:00",
+  "snapshots": 1,
+  "samples": 3,
+  "comparisons": [
+    {
+      "left": "AI_NO_NEWS",
+      "right": "NO_AI",
+      "complete_pairs": 1,
+      "excluded_pairs": 0,
+      "mean_net_difference_usd": "1.0",
+      "minimum_difference_usd": "1.0",
+      "maximum_difference_usd": "1.0",
+      "uncertainty": "NOT_ESTIMATED; dependence and small samples require predeclared analysis"
+    },
+    {
+      "left": "AI_NEWS",
+      "right": "AI_NO_NEWS",
+      "complete_pairs": 1,
+      "excluded_pairs": 0,
+      "mean_net_difference_usd": "1.0",
+      "minimum_difference_usd": "1.0",
+      "maximum_difference_usd": "1.0",
+      "uncertainty": "NOT_ESTIMATED; dependence and small samples require predeclared analysis"
+    }
+  ],
+  "arms": [
+    {
+      "name": "NO_AI",
+      "observations": 1,
+      "missed_entries": 0,
+      "unknown_net_outcomes": 0,
+      "max_latency_ms": 100
+    },
+    {
+      "name": "AI_NO_NEWS",
+      "observations": 1,
+      "missed_entries": 0,
+      "unknown_net_outcomes": 0,
+      "max_latency_ms": 100
+    },
+    {
+      "name": "AI_NEWS",
+      "observations": 1,
+      "missed_entries": 0,
+      "unknown_net_outcomes": 0,
+      "max_latency_ms": 100
+    }
+  ],
+  "result": "DESCRIPTIVE_OFFLINE_ONLY",
+  "execution_enabled": false,
+  "prospective_evidence_verified": false,
+  "qualified_for_unattended_paper": false,
+  "minimum_paper_weeks": 8,
+  "minimum_closed_trades": 100,
+  "limitations": [
+    "Input metadata is not independently verified delivery evidence",
+    "No broker closed-trade count or sustained coverage inferred",
+    "Missing costs/outcomes excluded, never imputed as zero",
+    "M1-M3 gaps and B01 rejection remain unchanged"
+  ]
+}

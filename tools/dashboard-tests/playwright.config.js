@@ -9,5 +9,14 @@ export default defineConfig({
     headless: true,
     viewport: { width: 1512, height: 1100 },
   },
-  reporter: [["list"], ["json", { outputFile: "test-results/results.json" }]],
+  reporter: [
+    ["list"],
+    [
+      "json",
+      {
+        outputFile:
+          process.env.FX_DASHBOARD_REPORT || "test-results/results.json",
+      },
+    ],
+  ],
 });

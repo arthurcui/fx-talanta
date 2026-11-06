@@ -56,7 +56,14 @@ jobs:
           npm ci
           npx prettier --check ../../src/fx_talanta/dashboard/static/* *.js package.json
           npx playwright install --with-deps chromium --only-shell
-          npm test
+          cd ../..
+          python -m tools.qualification.m5_acceptance --output .local/m5-acceptance.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m5-offline-engineering-acceptance
+          path: .local/m5-acceptance.json
+          include-hidden-files: true
       - name: Verify packaged dashboard assets
         run: |
           python -m pip wheel --no-deps . --wheel-dir .local/wheels
