@@ -609,11 +609,20 @@ class Runner:
                 if stops
                 else "WINDOW_EXPIRED"
                 if self.clock.now() > config.deadline
+                else "CAPACITY_REACHED"
+                if len(rows) >= config.max_observations
                 else "AWAITING_INPUT",
                 provenance=config.provenance,
                 registered_at=body["registered_at"],
                 deadline=config.deadline.isoformat(),
                 observations=len(rows),
+                max_observations=config.max_observations,
+                decisions=len(engine.decisions),
+                outcomes=len(engine.settled),
+                revisions=0,
+                missing_decisions=0,
+                last_input_at=at.isoformat(),
+                input_age_seconds=(self.clock.now() - at).total_seconds(),
                 receipt_sequence=len(rows) + bool(stops),
                 receipt_hash=stops[0][2] if stops else head,
                 registration_hash=expected_hash,

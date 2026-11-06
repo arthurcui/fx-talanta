@@ -2,14 +2,26 @@
 
 import json
 from pathlib import Path
+from typing import Literal
+
+from pydantic import model_serializer
 
 from fx_talanta.domain.models import FrozenModel, Hash
 from fx_talanta.evaluation.ledger import Ledger
+from fx_talanta.evaluation.runner import Runner
 
 
 class WorkflowConfig(FrozenModel):
     journal: str
     plan_hash: Hash
+    source_kind: Literal["RECEIPTS", "RUNNER"] = "RECEIPTS"
+
+    @model_serializer(mode="wrap")
+    def compatible_binding(self, handler):
+        data = handler(self)
+        if self.source_kind == "RECEIPTS":
+            data.pop("source_kind", None)
+        return data
 
 
 class WorkflowView:
@@ -38,7 +50,8 @@ class WorkflowView:
             with self.repo.lock:
                 row = self.repo.conn.execute("SELECT seq,sha FROM workflow_cursor").fetchone()
                 checkpoint = tuple(row) if row and row[0] is not None else None
-                result = Ledger(self.config.journal, clock).report(
+                reader = Runner if self.config.source_kind == "RUNNER" else Ledger
+                result = reader(self.config.journal, clock).report(
                     self.config.plan_hash, checkpoint
                 )
                 with self.repo.conn:
@@ -47,7 +60,8 @@ class WorkflowView:
                         (result["receipt_sequence"], result["receipt_hash"]),
                     )
             # Large artifact/snapshot content and full raw samples are never sent to UI.
-            result.pop("study")
+            result.pop("study", None)
+            result["source_kind"] = self.config.source_kind
             return result
         except Exception:
             return dict(

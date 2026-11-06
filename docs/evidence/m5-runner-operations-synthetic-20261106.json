@@ -1,0 +1,73 @@
+{
+  "schema": "runner-operations-synthetic/1",
+  "result": "PASS",
+  "engine_sha256": "73b0d285d12440093ea1a1446bf29858e808202ab8d6d6f7e3ad0eb9d289abe7",
+  "report": {
+    "version": "simulation-source-report/1",
+    "source_id": "204b5b54-33b8-519e-b195-cb7fe5ef2296",
+    "binding_hash": "01a61444380e049b1cfa7625735c4960e181328e8db1e984f5eea6a4732631f0",
+    "queued": 6,
+    "acknowledged": 6,
+    "pending": 0,
+    "source_head": "b66c4a5fff1a7c6391c9e6ab0b776faafb5780f17cf9fbd1b0e18a8665bcba80",
+    "status": "SEALED",
+    "unacknowledged_runner_commit": false,
+    "runner": {
+      "version": "paper-simulation-report/1",
+      "run_id": "7271101e-8d10-4385-8197-620a101223df",
+      "status": "STOPPED",
+      "provenance": "SYNTHETIC",
+      "registered_at": "2026-11-05T11:59:57+00:00",
+      "deadline": "2026-11-05T19:00:00+00:00",
+      "observations": 6,
+      "max_observations": 100,
+      "decisions": 18,
+      "outcomes": 15,
+      "revisions": 0,
+      "missing_decisions": 0,
+      "last_input_at": "2026-11-05T16:00:01+00:00",
+      "input_age_seconds": 0.0,
+      "receipt_sequence": 7,
+      "receipt_hash": "62a50d3e289ad51748ca824867297d9091361a4165ec374dbf0c7e701ed40e5f",
+      "registration_hash": "74826528ee23ffb7a13dfe1438473d33cc47294f455b6a9f17af9709ee55f504",
+      "arms": {
+        "NO_AI": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        },
+        "AI_NO_NEWS": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        },
+        "AI_NEWS": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        }
+      },
+      "pending_outcomes": 3,
+      "execution_enabled": false,
+      "broker_calls": 0,
+      "external_model_calls": 0,
+      "selector": "SCRIPTED_TEST_DOUBLE",
+      "qualified_for_unattended_paper": false,
+      "prospective_evidence_verified": false,
+      "full_M5_complete": false,
+      "B01": "REJECT_FOR_PROMOTION"
+    },
+    "execution_enabled": false,
+    "source_qualified": false
+  },
+  "broker_calls": 0,
+  "external_model_calls": 0,
+  "campaign_started": false,
+  "full_M5_complete": false
+}
