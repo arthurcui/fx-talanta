@@ -5,6 +5,8 @@ from datetime import timedelta
 from pathlib import Path
 from uuid import uuid4
 
+from test_dashboard_alerts import Receiver
+from test_dashboard_alerts import config as alert_config
 from test_dashboard_integration import BUDGET, response
 from test_dashboard_matched_workflow import decisions, fixture_registration, observe, outcome
 from test_dashboard_operator import OPERATOR
@@ -40,6 +42,8 @@ app = Dashboard(
     operator_token=OPERATOR,
     model_budget=BUDGET,
     model_transport=response,
+    alert_config=alert_config(),
+    alert_transport=Receiver(),
     workflow_view=WorkflowView(dict(journal=str(ledger.path), plan_hash=plan_hash)),
 )
 app.service = InspectionService(app, 1)

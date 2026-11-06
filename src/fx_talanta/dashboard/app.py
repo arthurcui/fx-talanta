@@ -45,6 +45,8 @@ class Dashboard:
         operator_market=None,
         operator_token=None,
         workflow_view=None,
+        alert_config=None,
+        alert_transport=None,
     ):
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
         self.broker_view = broker_view
@@ -52,6 +54,7 @@ class Dashboard:
         self.state.mkdir(parents=True, exist_ok=True)
         self.service = None
         self.operator = None
+        self.alerts = None
         marker = self.state / "restored-inspection-only.json"
         if (
             marker.exists()
@@ -59,7 +62,7 @@ class Dashboard:
         ):
             raise PermissionError("restore incomplete")
         if (self.state / "restored-inspection-only.json").exists() and (
-            model_budget or operator_gateway
+            model_budget or operator_gateway or alert_config
         ):
             raise PermissionError("restored state is inspection only; no copied authority")
         if snapshot.captured_at > clock.now():
@@ -88,6 +91,12 @@ class Dashboard:
             from fx_talanta.dashboard.service import Notifications
 
             self.notifications = Notifications(self)
+            if alert_config is not None:
+                from fx_talanta.dashboard.alerts import AlertDelivery
+
+                self.alerts = AlertDelivery(self, alert_config, alert_transport)
+            elif alert_transport is not None:
+                raise ValueError("alert transport requires explicit configuration")
             if operator_gateway is not None:
                 from fx_talanta.dashboard.operator import Operator
 

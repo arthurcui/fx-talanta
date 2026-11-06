@@ -1,6 +1,7 @@
 """Browser-independent inspection sampler and local durable notification spool.
 
-No broker/EA actions, external messages, model calls or qualification claims.
+No broker/EA actions, model calls or qualification claims. External alerts require
+explicit separately bounded configuration; local spool remains the default.
 """
 
 import hashlib
@@ -82,6 +83,9 @@ class Notifications:
             undelivered=counts[1],
             unacknowledged=counts[2],
             scope="LOCAL_FILES_NOT_EXTERNAL_DELIVERY",
+            external=self.app.alerts.summary()
+            if self.app.alerts
+            else dict(status="NOT_CONFIGURED", states={}),
             events=[
                 dict(event=json.loads(p), delivered=bool(d), acknowledged=a) for p, d, a in rows
             ],
@@ -161,6 +165,8 @@ class InspectionService:
                     {"default": "BROKER_JOURNAL_SAMPLE"},
                 )
         self.app.notifications.pump()
+        if self.app.alerts:
+            self.app.alerts.pump()
         with self.app.repo.lock, self.app.repo.conn:
             now = self.app.clock.now()
             self.app.monitor.read(now)

@@ -840,6 +840,9 @@ async function refreshNotifications() {
     const value = await api("/api/notifications");
     $("notification-status").textContent =
       `${value.total} local incidents; ${value.undelivered} undelivered; ${value.unacknowledged} unacknowledged. Latest ${value.events.length} shown.`;
+    const external = value.external || { status: "NOT_CONFIGURED", states: {} };
+    $("notification-status").textContent +=
+      ` External receiver: ${external.status}; ${external.states.DELIVERED || 0} accepted, ${external.states.UNKNOWN || 0} uncertain, ${external.states.QUEUED || 0} queued, ${external.states.SENDING || 0} in flight. Receiver acceptance does not mean a person read the alert.`;
     $("notification-list").replaceChildren(
       ...value.events.map((item) => {
         const row = node("article", undefined, "news-item");
@@ -849,6 +852,16 @@ async function refreshNotifications() {
             `${item.event.kind}: ${item.event.state} at ${stamp(item.event.at)}. ${item.delivered ? "Local file verified" : "Delivery unavailable"}`,
           ),
         );
+        const receipt = (external.recent || []).find(
+          (r) => r.incident_id === item.event.id,
+        );
+        if (receipt)
+          row.append(
+            node(
+              "p",
+              `Receiver: ${receipt.state} · ${receipt.reason} · ${stamp(receipt.at)}`,
+            ),
+          );
         if (item.acknowledged)
           row.append(node("p", `Acknowledged ${stamp(item.acknowledged)}`));
         else {

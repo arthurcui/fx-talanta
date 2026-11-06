@@ -17,7 +17,7 @@ qualification or elapsed PAPER evidence. No new campaign is authorized.
 | Advisor and learning | English/Chinese cited evidence reader, optional bounded M4 model selection, durable call reservations/results and qualified-memory filtering | No unrestricted model commands, automatic strategy promotion or profitability claim |
 | Calendar/news | Manual BLS import/reminder, events/cancellations, news and health evidence | USD/EUR/JPY coverage/timeliness/reliability gaps retained |
 | Administration | Separate simulator capability, preview/confirmation, pause/resume/owned-close/flatten-halt, uncertainty reconciliation | No broker commands or strategy activation through this dashboard |
-| Monitoring/recovery | Background inspection, durable incidents, local notification spool/acknowledgment, stopped backup/restore verification | Local spool is not external alert delivery; inspection-worker health is not broker/feed health |
+| Monitoring/recovery | Background inspection, local spool/acknowledgment, [optional bounded HTTPS receiver delivery](m5-alert-delivery.md), durable uncertainty/reconciliation and stopped backup/restore | Receiver acceptance is not human acknowledgement; real destination delivery and deployment remain unqualified |
 | Deployment boundary | Explicit HTTPS and mutual-TLS remote access, exact Host/Origin, bounded requests, source-backed tests | Actual remote deployment and full operational acceptance remain open |
 | Matched comparisons | Offline study upload/validation plus [frozen registration and durable receipt workflow](m5-matched-workflow.md), corrections, restart/idempotency and read-only dashboard projection | No prospective strategy/model runner, eligible candidate, qualified costs or economic promotion verdict |
 | Reproducibility | One source-hashed backend/headless-browser acceptance command; all earlier evidence retained | Software PASS never closes unattended PAPER gates |
@@ -67,7 +67,8 @@ collect evidence, count broker closed trades or establish elapsed observation ti
    independently qualified inputs remain open; historical receipts do not prove
    present reconciliation. Broker administrative integration remains unavailable.
 2. **Deployment/operations:** owner sign-in and mutual-TLS access are implemented.
-   Actual remote deployment, external alert delivery and broker-scoped safe
+   Optional bounded receiver delivery is implemented; actual remote deployment,
+   real-recipient delivery acceptance and broker-scoped safe
    administration/protection still require dedicated implementation and acceptance.
 3. **Evaluation:** matched offline validation, durable registered receipt workflow
    and bounded model inspection are implemented. A prospective matched runner, eligible frozen candidate, qualified
@@ -313,3 +314,10 @@ close, same-ID retry/restart recovery, existing-format study export and an exact
 read-only dashboard view. Failure clears the view; a durable sequence/hash checkpoint
 rejects rollback. It is not a strategy runner or a prospective campaign. All evidence
 from earlier M5 deliveries is retained.
+
+## Optional receiver delivery engineering
+
+The [alert delivery guide](m5-alert-delivery.md) specifies explicit activation, the
+receiver contract, cumulative/deadline limits, crash uncertainty and bounded receipt
+lookup. This closes the local-spool-only implementation gap, not remote operating
+qualification. No real destination or credentials were provisioned during acceptance.
