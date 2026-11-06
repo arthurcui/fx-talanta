@@ -23,3 +23,4 @@ Return to the [documentation index](../README.md).
 - [Retained broker cost calibration: measurements and limits](retained-cost-calibration.md)
 - [M3 research closure and qualification-gap register](m3-research-closeout.md)
 - [M4 advisor evidence foundation and acceptance](m4-advisor.md)
+- [M4 bounded provider adapter and actual API smoke](m4-provider.md)
