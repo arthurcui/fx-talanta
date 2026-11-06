@@ -19,7 +19,7 @@ qualification or elapsed PAPER evidence. No new campaign is authorized.
 | Administration | Separate simulator capability, preview/confirmation, pause/resume/owned-close/flatten-halt, uncertainty reconciliation | No broker commands or strategy activation through this dashboard |
 | Monitoring/recovery | Background inspection, durable incidents, local notification spool/acknowledgment, stopped backup/restore verification | Local spool is not external alert delivery; inspection-worker health is not broker/feed health |
 | Deployment boundary | Explicit HTTPS and mutual-TLS remote access, exact Host/Origin, bounded requests, source-backed tests | Actual remote deployment and full operational acceptance remain open |
-| Matched comparisons | Offline study upload and three-ledger validation, common safety, pre-outcome decisions, costs and paired exclusions | No prospective matched runner, eligible candidate, qualified costs or economic promotion verdict |
+| Matched comparisons | Offline study upload/validation plus [frozen registration and durable receipt workflow](m5-matched-workflow.md), corrections, restart/idempotency and read-only dashboard projection | No prospective strategy/model runner, eligible candidate, qualified costs or economic promotion verdict |
 | Reproducibility | One source-hashed backend/headless-browser acceptance command; all earlier evidence retained | Software PASS never closes unattended PAPER gates |
 
 The [source-hashed Windows local acceptance report](../evidence/m5-local-offline-acceptance-20261106.json) records **48 backend tests and two browser
@@ -69,8 +69,8 @@ collect evidence, count broker closed trades or establish elapsed observation ti
 2. **Deployment/operations:** owner sign-in and mutual-TLS access are implemented.
    Actual remote deployment, external alert delivery and broker-scoped safe
    administration/protection still require dedicated implementation and acceptance.
-3. **Evaluation:** matched offline input validation and bounded model inspection are
-   implemented. A prospective matched runner, eligible frozen candidate, qualified
+3. **Evaluation:** matched offline validation, durable registered receipt workflow
+   and bounded model inspection are implemented. A prospective matched runner, eligible frozen candidate, qualified
    cost/latency evidence and predeclared uncertainty/economic review remain open.
 4. **Unattended PAPER:** applicable M1–M3 prerequisites and explicit strategy
    authorization must precede at least **eight weeks AND 100 closed trades per
@@ -304,3 +304,12 @@ records **119 backend checks and eight headless browser scenarios passed**, with
 zero skipped or flaky checks. These include an ephemeral-CA HTTPS browser sign-in
 and the existing dashboard/model/simulator/quote-age flows. All broker and external
 model call counts are zero. The report explicitly leaves full M5 incomplete.
+
+## Registered matched-study receipts
+
+The [receipt workflow](m5-matched-workflow.md) adds frozen artifact registration,
+transactional observation/decision/outcome admission, immutable corrections and
+close, same-ID retry/restart recovery, existing-format study export and an exact-bound
+read-only dashboard view. Failure clears the view; a durable sequence/hash checkpoint
+rejects rollback. It is not a strategy runner or a prospective campaign. All evidence
+from earlier M5 deliveries is retained.

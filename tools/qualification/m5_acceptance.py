@@ -114,8 +114,8 @@ def main():
         unattended_paper_qualified=False,
         B01="REJECT_FOR_PROMOTION",
         remaining=[
-            "Connected collectors and administrative UI acceptance",
-            "Remote authentication/TLS and deployment acceptance",
+            "Complete connected fault and broker administrative acceptance",
+            "Actual remote deployment, certificate lifecycle and external alert delivery",
             "M1-M3 prerequisites and prospective matched candidate evaluation",
             "At least eight weeks AND 100 closed trades per candidate",
         ],

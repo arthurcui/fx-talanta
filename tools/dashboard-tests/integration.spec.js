@@ -260,3 +260,33 @@ test("quote-age display expires and handles missing, recovered and stale inputs"
   });
   await expect(page.locator("#broker-status")).toContainText("entry blocked");
 });
+
+test("registered receipt workflow displays missing outcomes and clears invalid data", async ({
+  page,
+}) => {
+  await page.goto(url);
+  await expect(page.locator("#workflow-status")).toContainText(
+    "COLLECTING_RECEIPTS",
+  );
+  await expect(page.locator("#workflow-details")).toContainText("SYNTHETIC");
+  await expect(page.locator("#workflow-details")).toContainText(
+    "2 pending outcomes",
+  );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "not closed broker trades",
+  );
+  await page.route("**/api/overview", async (route) => {
+    const response = await route.fetch();
+    const body = await response.json();
+    body.matched_workflow = { status: "UNAVAILABLE", execution_enabled: false };
+    await route.fulfill({ response, json: body });
+  });
+  await page.locator("#refresh").click();
+  await expect(page.locator("#workflow-status")).toContainText("UNAVAILABLE");
+  await expect(page.locator("#workflow-details")).toBeEmpty();
+  await page.unroute("**/api/overview");
+  await page.locator("#refresh").click();
+  await expect(page.locator("#workflow-details")).toContainText(
+    "2 pending outcomes",
+  );
+});

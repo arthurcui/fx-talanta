@@ -570,3 +570,15 @@ The original binding, expired policies, failed campaigns and previous receipts
 are preserved. The helper creates a new isolated binding; it never changes host
 or terminal time. No unattended collector, automatic requalification, new campaign
 or order path is installed. The default receipt mode remains explicitly unverified.
+
+
+## Registered matched-study journal
+
+An optional `--study-journal-config` file binds the dashboard to an existing offline
+receipt journal with exactly `journal` (absolute path) and `plan_hash`. Its panel
+shows registration/window/close status, missing decisions, pending outcomes,
+corrections and the accepted receipt head. It does not register or advance a study.
+Missing/invalid/rolled-back journals become unavailable and clear old details.
+Binding and accepted-prefix checks survive dashboard restart. Follow the
+[workflow operating guide](../engineering/m5-matched-workflow.md) for CLI schemas,
+export and separate journal retention. Receipt counts are never broker trade counts.

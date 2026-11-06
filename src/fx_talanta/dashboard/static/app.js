@@ -102,6 +102,26 @@ function render(data) {
   $("model-status").textContent = data.model.enabled
     ? `Bounded model enabled · ${data.model.reserved_calls}/${data.model.max_calls} calls reserved · ${data.model.unresolved_calls} unresolved; no automatic refunds or retries.`
     : "Model calls disabled; local evidence reader available.";
+  const workflow = data.matched_workflow || { status: "NOT_CONFIGURED" };
+  $("workflow-status").textContent =
+    `${workflow.status} · offline receipt workflow · trading disabled`;
+  $("workflow-details").replaceChildren();
+  if (workflow.receipt_sequence !== undefined) {
+    $("workflow-details").append(
+      node(
+        "p",
+        `${workflow.provenance} · ${workflow.observations} observations · ${workflow.decisions} decisions · ${workflow.outcomes} outcomes · ${workflow.revisions} corrections`,
+      ),
+      node(
+        "p",
+        `${workflow.missing_decisions} missing decisions · ${workflow.pending_outcomes} pending outcomes. Deadline ${stamp(workflow.deadline)}. These counts are not closed broker trades.`,
+      ),
+      node(
+        "p",
+        `Receipt ${workflow.receipt_sequence} · ${workflow.receipt_hash}. Prospective qualification remains unverified.`,
+      ),
+    );
+  }
   const study = data.study;
   $("study-results").replaceChildren();
   if (study) {

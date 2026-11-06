@@ -155,3 +155,13 @@ requires mutual TLS plus the viewer capability, has no operator route authority,
 and is tested only through isolated loopback handshakes. No remote deployment,
 external notifications, collector startup or strategy operation is implied. The
 qualification gaps and B01 verdict remain unchanged.
+
+
+### M5 registered evaluation receipts
+
+The [matched-study receipt workflow](../engineering/m5-matched-workflow.md) now
+preserves frozen artifact bytes and chronological observation, decision and outcome
+receipts in an isolated journal. Corrections, idempotent retries, restart, deadline
+checks and dashboard rollback detection are implemented and tested synthetically.
+This supplements offline study upload; it does not execute strategy/model arms or
+start a prospective campaign. The remaining M5 operating/economic gates are unchanged.
