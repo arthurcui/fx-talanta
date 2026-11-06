@@ -1,10 +1,12 @@
 """Headless test fixture only; never loads credentials or broker connections."""
 
 import sys
+from datetime import timedelta
 from pathlib import Path
 from uuid import uuid4
 
 from test_dashboard_integration import BUDGET, response
+from test_dashboard_matched_workflow import decisions, fixture_registration, observe, outcome
 from test_dashboard_operator import OPERATOR
 
 from fx_talanta.clock import FakeClock
@@ -12,7 +14,9 @@ from fx_talanta.dashboard.app import Dashboard
 from fx_talanta.dashboard.demo import AT, demo
 from fx_talanta.dashboard.server import make_server
 from fx_talanta.dashboard.service import InspectionService
+from fx_talanta.dashboard.workflow import WorkflowView
 from fx_talanta.domain.offline import Policy
+from fx_talanta.evaluation.ledger import Ledger, digest
 from fx_talanta.gateway.offline import Gateway
 from fx_talanta.research.offline import market_at, warmup
 
@@ -20,6 +24,12 @@ state = Path(sys.argv[1])
 clock = FakeClock(AT)
 gateway = Gateway.for_replay(demo().account, uuid4(), clock, Policy())
 warmup(gateway, clock)
+registration = fixture_registration()
+ledger = Ledger.create(state.parent / "matched.sqlite", registration, uuid4(), clock)
+plan_hash = digest(registration.plan.model_dump(mode="json"))
+values = decisions(ledger, plan_hash, observe(ledger, plan_hash))
+clock.advance(timedelta(seconds=1))
+ledger.append("OUTCOME", outcome(values[0], clock), uuid4(), expected_plan_hash=plan_hash)
 app = Dashboard(
     demo(),
     state,
@@ -30,6 +40,7 @@ app = Dashboard(
     operator_token=OPERATOR,
     model_budget=BUDGET,
     model_transport=response,
+    workflow_view=WorkflowView(dict(journal=str(ledger.path), plan_hash=plan_hash)),
 )
 app.service = InspectionService(app, 1)
 app.service.start()

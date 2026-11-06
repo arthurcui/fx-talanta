@@ -44,9 +44,11 @@ class Dashboard:
         operator_gateway=None,
         operator_market=None,
         operator_token=None,
+        workflow_view=None,
     ):
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
         self.broker_view = broker_view
+        self.workflow_view = workflow_view
         self.state.mkdir(parents=True, exist_ok=True)
         self.service = None
         self.operator = None
@@ -109,6 +111,22 @@ class Dashboard:
             if not old:
                 self.repo.conn.execute("INSERT INTO broker_view_binding VALUES (?)", (identity,))
             self.repo.conn.commit()
+            self.repo.conn.execute(
+                "CREATE TABLE IF NOT EXISTS workflow_view_binding (payload TEXT NOT NULL)"
+            )
+            workflow_identity = (
+                workflow_view.config.model_dump_json() if workflow_view else "DISABLED"
+            )
+            old = self.repo.conn.execute("SELECT payload FROM workflow_view_binding").fetchone()
+            if old and old[0] != workflow_identity:
+                raise ValueError("workflow view cannot rebind on resume")
+            if not old:
+                self.repo.conn.execute(
+                    "INSERT INTO workflow_view_binding VALUES (?)", (workflow_identity,)
+                )
+            self.repo.conn.commit()
+            if workflow_view:
+                workflow_view.bind(self.repo)
             if broker_view and hasattr(broker_view, "bind_journal"):
                 broker_view.bind_journal(self.repo)
         except Exception:
@@ -206,6 +224,9 @@ class Dashboard:
             else "M4_EVIDENCE_READER_NO_MODEL",
             model=self.model.ledger.status() if self.model else dict(enabled=False),
             study=self.study(),
+            matched_workflow=self.workflow_view.read(self.clock)
+            if self.workflow_view
+            else dict(status="NOT_CONFIGURED", execution_enabled=False),
             service=self.service.status()
             if self.service
             else dict(status="NOT_RUNNING", worker_running=False),

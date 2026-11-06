@@ -476,6 +476,9 @@ def main():
     parser.add_argument(
         "--owner-file", type=Path, help="Private single-owner verifier; requires HTTPS"
     )
+    parser.add_argument(
+        "--study-journal-config", type=Path, help="Read-only exact matched-receipt journal binding"
+    )
     parser.add_argument("--model-key-file", type=Path, help="Optional ignored OpenAI env file")
     parser.add_argument(
         "--model-budget-file", type=Path, help="Explicit immutable ProviderBudget JSON"
@@ -641,6 +644,11 @@ def serve(snapshot, args):
                 raise ValueError("existing simulator run required")
             book = GatewayBook.model_validate(row[0])
         gateway = Gateway(dsn, snapshot.account, args.simulator_run, SystemClock(), book.policy)
+    from fx_talanta.dashboard.workflow import WorkflowView
+
+    workflow_view = (
+        WorkflowView.from_file(args.study_journal_config) if args.study_journal_config else None
+    )
     app = server = None
     try:
         app = Dashboard(
@@ -656,6 +664,7 @@ def serve(snapshot, args):
             operator_gateway=gateway,
             operator_market=market_source,
             operator_token=operator_token,
+            workflow_view=workflow_view,
         )
         server = make_server(
             app,
