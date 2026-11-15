@@ -60,7 +60,7 @@ class LocalSessions:
                         "Use 1–128 letters, numbers, or . _ @ + - for your username; no spaces."
                     )
                 if not 16 <= len(data["password"]) <= 256:
-                    raise SetupValidationError("Choose a passphrase of 16–256 characters.")
+                    raise SetupValidationError("Choose a password of 16–256 characters.")
                 owner = Owner.create(data["username"], data["password"])
                 with conn:
                     conn.execute("INSERT INTO owner VALUES (1,?)", (owner.model_dump_json(),))

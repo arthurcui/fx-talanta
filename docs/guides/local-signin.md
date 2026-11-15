@@ -4,9 +4,9 @@ For a private development workspace on your own computer, launch the dashboard w
 `--local-signin`. Open its ordinary URL, for example `http://127.0.0.1:8766/`.
 There is no launch token to copy or bookmark.
 
-On first visit, choose a username and a passphrase of 16–256 characters and repeat
-the passphrase. Enter it in the page, never in chat or a repository file. Subsequent
-visits use the normal username/passphrase form. The first owner cannot be replaced
+On first visit, choose a username and a password of 16–256 characters and repeat
+the password. Enter it in the page, never in chat or a repository file. Subsequent
+visits use the normal username/password form. The first owner cannot be replaced
 through the setup endpoint after creation.
 
 Sessions survive browser and service/container restarts. They expire after 30 days
@@ -16,7 +16,7 @@ Neither action removes strategies or research evidence.
 
 The separate `local-auth.sqlite` in the private workspace state stores a salted
 scrypt password verifier, hashed session tokens, CSRF secrets, expiration times
-and failed-login timestamps. Plaintext passphrases and bearer tokens are not stored.
+and failed-login timestamps. Plaintext passwords and bearer tokens are not stored.
 Five failed attempts within a minute temporarily block sign-in, including across
 restarts. Cookies are HttpOnly and SameSite=Strict. Origin/Host/CSRF checks remain.
 Authentication refreshes only internal inspection/research access, never trading

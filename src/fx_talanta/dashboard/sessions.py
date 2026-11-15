@@ -38,7 +38,7 @@ class Owner(FrozenModel):
     @classmethod
     def create(cls, username, password):
         if not isinstance(password, str) or not 16 <= len(password) <= 256:
-            raise ValueError("owner passphrase must contain 16..256 characters")
+            raise ValueError("owner password must contain 16..256 characters")
         salt = secrets.token_hex(32)
         return cls(username=username, salt=salt, password_hash=verifier(password, salt))
 
@@ -160,9 +160,9 @@ def main():
     args = parser.parse_args()
     if args.output.exists():
         raise ValueError("owner file already exists")
-    password = getpass.getpass("Owner passphrase (16+ characters): ")
-    if password != getpass.getpass("Repeat passphrase: "):
-        raise ValueError("passphrases differ")
+    password = getpass.getpass("Owner password (16+ characters): ")
+    if password != getpass.getpass("Repeat password: "):
+        raise ValueError("passwords differ")
     record = Owner.create(args.username, password)
     with args.output.open("x", encoding="utf-8") as stream:
         stream.write(record.model_dump_json(indent=2))

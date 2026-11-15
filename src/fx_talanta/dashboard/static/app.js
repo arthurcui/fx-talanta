@@ -515,7 +515,7 @@ async function openSession(data) {
     $("password-confirm").required = setup;
     $("logout-all").hidden = !(local && result.authenticated);
     $("login-help").textContent = setup
-      ? "Choose a username (email-style names are allowed; no spaces) and a passphrase of at least 16 characters. This account is only for this local workspace."
+      ? "Choose a username (email-style names are allowed; no spaces) and a password of at least 16 characters. This account is only for this local workspace."
       : local
         ? "Sign in normally. Sessions last up to 30 days, with a 7-day inactivity limit. You can revoke all sessions. Trading remains disabled."
         : result.mode === "OWNER"
@@ -537,7 +537,7 @@ $("login-form").addEventListener("submit", async (e) => {
     !$("password-confirm").hidden &&
     $("password-confirm").value !== $("password").value
   ) {
-    notice("Passphrases do not match.");
+    notice("Passwords do not match.");
     return;
   }
   const data = { username: $("username").value, password: $("password").value };
