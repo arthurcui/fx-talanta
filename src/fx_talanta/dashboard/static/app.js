@@ -506,12 +506,8 @@ async function openSession(data) {
     const local = ["LOCAL_OWNER", "LOCAL_SETUP"].includes(result.mode);
     const setup = result.mode === "LOCAL_SETUP";
     $("login-form").hidden = !local && result.mode !== "OWNER";
-    $("login-title").textContent = setup
-      ? "Create your workspace sign-in"
-      : "Sign in to your workspace";
-    $("login-submit").textContent = setup
-      ? "Create account and sign in"
-      : "Sign in";
+    $("login-title").textContent = setup ? "Set up your workspace" : "Sign in";
+    $("login-submit").textContent = setup ? "Create account" : "Sign in";
     $("password").minLength = setup ? 16 : 1;
     $("password").autocomplete = setup ? "new-password" : "current-password";
     $("password-confirm-label").hidden = !setup;

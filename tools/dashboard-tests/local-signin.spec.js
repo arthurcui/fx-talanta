@@ -42,7 +42,7 @@ test("normal signup, persistent restart session, revoke all, sign in again", asy
 }) => {
   await page.goto(url);
   await expect(page.locator("#login-title")).toHaveText(
-    "Create your workspace sign-in",
+    "Set up your workspace",
   );
   await page.locator("#username").fill("fixture-owner");
   await page.locator("#password").fill("fixture-only-long-passphrase");
@@ -68,9 +68,7 @@ test("normal signup, persistent restart session, revoke all, sign in again", asy
   await second.locator("#logout-all").click();
   await expect(second.locator("#login-form")).toBeVisible();
   await page.reload();
-  await expect(page.locator("#login-title")).toHaveText(
-    "Sign in to your workspace",
-  );
+  await expect(page.locator("#login-title")).toHaveText("Sign in");
   await expect(page.locator("#dashboard")).toBeHidden();
   await page.locator("#username").fill("fixture-owner");
   await page.locator("#password").fill("fixture-only-long-passphrase");
