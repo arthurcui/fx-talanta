@@ -47,7 +47,10 @@ cannot reset its allowance. Do not attach unrelated producers to the queue.
    is blocked. No request is blindly repeated, missing response invented, or budget reset.
    Only the exception type is retained, not potentially secret exception text.
 5. A reported token overrun is retained as a result, then blocks remaining dispatch and
-   publication. If the deadline expires between arms, the remaining arm is not invoked.
+   publication. Recovery derives the overrun from the durable reply's token counts,
+   even if the process died before appending the uncertainty marker. A completed pair
+   with an overrun cannot be published on retry. If the deadline expires between arms,
+   the remaining arm is not invoked.
    An already-started synchronous callback may finish after the deadline; its result is
    retained, but new dispatch/publication is forbidden.
 6. Once both replies are durable, publish the exact selected Tick to the source queue.
@@ -125,4 +128,15 @@ The [source-hashed acceptance report](../evidence/m5-selector-dispatch-checks-20
 records 248 backend checks and 11 headless browser scenarios passed, with zero skips
 or flaky results. The [synthetic dispatch report](../evidence/m5-selector-dispatch-synthetic-20261106.json)
 records 12 fixture transport calls, 12 permanent call reservations, 2400 reserved
-tokens and no unresolved calls at stop. Both reports match the final tested code.
+tokens and no unresolved calls at stop. These November 6 reports describe the original
+implementation and remain preserved; they do not fingerprint subsequent review fixes.
+
+## November 14 review correction
+
+The restart review found a gap between committing an over-limit second reply and
+recording UNCERTAIN: retry could otherwise publish the completed pair. Recovery now
+derives the block from recorded usage, independently of that later marker. Regression
+tests interrupt after either arm's durable overrun result and verify no resend,
+publication or reservation refund. A separate test verifies the existing full-source
+gate prevents further calls or reservations. All checks use injected fixture transport;
+this correction does not add a real provider, authorize trading or close M1-M3 gaps.

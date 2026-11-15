@@ -139,7 +139,9 @@ class Dispatcher:
                 tick = Tick.model_validate_json(payload["tick"])
                 if str(tick.event_id) != event_id or tick.model_batch:
                     raise ValueError("invalid reserved tick")
-                groups[event_id] = dict(reservation=payload, results={}, uncertain=False)
+                groups[event_id] = dict(
+                    reservation=payload, results={}, uncertain=False, over_limit=False
+                )
             elif kind == "STOP":
                 stopped = True
             else:
@@ -148,6 +150,8 @@ class Dispatcher:
                 group = groups[event_id]
                 if group["uncertain"] or "publication" in group:
                     raise ValueError("terminal dispatch group")
+                if group["over_limit"] and kind != "UNCERTAIN":
+                    raise ValueError("token overrun blocks further results and publication")
                 if kind == "RESULT":
                     arm = payload["arm"]
                     reply = Reply.model_validate(payload["reply"])
@@ -158,6 +162,9 @@ class Dispatcher:
                     ):
                         raise ValueError("invalid dispatch result")
                     group["results"][arm] = payload["reply"]
+                    group["over_limit"] = (
+                        reply.input_tokens + reply.output_tokens > policy.tokens_per_call
+                    )
                 elif kind == "UNCERTAIN":
                     group["uncertain"] = True
                 elif kind == "PUBLISHED":
@@ -200,6 +207,8 @@ class Dispatcher:
             if existing:
                 if existing["reservation"]["tick"] != tick.model_dump_json():
                     raise ValueError("dispatch identity reused with different input")
+                if existing["over_limit"]:
+                    return dict(status="TOKEN_LIMIT_EXCEEDED", execution_enabled=False)
                 if existing["uncertain"] or set(existing["results"]) != set(ARMS):
                     return dict(status="OUTCOME_UNKNOWN_NO_RESEND", execution_enabled=False)
                 return self._publish(expected, event_id)
@@ -289,6 +298,7 @@ class Dispatcher:
             stopped
             or self.clock.now() > policy.deadline
             or group["uncertain"]
+            or group["over_limit"]
             or set(group["results"]) != set(ARMS)
         ):
             raise ValueError("dispatch not publishable")
@@ -334,7 +344,12 @@ class Dispatcher:
             source_rows = ops.load(conn, policy.source_hash)[1]
         for row in source_rows:
             group = groups.get(row[1])
-            if not group or group["uncertain"] or set(group["results"]) != set(ARMS):
+            if (
+                not group
+                or group["uncertain"]
+                or group["over_limit"]
+                or set(group["results"]) != set(ARMS)
+            ):
                 raise ValueError("source input without completed dispatch")
             raw = json.loads(group["reservation"]["tick"])
             raw["model_batch"] = Batch(
@@ -359,7 +374,9 @@ class Dispatcher:
             else "EXPIRED"
             if self.clock.now() > policy.deadline
             else "UNRESOLVED"
-            if any(g["uncertain"] or len(g["results"]) != 2 for g in groups.values())
+            if any(
+                g["uncertain"] or g["over_limit"] or len(g["results"]) != 2 for g in groups.values()
+            )
             else "OPEN",
             reserved_calls=len(groups) * 2,
             max_calls=policy.max_calls,

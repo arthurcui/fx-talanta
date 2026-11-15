@@ -17,7 +17,7 @@ from fx_talanta.evaluation.selectors import Profile
 from tools.qualification.runner_selector_acceptance import run
 
 
-def prepared(tmp_path, **limits):
+def prepared(tmp_path, *, source_capacity=100, **limits):
     runner, clock, sha, dataset, config = setup(
         tmp_path,
         selector="RECORDED_MODEL_RESPONSES",
@@ -25,7 +25,12 @@ def prepared(tmp_path, **limits):
     )
     ops, source = Operations.create(
         tmp_path / "source.sqlite",
-        Binding(source_id=uuid4(), runner=str(runner.path), registration_hash=sha),
+        Binding(
+            source_id=uuid4(),
+            runner=str(runner.path),
+            registration_hash=sha,
+            capacity=source_capacity,
+        ),
         clock,
     )
     policy = Policy(
@@ -164,6 +169,49 @@ def test_deadline_crossing_stops_remaining_transport(tmp_path):
     )
     assert len(calls) == 1 and dispatcher.report(binding)["model_dispatch"]["status"] == "EXPIRED"
     assert ops.report(source)["queued"] == 0
+
+
+@pytest.mark.parametrize("overrun_call", [1, 2])
+def test_overrun_result_survives_crash_before_uncertain_marker(tmp_path, monkeypatch, overrun_call):
+    _, clock, _, ops, source, dispatcher, binding, stream = prepared(tmp_path)
+    append = dispatcher._append
+    calls = []
+
+    def transport(request):
+        calls.append(request)
+        if len(calls) == overrun_call:
+            return Delivery(status="ERROR", input_tokens=201, reported_cost_usd="0.2")
+        return hold(request)
+
+    def crash(expected, kind, event, payload):
+        if kind == "UNCERTAIN":
+            raise KeyboardInterrupt("crash after durable overrun result")
+        return append(expected, kind, event, payload)
+
+    monkeypatch.setattr(dispatcher, "_append", crash)
+    with pytest.raises(KeyboardInterrupt):
+        dispatcher.dispatch(stream[0][1], binding, transport)
+    reopened = Dispatcher(dispatcher.path, clock)
+    assert reopened.report(binding)["model_dispatch"]["status"] == "UNRESOLVED"
+    assert (
+        reopened.dispatch(stream[0][1], binding, lambda r: pytest.fail("overrun resent"))["status"]
+        == "TOKEN_LIMIT_EXCEEDED"
+    )
+    with pytest.raises(ValueError, match="not publishable"):
+        reopened._publish(binding, str(stream[0][1].event_id))
+    assert ops.report(source)["queued"] == 0
+    assert len(calls) == overrun_call
+    assert reopened.report(binding)["model_dispatch"]["reserved_calls"] == 2
+
+
+def test_full_source_does_not_reserve_or_invoke_transport(tmp_path):
+    _, clock, _, ops, source, dispatcher, binding, stream = prepared(tmp_path, source_capacity=1)
+    dispatcher.dispatch(stream[0][1], binding, hold)
+    ops.drain_one(source)
+    clock.advance(stream[1][0] - clock.now())
+    with pytest.raises(ValueError, match="source must be drained"):
+        dispatcher.dispatch(stream[1][1], binding, lambda r: pytest.fail("full source sent"))
+    assert dispatcher.report(binding)["model_dispatch"]["reserved_calls"] == 2
 
 
 def test_stop_and_concurrent_dispatch_cannot_send(tmp_path):
