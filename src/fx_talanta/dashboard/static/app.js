@@ -482,6 +482,7 @@ function signedOut() {
   $("dashboard").hidden = true;
   $("login").hidden = false;
   $("logout").hidden = true;
+  $("logout-all").hidden = true;
   $("operator-token").value = "";
   $("password").value = "";
   $("messages").replaceChildren();
@@ -502,23 +503,49 @@ async function openSession(data) {
           }
         : {},
     );
-    $("login-form").hidden = result.mode !== "OWNER";
-    $("login-help").textContent =
-      result.mode === "OWNER"
-        ? "Use your configured owner credentials. Trading remains disabled."
-        : "Open your private dashboard launch shortcut. No token needs to be pasted here.";
+    const local = ["LOCAL_OWNER", "LOCAL_SETUP"].includes(result.mode);
+    const setup = result.mode === "LOCAL_SETUP";
+    $("login-form").hidden = !local && result.mode !== "OWNER";
+    $("login-title").textContent = setup
+      ? "Create your workspace sign-in"
+      : "Sign in to your workspace";
+    $("login-submit").textContent = setup
+      ? "Create account and sign in"
+      : "Sign in";
+    $("password").minLength = setup ? 16 : 1;
+    $("password").autocomplete = setup ? "new-password" : "current-password";
+    $("password-confirm-label").hidden = !setup;
+    $("password-confirm").hidden = !setup;
+    $("password-confirm").required = setup;
+    $("logout-all").hidden = !(local && result.authenticated);
+    $("login-help").textContent = setup
+      ? "Choose a username and a passphrase of at least 16 characters. This account is only for this local workspace."
+      : local
+        ? "Sign in normally. Sessions last up to 30 days, with a 7-day inactivity limit. You can revoke all sessions. Trading remains disabled."
+        : result.mode === "OWNER"
+          ? "Use your configured owner credentials. Trading remains disabled."
+          : "Open your private dashboard launch shortcut. No token needs to be pasted here.";
     authenticated = result.authenticated;
     csrf = result.csrf || "";
     $("logout").hidden = !authenticated;
     await refresh();
   } catch (e) {
+    if (data && "bootstrap" in data) return openSession(null);
     notice(e.message);
     $("login").hidden = false;
   }
 }
 $("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (
+    !$("password-confirm").hidden &&
+    $("password-confirm").value !== $("password").value
+  ) {
+    notice("Passphrases do not match.");
+    return;
+  }
   const data = { username: $("username").value, password: $("password").value };
+  $("password-confirm").value = "";
   $("password").value = "";
   await openSession(data);
 });
@@ -526,6 +553,7 @@ $("logout").addEventListener("click", async () => {
   try {
     await api("/api/session/logout", { method: "POST" });
     signedOut();
+    await openSession(null);
   } catch (e) {
     notice("Sign-out could not be confirmed: " + e.message);
   }
@@ -1333,4 +1361,15 @@ $("research-rules").addEventListener("input", () => {
 });
 $("research-file").addEventListener("change", () => {
   $("research-reviewed").checked = false;
+});
+
+$("logout-all").addEventListener("click", async () => {
+  try {
+    await api("/api/session/logout-all", { method: "POST" });
+    signedOut();
+    await openSession(null);
+    notice("All sessions revoked. Sign in again when ready.");
+  } catch (e) {
+    notice("Revocation not confirmed: " + e.message);
+  }
 });

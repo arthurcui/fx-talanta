@@ -49,6 +49,9 @@
             </p>
           </div>
           <div class="workspace-actions">
+            <button id="logout-all" class="secondary" hidden>
+              Sign out all sessions
+            </button>
             <button id="logout" class="secondary" hidden>Sign out</button>
             <button id="refresh" class="secondary">Refresh snapshot</button
             ><button id="export" class="secondary">
@@ -57,7 +60,7 @@
           </div>
         </div>
         <section id="login" class="panel" hidden>
-          <h2>Sign in to your workspace</h2>
+          <h2 id="login-title">Sign in to your workspace</h2>
           <p id="login-help">Checking access mode�</p>
           <form id="login-form" hidden>
             <label for="username">Username</label
@@ -75,7 +78,17 @@
               required
               maxlength="256"
             />
-            <button>Sign in</button>
+            <label id="password-confirm-label" for="password-confirm" hidden
+              >Repeat passphrase</label
+            >
+            <input
+              id="password-confirm"
+              type="password"
+              autocomplete="new-password"
+              maxlength="256"
+              hidden
+            />
+            <button id="login-submit">Sign in</button>
           </form>
         </section>
         <div id="notice" role="status" aria-live="polite">

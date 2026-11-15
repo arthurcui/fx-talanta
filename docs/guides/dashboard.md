@@ -1,3 +1,5 @@
+See [normal local sign-in](local-signin.md) to use a persistent, revocable session without a launch shortcut.
+
 # Read-only operating dashboard
 
 The M5 dashboard is a working local browser interface for **offline inspection**.

@@ -99,10 +99,18 @@ def make_server(
     remote_key=None,
     remote_ca=None,
     owner=None,
+    local_signin=False,
 ):
     if owner is not None and not (remote_cert and remote_key):
         raise ValueError("owner sign-in requires HTTPS")
-    sessions = Sessions(app, owner)
+    if local_signin and (bind != "127.0.0.1" or origin or owner or remote_ca):
+        raise ValueError("local sign-in requires exclusive IPv4 loopback mode")
+    if local_signin:
+        from fx_talanta.dashboard.local_sessions import LocalSessions
+
+        sessions = LocalSessions(app)
+    else:
+        sessions = Sessions(app, owner)
     remote = not ipaddress.ip_address(bind).is_loopback
     if app.operator is not None and (origin or remote_ca):
         raise ValueError("simulator operator cannot use public-origin/client-CA mode")
@@ -198,7 +206,10 @@ def make_server(
                     result,
                     headers={
                         "Set-Cookie": cookie_header(
-                            self.cookie_name(), token, bool(self.server.tls_context)
+                            self.cookie_name(),
+                            token,
+                            bool(self.server.tls_context),
+                            max_age=2592000 if local_signin else 28800,
                         )
                     },
                 )
@@ -216,7 +227,7 @@ def make_server(
             if self.headers.get("Sec-Fetch-Site") not in (None, "same-origin", "none"):
                 return False
             browser = False
-            if private and (owner is not None or self.session_token()):
+            if private and (local_signin or owner is not None or self.session_token()):
                 try:
                     self.session(mutation=self.command == "POST")
                     browser = True
@@ -251,7 +262,14 @@ def make_server(
                 try:
                     result = self.session()
                 except PermissionError:
-                    result = {"authenticated": False, "mode": "OWNER" if owner else "LOCAL_LAUNCH"}
+                    result = {
+                        "authenticated": False,
+                        "mode": sessions.mode()
+                        if local_signin
+                        else "OWNER"
+                        if owner
+                        else "LOCAL_LAUNCH",
+                    }
                 return self.reply(200, result)
             if not self.allowed(private=self.path.startswith("/api/")):
                 return self.reply(403, {"error": "Access denied or session expired"})
@@ -326,12 +344,17 @@ def make_server(
         def do_POST(self):
             if self.path == "/api/session":
                 return self.session_request()
-            if self.path == "/api/session/logout":
+            if self.path in ("/api/session/logout", "/api/session/logout-all"):
+                if self.path.endswith("logout-all") and not local_signin:
+                    return self.reply(404, {"error": "Not available"})
                 try:
                     if not self.allowed():
                         raise PermissionError("access denied")
                     self.session(mutation=True)
-                    sessions.logout(self.session_token())
+                    if self.path.endswith("logout-all"):
+                        sessions.logout_all()
+                    else:
+                        sessions.logout(self.session_token())
                     return self.reply(
                         200,
                         {"authenticated": False},
@@ -561,6 +584,11 @@ def main():
         type=Path,
         help="Enable bounded strategy proposals: at most 10 calls per research store",
     )
+    parser.add_argument(
+        "--local-signin",
+        action="store_true",
+        help="Persistent owner sign-in on 127.0.0.1 only; first visit creates owner",
+    )
     args = parser.parse_args()
     try:
         validate_access(
@@ -729,13 +757,18 @@ def serve(snapshot, args):
             remote_cert=args.tls_cert,
             remote_key=args.tls_key,
             remote_ca=args.tls_client_ca,
+            local_signin=getattr(args, "local_signin", False),
             owner=Owner.model_validate_json(args.owner_file.read_bytes())
             if args.owner_file
             else None,
         )
         scheme = configure_tls(server, args.tls_cert, args.tls_key, args.tls_client_ca)
         origin = args.public_origin or f"{scheme}://{args.bind}:{server.server_port}"
-        url = f"{origin}/" if args.owner_file else f"{origin}/#token={app.token}"
+        url = (
+            f"{origin}/"
+            if args.owner_file or getattr(args, "local_signin", False)
+            else f"{origin}/#token={app.token}"
+        )
         if args.session_file:
             with args.session_file.open("x", encoding="utf-8") as f:
                 f.write(url)

@@ -144,9 +144,10 @@ def cookie_token(header, name):
         return ""
 
 
-def cookie_header(name, token, secure, *, clear=False):
-    return f"{name}={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age={0 if clear else 28800}" + (
-        "; Secure" if secure else ""
+def cookie_header(name, token, secure, *, clear=False, max_age=28800):
+    return (
+        f"{name}={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age={0 if clear else max_age}"
+        + ("; Secure" if secure else "")
     )
 
 

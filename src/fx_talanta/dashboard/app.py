@@ -148,6 +148,23 @@ class Dashboard:
             self.repo.close()
             raise
 
+    def renew_owner_access(self):
+        """Renew internal read capability only after persistent owner authentication."""
+        with self.repo.lock:
+            self.expires_at = self.clock.now() + timedelta(hours=8)
+            self.access = AccessControl(
+                (
+                    Principal(
+                        actor_id="local-viewer",
+                        account=self.snapshot.account,
+                        expires_at=self.expires_at,
+                        permissions=("read",),
+                        token_sha256=token_digest(self.token),
+                    ),
+                )
+            )
+            self.advisor.access = self.access
+
     def authorize(self, token):
         self.access.verify(token, self.snapshot.account, "read", self.clock.now())
 

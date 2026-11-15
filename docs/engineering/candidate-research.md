@@ -2,8 +2,7 @@
 
 This workflow connects strategy authoring to the existing replay simulator. It is
 offline research, not permission to trade or a claim of profitability. The Docker
-preview built for PR #64 remains on that image until explicitly rebuilt; changing
-source does not change the running preview or delete its saved strategies.
+preview has been updated to PR #65 with [normal local sign-in](../guides/local-signin.md); its saved strategies were preserved.
 
 ## Owner workflow
 
