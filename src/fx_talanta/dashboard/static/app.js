@@ -986,6 +986,7 @@ function strategySpec() {
   ]);
 }
 function clearStrategy() {
+  $("research-reviewed").checked = false;
   selectedStrategy = null;
   strategyId = crypto.randomUUID();
   strategyRetry = null;
@@ -998,6 +999,7 @@ function clearStrategy() {
     "Not evaluated. Freezing does not qualify a strategy.";
 }
 function selectStrategy(record) {
+  $("research-reviewed").checked = false;
   selectedStrategy = record;
   strategyId = record.strategy_id;
   strategyRetry = null;
@@ -1325,3 +1327,10 @@ $("research-run").onclick = () =>
   });
 $("research-refresh").onclick = () =>
   researchAction($("research-refresh"), refreshResearch);
+
+$("research-rules").addEventListener("input", () => {
+  $("research-reviewed").checked = false;
+});
+$("research-file").addEventListener("change", () => {
+  $("research-reviewed").checked = false;
+});
