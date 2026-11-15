@@ -2,11 +2,11 @@
 
 This workflow connects strategy authoring to the existing replay simulator. It is
 offline research, not permission to trade or a claim of profitability. The Docker
-preview has been updated to PR #65 with [normal local sign-in](../guides/local-signin.md); its saved strategies were preserved.
+preview has been updated to PR #65 with [direct local workspace access](../guides/local-signin.md); its saved strategies were preserved.
 
 ## Owner workflow
 
-1. Start the dashboard with its usual private session launcher. Optional
+1. Open the local Docker preview directly (no account required). Optional
    `--research-key-file PATH` enables the existing OpenAI transport using an ignored
    dotenv file containing `OPENAI_API_KEY`. Never put the key into the browser.
    Without that flag, manually reviewed candidates and backtests still work.
@@ -99,3 +99,32 @@ Browser acceptance covers freeze, registration, run, chart, retained result and 
 Tests preserve the original B01 result hash, future-data exclusion, percentage limits,
 provider retry conflicts and uncertain outcomes. All M1–M3 gaps and the existing B01
 **REJECT_FOR_PROMOTION** verdict remain unchanged. No campaign or broker connection.
+
+## English / Chinese interface and translation
+
+Use the header language selector to switch interface labels between English and
+Simplified Chinese. Switching does not rewrite form values, saved specifications,
+rule enums, identifiers or historical evidence. Evidence stays in its original
+language. Both languages are accepted in strategy descriptions, research briefs
+and advisor questions; proposal prose follows the brief language unless requested
+otherwise. Executable JSON keys and enums remain unchanged.
+
+The **Translate input (preview only)** panel accepts pasted prose and returns an
+English or Chinese preview through the configured AI provider. Copy it manually
+only after checking numbers and meaning. This never saves a candidate or updates
+an input field. Clear, reload or leaving the page discards the translation. Neither
+translation input nor output is written to the application journal, database or
+browser storage. Requests use `store=false`; this is not a guarantee of zero
+provider retention. Do not paste secrets. Twenty requests per server process,
+4,000 input characters, 3,000 output tokens; no automatic retries. Failed requests
+consume the process limit. Provider configuration is shared with proposals but
+translation does not consume their durable ten-request research allowance.
+
+Validation uses deterministic provider fixtures for both translation directions,
+invalid inputs, no retries and request limits. Headless browser acceptance checks
+language switching, unchanged strategy inputs and option values, translation
+preview and clearing on reload. These tests do not qualify translation accuracy.
+
+Two live preview translation smoke checks also completed (English to Chinese and
+Chinese to English); both preserved the sample 0.10% risk value. These generic
+checks are not a comprehensive semantic-accuracy evaluation.

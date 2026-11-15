@@ -6,6 +6,7 @@
     <title>FX-Talanta · Observatory</title>
     <link rel="stylesheet" href="/style.css" />
     <script src="/app.js" defer></script>
+    <script src="/language.js" defer></script>
   </head>
   <body>
     <a href="#workspace" class="skip">Skip to workspace</a>
@@ -32,6 +33,13 @@
     </aside>
     <div class="shell">
       <header class="topbar">
+        <label
+          >Language / 语言
+          <select id="ui-language">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select></label
+        >
         <span
           >Workspace <span class="slash">/</span>
           <strong>Observatory</strong></span
@@ -259,6 +267,39 @@
               </li>
               <li>Backtest results below; promotion remains unavailable</li>
             </ul>
+            <section id="translation-panel">
+              <h3>Translate input (preview only)</h3>
+              <p>
+                English and Chinese inputs are accepted directly. Translation
+                uses the AI provider; nothing is saved or applied automatically.
+                Provider retention policies may apply.
+              </p>
+              <label
+                >Text to translate<textarea
+                  id="translation-input"
+                  maxlength="4000"
+                  autocomplete="off"
+                ></textarea>
+              </label>
+              <label
+                >Target language<select id="translation-target">
+                  <option value="en">English</option>
+                  <option value="zh">中文</option>
+                </select></label
+              >
+              <button id="translate-input" type="button">Translate</button>
+              <button id="translation-clear" type="button">
+                Clear translation
+              </button>
+              <p id="translation-status" role="status"></p>
+              <label
+                >Translation preview<textarea
+                  id="translation-output"
+                  readonly
+                  autocomplete="off"
+                ></textarea>
+              </label>
+            </section>
             <section id="research-workflow">
               <h3>AI proposals and historical research</h3>
               <p>

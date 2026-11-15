@@ -105,6 +105,9 @@ def make_server(
 ):
     if local_workspace and (bind != "127.0.0.1" or origin or owner or remote_ca or local_signin):
         raise ValueError("account-free workspace requires exclusive IPv4 loopback mode")
+    from fx_talanta.dashboard.translation import Translator
+
+    translator = Translator(app.research.transport)
     workspace_csrf = __import__("secrets").token_urlsafe(32)
     if owner is not None and not (remote_cert and remote_key):
         raise ValueError("owner sign-in requires HTTPS")
@@ -309,6 +312,7 @@ def make_server(
             assets = {
                 "/": ("index.html", "text/html; charset=utf-8"),
                 "/app.js": ("app.js", "text/javascript"),
+                "/language.js": ("language.js", "text/javascript"),
                 "/style.css": ("style.css", "text/css"),
             }
             if self.path in assets:
@@ -420,6 +424,7 @@ def make_server(
                 "/api/calendar",
                 "/api/explain",
                 "/api/study",
+                "/api/translate",
                 "/api/research/generate",
                 "/api/research/register",
                 "/api/research/execute",
@@ -431,11 +436,13 @@ def make_server(
             try:
                 size = int(self.headers.get("Content-Length", "-1"))
                 maximum = (
-                    8 * 1024 * 1024
+                    32768
+                    if self.path == "/api/translate"
+                    else 8 * 1024 * 1024
                     if self.path == "/api/research/register"
-                    else 4096
+                    else 16384
                     if self.path.startswith("/api/research/")
-                    else 4096
+                    else 16384
                     if self.path in ("/api/chat", "/api/explain", "/api/notifications/ack")
                     else 32768
                     if self.path.startswith("/api/strategies/")
@@ -456,6 +463,8 @@ def make_server(
                     raise ValueError("short request")
                 if self.path == "/api/notifications/ack":
                     result = app.notifications.acknowledge(json.loads(raw))
+                elif self.path == "/api/translate":
+                    result = translator.translate(json.loads(raw))
                 elif self.path == "/api/chat":
                     result = app.chat(json.loads(raw))
                 elif self.path == "/api/explain":
