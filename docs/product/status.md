@@ -1,5 +1,18 @@
 # Current product status
 
+## R0-R6 delivery direction (November 14, 2026)
+
+The [revised roadmap](roadmap.md) organizes delivery around strategy design,
+backtesting, demo, capped live and controlled AI improvement, with UI acceptance
+at every milestone. M0-M7 remain historical component/gate identifiers.
+PR #63 is merged, including the restart-overrun fix; fixture dispatch remains offline.
+R0 and Strategy + Research have started: the local UI now stores immutable descriptive
+candidate revisions, freezes exact content for research and exports selected records.
+It shows lifecycle status and unresolved qualification. **AI strategy generation,
+executable rule mapping and candidate-bound backtest execution are not connected to
+this workspace yet.** R1/R2 are not complete. Current work grants no trading authority.
+See the [scope and gap register](../engineering/r0-strategy-research.md).
+
 Research baseline: merged PR #34 (`93fb4c5`, November 5, 2026). M3's completed
 research scope is closed by owner decision; qualification gaps remain tracked.
 This does not change execution authority or qualify another campaign.

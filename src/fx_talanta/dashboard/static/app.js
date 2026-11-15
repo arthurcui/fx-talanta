@@ -346,6 +346,7 @@ async function refresh() {
   try {
     const overview = await api("/api/overview");
     render(overview);
+    await refreshStrategies();
     $("broker-panel").hidden = !overview.broker_view_enabled;
     if (overview.broker_view_enabled) refreshBroker();
     if (!historyLoaded) {
@@ -464,6 +465,10 @@ $("kind").addEventListener("change", renderRecords);
 $("evidence-search").addEventListener("input", renderRecords);
 $("refresh").addEventListener("click", refresh);
 function signedOut() {
+  clearStrategy();
+  $("strategy-history").replaceChildren();
+  $("lifecycle-milestones").replaceChildren();
+  $("lifecycle-gaps").replaceChildren();
   authenticated = false;
   csrf = "";
   sessionEpoch++;
@@ -952,3 +957,175 @@ async function refreshNotifications() {
   }
 }
 $("notification-refresh").addEventListener("click", refreshNotifications);
+
+const strategyFields = [
+  "name",
+  "hypothesis",
+  "input_policy",
+  "entry_rules",
+  "exit_rules",
+  "portfolio_policy",
+  "evaluation_plan",
+  "risk_per_trade_pct",
+  "total_open_risk_pct",
+  "daily_loss_limit_pct",
+  "authorship",
+  "provenance",
+];
+let selectedStrategy = null,
+  strategyId = crypto.randomUUID(),
+  strategyRetry = null;
+function strategySpec() {
+  return Object.fromEntries([
+    ["pairs", ["EURUSD", "USDJPY"]],
+    ...strategyFields.map((k) => [k, $("strategy-" + k).value]),
+  ]);
+}
+function clearStrategy() {
+  selectedStrategy = null;
+  strategyId = crypto.randomUUID();
+  strategyRetry = null;
+  $("strategy-form").reset();
+  $("strategy-selection").textContent = "New candidate · EUR/USD + USD/JPY";
+  $("strategy-freeze").disabled = true;
+  $("strategy-export").disabled = true;
+  $("strategy-message").textContent = "";
+  $("strategy-research-status").textContent =
+    "Not evaluated. Freezing does not qualify a strategy.";
+}
+function selectStrategy(record) {
+  selectedStrategy = record;
+  strategyId = record.strategy_id;
+  strategyRetry = null;
+  strategyFields.forEach((k) => {
+    $("strategy-" + k).value = record.specification[k];
+  });
+  $("strategy-selection").textContent =
+    record.specification.name +
+    " · version " +
+    record.version +
+    " · " +
+    record.state +
+    " · SHA-256 " +
+    record.sha256;
+  $("strategy-freeze").disabled = record.state !== "DRAFT";
+  $("strategy-export").disabled = false;
+  $("strategy-research-status").textContent =
+    record.state +
+    " · Descriptive only; not executable, evaluated or approved for paper.";
+}
+async function refreshStrategies() {
+  try {
+    const data = await api("/api/strategies");
+    $("lifecycle-status").textContent =
+      data.mode +
+      " · Trading disabled · AI generation and candidate backtest integration pending";
+    $("lifecycle-milestones").replaceChildren(
+      ...data.milestones.map((m) =>
+        node("p", m.id + " · " + m.title + " · " + m.status),
+      ),
+    );
+    $("lifecycle-gaps").replaceChildren(...data.gaps.map((g) => node("li", g)));
+    $("strategy-history").replaceChildren(
+      ...data.records.map((record) => {
+        const b = node(
+          "button",
+          record.specification.name +
+            " · v" +
+            record.version +
+            " · " +
+            record.state,
+          "secondary",
+        );
+        b.type = "button";
+        b.addEventListener("click", () => {
+          selectStrategy(record);
+        });
+        return b;
+      }),
+    );
+    if (!data.records.length)
+      $("strategy-history").append(node("p", "No saved candidates."));
+  } catch (e) {
+    $("lifecycle-status").textContent =
+      "Lifecycle records unavailable: " + e.message;
+    $("strategy-history").replaceChildren();
+    $("lifecycle-milestones").replaceChildren();
+    $("lifecycle-gaps").replaceChildren();
+    $("strategy-freeze").disabled = true;
+  }
+}
+$("strategy-new").addEventListener("click", clearStrategy);
+$("strategy-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const draft = {
+    strategy_id: strategyId,
+    parent: selectedStrategy?.sha256 || null,
+    specification: strategySpec(),
+  };
+  const fingerprint = JSON.stringify(draft);
+  if (!strategyRetry || strategyRetry.fingerprint !== fingerprint)
+    strategyRetry = {
+      fingerprint,
+      request: { ...draft, request_id: crypto.randomUUID() },
+    };
+  $("strategy-save").disabled = true;
+  try {
+    const record = await api("/api/strategies/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(strategyRetry.request),
+    });
+    selectStrategy(record);
+    $("strategy-message").textContent =
+      "Saved descriptive revision. No model call or trading authority.";
+    await refreshStrategies();
+  } catch (err) {
+    $("strategy-message").textContent =
+      "Save not confirmed: " +
+      err.message +
+      ". Retry unchanged content with the same request, or reload history.";
+  } finally {
+    $("strategy-save").disabled = false;
+  }
+});
+$("strategy-freeze").addEventListener("click", async () => {
+  if (!selectedStrategy) return;
+  if (
+    strategyFields.some(
+      (k) => strategySpec()[k] !== selectedStrategy.specification[k],
+    )
+  ) {
+    $("strategy-message").textContent =
+      "Save your changed fields as a new revision before freezing.";
+    return;
+  }
+  $("strategy-freeze").disabled = true;
+  try {
+    const record = await api("/api/strategies/freeze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sha256: selectedStrategy.sha256 }),
+    });
+    selectStrategy(record);
+    $("strategy-message").textContent =
+      "Frozen for research only. Backtest and qualification remain pending.";
+    await refreshStrategies();
+  } catch (err) {
+    $("strategy-message").textContent = "Freeze not confirmed: " + err.message;
+    $("strategy-freeze").disabled = false;
+  }
+});
+$("strategy-export").addEventListener("click", () => {
+  if (!selectedStrategy) return;
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify(selectedStrategy, null, 2)], {
+      type: "application/json",
+    }),
+  );
+  const a = node("a");
+  a.href = url;
+  a.download = "strategy-" + selectedStrategy.sha256 + ".json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});

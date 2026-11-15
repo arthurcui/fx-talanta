@@ -17,6 +17,7 @@
       <div class="nav-label">OBSERVATORY</div>
       <nav aria-label="Workspace">
         <a href="#workspace" class="active">◈ &nbsp; Overview</a
+        ><a href="#strategy-workspace">Strategies & research</a
         ><a href="#channels">≋ &nbsp; Data channels</a
         ><a href="#journal">▤ &nbsp; Evidence journal</a
         ><a href="#incidents">! &nbsp; Incidents</a
@@ -81,6 +82,171 @@
           Connecting to the local inspection service…
         </div>
         <div id="dashboard" hidden>
+          <section class="panel" id="lifecycle-overview">
+            <h2>Trading lifecycle</h2>
+            <p>
+              EUR/USD and USD/JPY · Offline research · No active trading
+              strategy
+            </p>
+            <p id="lifecycle-status" role="status">
+              Loading lifecycle records…
+            </p>
+            <div id="lifecycle-milestones"></div>
+            <ul id="lifecycle-gaps"></ul>
+          </section>
+          <section class="panel" id="strategy-workspace">
+            <h2>Strategy & research workspace</h2>
+            <p>
+              Save a descriptive candidate and freeze its content for research.
+              No AI generation or executable backtest is connected here yet.
+              Proposed percentage limits are not an approved trading mandate.
+            </p>
+            <button id="strategy-new" class="secondary" type="button">
+              New candidate
+            </button>
+            <p id="strategy-selection">New candidate · EUR/USD + USD/JPY</p>
+            <form id="strategy-form" class="strategy-form">
+              <label
+                >Name<input
+                  id="strategy-name"
+                  required
+                  minlength="3"
+                  maxlength="100"
+              /></label>
+              <label
+                >Hypothesis<textarea
+                  id="strategy-hypothesis"
+                  required
+                  minlength="10"
+                  maxlength="4000"
+                ></textarea>
+              </label>
+              <label
+                >Inputs, sessions and calendar/news policy<textarea
+                  id="strategy-input_policy"
+                  required
+                  minlength="10"
+                  maxlength="4000"
+                ></textarea>
+              </label>
+              <label
+                >Entry signals and HOLD conditions<textarea
+                  id="strategy-entry_rules"
+                  required
+                  minlength="10"
+                  maxlength="4000"
+                ></textarea>
+              </label>
+              <label
+                >Exit and protection rules<textarea
+                  id="strategy-exit_rules"
+                  required
+                  minlength="10"
+                  maxlength="4000"
+                ></textarea>
+              </label>
+              <label
+                >Portfolio and combined USD exposure policy<textarea
+                  id="strategy-portfolio_policy"
+                  required
+                  minlength="10"
+                  maxlength="4000"
+                ></textarea>
+              </label>
+              <label
+                >Evaluation plan: costs, windows, benchmarks and rejection
+                criteria<textarea
+                  id="strategy-evaluation_plan"
+                  required
+                  minlength="10"
+                  maxlength="4000"
+                ></textarea>
+              </label>
+              <label
+                >Proposed risk per trade (%)<input
+                  id="strategy-risk_per_trade_pct"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  max="100"
+                  required
+              /></label>
+              <label
+                >Proposed total open risk (%)<input
+                  id="strategy-total_open_risk_pct"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  max="100"
+                  required
+              /></label>
+              <label
+                >Proposed daily loss limit (%)<input
+                  id="strategy-daily_loss_limit_pct"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  max="100"
+                  required
+              /></label>
+              <label
+                >Declared authorship<select id="strategy-authorship">
+                  <option value="USER">User draft</option>
+                  <option value="AI_IMPORTED">
+                    Imported AI proposal (unverified)
+                  </option>
+                </select></label
+              >
+              <label
+                >Provenance: author or model, prompt and evidence
+                references<textarea
+                  id="strategy-provenance"
+                  required
+                  minlength="10"
+                  maxlength="4000"
+                ></textarea>
+              </label>
+              <button id="strategy-save">Save new revision</button>
+            </form>
+            <div class="workspace-actions">
+              <button id="strategy-freeze" type="button" disabled>
+                Freeze saved revision
+              </button>
+              <button
+                id="strategy-export"
+                class="secondary"
+                type="button"
+                disabled
+              >
+                Export selected revision
+              </button>
+            </div>
+            <p id="strategy-message" role="status"></p>
+            <h3>Saved versions</h3>
+            <p>
+              Latest 100 revisions. Select a version to inspect its exact
+              specification.
+            </p>
+            <div id="strategy-history"></div>
+            <h3>Research readiness</h3>
+            <p id="strategy-research-status">
+              Not evaluated. Freezing does not qualify a strategy.
+            </p>
+            <ul>
+              <li>Reviewed executable rule mapping: not connected</li>
+              <li>
+                Candidate-bound dataset and availability audit: not registered
+              </li>
+              <li>
+                Frozen cost profile and development/holdout windows: not
+                registered
+              </li>
+              <li>Backtest result and promotion verdict: unavailable</li>
+            </ul>
+            <button type="button" disabled>
+              Run candidate backtest — integration pending
+            </button>
+          </section>
           <section class="source-banner">
             <span class="pill" id="source">—</span>
             <div>

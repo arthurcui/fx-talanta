@@ -1,0 +1,78 @@
+{
+  "scope": "R0_OVERVIEW_AND_DESCRIPTIVE_STRATEGY_WORKSPACE",
+  "local_date": "2026-11-14",
+  "result": "PASS",
+  "backend_passed": 262,
+  "browser_stats": {
+    "startTime": "2026-11-15T05:08:41.814Z",
+    "duration": 36557.215000000004,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "source_sha256": {
+    "src/fx_talanta/dashboard/strategies.py": "3de8cc4d3de43b01efdbaa4442dde1543352711fdbc10ded381eb4b2a1c35fa1",
+    "src/fx_talanta/dashboard/app.py": "d10519defb5bb1b84691af5b6b5d51851894569a3c7a7182c9d2fc3f27df8628",
+    "src/fx_talanta/dashboard/server.py": "c053d0da8c688ce413fd66f3786df8b241283cf8425fc0d8695a59d5c6957ea0",
+    "src/fx_talanta/dashboard/static/index.html": "2a896d4e62e70f7123553ed2650ee4c0a0558e992a83376b5552d142635d5f04",
+    "src/fx_talanta/dashboard/static/app.js": "6107123468e7704521b2bfff1ba32491e2b78ac51205218c51cbf05262cb5f2a",
+    "src/fx_talanta/dashboard/static/style.css": "8a8f811066c76d6145ed5552009f0be218efd01be1a062449b11d1b89499ac93",
+    "tests/test_dashboard_strategies.py": "daa18e0798c8c69ecdc25cd68c6fcceeef15ddd5f48b3c92558eaa732a322b9c",
+    "tests/test_dashboard.py": "5cc509b7be54cd2052d8dae0309f47e1c54a00d09921ea171dea06ca53ddb8f9",
+    "tools/dashboard-tests/dashboard.spec.js": "f6b047e32e6da88bd5fef3cd5a471ff070a650142740ca632ba4be3fa86897bf"
+  },
+  "focused_cases": [
+    {
+      "name": "tests.test_dashboard_strategies::test_save_freeze_retry_and_resume_preserve_exact_version",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_request_conflict_stale_parent_and_old_freeze_rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_invalid_scope_risk_or_authority_cannot_be_saved[changes0]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_invalid_scope_risk_or_authority_cannot_be_saved[changes1]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_invalid_scope_risk_or_authority_cannot_be_saved[changes2]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_invalid_scope_risk_or_authority_cannot_be_saved[changes3]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_invalid_scope_risk_or_authority_cannot_be_saved[changes4]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_invalid_scope_risk_or_authority_cannot_be_saved[changes5]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_invalid_scope_risk_or_authority_cannot_be_saved[changes6]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_invalid_scope_risk_or_authority_cannot_be_saved[changes7]",
+      "result": "PASS"
+    },
+    {
+      "name": "tests.test_dashboard_strategies::test_no_network_or_trading_and_immutable_history",
+      "result": "PASS"
+    }
+  ],
+  "trading_enabled": false,
+  "broker_calls": 0,
+  "external_model_calls": 0,
+  "R1_complete": false,
+  "R2_complete": false,
+  "candidate_backtest_connected": false,
+  "B01": "REJECT_FOR_PROMOTION"
+}
