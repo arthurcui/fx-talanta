@@ -167,6 +167,37 @@ test("brief precedes candidate and backtest; proposal fills review form", async 
 test("select dataset and backtest without uploading a file", async ({
   page,
 }) => {
+  const ruleFixture = {
+    family: "TREND_BREAKOUT",
+    trend_period: 50,
+    signal_period: 20,
+    atr_period: 14,
+    stop_atr: "1.5",
+    reward_risk: "2",
+    hold_bars: 16,
+    start_hour_utc: 0,
+    end_hour_utc: 23,
+    calendar_policy: "REQUIRE_MARKET_HEALTH",
+  };
+  await page.route("**/api/research", async (route) => {
+    const response = await route.fetch();
+    const data = await response.json();
+    data.items.push({
+      id: "b".repeat(64),
+      kind: "AI_PROPOSAL",
+      payload: {
+        proposal: {
+          specification: { name: "Saved rule fixture" },
+          rules: ruleFixture,
+        },
+      },
+    });
+    await route.fulfill({ json: data });
+  });
+  let submissions = 0;
+  page.on("request", (request) => {
+    if (request.url().endsWith("/api/research/select_dataset")) submissions++;
+  });
   await page.goto(url);
   await expect(page.locator("#research-dataset option")).toHaveCount(2);
   await page.locator("#strategy-new").click();
@@ -196,20 +227,29 @@ test("select dataset and backtest without uploading a file", async ({
   await expect(page.locator("#strategy-selection")).toContainText(
     "FROZEN_FOR_RESEARCH",
   );
-  await page.locator("#research-rules").fill(
-    JSON.stringify({
-      family: "TREND_BREAKOUT",
-      trend_period: 50,
-      signal_period: 20,
-      atr_period: 14,
-      stop_atr: "1.5",
-      reward_risk: "2",
-      hold_bars: 16,
-      start_hour_utc: 0,
-      end_hour_utc: 23,
-      calendar_policy: "REQUIRE_MARKET_HEALTH",
-    }),
+  await page.reload();
+  await page
+    .locator("#strategy-history button")
+    .filter({ hasText: "Catalog browser candidate" })
+    .click();
+  await page.locator("#research-register").click();
+  await expect(page.locator("#research-message")).toContainText(
+    "Not submitted: Executable rules is empty",
   );
+  expect(submissions).toBe(0);
+  await page.locator("#research-rules").fill("{");
+  await page.locator("#research-register").click();
+  await expect(page.locator("#research-message")).toContainText(
+    "is not valid JSON",
+  );
+  expect(submissions).toBe(0);
+  const frozen = await page.locator("#strategy-selection").textContent();
+  await page.locator("#research-load-rules").click();
+  await expect(page.locator("#strategy-selection")).toHaveText(frozen);
+  await expect(page.locator("#research-reviewed")).not.toBeChecked();
+  expect(
+    JSON.parse(await page.locator("#research-rules").inputValue()),
+  ).toEqual(ruleFixture);
   await page.locator("#research-dataset").selectOption({ index: 1 });
   await expect(page.locator("#research-dataset-details")).toContainText(
     "SYNTHETIC",

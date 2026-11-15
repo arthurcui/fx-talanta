@@ -207,6 +207,13 @@ Object.assign(labels, {
   "Windows and cost assumptions are fixed for each dataset. Registration caps risk at the lower of the dataset policy and your frozen candidate limits.":
     "每个数据集的窗口及成本假设固定。注册时风险上限取数据集规则与冻结候选策略限制中的较低值。",
 });
+Object.assign(labels, {
+  "Saved AI proposal rules": "已保存的 AI 提案规则",
+  "Select a saved proposal": "选择已保存的提案",
+  "Load proposal rules for review": "加载提案规则以供审核",
+  "Loading rules keeps your selected candidate unchanged. Review the mapping again before registering.":
+    "加载规则不会更改选中的候选策略。注册前请重新审核规则映射。",
+});
 const languageSelect = document.getElementById("ui-language");
 let currentLanguage = "en";
 const originals = new Map();

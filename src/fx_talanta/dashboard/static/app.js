@@ -44,7 +44,14 @@ async function api(path, options = {}) {
         : 8000,
     ),
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (_) {
+    throw new Error(
+      "The server returned an empty or unreadable response. Check retained evidence before submitting again.",
+    );
+  }
   if (epoch !== sessionEpoch) throw new Error("Session changed");
   if (
     response.status === 403 &&
@@ -1180,7 +1187,27 @@ async function researchExport(item) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-let researchDatasets = [];
+let researchDatasets = [],
+  researchProposals = [];
+class ResearchInputError extends Error {}
+function parseResearchJSON(text, label) {
+  if (!text.trim())
+    throw new ResearchInputError(
+      label +
+        " is empty. Load saved proposal rules or enter reviewed rules first.",
+    );
+  let value;
+  try {
+    value = JSON.parse(text);
+  } catch (_) {
+    throw new ResearchInputError(
+      label + " is not valid JSON. Correct it before registering.",
+    );
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new ResearchInputError(label + " must be a JSON object.");
+  return value;
+}
 function showDataset() {
   const selected = researchDatasets.find(
     (x) => x.id === $("research-dataset").value,
@@ -1225,6 +1252,23 @@ function showDataset() {
 }
 async function refreshResearch() {
   const data = await api("/api/research");
+  researchProposals = data.items.filter((x) => x.kind === "AI_PROPOSAL");
+  const previousProposal = $("research-rule-proposal").value;
+  $("research-rule-proposal").replaceChildren(
+    new Option("Select a saved proposal", ""),
+    ...researchProposals.map(
+      (x) =>
+        new Option(
+          x.payload.proposal.specification.name + " · " + x.id.slice(0, 12),
+          x.id,
+        ),
+    ),
+  );
+  if (researchProposals.some((x) => x.id === previousProposal))
+    $("research-rule-proposal").value = previousProposal;
+  else if (researchProposals.length === 1)
+    $("research-rule-proposal").value = researchProposals[0].id;
+  $("research-load-rules").disabled = !researchProposals.length;
   researchDatasets = data.datasets || [];
   const datasetChoice = $("research-dataset").value;
   $("research-dataset").replaceChildren(
@@ -1379,7 +1423,9 @@ async function researchAction(button, fn) {
         ? "proposal-message"
         : "research-message",
     ).textContent =
-      "Not confirmed: " + e.message + "; refresh evidence before retrying.";
+      e instanceof ResearchInputError
+        ? "Not submitted: " + e.message
+        : "Not confirmed: " + e.message + "; refresh evidence before retrying.";
   } finally {
     button.disabled = false;
   }
@@ -1408,24 +1454,28 @@ $("research-generate").onclick = () =>
 $("research-register").onclick = () =>
   researchAction($("research-register"), async () => {
     if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
-      throw new Error("Select a frozen candidate first");
+      throw new ResearchInputError("Select a frozen candidate first");
     const common = {
       candidate_sha256: selectedStrategy.sha256,
-      rules: JSON.parse($("research-rules").value),
+      rules: parseResearchJSON($("research-rules").value, "Executable rules"),
       reviewed_mapping: $("research-reviewed").checked,
     };
+    if (!common.reviewed_mapping)
+      throw new ResearchInputError(
+        "Confirm that you reviewed the executable rules against the frozen candidate.",
+      );
     let item;
     if ($("research-use-upload").checked) {
       const file = $("research-file").files[0];
       if (!file || file.size > 8 * 1024 * 1024)
         throw new Error("Choose a research JSON bundle up to 8 MiB");
       item = await researchPost("register", {
-        ...JSON.parse(await file.text()),
+        ...parseResearchJSON(await file.text(), "Uploaded research bundle"),
         ...common,
       });
     } else {
       if (!$("research-dataset").value)
-        throw new Error("Select an available historical dataset");
+        throw new ResearchInputError("Select an available historical dataset");
       item = await researchPost("select_dataset", {
         ...common,
         dataset_id: $("research-dataset").value,
@@ -1471,4 +1521,22 @@ $("research-dataset").addEventListener("change", () => {
 });
 $("research-use-upload").addEventListener("change", () => {
   $("research-reviewed").checked = false;
+});
+
+$("research-load-rules").addEventListener("click", () => {
+  const proposal = researchProposals.find(
+    (x) => x.id === $("research-rule-proposal").value,
+  );
+  if (!proposal) {
+    $("research-message").textContent = "Select a saved AI proposal first.";
+    return;
+  }
+  $("research-rules").value = JSON.stringify(
+    proposal.payload.proposal.rules,
+    null,
+    2,
+  );
+  $("research-reviewed").checked = false;
+  $("research-message").textContent =
+    "Proposal rules loaded. Your candidate is unchanged; review their mapping before registering.";
 });

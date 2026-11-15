@@ -183,3 +183,16 @@ attribute in the existing deployment launcher and an unintentionally enlarged
 chat request-body ceiling. The launcher defaults safely to authenticated mode;
 the existing 4 KiB chat ceiling is restored while research briefs retain their
 Unicode-sized request allowance.
+
+## Restoring executable rules after reopening the page
+
+A saved descriptive candidate is not itself executable-rule JSON. In step 3,
+select the retained AI proposal under **Saved AI proposal rules** and click
+**Load proposal rules for review**. This restores only its parameter mapping,
+keeps the selected frozen candidate unchanged, and clears review confirmation.
+Review the mapping against the candidate before registering. Blank or malformed
+JSON is now reported as **Not submitted**, with no registration HTTP request.
+An empty/unreadable server response instead reports an uncertain outcome and
+instructs the user to inspect retained evidence. No automatic resend is added.
+Browser acceptance reproduces reopen/select-frozen, blank/malformed rules,
+zero submissions, explicit rules restoration, registration and replay.
