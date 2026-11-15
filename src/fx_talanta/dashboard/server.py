@@ -101,7 +101,11 @@ def make_server(
     remote_ca=None,
     owner=None,
     local_signin=False,
+    local_workspace=False,
 ):
+    if local_workspace and (bind != "127.0.0.1" or origin or owner or remote_ca or local_signin):
+        raise ValueError("account-free workspace requires exclusive IPv4 loopback mode")
+    workspace_csrf = __import__("secrets").token_urlsafe(32)
     if owner is not None and not (remote_cert and remote_key):
         raise ValueError("owner sign-in requires HTTPS")
     if local_signin and (bind != "127.0.0.1" or origin or owner or remote_ca):
@@ -163,6 +167,13 @@ def make_server(
         def session(self, mutation=False):
             if mutation and self.headers.get("Origin") != self.origin():
                 raise PermissionError("origin required")
+            if local_workspace:
+                if mutation and not hmac.compare_digest(
+                    self.headers.get("X-FX-CSRF", ""), workspace_csrf
+                ):
+                    raise PermissionError("CSRF required")
+                app.renew_owner_access()
+                return {"authenticated": True, "mode": "LOCAL_WORKSPACE", "csrf": workspace_csrf}
             cert = (
                 self.connection.getpeercert(binary_form=True)
                 if isinstance(self.connection, ssl.SSLSocket)
@@ -176,6 +187,8 @@ def make_server(
             )
 
         def session_request(self):
+            if local_workspace:
+                return self.reply(404, {"error": "Accounts are disabled in local workspace mode"})
             if (
                 not self.allowed()
                 or self.headers.get("Origin") != self.origin()
@@ -230,7 +243,9 @@ def make_server(
             if self.headers.get("Sec-Fetch-Site") not in (None, "same-origin", "none"):
                 return False
             browser = False
-            if private and (local_signin or owner is not None or self.session_token()):
+            if private and (
+                local_workspace or local_signin or owner is not None or self.session_token()
+            ):
                 try:
                     self.session(mutation=self.command == "POST")
                     browser = True
@@ -592,6 +607,9 @@ def main():
         action="store_true",
         help="Persistent owner sign-in on 127.0.0.1 only; first visit creates owner",
     )
+    parser.add_argument(
+        "--local-workspace", action="store_true", help="Account-free workspace on 127.0.0.1 only"
+    )
     args = parser.parse_args()
     try:
         validate_access(
@@ -761,6 +779,7 @@ def serve(snapshot, args):
             remote_key=args.tls_key,
             remote_ca=args.tls_client_ca,
             local_signin=getattr(args, "local_signin", False),
+            local_workspace=args.local_workspace,
             owner=Owner.model_validate_json(args.owner_file.read_bytes())
             if args.owner_file
             else None,
@@ -769,7 +788,7 @@ def serve(snapshot, args):
         origin = args.public_origin or f"{scheme}://{args.bind}:{server.server_port}"
         url = (
             f"{origin}/"
-            if args.owner_file or getattr(args, "local_signin", False)
+            if args.owner_file or getattr(args, "local_signin", False) or args.local_workspace
             else f"{origin}/#token={app.token}"
         )
         if args.session_file:

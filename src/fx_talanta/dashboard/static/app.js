@@ -523,7 +523,7 @@ async function openSession(data) {
           : "Open your private dashboard launch shortcut. No token needs to be pasted here.";
     authenticated = result.authenticated;
     csrf = result.csrf || "";
-    $("logout").hidden = !authenticated;
+    $("logout").hidden = !authenticated || result.mode === "LOCAL_WORKSPACE";
     await refresh();
   } catch (e) {
     if (data && "bootstrap" in data) return openSession(null);
