@@ -207,3 +207,58 @@ def test_proposal_failure_has_safe_fields_and_is_not_resent(app):
     assert "private" not in json.dumps(result)
     assert app.research.generate(req) == result and len(calls) == 1
     assert app.research.read()["jobs"][0]["status"] == "FAILED_OR_UNCERTAIN_NO_RESEND"
+
+
+def test_catalog_selection_caps_risk_and_pins_original(app, tmp_path):
+    from fx_talanta.dashboard.datasets import DatasetCatalog
+    from tools.fixtures.candidate_research import bundle
+
+    original = bundle()
+    directory = tmp_path / "datasets"
+    directory.mkdir()
+    path = directory / "eurusd-bundle.json"
+    path.write_text(json.dumps(original))
+    app.research.catalog = DatasetCatalog(directory)
+    saved = specification()
+    saved["risk_per_trade_pct"] = "0.01"
+    record = app.strategies.save(
+        dict(request_id=str(uuid4()), strategy_id=str(uuid4()), specification=saved)
+    )
+    app.strategies.freeze(dict(sha256=record["sha256"]))
+    entry = app.research.read()["datasets"][0]
+    assert str(directory) not in json.dumps(entry)
+    req = dict(
+        dataset_id=entry["id"],
+        candidate_sha256=record["sha256"],
+        rules=RULES,
+        reviewed_mapping=True,
+    )
+    registered = app.research.select_dataset(req)
+    assert registered["payload"]["dataset_catalog_sha256"] == entry["id"]
+    assert registered["payload"]["experiment"]["policy"]["trade_fraction"] == "0.0001"
+    assert registered["payload"]["dataset"] == original["dataset"]
+    assert registered["payload"]["experiment"]["costs"] == original["experiment"]["costs"]
+    assert app.research.select_dataset(req)["id"] == registered["id"]
+    with pytest.raises(ValueError, match="review"):
+        app.research.select_dataset(dict(req, reviewed_mapping=False))
+    with pytest.raises(ValueError):
+        app.research.select_dataset(dict(req, dataset_id="../secret"))
+    path.write_text(json.dumps(original) + " ")
+    with pytest.raises(ValueError, match="changed"):
+        app.research.select_dataset(req)
+    # Registered data still executes after source changes; it uses the pinned copy.
+    assert (
+        app.research.execute(dict(registration_id=registered["id"], partition="training"))["kind"]
+        == "BACKTEST"
+    )
+
+
+def test_empty_catalog_and_unknown_selection(app):
+    assert app.research.read()["datasets"] == []
+    with pytest.raises(ValueError, match="unknown"):
+        app.research.catalog.read("a" * 64)
+
+
+def test_upload_cannot_forge_catalog_provenance(app):
+    with pytest.raises(ValueError, match="catalog provenance"):
+        app.research.register(dict(registration(app), dataset_catalog_sha256="a" * 64))

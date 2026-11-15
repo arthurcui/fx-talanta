@@ -270,6 +270,8 @@ test("strategy workspace: save, freeze, revise, reload and export without author
       windowsHide: true,
     },
   );
+  await page.locator("#research-advanced summary").click();
+  await page.locator("#research-use-upload").check();
   await page.locator("#research-file").setInputFiles({
     name: "synthetic-bundle.json",
     mimeType: "application/json",

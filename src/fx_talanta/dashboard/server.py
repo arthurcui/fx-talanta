@@ -427,6 +427,7 @@ def make_server(
                 "/api/translate",
                 "/api/research/generate",
                 "/api/research/register",
+                "/api/research/select_dataset",
                 "/api/research/execute",
                 "/api/strategies/save",
                 "/api/strategies/freeze",
@@ -442,7 +443,7 @@ def make_server(
                     if self.path == "/api/research/register"
                     else 16384
                     if self.path.startswith("/api/research/")
-                    else 16384
+                    else 4096
                     if self.path in ("/api/chat", "/api/explain", "/api/notifications/ack")
                     else 32768
                     if self.path.startswith("/api/strategies/")
@@ -619,6 +620,11 @@ def main():
     parser.add_argument(
         "--local-workspace", action="store_true", help="Account-free workspace on 127.0.0.1 only"
     )
+    parser.add_argument(
+        "--research-datasets",
+        type=Path,
+        help="Read-only directory of historical *-bundle.json files",
+    )
     args = parser.parse_args()
     try:
         validate_access(
@@ -770,6 +776,7 @@ def serve(snapshot, args):
             telemetry=args.telemetry,
             telemetry_run=args.telemetry_run,
             research_transport=research_transport,
+            dataset_directory=getattr(args, "research_datasets", None),
             model_budget=budget,
             model_transport=transport,
             broker_view=broker_view,
@@ -788,7 +795,7 @@ def serve(snapshot, args):
             remote_key=args.tls_key,
             remote_ca=args.tls_client_ca,
             local_signin=getattr(args, "local_signin", False),
-            local_workspace=args.local_workspace,
+            local_workspace=getattr(args, "local_workspace", False),
             owner=Owner.model_validate_json(args.owner_file.read_bytes())
             if args.owner_file
             else None,
@@ -797,7 +804,9 @@ def serve(snapshot, args):
         origin = args.public_origin or f"{scheme}://{args.bind}:{server.server_port}"
         url = (
             f"{origin}/"
-            if args.owner_file or getattr(args, "local_signin", False) or args.local_workspace
+            if args.owner_file
+            or getattr(args, "local_signin", False)
+            or getattr(args, "local_workspace", False)
             else f"{origin}/#token={app.token}"
         )
         if args.session_file:

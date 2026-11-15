@@ -1,0 +1,28 @@
+{
+  "scope": "Existing historical catalog integration in temporary simulation journal",
+  "trading_enabled": false,
+  "original_preview_journal_untouched": true,
+  "qualification": "NOT_QUALIFIED",
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "dataset_sha256": "74ff68dfba9755ca3db9d8d81a0562f40ebdf8eed3cf451799ef04d026265162",
+      "events": 3000,
+      "bars": 1283,
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "closed_trades": 0,
+      "source_unchanged": true,
+      "trade_fraction": "0.001"
+    },
+    {
+      "symbol": "USDJPY",
+      "dataset_sha256": "f25c20bd9118232d251906f7587fd23b9db1aa80fafcbc1d904881a104bf387d",
+      "events": 3000,
+      "bars": 1283,
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "closed_trades": 0,
+      "source_unchanged": true,
+      "trade_fraction": "0.001"
+    }
+  ]
+}

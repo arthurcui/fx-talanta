@@ -24,7 +24,15 @@ class Generate(FrozenModel):
     brief: str = Field(min_length=10, max_length=2000)
 
 
+class DatasetSelection(FrozenModel):
+    dataset_id: Hash
+    candidate_sha256: Hash
+    rules: Rules
+    reviewed_mapping: bool
+
+
 class Registration(FrozenModel):
+    dataset_catalog_sha256: Hash | None = None
     candidate_sha256: Hash
     rules: Rules
     reviewed_mapping: bool
@@ -103,7 +111,10 @@ def payload(brief):
 
 
 class Research:
-    def __init__(self, app, transport=None):
+    def __init__(self, app, transport=None, dataset_directory=None):
+        from fx_talanta.dashboard.datasets import DatasetCatalog
+
+        self.catalog = DatasetCatalog(dataset_directory)
         self.app, self.repo, self.transport = app, app.repo, transport
         with self.repo.lock, self.repo.conn:
             self.repo.conn.executescript("""
@@ -132,6 +143,7 @@ class Research:
             ).fetchall()
             jobs = self.repo.conn.execute("SELECT id,result FROM research_jobs").fetchall()
         return dict(
+            datasets=self.catalog.metadata,
             execution_enabled=False,
             ai_enabled=self.transport is not None,
             model_call_limit=10,
@@ -259,8 +271,40 @@ class Research:
             )
         return result
 
-    def register(self, data):
+    def select_dataset(self, data):
+        selection = DatasetSelection.model_validate(data)
+        bundle = self.catalog.read(selection.dataset_id)
+        with self.repo.lock:
+            candidate = self.app.strategies._record(selection.candidate_sha256)
+        spec = candidate["specification"]
+        policy = bundle.experiment.policy
+        updates = {
+            field: min(getattr(policy, field), Decimal(spec[limit]) / 100)
+            for field, limit in [
+                ("trade_fraction", "risk_per_trade_pct"),
+                ("aggregate_fraction", "total_open_risk_pct"),
+                ("daily_fraction", "daily_loss_limit_pct"),
+            ]
+        }
+        experiment = bundle.experiment.model_dump(mode="json")
+        experiment["policy"].update({k: str(v) for k, v in updates.items()})
+        prepared = bundle.model_dump(mode="json")
+        prepared["experiment"] = experiment
+        return self.register(
+            dict(
+                **prepared,
+                candidate_sha256=selection.candidate_sha256,
+                rules=selection.rules.model_dump(mode="json"),
+                reviewed_mapping=selection.reviewed_mapping,
+                dataset_catalog_sha256=selection.dataset_id,
+            ),
+            catalog_selection=True,
+        )
+
+    def register(self, data, *, catalog_selection=False):
         plan = Registration.model_validate(data)
+        if plan.dataset_catalog_sha256 is not None and not catalog_selection:
+            raise ValueError("catalog provenance requires server dataset selection")
         if plan.engine_sha256 not in (None, engine_hash()):
             raise ValueError("engine changed; review a new registration")
         plan = plan.model_copy(update={"engine_sha256": engine_hash()})

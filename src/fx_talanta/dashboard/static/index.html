@@ -358,12 +358,31 @@
                 implemented.
               </p>
               <label
-                >Historical research bundle (dataset + experiment + acceptance
-                criteria)<input
-                  id="research-file"
-                  type="file"
-                  accept="application/json,.json"
-              /></label>
+                >Historical dataset<select id="research-dataset">
+                  <option value="">Select an available dataset</option>
+                </select></label
+              >
+              <p id="research-dataset-status" role="status"></p>
+              <div id="research-dataset-details"></div>
+              <p>
+                Windows and cost assumptions are fixed for each dataset.
+                Registration caps risk at the lower of the dataset policy and
+                your frozen candidate limits.
+              </p>
+              <details id="research-advanced">
+                <summary>Advanced: import a research bundle</summary>
+                <label
+                  ><input id="research-use-upload" type="checkbox" />Use an
+                  uploaded bundle instead of the selected dataset</label
+                >
+                <label
+                  >Historical research bundle (dataset + experiment + acceptance
+                  criteria)<input
+                    id="research-file"
+                    type="file"
+                    accept="application/json,.json"
+                /></label>
+              </details>
               <label
                 ><input id="research-reviewed" type="checkbox" />I reviewed
                 these executable rules against the selected frozen candidate;

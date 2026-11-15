@@ -18,11 +18,12 @@ preview has been updated to PR #65 with [direct local workspace access](../guide
 4. Supply the supported executable-rule JSON and explicitly confirm the reviewed
    mapping. Differences from the prose must be treated as research assumptions;
    the application cannot prove that a human review was correct.
-5. Upload a JSON research bundle containing `dataset`, `experiment`,
-   `minimum_closed_trades` and `maximum_drawdown_fraction`. The existing replay
-   `Dataset` and `Experiment` schemas apply: source/availability timestamps, bars,
-   market events, chronological training/validation/holdout boundaries, cost basis
-   and deterministic risk policy. Policy percentages cannot exceed the candidate.
+5. Select an available historical dataset in step 3. Inspect its source, exact
+   chronological windows, qualification caveats and cost/risk assumptions. No file
+   chooser is required. The server caps the selected policy to the frozen candidate
+   limits, preserving the lower existing risk settings. Advanced import remains
+   available for a custom JSON bundle containing `dataset`, `experiment`,
+   `minimum_closed_trades` and `maximum_drawdown_fraction`.
 6. Register before execution; choose a partition and run. Inspect verdict, net P&L,
    trade count, observed drawdown, equity chart, deals and costs. Export the exact
    evidence, including registration, candidate hash and simulator journal. Display
@@ -152,3 +153,33 @@ No candidate fields are required for generation. Selecting a proposal populates
 and focuses the review form. Manual creation remains an alternative; translation
 is an optional disclosure beside the brief. Proposal cards are separate from
 backtest results. Headless acceptance covers this ordering and transfer.
+
+## Managed historical dataset selection
+
+Configure `--research-datasets DIRECTORY` with up to eight bounded `*-bundle.json`
+files. The preview mounts read-only copies of the existing EURUSD and USDJPY pilot
+bundles, verified byte-for-byte against the originals. It does not mount the source
+journal or broker credentials. Dates are January 16, 2025, approximately 37 and 35
+minutes respectively, with 3,000 events and 1,283 bars each. They are short,
+previously exposed, unqualified HistData research slices, not a new independent
+holdout, complete historical coverage, or broker-calibrated prices/costs.
+
+Catalog responses contain source and assumptions, windows, event/bar counts,
+acceptance criteria, cost/risk policy and SHA-256 identities; never server paths or
+raw quotes. Clients submit the selected hash, frozen candidate, rules and review
+confirmation. Registration rechecks the source bytes, copies the exact dataset,
+pins its catalog hash, and retains the original cost basis and windows. Only risk
+fractions are capped downward against candidate limits. No resampling, broadened
+risk, clock changes, market data fetch or broker connection occurs. Invalid,
+changed or out-of-root sources fail closed. Existing registrations remain usable
+from their pinned evidence even if the catalog file later changes.
+
+Advanced imports require an explicit checkbox and retain the existing validation
+path. Changing the selected dataset or import mode clears mapping confirmation.
+Larger historical runs and custom date/window construction are not added here.
+
+The CI regressions fixed alongside this work were an absent `local_workspace`
+attribute in the existing deployment launcher and an unintentionally enlarged
+chat request-body ceiling. The launcher defaults safely to authenticated mode;
+the existing 4 KiB chat ceiling is restored while research briefs retain their
+Unicode-sized request allowance.

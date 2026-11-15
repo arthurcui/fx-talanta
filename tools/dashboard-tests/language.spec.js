@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { spawn } from "node:child_process";
-import { mkdtempSync, existsSync, readFileSync } from "node:fs";
+import { spawn, execFileSync } from "node:child_process";
+import { mkdtempSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { tmpdir } from "node:os";
 let child, url, dir;
@@ -14,6 +14,8 @@ async function start(resume = false) {
     "--state",
     resolve(dir, "state"),
     "--local-workspace",
+    "--research-datasets",
+    dir,
     "--port",
     port,
     "--session-file",
@@ -34,6 +36,18 @@ async function start(resume = false) {
 
 test.beforeAll(async () => {
   dir = mkdtempSync(resolve(tmpdir(), "fx-language-"));
+  writeFileSync(
+    resolve(dir, "synthetic-bundle.json"),
+    execFileSync(
+      process.env.FX_TEST_PYTHON || "python",
+      ["-m", "tools.fixtures.candidate_research"],
+      {
+        cwd: root,
+        env: { ...process.env, PYTHONPATH: resolve(root, "src") },
+        windowsHide: true,
+      },
+    ),
+  );
   await start();
 });
 test.afterAll(() => child?.kill());
@@ -142,4 +156,73 @@ test("brief precedes candidate and backtest; proposal fills review form", async 
   await expect(
     page.locator("#research-results [data-research-kind=AI_PROPOSAL]"),
   ).toHaveCount(0);
+});
+
+test("select dataset and backtest without uploading a file", async ({
+  page,
+}) => {
+  await page.goto(url);
+  await expect(page.locator("#research-dataset option")).toHaveCount(2);
+  await page.locator("#strategy-new").click();
+  const fields = {
+    name: "Catalog browser candidate",
+    risk_per_trade_pct: "0.10",
+    total_open_risk_pct: "0.20",
+    daily_loss_limit_pct: "0.50",
+  };
+  for (const key of [
+    "hypothesis",
+    "input_policy",
+    "entry_rules",
+    "exit_rules",
+    "portfolio_policy",
+    "evaluation_plan",
+    "provenance",
+  ])
+    fields[key] = "Synthetic research workflow validation only";
+  for (const [key, value] of Object.entries(fields))
+    await page.locator("#strategy-" + key).fill(value);
+  await page.locator("#strategy-save").click();
+  await expect(page.locator("#strategy-message")).toContainText(
+    "Saved descriptive",
+  );
+  await page.locator("#strategy-freeze").click();
+  await expect(page.locator("#strategy-selection")).toContainText(
+    "FROZEN_FOR_RESEARCH",
+  );
+  await page.locator("#research-rules").fill(
+    JSON.stringify({
+      family: "TREND_BREAKOUT",
+      trend_period: 50,
+      signal_period: 20,
+      atr_period: 14,
+      stop_atr: "1.5",
+      reward_risk: "2",
+      hold_bars: 16,
+      start_hour_utc: 0,
+      end_hour_utc: 23,
+      calendar_policy: "REQUIRE_MARKET_HEALTH",
+    }),
+  );
+  await page.locator("#research-dataset").selectOption({ index: 1 });
+  await expect(page.locator("#research-dataset-details")).toContainText(
+    "SYNTHETIC",
+  );
+  await expect(page.locator("#research-file")).toBeHidden();
+  await page.locator("#research-reviewed").check();
+  await page.locator("#research-register").click();
+  await expect(page.locator("#research-message")).toContainText(
+    "Registered immutable study",
+  );
+  await page.locator("#research-run").click();
+  await expect(page.locator("#research-message")).toContainText(
+    "Backtest retained",
+  );
+  await expect(page.locator("#research-results")).toContainText(
+    "REJECT_OR_REVISE",
+  );
+  await page.reload();
+  await expect(page.locator("#research-results")).toContainText(
+    "REJECT_OR_REVISE",
+  );
 });

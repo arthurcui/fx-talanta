@@ -47,12 +47,12 @@ test("owner signs in, reloads and revokes the browser session without trading au
     0,
   );
   await page.getByLabel("Username", { exact: true }).fill("owner");
-  await page.getByLabel("Passphrase", { exact: true }).fill("incorrect");
+  await page.getByLabel("Password", { exact: true }).fill("incorrect");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.locator("#notice")).toContainText("Sign-in denied");
   await expect(page.locator("#dashboard")).toBeHidden();
   await page
-    .getByLabel("Passphrase", { exact: true })
+    .getByLabel("Password", { exact: true })
     .fill("fixture-only-long-passphrase");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.locator("#dashboard")).toBeVisible();

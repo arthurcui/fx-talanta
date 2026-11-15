@@ -48,7 +48,7 @@ test("normal signup, persistent restart session, revoke all, sign in again", asy
   await page.locator("#password").fill("fixture-only-long-passphrase");
   await page.locator("#password-confirm").fill("different-password");
   await page.locator("#login-submit").click();
-  await expect(page.locator("#notice")).toHaveText("Passphrases do not match.");
+  await expect(page.locator("#notice")).toHaveText("Passwords do not match.");
   await page.locator("#password-confirm").fill("fixture-only-long-passphrase");
   await page.locator("#login-submit").click();
   await expect(page.locator("#dashboard")).toBeVisible();

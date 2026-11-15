@@ -1180,8 +1180,69 @@ async function researchExport(item) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+let researchDatasets = [];
+function showDataset() {
+  const selected = researchDatasets.find(
+    (x) => x.id === $("research-dataset").value,
+  );
+  $("research-dataset-details").replaceChildren();
+  $("research-dataset-status").textContent = selected
+    ? selected.qualification
+    : researchDatasets.length
+      ? "Select a dataset to inspect its source and assumptions."
+      : "No datasets configured. Advanced import is available.";
+  if (!selected) return;
+  const details = $("research-dataset-details");
+  [
+    selected.source,
+    selected.provenance +
+      " · " +
+      selected.bars +
+      " bars · " +
+      selected.events +
+      " events",
+    "Training: " + selected.start + " → " + selected.training_end,
+    "Validation: " + selected.training_end + " → " + selected.validation_end,
+    "Holdout: " + selected.validation_end + " → " + selected.end,
+    selected.calendar_assumptions,
+    selected.exposure_note,
+    "Minimum closed trades: " +
+      selected.minimum_closed_trades +
+      "; maximum drawdown fraction: " +
+      selected.maximum_drawdown_fraction,
+    "Dataset fingerprint: " + selected.id,
+  ].forEach((text) => details.append(node("p", text)));
+  details.append(
+    node(
+      "pre",
+      JSON.stringify(
+        { costs: selected.costs, risk_policy: selected.risk_policy },
+        null,
+        2,
+      ),
+    ),
+  );
+}
 async function refreshResearch() {
   const data = await api("/api/research");
+  researchDatasets = data.datasets || [];
+  const datasetChoice = $("research-dataset").value;
+  $("research-dataset").replaceChildren(
+    new Option("Select an available dataset", ""),
+    ...researchDatasets.map(
+      (x) =>
+        new Option(
+          x.symbol + " · " + x.start.slice(0, 10) + " · " + x.name,
+          x.id,
+        ),
+    ),
+  );
+  $("research-dataset").value = researchDatasets.some(
+    (x) => x.id === datasetChoice,
+  )
+    ? datasetChoice
+    : "";
+  showDataset();
   $("research-generate").disabled = !data.ai_enabled;
   $("research-provider-status").textContent = data.ai_enabled
     ? "OpenAI configured: lifetime ceiling 10 requests; uncertain calls are not resent."
@@ -1348,16 +1409,28 @@ $("research-register").onclick = () =>
   researchAction($("research-register"), async () => {
     if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
       throw new Error("Select a frozen candidate first");
-    const file = $("research-file").files[0];
-    if (!file || file.size > 8 * 1024 * 1024)
-      throw new Error("Choose a research JSON bundle up to 8 MiB");
-    const bundle = JSON.parse(await file.text());
-    const item = await researchPost("register", {
-      ...bundle,
+    const common = {
       candidate_sha256: selectedStrategy.sha256,
       rules: JSON.parse($("research-rules").value),
       reviewed_mapping: $("research-reviewed").checked,
-    });
+    };
+    let item;
+    if ($("research-use-upload").checked) {
+      const file = $("research-file").files[0];
+      if (!file || file.size > 8 * 1024 * 1024)
+        throw new Error("Choose a research JSON bundle up to 8 MiB");
+      item = await researchPost("register", {
+        ...JSON.parse(await file.text()),
+        ...common,
+      });
+    } else {
+      if (!$("research-dataset").value)
+        throw new Error("Select an available historical dataset");
+      item = await researchPost("select_dataset", {
+        ...common,
+        dataset_id: $("research-dataset").value,
+      });
+    }
     $("research-message").textContent = "Registered immutable study " + item.id;
   });
 $("research-run").onclick = () =>
@@ -1390,4 +1463,12 @@ $("logout-all").addEventListener("click", async () => {
   } catch (e) {
     notice("Revocation not confirmed: " + e.message);
   }
+});
+
+$("research-dataset").addEventListener("change", () => {
+  $("research-reviewed").checked = false;
+  showDataset();
+});
+$("research-use-upload").addEventListener("change", () => {
+  $("research-reviewed").checked = false;
 });

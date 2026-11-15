@@ -49,6 +49,7 @@ class Dashboard:
         alert_config=None,
         alert_transport=None,
         research_transport=None,
+        dataset_directory=None,
     ):
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
         self.broker_view = broker_view
@@ -92,7 +93,7 @@ class Dashboard:
             self.strategies = Strategies(self.repo, self.clock)
             from fx_talanta.dashboard.research import Research
 
-            self.research = Research(self, research_transport)
+            self.research = Research(self, research_transport, dataset_directory)
             self.monitor = Monitor(self.repo, telemetry, telemetry_run)
             from fx_talanta.dashboard.service import Notifications
 

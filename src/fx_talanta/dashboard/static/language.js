@@ -198,6 +198,15 @@ Object.assign(labels, {
   "Choose Review proposal in form above to populate these fields. Edit and save your candidate, then freeze the version you want to backtest. Or start manually without AI.":
     "点击上方“在表单中审核提案”填入字段。编辑并保存候选策略，然后冻结要回测的版本。也可不使用 AI，直接手动创建。",
 });
+Object.assign(labels, {
+  "Historical dataset": "历史数据集",
+  "Select an available dataset": "选择可用数据集",
+  "Advanced: import a research bundle": "高级：导入研究文件",
+  "Use an uploaded bundle instead of the selected dataset":
+    "使用上传文件而非选中的数据集",
+  "Windows and cost assumptions are fixed for each dataset. Registration caps risk at the lower of the dataset policy and your frozen candidate limits.":
+    "每个数据集的窗口及成本假设固定。注册时风险上限取数据集规则与冻结候选策略限制中的较低值。",
+});
 const languageSelect = document.getElementById("ui-language");
 let currentLanguage = "en";
 const originals = new Map();
