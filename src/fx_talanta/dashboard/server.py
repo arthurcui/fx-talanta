@@ -281,6 +281,7 @@ def make_server(
                 "/api/incidents",
                 "/api/broker",
                 "/api/notifications",
+                "/api/strategies",
             ) or route.path.startswith("/api/trace/"):
                 try:
                     query = parse_qs(route.query, keep_blank_values=True, strict_parsing=True)
@@ -304,6 +305,7 @@ def make_server(
                             "/api/report": app.report,
                             "/api/broker": app.broker,
                             "/api/notifications": app.notifications.summary,
+                            "/api/strategies": app.strategies.read,
                         }[route.path]()
                     if not self.allowed(private=True):
                         return self.reply(403, {"error": "Session expired"})
@@ -370,6 +372,8 @@ def make_server(
                 "/api/calendar",
                 "/api/explain",
                 "/api/study",
+                "/api/strategies/save",
+                "/api/strategies/freeze",
                 "/api/notifications/ack",
             ):
                 return self.reply(404, {"error": "No execution route"})
@@ -378,6 +382,8 @@ def make_server(
                 maximum = (
                     4096
                     if self.path in ("/api/chat", "/api/explain", "/api/notifications/ack")
+                    else 32768
+                    if self.path.startswith("/api/strategies/")
                     else 16 * 1024 * 1024
                     if self.path == "/api/study"
                     else LIMIT
@@ -401,6 +407,10 @@ def make_server(
                     result = app.explain(json.loads(raw))
                 elif self.path == "/api/study":
                     result = app.upload_study(raw)
+                elif self.path == "/api/strategies/save":
+                    result = app.strategies.save(json.loads(raw))
+                elif self.path == "/api/strategies/freeze":
+                    result = app.strategies.freeze(json.loads(raw))
                 else:
                     result = app.upload_calendar(raw)
                 # Access may expire while an external model is working.

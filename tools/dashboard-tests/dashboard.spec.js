@@ -170,3 +170,87 @@ test("mobile: layout, Chinese answer, no XSS, failure shown explicitly", async (
     "last received, not current",
   );
 });
+
+test("strategy workspace: save, freeze, revise, reload and export without authority", async ({
+  page,
+}) => {
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto(url);
+  await expect(page.locator("#lifecycle-milestones p")).toHaveCount(7);
+  await expect(page.locator("#lifecycle-gaps")).toContainText(
+    "REJECT_FOR_PROMOTION",
+  );
+  await page.locator("#strategy-new").click();
+  const fields = {
+    name: "Research <img src=x onerror=alert(1)>",
+    hypothesis: "Synthetic hypothesis for workflow validation only",
+    input_policy: "Completed bars and required calendar coverage",
+    entry_rules: "Explicit signal rules pending executable mapping",
+    exit_rules: "Protective stops and registered time exits",
+    portfolio_policy: "Bound combined signed USD exposure across both pairs",
+    evaluation_plan: "Preregister holdout windows and base and stress costs",
+    risk_per_trade_pct: "0.10",
+    total_open_risk_pct: "0.20",
+    daily_loss_limit_pct: "0.50",
+    provenance: "Human-authored synthetic browser fixture",
+  };
+  for (const [key, value] of Object.entries(fields))
+    await page.locator("#strategy-" + key).fill(value);
+  await page.locator("#strategy-save").click();
+  await expect(page.locator("#strategy-selection")).toContainText("version 1");
+  await expect(page.locator("#strategy-message")).toContainText(
+    "Saved descriptive",
+  );
+  await page.locator("#strategy-freeze").click();
+  await expect(page.locator("#strategy-selection")).toContainText(
+    "FROZEN_FOR_RESEARCH",
+  );
+  await expect(page.locator("#strategy-research-status")).toContainText(
+    "not executable",
+  );
+  await page
+    .locator("#strategy-entry_rules")
+    .fill("Changed research signal requires a new version");
+  await page.locator("#strategy-save").click();
+  await expect(page.locator("#strategy-selection")).toContainText("version 2");
+  await expect(page.locator("#strategy-history button")).toHaveCount(2);
+  await expect(page.locator("#strategy-history img")).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator("#strategy-history button")).toHaveCount(2);
+  await page
+    .locator("#strategy-history button")
+    .filter({ hasText: "v1" })
+    .click();
+  await expect(page.locator("#strategy-entry_rules")).toHaveValue(
+    fields.entry_rules,
+  );
+  const downloadPromise = page.waitForEvent("download");
+  await page.locator("#strategy-export").click();
+  const download = await downloadPromise;
+  const saved = JSON.parse(readFileSync(await download.path(), "utf8"));
+  expect(saved.version).toBe(1);
+  expect(saved.state).toBe("FROZEN_FOR_RESEARCH");
+  expect(saved.execution_enabled).toBe(false);
+  expect(saved.executable).toBe(false);
+  await page
+    .locator("#strategy-history button")
+    .filter({ hasText: "v2" })
+    .click();
+  await page.locator("#strategy-risk_per_trade_pct").fill("0.30");
+  await page.locator("#strategy-save").click();
+  await expect(page.locator("#strategy-message")).toContainText(
+    "Save not confirmed",
+  );
+  await expect(page.locator("#strategy-history button")).toHaveCount(2);
+  await expect(
+    page.getByRole("button", { name: "Run candidate backtest" }),
+  ).toBeDisabled();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+  expect(errors).toEqual([]);
+});

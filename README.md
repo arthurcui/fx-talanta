@@ -63,6 +63,12 @@ implementation code is merged. There is no automatic broker failover.
 
 ## Current status and roadmap
 
+The current [R0-R6 roadmap](docs/product/roadmap.md) follows the trading lifecycle:
+AI strategy design -> backtest -> demo -> capped live -> evaluate and improve.
+Each milestone includes a usable UI and end-to-end acceptance. The initial strategy
+workspace stores and freezes descriptive candidates; AI generation and candidate-bound
+backtest execution remain to integrate. Existing M0-M7 evidence below is preserved.
+
 | Area | Status |
 | --- | --- |
 | Python/PostgreSQL foundation and isolated paper/live records | Implemented |

@@ -633,3 +633,12 @@ For dispatch reservations and uncertainty, bind `source_kind: DISPATCH` to the
 dispatcher journal and its binding hash. The [dispatch guide](../engineering/m5-selector-dispatch.md)
 explains reserved versus completed calls, unknown costs and rollback protection.
 This view never sends or retries requests.
+
+## Strategy and lifecycle workspace
+
+The dashboard now includes an R0-R6 overview and an offline descriptive strategy form.
+See the [owner walkthrough](../engineering/r0-strategy-research.md#acceptance-and-owner-walkthrough).
+Save, inspect, freeze, revise and export candidates for EURUSD/USDJPY. Proposed risk
+percentages do not alter account mandates. A freeze preserves content for research;
+it does not qualify execution. AI generation and candidate-bound backtest execution
+are not connected to this form yet. The UI states these limits explicitly.

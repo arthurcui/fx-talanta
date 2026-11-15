@@ -16,6 +16,7 @@ from fx_talanta.dashboard.models import Channel
 from fx_talanta.dashboard.monitor import Monitor
 from fx_talanta.dashboard.operations import summary
 from fx_talanta.dashboard.store import InspectionJournal
+from fx_talanta.dashboard.strategies import Strategies
 from fx_talanta.dashboard.trace import trace
 from fx_talanta.evaluation.matched import Study, evaluate
 from fx_talanta.provider_pipeline import Journal
@@ -87,6 +88,7 @@ class Dashboard:
         )
         self.repo.conn.commit()
         try:
+            self.strategies = Strategies(self.repo, self.clock)
             self.monitor = Monitor(self.repo, telemetry, telemetry_run)
             from fx_talanta.dashboard.service import Notifications
 

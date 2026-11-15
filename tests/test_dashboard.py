@@ -164,6 +164,7 @@ def test_http_auth_origin_paths_body_limits_and_no_order_routes(app):
         assert request("GET", "/api/overview")[0] == 403
         for path in (
             "/api/report",
+            "/api/strategies",
             "/api/incidents?q=EA",
             "/api/trace/" + str(app.snapshot.records[0].record_id),
         ):
@@ -181,6 +182,15 @@ def test_http_auth_origin_paths_body_limits_and_no_order_routes(app):
         assert status == 200 and not json.loads(raw)["execution_enabled"]
         assert "frame-ancestors 'none'" in headers["Content-Security-Policy"]
         assert request("POST", "/api/order", headers=auth)[0] == 404
+        for path in ("/api/strategies/save", "/api/strategies/freeze"):
+            assert request("POST", path, "{}")[0] == 403
+            assert (
+                request("POST", path, "{}", {**auth, "Content-Type": "application/json"})[0] == 400
+            )
+            assert (
+                request("POST", path, "x" * 32769, {**auth, "Content-Type": "application/json"})[0]
+                == 413
+            )
         assert request("GET", "/../app.py")[0] == 404
         assert (
             request("POST", "/api/chat", "x" * 4097, {**auth, "Content-Type": "application/json"})[

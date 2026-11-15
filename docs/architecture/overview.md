@@ -1,5 +1,10 @@
 # Architecture walkthrough
 
+Current delivery architecture: [AI-led trading lifecycle](trading-lifecycle.md),
+with the system diagram and R0-R6 component/authority/failure trace.
+The [roadmap](../product/roadmap.md) defines integrated UI acceptance for every stage.
+Existing execution contracts below are reused; historical qualification is not reset.
+
 FX-Talanta separates proposals from authority. Python owns orchestration and durable
 records; deterministic controls reserve risk; one fixed reviewed EA owns the native
 submission boundary. A model cannot replace the EA or bypass those checks.
@@ -9,16 +14,17 @@ submission boundary. A model cannot replace the EA or bypass those checks.
 | Step | Responsible component and authority | Recorded evidence | Failure behavior |
 | --- | --- | --- | --- |
 | Observe | `observer/`, provider/calendar adapters and channel telemetry observe; no order authority | Source timestamps, receipt times, provenance, revisions and channel state | Missing, stale or unqualified inputs block readiness; connection health alone is insufficient |
-| Propose | Python decision contracts; currently scripted demonstrations, future strategy/model pipeline | Versioned intent, inputs, rationale and exact evidence references | Invalid/expired proposals are rejected; a model cannot grant itself execution rights |
+| Propose | Bounded model selection and recorded/fixture runner integration; AI strategy design remains to integrate | Versioned intent, inputs, rationale and exact evidence references | Invalid/expired proposals are rejected; a model cannot grant itself execution rights |
 | Reserve risk | `risk/`, `safety/`, bounded demo budget and coordinator | Deterministic sizing, account scope, reservation and policy/budget fingerprints | Reject or hold before admission; committed reservations are not replenished by retries/restarts |
 | Execute | Fixed MQL5 EA validates native identity, authority, quote freshness and protection | Native attempt journal, request identity, broker response and protective state | Fail closed on bad identity/clock/freshness; uncertain submission is reconciled, never blindly resent |
 | Reconcile | Native reconciliation and backend projection compare broker orders/deals/positions | Positive entry/exit witnesses, protected state, durable outbox/ACK and final closure | Flatness alone is not proof; unresolved ownership/protection halts entry and retains evidence |
-| Explain | Planned conversational advisor reads evidence, not broker credentials | Explanation tied to decisions, observations and versions | Uncertainty stays explicit; no inferred fill or invented success |
+| Explain | Implemented bounded conversational advisor reads scoped evidence, not broker credentials | Explanation tied to decisions, observations and versions | Uncertainty stays explicit; no inferred fill or invented success |
 | Learn | Recorded experience/lessons and planned evaluation/promotion process | Outcome, cost, failure, candidate evaluation and promotion evidence | No automatic promotion from one success; fixed execution authority remains reviewed |
 
-The bounded demo exercised execution and reconciliation with a separate read-only
-closure recovery. The advisor/learning rows describe the target design, not an enabled
-production AI loop. Read the [status](../product/status.md) for the exact boundary.
+The earlier bounded demo required recovery; PR #25 later verified bounded same-session
+closure without recovery. Neither proves the full fault matrix. Advisor engineering
+exists, but the complete production learning loop remains unqualified. Read the
+[status](../product/status.md) for the exact boundary.
 
 ## Code and data boundaries
 

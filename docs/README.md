@@ -5,6 +5,11 @@ its limits, read [status](product/status.md) before using a historical milestone
 
 ## Understand the system
 
+- [AI-led trading lifecycle](architecture/trading-lifecycle.md): current system diagram,
+  strategy/research/execution/learning boundaries and authority.
+- [R0 integration register](engineering/r0-strategy-research.md): reuse, gaps and the
+  first Strategy + Research owner walkthrough.
+
 1. [Architecture walkthrough](architecture/overview.md) — components, authority,
    evidence and failure behavior across one decision.
 2. [Repository layout](architecture/repository-layout.md) — runtime, research,

@@ -11,6 +11,22 @@ operating instructions. Maintain project requirements here through pull requests
 
 The principal risk is that reliable automation can execute a losing strategy reliably. Engineering acceptance and evidence of a trading edge are separate gates.
 
+# Current delivery baseline: R0-R6 (November 14, 2026)
+
+The [trading lifecycle roadmap](../product/roadmap.md) supersedes the historical
+M0-M7 implementation order, not its safety or evidence gates. The product is an
+AI-led EURUSD/USDJPY trading agent: strategy design -> backtest -> prospective demo
+-> capped live -> outcome evaluation -> challenger -> repeat validation. Profit
+after costs is an evaluated objective, never inferred from automation or CI.
+
+The [lifecycle architecture](trading-lifecycle.md) defines component authority,
+failure behavior, evidence and the system diagram. Every R milestone includes the
+roadmap's integrated UI acceptance. Reuse M0-M5, including PR #63 dispatch accounting.
+The historical B01 template below is a rejected research baseline, not the mandatory
+new Strategy V1. New candidates must register their own testable hypotheses and rules.
+The current authorization remains engineering/simulation only, trading disabled.
+No provider call, broker activation, deployment or new campaign follows from this plan.
+
 # Product mandate
 
 | Item | Decision |
@@ -33,8 +49,8 @@ The following are implementation assumptions, chosen to keep the first version t
 | --- | --- |
 | Account | One dedicated PAPER account and one separate LIVE account; start with PAPER only; validate each account's trade and position modes |
 | Instruments | **EURUSD and USDJPY**, subject to broker symbol mapping and minimum-size constraints |
-| Strategy | One versioned trend-filtered breakout template, treated as an unproven research hypothesis |
-| Decision schedule | Evaluate completed **15-minute bars**, using completed **1-hour bars** for trend context |
+| Strategy | AI-authored versioned EURUSD/USDJPY candidate with reviewed executable rules; existing B01 breakout is a rejected research baseline, not an approved candidate |
+| Decision schedule | Register completed-bar timeframes and decision schedule per candidate; existing B01 uses M15/H1 and is retained for research comparison |
 | AI authority | Select an eligible setup or HOLD; request an early close or tighter stop within registered rules |
 | Protective management | Deterministic monitoring, stop verification, time exits, loss limits, and reconciliation operate independently of the AI |
 | Positions | Maximum **two per account** concurrently and **one per symbol per account**; separate risk mandates; no adding, averaging down, or immediate reversal |
@@ -200,6 +216,15 @@ The MT5 terminal, fixed EA and optional read-only Python observer reside on the 
 Provide a checked setup script and explicit run/test commands for Codex. Use PostgreSQL with the same migrations and semantics: start a test service natively when a Docker daemon is unavailable, or use an explicitly provisioned isolated test database. Do not silently substitute SQLite. The Codex test profile must work without MT5 or an LLM key and must not inherit live credentials or access to live execution endpoints. A task-scoped forward PAPER connection is optional only after paper-only network access is configured and verified.
 
 ## Persistence and moving hosts
+
+**Current pre-production scope:** legacy data migration and backward compatibility
+for disposable development databases are deferred. Use fresh schema initialization
+when development schemas change; do not add old-version migration work to R0-R2.
+Preserve qualification/failure evidence and designated retained research artifacts.
+Restart/idempotency tests within the current version still apply. Before actual
+strategy PAPER/LIVE records are created, designate protected operational stores and
+establish their backup, versioning and upgrade/rollback policy. The operational
+continuity requirements below apply to those stores, not every temporary test database.
 
 Retain the paper and live journals, evidence snapshots, lessons, deployment records, and risk histories through container restarts, image upgrades, and local/cloud migration. Use persistent database/storage volumes and separate backups, including the EA emergency journal. Test restoring both histories without resetting limits or losing unknown operations.
 
@@ -602,11 +627,14 @@ Routine output should be concise: new trade or exit, price/time, position size, 
 
 # Roadmap and acceptance gates
 
-Preserve completed M0A–M0C. Proceed with owner-authorized M2A/M2B implementation while carrying M1 evidence gaps; resolve applicable connected-operation gates before M2D, prove M2C/M2D, freeze the M3 baseline, add AI in M4, qualify unattended PAPER in M5, and only then consider M6 LIVE. M7 remains bounded evaluated evolution. This is the canonical implementation order; the November 3 progression authorization does not authorize new campaigns or connected trading. Record experience throughout. Engineering and economic acceptance remain independent.
+Use the R0-R6 implementation order and milestone/UI acceptance in the
+[current roadmap](../product/roadmap.md). The table below preserves the old gate
+identifiers so historical reports and open requirements remain traceable. Renaming
+milestones does not pass these gates. Engineering and economic acceptance remain independent.
 
 The [milestone acceptance matrix](design-migration.md#milestone-acceptance)
 distinguishes implemented, evidenced, failed/open and planned work. Phase numbers
-remain P0/M0–M7; completion of this design is not completion of those gates.
+are historical P0/M0-M7 identifiers; completion of R0 is not completion of those gates.
 
 | Phase | Deliverable and exit gate |
 | --- | --- |
