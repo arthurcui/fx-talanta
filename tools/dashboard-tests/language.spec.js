@@ -56,6 +56,9 @@ test("language labels preserve inputs and ephemeral translation", async ({
       json: { text: "Risk 0.10%", target: "en", persisted: false },
     });
   });
+  await page.locator("#proposal-workflow details").evaluate((el) => {
+    el.open = true;
+  });
   await page.locator("#translation-input").fill("风险 0.10%");
   await page.locator("#translate-input").click();
   await expect(page.locator("#translation-output")).toHaveValue("Risk 0.10%");
@@ -65,4 +68,78 @@ test("language labels preserve inputs and ephemeral translation", async ({
   await page.reload();
   await expect(page.locator("#translation-input")).toHaveValue("");
   await expect(page.locator("#translation-output")).toHaveValue("");
+});
+
+test("brief precedes candidate and backtest; proposal fills review form", async ({
+  page,
+}) => {
+  const specification = {
+    name: "AI research candidate",
+    risk_per_trade_pct: "0.10",
+    total_open_risk_pct: "0.20",
+    daily_loss_limit_pct: "0.50",
+    authorship: "AI_IMPORTED",
+  };
+  for (const key of [
+    "hypothesis",
+    "input_policy",
+    "entry_rules",
+    "exit_rules",
+    "portfolio_policy",
+    "evaluation_plan",
+    "provenance",
+  ])
+    specification[key] = "Unvalidated research fixture description";
+  let generated = false;
+  await page.route("**/api/research", (route) =>
+    route.fulfill({
+      json: {
+        ai_enabled: true,
+        items: generated
+          ? [
+              {
+                id: "a".repeat(64),
+                kind: "AI_PROPOSAL",
+                payload: {
+                  proposal: {
+                    specification,
+                    rules: { family: "TREND_BREAKOUT" },
+                  },
+                },
+              },
+            ]
+          : [],
+        jobs: [],
+      },
+    }),
+  );
+  await page.route("**/api/research/generate", (route) => {
+    generated = true;
+    return route.fulfill({ json: { kind: "AI_PROPOSAL" } });
+  });
+  await page.goto(url);
+  await expect(page.locator("#research-generate")).toBeEnabled();
+  const order = await page.evaluate(() =>
+    ["proposal-workflow", "candidate-review", "research-workflow"].map(
+      (id) => document.getElementById(id).getBoundingClientRect().top,
+    ),
+  );
+  expect(order[0]).toBeLessThan(order[1]);
+  expect(order[1]).toBeLessThan(order[2]);
+  await expect(page.locator("#strategy-name")).toHaveValue("");
+  await page
+    .locator("#research-brief")
+    .fill("Explore a simple forex breakout strategy");
+  await page.locator("#research-generate").click();
+  await page
+    .locator("#proposal-results")
+    .getByRole("button", { name: "Review proposal in form" })
+    .click();
+  await expect(page.locator("#strategy-name")).toHaveValue(
+    "AI research candidate",
+  );
+  await expect(page.locator("#strategy-name")).toBeFocused();
+  await expect(
+    page.locator("#research-results [data-research-kind=AI_PROPOSAL]"),
+  ).toHaveCount(0);
 });

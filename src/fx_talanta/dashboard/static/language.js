@@ -183,6 +183,21 @@ Object.assign(labels, {
   "Evidence first. Authority bounded.": "证据优先，权限受限。",
   Username: "用户名",
 });
+Object.assign(labels, {
+  "1. Describe your research and generate a proposal":
+    "1. 描述研究要求并生成提案",
+  "2. Review, save and freeze your candidate": "2. 审核、保存并冻结候选策略",
+  "3. Register historical inputs and run a backtest":
+    "3. 注册历史输入并运行回测",
+  "Start a manual candidate": "手动创建候选策略",
+  "Optional: translate your input": "可选：翻译输入",
+  "No candidate fields are required to generate a proposal. Describe your goals and constraints in English or Chinese.":
+    "生成提案不需要填写候选策略字段。请用中文或英文描述目标和约束。",
+  "Start with a research brief, review an AI proposal, then save and freeze a candidate before backtesting. Nothing here authorizes trading.":
+    "先描述研究要求并审核 AI 提案，再保存和冻结候选策略，然后回测。此流程不授予交易权限。",
+  "Choose Review proposal in form above to populate these fields. Edit and save your candidate, then freeze the version you want to backtest. Or start manually without AI.":
+    "点击上方“在表单中审核提案”填入字段。编辑并保存候选策略，然后冻结要回测的版本。也可不使用 AI，直接手动创建。",
+});
 const languageSelect = document.getElementById("ui-language");
 let currentLanguage = "en";
 const originals = new Map();

@@ -145,3 +145,10 @@ The revised prompt/schema passed an additional live end-to-end proposal generati
 check in a temporary journal. It produced `AI_PROPOSAL` without changing the preview
 research records or its request allowance. This is a smoke check, not a guarantee
 that every generated proposal will satisfy all constraints.
+
+The UI follows three numbered steps: (1) research brief and generated proposals,
+(2) candidate review/save/freeze, (3) historical registration and backtesting.
+No candidate fields are required for generation. Selecting a proposal populates
+and focuses the review form. Manual creation remains an alternative; translation
+is an optional disclosure beside the brief. Proposal cards are separate from
+backtest results. Headless acceptance covers this ordering and transfer.

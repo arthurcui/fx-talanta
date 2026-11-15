@@ -1210,6 +1210,7 @@ async function refreshResearch() {
       .filter((x) => ["BACKTEST", "AI_PROPOSAL", "EXPOSURE"].includes(x.kind))
       .map((item) => {
         const box = node("article");
+        box.dataset.researchKind = item.kind;
         box.append(node("h4", item.kind + " · " + item.id.slice(0, 12)));
         const exportButton = node("button", "Export research evidence");
         exportButton.onclick = () => researchExport(item);
@@ -1228,6 +1229,8 @@ async function refreshResearch() {
               "; " +
               p.specification.provenance;
             $("research-rules").value = JSON.stringify(p.rules, null, 2);
+            $("candidate-review").scrollIntoView({ block: "start" });
+            $("strategy-name").focus({ preventScroll: true });
             $("research-message").textContent =
               "Proposal loaded; review, save and freeze before registering a study.";
           };
@@ -1298,6 +1301,11 @@ async function refreshResearch() {
         return box;
       }),
   );
+  $("proposal-results").replaceChildren(
+    ...$("research-results").querySelectorAll(
+      '[data-research-kind="AI_PROPOSAL"]',
+    ),
+  );
 }
 async function researchAction(button, fn) {
   button.disabled = true;
@@ -1305,7 +1313,11 @@ async function researchAction(button, fn) {
     await fn();
     await refreshResearch();
   } catch (e) {
-    $("research-message").textContent =
+    $(
+      button.id === "research-generate"
+        ? "proposal-message"
+        : "research-message",
+    ).textContent =
       "Not confirmed: " + e.message + "; refresh evidence before retrying.";
   } finally {
     button.disabled = false;
@@ -1317,7 +1329,7 @@ $("research-generate").onclick = () =>
     if (!researchRequest || researchRequest.brief !== brief)
       researchRequest = { request_id: crypto.randomUUID(), brief };
     const result = await researchPost("generate", researchRequest);
-    $("research-message").textContent =
+    $("proposal-message").textContent =
       result.kind === "AI_PROPOSAL"
         ? "Proposal retained. Select Review proposal in form."
         : (result.message ||

@@ -854,3 +854,10 @@ footer {
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
+
+.workflow-step {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  margin-top: 24px;
+  scroll-margin-top: 20px;
+}
