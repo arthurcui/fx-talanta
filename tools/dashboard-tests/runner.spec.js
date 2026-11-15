@@ -73,6 +73,15 @@ test("direct runner view shows simulation authority and clears unavailable evide
   await expect(page.locator("#workflow-details")).toContainText(
     "Model cost is separate from trade P&L",
   );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "12/12 calls reserved",
+  );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "0 unresolved reserved calls",
+  );
+  await expect(page.locator("#workflow-details")).toContainText(
+    "No automatic refunds or resends",
+  );
   await page.route("**/api/overview", async (route) => {
     const response = await route.fetch();
     const body = await response.json();

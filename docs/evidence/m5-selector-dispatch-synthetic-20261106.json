@@ -1,0 +1,136 @@
+{
+  "schema": "recorded-selector-synthetic/1",
+  "result": "PASS",
+  "engine_sha256": "8713c53256038976f4ddd8009613bb02382299118c08fa490a8514f0bdce3c79",
+  "report": {
+    "version": "simulation-source-report/1",
+    "source_id": "5d7e638a-e987-5ecc-85ca-2ac63a0d05f8",
+    "binding_hash": "26c21b73d74ed101cd92b0492ba939a402b0dc4b5b0245a51db6606f184dd63a",
+    "queued": 6,
+    "acknowledged": 6,
+    "pending": 0,
+    "source_head": "81cd5ea243a8e918dc853aac33f674f68d698e1ce8055c132d242ca4520f3253",
+    "status": "SEALED",
+    "unacknowledged_runner_commit": false,
+    "runner": {
+      "version": "paper-simulation-report/1",
+      "run_id": "71287e63-247c-4606-9ae6-2bcdb3f5a974",
+      "status": "STOPPED",
+      "provenance": "SYNTHETIC",
+      "registered_at": "2026-11-05T11:59:57+00:00",
+      "deadline": "2026-11-05T19:00:00+00:00",
+      "observations": 6,
+      "normalized_inputs": 6,
+      "input_channels": [
+        "FIXTURE"
+      ],
+      "max_observations": 100,
+      "decisions": 18,
+      "outcomes": 15,
+      "revisions": 0,
+      "missing_decisions": 0,
+      "last_input_at": "2026-11-05T16:00:01.250000+00:00",
+      "input_age_seconds": 0.0,
+      "receipt_sequence": 7,
+      "receipt_hash": "9147484997543984b3856f0e535449fbfc7b02f1d2349e662765384136aa7250",
+      "registration_hash": "56d317b726d0faed05be6d218053d9c939b109392456bde699fa2488e9ec7f70",
+      "arms": {
+        "NO_AI": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        },
+        "AI_NO_NEWS": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        },
+        "AI_NEWS": {
+          "state": "RUNNING",
+          "entries": 1,
+          "closed_simulated_positions": 1,
+          "open_positions": 0,
+          "balance": "9997.975003125000000000000000000000"
+        }
+      },
+      "pending_outcomes": 3,
+      "execution_enabled": false,
+      "broker_calls": 0,
+      "external_model_calls": 0,
+      "selector": "RECORDED_MODEL_RESPONSES",
+      "recorded_model_summary": {
+        "AI_NO_NEWS": {
+          "recorded_replies": 6,
+          "rejected_or_hold": 5,
+          "input_tokens": 600,
+          "output_tokens": 120,
+          "known_reported_cost_usd": "0.0006",
+          "unknown_cost_replies": 0,
+          "maximum_reported_latency_ms": 125,
+          "external_call_verified": false
+        },
+        "AI_NEWS": {
+          "recorded_replies": 6,
+          "rejected_or_hold": 5,
+          "input_tokens": 600,
+          "output_tokens": 120,
+          "known_reported_cost_usd": "0.0006",
+          "unknown_cost_replies": 0,
+          "maximum_reported_latency_ms": 250,
+          "external_call_verified": false
+        }
+      },
+      "qualified_for_unattended_paper": false,
+      "prospective_evidence_verified": false,
+      "full_M5_complete": false,
+      "B01": "REJECT_FOR_PROMOTION"
+    },
+    "execution_enabled": false,
+    "source_qualified": false,
+    "checkpoint": {
+      "source": [
+        6,
+        "81cd5ea243a8e918dc853aac33f674f68d698e1ce8055c132d242ca4520f3253",
+        6,
+        "aa68cc16aadda6c2f1fc7662644b8535edd06c57b2d60567500f97ea7a2ee38b",
+        [
+          [
+            "recorded selector synthetic acceptance complete",
+            "81cd5ea243a8e918dc853aac33f674f68d698e1ce8055c132d242ca4520f3253"
+          ]
+        ],
+        7,
+        "9147484997543984b3856f0e535449fbfc7b02f1d2349e662765384136aa7250"
+      ],
+      "dispatch": [
+        25,
+        "5674999901609e59d72ee9d8cce20fac7f224572bd580d42335f91035d06f583"
+      ]
+    },
+    "oldest_pending_age_seconds": null,
+    "producer_liveness": "UNVERIFIED",
+    "model_dispatch": {
+      "status": "STOPPED",
+      "reserved_calls": 12,
+      "max_calls": 12,
+      "reserved_tokens": 2400,
+      "max_reserved_tokens": 2400,
+      "completed_replies": 12,
+      "unresolved_reserved_calls": 0,
+      "known_reported_cost_usd": "0.0012",
+      "unknown_cost_calls": 0,
+      "transport_verified": false,
+      "execution_enabled": false
+    }
+  },
+  "broker_calls": 0,
+  "external_model_calls": 0,
+  "campaign_started": false,
+  "full_M5_complete": false,
+  "dispatch_hash": "1071aa9bda6ec45b69af42ae45529f20429effdc1367a091e10c69b326bea9f1",
+  "fixture_transport_calls": 12
+}

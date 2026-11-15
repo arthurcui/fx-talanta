@@ -205,3 +205,9 @@ not live connections or provider qualification. Trading remains disabled.
 The runner now [validates recorded model replies](../engineering/m5-recorded-selectors.md)
 and shows reported latency, token usage and known/unknown model costs. Tests use only
 synthetic replies; no provider calls or production model qualification are implied.
+
+### M5 durable simulation dispatch
+
+[Model dispatch reservations and recovery](../engineering/m5-selector-dispatch.md)
+now connect injected fixture transport to the queue/runner. Dashboard inspection retains
+unknown calls and detects rollback. Actual provider transport and full M5 remain open.
