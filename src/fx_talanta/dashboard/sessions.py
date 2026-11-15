@@ -31,7 +31,7 @@ def verifier(password, salt):
 
 class Owner(FrozenModel):
     version: Literal["dashboard-owner/1"] = "dashboard-owner/1"
-    username: Annotated[str, Field(pattern=r"^[a-zA-Z0-9_.-]{1,64}$")]
+    username: Annotated[str, Field(pattern=r"^[a-zA-Z0-9_.@+-]{1,128}$")]
     salt: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
     password_hash: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 

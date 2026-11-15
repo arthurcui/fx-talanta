@@ -17,6 +17,7 @@ from uuid import UUID
 from fx_talanta.clock import SystemClock
 from fx_talanta.dashboard.app import Dashboard
 from fx_talanta.dashboard.demo import demo
+from fx_talanta.dashboard.local_sessions import SetupValidationError
 from fx_talanta.dashboard.models import Snapshot
 from fx_talanta.dashboard.sessions import Owner, Sessions, cookie_header, cookie_token
 from fx_talanta.provider_pipeline import status_lock
@@ -213,6 +214,8 @@ def make_server(
                         )
                     },
                 )
+            except SetupValidationError as error:
+                return self.reply(400, {"error": str(error)})
             except (ValueError, TypeError, PermissionError, UnicodeError):
                 return self.reply(403, {"error": "Sign-in denied or temporarily unavailable"})
 

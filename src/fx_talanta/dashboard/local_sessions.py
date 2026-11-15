@@ -2,6 +2,7 @@
 
 import hashlib
 import hmac
+import re
 import secrets
 import sqlite3
 import threading
@@ -12,6 +13,10 @@ from fx_talanta.dashboard.sessions import Owner, verifier
 
 LIFETIME = timedelta(days=30)
 IDLE = timedelta(days=7)
+
+
+class SetupValidationError(ValueError):
+    """Public, non-secret first-owner validation message."""
 
 
 class LocalSessions:
@@ -50,6 +55,12 @@ class LocalSessions:
                 isinstance(v, str) for v in data.values()
             )
             if valid and not record:
+                if not re.fullmatch(r"[a-zA-Z0-9_.@+-]{1,128}", data["username"]):
+                    raise SetupValidationError(
+                        "Use 1–128 letters, numbers, or . _ @ + - for your username; no spaces."
+                    )
+                if not 16 <= len(data["password"]) <= 256:
+                    raise SetupValidationError("Choose a passphrase of 16–256 characters.")
                 owner = Owner.create(data["username"], data["password"])
                 with conn:
                     conn.execute("INSERT INTO owner VALUES (1,?)", (owner.model_dump_json(),))

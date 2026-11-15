@@ -99,6 +99,11 @@ def test_http_setup_login_restart_and_revoke(tmp_path):
             )[0]
             == 403
         )
+        bad, details, _ = request(
+            "POST", "/api/session", dict(username="name with spaces", password=PASSWORD), headers
+        )
+        assert bad == 400 and "no spaces" in details["error"]
+        assert PASSWORD not in json.dumps(details)
         status, body, cookie = request("POST", "/api/session", credentials, headers)
         assert status == 200 and "HttpOnly" in cookie and "Max-Age=2592000" in cookie
         auth = {"Cookie": cookie.split(";")[0], "Origin": origin, "X-FX-CSRF": body["csrf"]}
@@ -120,4 +125,25 @@ def test_http_setup_login_restart_and_revoke(tmp_path):
         server.shutdown()
         thread.join()
         server.server_close()
+        app.close()
+
+
+def test_setup_validation_is_explicit_and_email_username_works(tmp_path):
+    from fx_talanta.dashboard.local_sessions import SetupValidationError
+
+    app = build(tmp_path)
+    try:
+        sessions = LocalSessions(app)
+        for data, message in [
+            (dict(username="name with spaces", password=PASSWORD), "no spaces"),
+            (dict(username="owner", password="short"), "16–256"),
+        ]:
+            with pytest.raises(SetupValidationError, match=message):
+                sessions.login(data, peer="a", secure=False)
+            assert sessions.mode() == "LOCAL_SETUP"
+        token, _ = sessions.login(
+            dict(username="owner@example.test", password=PASSWORD), peer="a", secure=False
+        )
+        assert sessions.verify(token, peer="a")["authenticated"]
+    finally:
         app.close()
