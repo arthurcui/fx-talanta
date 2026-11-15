@@ -132,6 +132,12 @@ test("brief precedes candidate and backtest; proposal fills review form", async 
     return route.fulfill({ json: { kind: "AI_PROPOSAL" } });
   });
   await page.goto(url);
+  for (const id of [
+    "proposal-workflow",
+    "candidate-review",
+    "research-workflow",
+  ])
+    await expect(page.locator("#" + id)).toBeVisible();
   await expect(page.locator("#research-generate")).toBeEnabled();
   const order = await page.evaluate(() =>
     ["proposal-workflow", "candidate-review", "research-workflow"].map(
