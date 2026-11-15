@@ -8,9 +8,7 @@ at every milestone. M0-M7 remain historical component/gate identifiers.
 PR #63 is merged, including the restart-overrun fix; fixture dispatch remains offline.
 R0 and Strategy + Research have started: the local UI now stores immutable descriptive
 candidate revisions, freezes exact content for research and exports selected records.
-It shows lifecycle status and unresolved qualification. **AI strategy generation,
-executable rule mapping and candidate-bound backtest execution are not connected to
-this workspace yet.** R1/R2 are not complete. Current work grants no trading authority.
+It shows lifecycle status and unresolved qualification. The [candidate research workflow](../engineering/candidate-research.md) adds bounded AI proposals, reviewed parameter mappings, registered single-symbol historical replay, result inspection and export. **Full R1/R2 qualification remains open:** joint portfolio evaluation, larger studies, independent holdouts and qualified costs/inputs are not supplied by this integration. Current work grants no trading authority.
 See the [scope and gap register](../engineering/r0-strategy-research.md).
 
 Research baseline: merged PR #34 (`93fb4c5`, November 5, 2026). M3's completed

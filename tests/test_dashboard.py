@@ -165,11 +165,14 @@ def test_http_auth_origin_paths_body_limits_and_no_order_routes(app):
         for path in (
             "/api/report",
             "/api/strategies",
+            "/api/research",
             "/api/incidents?q=EA",
             "/api/trace/" + str(app.snapshot.records[0].record_id),
         ):
             assert request("GET", path)[0] == 403
             assert request("GET", path, headers=auth)[0] == 200
+        assert request("GET", "/api/research/item/unknown")[0] == 403
+        assert request("GET", "/api/research/item/unknown", headers=auth)[0] == 404
         assert request("GET", "/api/incidents?before=no", headers=auth)[0] == 400
         assert request("GET", "/api/incidents?q=a&q=b", headers=auth)[0] == 400
         assert request("GET", "/api/trace/" + str(uuid4()), headers=auth)[0] == 400

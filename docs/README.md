@@ -3,6 +3,8 @@
 Start with the product [README](../README.md). For the current implementation and
 its limits, read [status](product/status.md) before using a historical milestone note.
 
+- [Candidate research workflow](engineering/candidate-research.md): AI proposals, reviewed rules, historical registration and replay.
+
 ## Understand the system
 
 - [AI-led trading lifecycle](architecture/trading-lifecycle.md): current system diagram,

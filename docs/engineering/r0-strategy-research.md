@@ -1,5 +1,7 @@
 # R0 and Strategy + Research implementation register
 
+Historical PR #64 scope below. The subsequent [candidate research integration](candidate-research.md) connects bounded AI proposals and reviewed single-symbol historical replay; it does not close full R1/R2 qualification.
+
 Delivery scope: canonical R0-R6 documentation plus the first persistent owner-facing
 strategy workspace. Trading stays disabled. No broker/model/provider calls or campaigns.
 PR #63 was reviewed, corrected and merged first; its dispatch interface is reused.

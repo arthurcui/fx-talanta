@@ -48,6 +48,7 @@ class Dashboard:
         workflow_view=None,
         alert_config=None,
         alert_transport=None,
+        research_transport=None,
     ):
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
         self.broker_view = broker_view
@@ -63,7 +64,7 @@ class Dashboard:
         ):
             raise PermissionError("restore incomplete")
         if (self.state / "restored-inspection-only.json").exists() and (
-            model_budget or operator_gateway or alert_config
+            model_budget or operator_gateway or alert_config or research_transport
         ):
             raise PermissionError("restored state is inspection only; no copied authority")
         if snapshot.captured_at > clock.now():
@@ -89,6 +90,9 @@ class Dashboard:
         self.repo.conn.commit()
         try:
             self.strategies = Strategies(self.repo, self.clock)
+            from fx_talanta.dashboard.research import Research
+
+            self.research = Research(self, research_transport)
             self.monitor = Monitor(self.repo, telemetry, telemetry_run)
             from fx_talanta.dashboard.service import Notifications
 

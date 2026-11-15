@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { tmpdir } from "node:os";
@@ -243,9 +243,55 @@ test("strategy workspace: save, freeze, revise, reload and export without author
     "Save not confirmed",
   );
   await expect(page.locator("#strategy-history button")).toHaveCount(2);
-  await expect(
-    page.getByRole("button", { name: "Run candidate backtest" }),
-  ).toBeDisabled();
+  await page
+    .locator("#strategy-history button")
+    .filter({ hasText: "v1" })
+    .click();
+  await page.locator("#research-rules").fill(
+    JSON.stringify({
+      family: "TREND_BREAKOUT",
+      trend_period: 50,
+      signal_period: 20,
+      atr_period: 14,
+      stop_atr: "1.5",
+      reward_risk: "2",
+      hold_bars: 16,
+      start_hour_utc: 0,
+      end_hour_utc: 23,
+      calendar_policy: "REQUIRE_MARKET_HEALTH",
+    }),
+  );
+  const bundle = execFileSync(
+    process.env.FX_TEST_PYTHON || "python",
+    ["-m", "tools.fixtures.candidate_research"],
+    {
+      cwd: root,
+      env: { ...process.env, PYTHONPATH: resolve(root, "src") },
+      windowsHide: true,
+    },
+  );
+  await page.locator("#research-file").setInputFiles({
+    name: "synthetic-bundle.json",
+    mimeType: "application/json",
+    buffer: bundle,
+  });
+  await page.locator("#research-reviewed").check();
+  await page.locator("#research-register").click();
+  await expect(page.locator("#research-message")).toContainText(
+    "Registered immutable study",
+  );
+  await page.locator("#research-run").click();
+  await expect(page.locator("#research-message")).toContainText(
+    "Backtest retained",
+  );
+  await expect(page.locator("#research-results")).toContainText(
+    "REJECT_OR_REVISE",
+  );
+  await expect(page.locator("#research-results canvas")).toHaveCount(1);
+  await page.reload();
+  await expect(page.locator("#research-results")).toContainText(
+    "REJECT_OR_REVISE",
+  );
   await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page.evaluate(

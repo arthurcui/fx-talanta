@@ -255,6 +255,13 @@ def make_server(
                 return self.reply(200, result)
             if not self.allowed(private=self.path.startswith("/api/")):
                 return self.reply(403, {"error": "Access denied or session expired"})
+            if self.path.startswith("/api/research/item/"):
+                try:
+                    return self.reply(200, app.research.item(self.path.rsplit("/", 1)[1]))
+                except ValueError:
+                    return self.reply(404, {"error": "Unknown research evidence"})
+            if self.path == "/api/research":
+                return self.reply(200, app.research.read())
             if self.path == "/api/operator/state":
                 try:
                     result = app.operator.status(
@@ -372,6 +379,9 @@ def make_server(
                 "/api/calendar",
                 "/api/explain",
                 "/api/study",
+                "/api/research/generate",
+                "/api/research/register",
+                "/api/research/execute",
                 "/api/strategies/save",
                 "/api/strategies/freeze",
                 "/api/notifications/ack",
@@ -380,7 +390,11 @@ def make_server(
             try:
                 size = int(self.headers.get("Content-Length", "-1"))
                 maximum = (
-                    4096
+                    8 * 1024 * 1024
+                    if self.path == "/api/research/register"
+                    else 4096
+                    if self.path.startswith("/api/research/")
+                    else 4096
                     if self.path in ("/api/chat", "/api/explain", "/api/notifications/ack")
                     else 32768
                     if self.path.startswith("/api/strategies/")
@@ -407,6 +421,8 @@ def make_server(
                     result = app.explain(json.loads(raw))
                 elif self.path == "/api/study":
                     result = app.upload_study(raw)
+                elif self.path.startswith("/api/research/"):
+                    result = getattr(app.research, self.path.rsplit("/", 1)[1])(json.loads(raw))
                 elif self.path == "/api/strategies/save":
                     result = app.strategies.save(json.loads(raw))
                 elif self.path == "/api/strategies/freeze":
@@ -540,6 +556,11 @@ def main():
     parser.add_argument(
         "--monitor-interval", type=int, default=5, help="Inspection sampling cadence, 1..60 seconds"
     )
+    parser.add_argument(
+        "--research-key-file",
+        type=Path,
+        help="Enable bounded strategy proposals: at most 10 calls per research store",
+    )
     args = parser.parse_args()
     try:
         validate_access(
@@ -590,6 +611,15 @@ def main():
 
 
 def serve(snapshot, args):
+    research_transport = None
+    if getattr(args, "research_key_file", None):
+        from dotenv import dotenv_values
+
+        from fx_talanta.advisor.provider import OpenAITransport
+
+        research_transport = OpenAITransport(
+            dotenv_values(args.research_key_file).get("OPENAI_API_KEY", "")
+        )
     budget = transport = None
     if args.model_key_file:
         from dotenv import dotenv_values
@@ -681,6 +711,7 @@ def serve(snapshot, args):
             SystemClock(),
             telemetry=args.telemetry,
             telemetry_run=args.telemetry_run,
+            research_transport=research_transport,
             model_budget=budget,
             model_transport=transport,
             broker_view=broker_view,

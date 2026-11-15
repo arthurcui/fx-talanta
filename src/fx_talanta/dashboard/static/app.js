@@ -38,7 +38,11 @@ async function api(path, options = {}) {
     headers: { "X-FX-CSRF": csrf, ...options.headers },
     credentials: "same-origin",
     cache: "no-store",
-    signal: AbortSignal.timeout(path === "/api/explain" ? 25000 : 8000),
+    signal: AbortSignal.timeout(
+      path === "/api/explain" || path.startsWith("/api/research/")
+        ? 60000
+        : 8000,
+    ),
   });
   const data = await response.json();
   if (epoch !== sessionEpoch) throw new Error("Session changed");
@@ -1016,10 +1020,11 @@ function selectStrategy(record) {
 }
 async function refreshStrategies() {
   try {
+    await refreshResearch();
     const data = await api("/api/strategies");
     $("lifecycle-status").textContent =
       data.mode +
-      " · Trading disabled · AI generation and candidate backtest integration pending";
+      " · Trading disabled · Research runs do not qualify a strategy";
     $("lifecycle-milestones").replaceChildren(
       ...data.milestones.map((m) =>
         node("p", m.id + " · " + m.title + " · " + m.status),
@@ -1129,3 +1134,194 @@ $("strategy-export").addEventListener("click", () => {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
+
+let researchRequest = null;
+function researchPost(path, data) {
+  return api("/api/research/" + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+async function researchExport(item) {
+  item = await api("/api/research/item/" + item.id);
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify(item, null, 2)], { type: "application/json" }),
+  );
+  const a = node("a");
+  a.href = url;
+  a.download = "research-" + item.id + ".json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+async function refreshResearch() {
+  const data = await api("/api/research");
+  $("research-generate").disabled = !data.ai_enabled;
+  $("research-provider-status").textContent = data.ai_enabled
+    ? "OpenAI configured: lifetime ceiling 10 requests; uncertain calls are not resent."
+    : "AI disabled: configure a private research key file on the server.";
+  const choice = $("research-registration").value;
+  $("research-registration").replaceChildren(
+    ...data.items
+      .filter((x) => x.kind === "REGISTRATION")
+      .map((x) => {
+        const o = node(
+          "option",
+          x.payload.experiment.name +
+            " · " +
+            x.payload.experiment.symbol +
+            " · " +
+            x.id.slice(0, 12),
+        );
+        o.value = x.id;
+        return o;
+      }),
+  );
+  if ([...$("research-registration").options].some((o) => o.value === choice))
+    $("research-registration").value = choice;
+  $("research-results").replaceChildren(
+    ...data.items
+      .filter((x) => ["BACKTEST", "AI_PROPOSAL", "EXPOSURE"].includes(x.kind))
+      .map((item) => {
+        const box = node("article");
+        box.append(node("h4", item.kind + " · " + item.id.slice(0, 12)));
+        const exportButton = node("button", "Export research evidence");
+        exportButton.onclick = () => researchExport(item);
+        box.append(exportButton);
+        if (item.kind === "AI_PROPOSAL") {
+          const load = node("button", "Review proposal in form");
+          load.onclick = () => {
+            clearStrategy();
+            const p = item.payload.proposal;
+            strategyFields.forEach(
+              (k) => ($("strategy-" + k).value = p.specification[k]),
+            );
+            $("strategy-provenance").value =
+              "Verified provider receipt " +
+              item.id +
+              "; " +
+              p.specification.provenance;
+            $("research-rules").value = JSON.stringify(p.rules, null, 2);
+            $("research-message").textContent =
+              "Proposal loaded; review, save and freeze before registering a study.";
+          };
+          box.append(load);
+        }
+        if (item.kind === "BACKTEST") {
+          const p = item.payload,
+            r = p.result;
+          box.append(
+            node(
+              "p",
+              p.partition +
+                " · " +
+                p.verdict +
+                " · Net P&L " +
+                r.net_realized_pnl +
+                " · Closed trades " +
+                r.metrics.closed_trades +
+                " · Max observed drawdown " +
+                r.metrics.maximum_observed_drawdown_fraction,
+            ),
+          );
+          box.append(node("p", p.limitations.join("; ")));
+          const samples = r.equity_samples;
+          if (samples.length > 1) {
+            const canvas = node("canvas");
+            canvas.width = 600;
+            canvas.height = 160;
+            canvas.setAttribute(
+              "aria-label",
+              "Observed equity curve, see exported samples for exact times and values",
+            );
+            canvas.style.maxWidth = "100%";
+            const ctx = canvas.getContext("2d"),
+              values = samples.map((s) => Number(s.equity)),
+              lo = Math.min(...values),
+              hi = Math.max(...values);
+            ctx.strokeStyle = "#5ac8ae";
+            ctx.beginPath();
+            values.forEach((v, i) => {
+              const x = 5 + (i * 590) / (values.length - 1),
+                y = 150 - ((v - lo) * 140) / (hi - lo || 1);
+              if (i) ctx.lineTo(x, y);
+              else ctx.moveTo(x, y);
+            });
+            ctx.stroke();
+            box.append(canvas);
+          }
+          const details = node("details");
+          details.append(
+            node("summary", "Inspect trades, costs and verdict evidence"),
+            node(
+              "pre",
+              JSON.stringify(
+                {
+                  deals: r.deals,
+                  fill_costs: r.fill_costs,
+                  financing: r.financing,
+                  metrics: r.metrics,
+                },
+                null,
+                2,
+              ),
+            ),
+          );
+          box.append(details);
+        }
+        return box;
+      }),
+  );
+}
+async function researchAction(button, fn) {
+  button.disabled = true;
+  try {
+    await fn();
+    await refreshResearch();
+  } catch (e) {
+    $("research-message").textContent =
+      "Not confirmed: " + e.message + "; refresh evidence before retrying.";
+  } finally {
+    button.disabled = false;
+  }
+}
+$("research-generate").onclick = () =>
+  researchAction($("research-generate"), async () => {
+    const brief = $("research-brief").value;
+    if (!researchRequest || researchRequest.brief !== brief)
+      researchRequest = { request_id: crypto.randomUUID(), brief };
+    const result = await researchPost("generate", researchRequest);
+    $("research-message").textContent =
+      result.kind === "AI_PROPOSAL"
+        ? "Proposal retained. Select Review proposal in form."
+        : result.status;
+  });
+$("research-register").onclick = () =>
+  researchAction($("research-register"), async () => {
+    if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
+      throw new Error("Select a frozen candidate first");
+    const file = $("research-file").files[0];
+    if (!file || file.size > 8 * 1024 * 1024)
+      throw new Error("Choose a research JSON bundle up to 8 MiB");
+    const bundle = JSON.parse(await file.text());
+    const item = await researchPost("register", {
+      ...bundle,
+      candidate_sha256: selectedStrategy.sha256,
+      rules: JSON.parse($("research-rules").value),
+      reviewed_mapping: $("research-reviewed").checked,
+    });
+    $("research-message").textContent = "Registered immutable study " + item.id;
+  });
+$("research-run").onclick = () =>
+  researchAction($("research-run"), async () => {
+    const result = await researchPost("execute", {
+      registration_id: $("research-registration").value,
+      partition: $("research-partition").value,
+    });
+    $("research-message").textContent =
+      result.kind === "BACKTEST"
+        ? "Backtest retained: " + result.payload.verdict
+        : "Previously exposed run; inspect retained result. No silent rerun.";
+  });
+$("research-refresh").onclick = () =>
+  researchAction($("research-refresh"), refreshResearch);

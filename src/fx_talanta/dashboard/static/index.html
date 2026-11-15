@@ -98,8 +98,9 @@
             <h2>Strategy & research workspace</h2>
             <p>
               Save a descriptive candidate and freeze its content for research.
-              No AI generation or executable backtest is connected here yet.
-              Proposed percentage limits are not an approved trading mandate.
+              AI proposals and reviewed parameter-only replay are available
+              below when configured. Proposed percentage limits are not an
+              approved trading mandate.
             </p>
             <button id="strategy-new" class="secondary" type="button">
               New candidate
@@ -233,19 +234,84 @@
               Not evaluated. Freezing does not qualify a strategy.
             </p>
             <ul>
-              <li>Reviewed executable rule mapping: not connected</li>
               <li>
-                Candidate-bound dataset and availability audit: not registered
+                Reviewed executable mapping: required for each registration
+              </li>
+              <li>
+                Candidate-bound historical dataset: upload and register below
               </li>
               <li>
                 Frozen cost profile and development/holdout windows: not
                 registered
               </li>
-              <li>Backtest result and promotion verdict: unavailable</li>
+              <li>Backtest results below; promotion remains unavailable</li>
             </ul>
-            <button type="button" disabled>
-              Run candidate backtest — integration pending
-            </button>
+            <section id="research-workflow">
+              <h3>AI proposals and historical research</h3>
+              <p>
+                Research only. Review parameter mappings explicitly; prose is
+                not executable code. Each run is a standalone symbol study, not
+                combined portfolio validation.
+              </p>
+              <label
+                >Research brief<textarea
+                  id="research-brief"
+                  maxlength="2000"
+                ></textarea>
+              </label>
+              <button type="button" id="research-generate">
+                Generate AI proposal
+              </button>
+              <p id="research-provider-status"></p>
+              <label
+                >Reviewed executable rules (JSON)<textarea
+                  id="research-rules"
+                  rows="10"
+                ></textarea>
+              </label>
+              <p>
+                Supported: H1 EMA trend with M15 breakout or EMA pullback,
+                simple ATR stop, reward/risk target, time exit and UTC weekday
+                session. Calendar veto uses historical market health; arbitrary
+                news rules and combined-pair portfolio backtests are not
+                implemented.
+              </p>
+              <label
+                >Historical research bundle (dataset + experiment + acceptance
+                criteria)<input
+                  id="research-file"
+                  type="file"
+                  accept="application/json,.json"
+              /></label>
+              <label
+                ><input id="research-reviewed" type="checkbox" />I reviewed
+                these executable rules against the selected frozen candidate;
+                any differences are explicit research assumptions.</label
+              >
+              <button type="button" id="research-register">
+                Register selected frozen candidate
+              </button>
+              <label
+                >Registered experiment<select
+                  id="research-registration"
+                ></select
+              ></label>
+              <label
+                >Window<select id="research-partition">
+                  <option>training</option>
+                  <option>validation</option>
+                  <option>holdout</option>
+                </select></label
+              >
+              <button type="button" id="research-run">
+                Run registered backtest
+              </button>
+              <button type="button" id="research-refresh">
+                Refresh research evidence
+              </button>
+              <p id="research-message" role="status"></p>
+              <div id="research-results"></div>
+            </section>
           </section>
           <section class="source-banner">
             <span class="pill" id="source">—</span>

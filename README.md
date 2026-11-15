@@ -66,8 +66,9 @@ implementation code is merged. There is no automatic broker failover.
 The current [R0-R6 roadmap](docs/product/roadmap.md) follows the trading lifecycle:
 AI strategy design -> backtest -> demo -> capped live -> evaluate and improve.
 Each milestone includes a usable UI and end-to-end acceptance. The initial strategy
-workspace stores and freezes descriptive candidates; AI generation and candidate-bound
-backtest execution remain to integrate. Existing M0-M7 evidence below is preserved.
+workspace stores and freezes candidates. [AI proposals and candidate-bound
+historical replay](docs/engineering/candidate-research.md) connect reviewed rules to
+research results; full portfolio and independent validation remain open. Existing M0-M7 evidence below is preserved.
 
 | Area | Status |
 | --- | --- |

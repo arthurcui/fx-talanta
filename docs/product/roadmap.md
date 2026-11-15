@@ -10,6 +10,8 @@ strategy version; other accounts remain isolated. This plan does not select a ne
 broker, enable failover or authorize provider calls, deployment or a new campaign.
 **Current mode: local engineering and simulation; trading disabled.**
 
+Current integration: [AI proposals and candidate historical replay](../engineering/candidate-research.md) provide an owner-reviewable R1/R2 path. This is bounded single-symbol research, not complete portfolio validation or an approved strategy.
+
 ## Milestones and UI acceptance
 
 | Stage | Deliverable and exit criteria | UI workflow the owner can verify |
