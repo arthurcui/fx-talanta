@@ -1320,7 +1320,17 @@ $("research-generate").onclick = () =>
     $("research-message").textContent =
       result.kind === "AI_PROPOSAL"
         ? "Proposal retained. Select Review proposal in form."
-        : result.status;
+        : (result.message ||
+            "The proposal could not be validated; the previous request was not resent.") +
+          (result.validation_errors?.length
+            ? " Fields: " +
+              result.validation_errors
+                .map((x) => x.field + " (" + x.code + ")")
+                .join(", ")
+            : "") +
+          " [" +
+          result.status +
+          "]";
   });
 $("research-register").onclick = () =>
   researchAction($("research-register"), async () => {

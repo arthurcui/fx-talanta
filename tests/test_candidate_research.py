@@ -189,3 +189,21 @@ def test_schema_requires_decimal_strings():
     data = json.loads(payload("Test an unvalidated research hypothesis"))
     schema = data["text"]["format"]["schema"]
     assert schema["$defs"]["Specification"]["properties"]["risk_per_trade_pct"]["type"] == "string"
+
+
+def test_proposal_failure_has_safe_fields_and_is_not_resent(app):
+    calls = []
+    bad = json.loads(response())
+    proposal = json.loads(bad["output"][0]["content"][0]["text"])
+    proposal["specification"]["hypothesis"] = "private"
+    bad["output"][0]["content"][0]["text"] = json.dumps(proposal)
+    app.research.transport = lambda raw: calls.append(raw) or json.dumps(bad).encode()
+    req = dict(request_id=str(uuid4()), brief="Propose a simple research hypothesis")
+    result = app.research.generate(req)
+    assert result["failure_stage"] == "PROPOSAL_VALIDATION"
+    assert result["validation_errors"] == [
+        {"field": "specification.hypothesis", "code": "string_too_short"}
+    ]
+    assert "private" not in json.dumps(result)
+    assert app.research.generate(req) == result and len(calls) == 1
+    assert app.research.read()["jobs"][0]["status"] == "FAILED_OR_UNCERTAIN_NO_RESEND"

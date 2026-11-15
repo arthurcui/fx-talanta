@@ -184,6 +184,7 @@ Object.assign(labels, {
   Username: "用户名",
 });
 const languageSelect = document.getElementById("ui-language");
+let currentLanguage = "en";
 const originals = new Map();
 const normalizeLabel = (text) => text.replace(/\s+/g, " ").trim();
 // Preserve implicit option values before translating their display labels.
@@ -200,16 +201,25 @@ while (walker.nextNode()) {
     originals.set(node, node.data);
 }
 function applyLanguage() {
-  document.documentElement.lang =
-    languageSelect.value === "zh" ? "zh-CN" : "en";
+  document.documentElement.lang = currentLanguage === "zh" ? "zh-CN" : "en";
   for (const [node, original] of originals) {
     const translated = labels[normalizeLabel(original)];
     // Do not overwrite a dynamic evidence value replacing an initial label.
     if (node.data !== original && node.data !== translated) continue;
-    node.data = languageSelect.value === "zh" ? translated : original;
+    node.data = currentLanguage === "zh" ? translated : original;
   }
 }
-languageSelect.addEventListener("change", applyLanguage);
+languageSelect.querySelectorAll("button").forEach((button) => {
+  button.addEventListener("click", () => {
+    currentLanguage = button.dataset.language;
+    languageSelect
+      .querySelectorAll("button")
+      .forEach((item) =>
+        item.setAttribute("aria-pressed", String(item === button)),
+      );
+    applyLanguage();
+  });
+});
 const input = document.getElementById("translation-input");
 const output = document.getElementById("translation-output");
 const status = document.getElementById("translation-status");
@@ -230,7 +240,7 @@ document
   .addEventListener("click", async (event) => {
     const button = event.currentTarget;
     const epoch = ++translationEpoch;
-    const zh = languageSelect.value === "zh";
+    const zh = currentLanguage === "zh";
     if (!input.value.trim()) {
       status.textContent = zh
         ? "请输入待翻译文本。"

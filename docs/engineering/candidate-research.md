@@ -128,3 +128,20 @@ preview and clearing on reload. These tests do not qualify translation accuracy.
 Two live preview translation smoke checks also completed (English to Chinese and
 Chinese to English); both preserved the sample 0.10% risk value. These generic
 checks are not a comprehensive semantic-accuracy evaluation.
+
+## Proposal validation diagnostics
+
+Two preview attempts returned `ValidationError`; their original receipts retained
+only the error class, so the exact failing fields cannot be reconstructed. They
+remain failed and were not resent. A distinct generic Chinese diagnostic proposal
+passed validation. The prompt now states the cross-field constraints explicitly
+(both pairs exactly once, ordered same-day session, percentage relationships and
+minimum description lengths); the provider schema also fixes the pair count at two.
+Future failures retain only validation field paths and error codes, never raw error
+inputs or provider exception text. The UI explains failures instead of showing only
+an opaque status, and failed jobs no longer appear as completed in the job list.
+
+The revised prompt/schema passed an additional live end-to-end proposal generation
+check in a temporary journal. It produced `AI_PROPOSAL` without changing the preview
+research records or its request allowance. This is a smoke check, not a guarantee
+that every generated proposal will satisfy all constraints.

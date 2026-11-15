@@ -33,17 +33,24 @@
     </aside>
     <div class="shell">
       <header class="topbar">
-        <label
-          >Language / 语言
-          <select id="ui-language">
-            <option value="en">English</option>
-            <option value="zh">中文</option>
-          </select></label
-        >
         <span
           >Workspace <span class="slash">/</span>
           <strong>Observatory</strong></span
         ><span class="pill locked">Trading disabled</span>
+        <div
+          id="ui-language"
+          class="language-switch"
+          role="group"
+          aria-label="Interface language"
+        >
+          <button type="button" data-language="en" aria-pressed="true">
+            English
+          </button>
+          <span aria-hidden="true">|</span>
+          <button type="button" data-language="zh" aria-pressed="false">
+            中文
+          </button>
+        </div>
       </header>
       <main id="workspace">
         <div class="heading">

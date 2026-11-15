@@ -5,7 +5,7 @@ from decimal import Decimal
 from pathlib import Path
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, ValidationError
 
 from fx_talanta.advisor.provider import MODEL
 from fx_talanta.dashboard.strategies import Specification, canonical
@@ -51,7 +51,14 @@ INSTRUCTIONS = (
     "Weekdays only in the stated UTC session. Calendar entry veto uses supplied point-in-time "
     "Market health, not an inferred blackout duration. One position per standalone symbol replay. "
     "Describe these limitations accurately. Use authorship AI_IMPORTED and explicitly unvalidated "
-    "provenance. Proposed percentage risk is not approved. Do not promise profit."
+    "provenance. Proposed percentage risk is not approved. Do not promise profit. "
+    "The specification must include BOTH EURUSD and USDJPY exactly once, even for a "
+    "single-symbol research brief; explain that replay remains standalone. "
+    "Risk per trade must not exceed total open risk. Every descriptive field must contain "
+    "at least 10 non-whitespace characters, including Chinese descriptions. "
+    "start_hour_utc must be less than end_hour_utc (no overnight session). "
+    "Decimal risk percentages, stop_atr and reward_risk must be decimal strings, not numbers. "
+    "stop_atr and reward_risk must be greater than 0 and no greater than 5."
 )
 
 
@@ -72,6 +79,7 @@ def payload(brief):
                 strict(value)
 
     strict(schema)
+    schema["$defs"]["Specification"]["properties"]["pairs"].update(minItems=2, maxItems=2)
     return canonical(
         dict(
             model=MODEL,
@@ -128,7 +136,15 @@ class Research:
             ai_enabled=self.transport is not None,
             model_call_limit=10,
             items=[dict(id=i, kind=k, payload=self.summary(json.loads(p))) for i, k, p in rows],
-            jobs=[dict(id=i, status="COMPLETED" if r else "UNRESOLVED_NO_RESEND") for i, r in jobs],
+            jobs=[
+                dict(
+                    id=i,
+                    status=json.loads(r).get("status", "COMPLETED")
+                    if r
+                    else "UNRESOLVED_NO_RESEND",
+                )
+                for i, r in jobs
+            ],
         )
 
     @staticmethod
@@ -173,10 +189,12 @@ class Research:
             self.repo.conn.execute(
                 "INSERT INTO research_jobs VALUES (?,?,NULL)", (str(req.request_id), identity)
             )
+        stage = "PROVIDER_REQUEST"
         try:
             response = self.transport(raw)
             if len(response) > 65536:
                 raise ValueError("response too large")
+            stage = "RESPONSE_FORMAT"
             value = json.loads(response)
             if value.get("status") != "completed" or value.get("model") != MODEL:
                 raise ValueError("unexpected model outcome")
@@ -186,7 +204,9 @@ class Research:
             content = output[0]["content"]
             if len(content) != 1 or content[0]["type"] != "output_text":
                 raise ValueError("refusal")
+            stage = "PROPOSAL_VALIDATION"
             proposal = Proposal.model_validate_json(content[0]["text"])
+            stage = "USAGE_VALIDATION"
             usage = value["usage"]
             if any(
                 type(usage[k]) is not int or not 0 <= usage[k] <= limit
@@ -212,7 +232,26 @@ class Research:
                 status="FAILED_OR_UNCERTAIN_NO_RESEND",
                 request_sha256=identity,
                 failure_type=type(error).__name__,
+                failure_stage=stage,
+                message="The proposal failed validation; no candidate was saved."
+                if stage == "PROPOSAL_VALIDATION"
+                else "The provider request did not produce a verified proposal; it was not resent.",
             )
+            if isinstance(error, ValidationError):
+                known = (
+                    set(Specification.model_fields)
+                    | set(Rules.model_fields)
+                    | {"specification", "rules"}
+                )
+                result["validation_errors"] = [
+                    {
+                        "field": ".".join(str(x) for x in issue["loc"] if x in known) or "proposal",
+                        "code": issue["type"],
+                    }
+                    for issue in error.errors(
+                        include_input=False, include_context=False, include_url=False
+                    )[:10]
+                ]
         with self.repo.lock, self.repo.conn:
             self.repo.conn.execute(
                 "UPDATE research_jobs SET result=? WHERE id=? AND result IS NULL",

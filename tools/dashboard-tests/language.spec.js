@@ -43,7 +43,7 @@ test("language labels preserve inputs and ephemeral translation", async ({
   await page.goto(url);
   await expect(page.locator("#login")).toBeHidden();
   await page.locator("#strategy-name").fill("中文策略 EURUSD");
-  await page.locator("#ui-language").selectOption("zh");
+  await page.locator('#ui-language [data-language="zh"]').click();
   await expect(page.locator("#strategy-save")).toHaveText("保存新版本");
   await expect(page.locator("#research-partition")).toHaveValue("training");
   await expect(page.locator("#strategy-name")).toHaveValue("中文策略 EURUSD");
@@ -60,7 +60,7 @@ test("language labels preserve inputs and ephemeral translation", async ({
   await page.locator("#translate-input").click();
   await expect(page.locator("#translation-output")).toHaveValue("Risk 0.10%");
   await expect(page.locator("#strategy-name")).toHaveValue("中文策略 EURUSD");
-  await page.locator("#ui-language").selectOption("en");
+  await page.locator('#ui-language [data-language="en"]').click();
   await expect(page.locator("#strategy-save")).toHaveText("Save new revision");
   await page.reload();
   await expect(page.locator("#translation-input")).toHaveValue("");
