@@ -37,6 +37,12 @@ session and CSRF checks protect both read and write routes; payloads are bounded
 No new database service or environment dependency is introduced. Restore remains
 inspection/research-only and does not restore execution or model-call authority.
 
+Per the owner's November 14 clarification, legacy database migration and backward
+compatibility are outside pre-production scope. Development schema changes may start
+with a fresh disposable store; old qualification reports and retained experiments
+remain evidence. The persistence tests here verify current-version restart and
+immutable records, not cross-version migration support. No existing data is deleted.
+
 ## Acceptance and owner walkthrough
 
 Use the [dashboard guide](../guides/dashboard.md) with a separate local state folder.

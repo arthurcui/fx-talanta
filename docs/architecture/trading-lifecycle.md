@@ -75,6 +75,12 @@ as independent validation. Net outcomes include model and trading costs where ap
 
 ## Promotion and operating boundary
 
+Development-state schema compatibility is not a release prerequisite before actual
+strategy PAPER/LIVE data exists. Recreate disposable development stores instead of
+building legacy data migrations. Preserve qualification reports, failures and retained
+research evidence. Current-version restart and idempotency remain necessary. Establish
+protected operational storage and upgrade/rollback policy before R4/R5 activation.
+
 Historical acceptance permits considering demo readiness, not immediate orders.
 R3 requires applicable source and execution gates. R4 uses a separately authorized
 frozen prospective plan. The existing unattended floor remains eight weeks AND 100

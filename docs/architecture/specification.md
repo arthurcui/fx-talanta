@@ -217,6 +217,15 @@ Provide a checked setup script and explicit run/test commands for Codex. Use Pos
 
 ## Persistence and moving hosts
 
+**Current pre-production scope:** legacy data migration and backward compatibility
+for disposable development databases are deferred. Use fresh schema initialization
+when development schemas change; do not add old-version migration work to R0-R2.
+Preserve qualification/failure evidence and designated retained research artifacts.
+Restart/idempotency tests within the current version still apply. Before actual
+strategy PAPER/LIVE records are created, designate protected operational stores and
+establish their backup, versioning and upgrade/rollback policy. The operational
+continuity requirements below apply to those stores, not every temporary test database.
+
 Retain the paper and live journals, evidence snapshots, lessons, deployment records, and risk histories through container restarts, image upgrades, and local/cloud migration. Use persistent database/storage volumes and separate backups, including the EA emergency journal. Test restoring both histories without resetting limits or losing unknown operations.
 
 For a core-only move, keep the authoritative EA and revoke the old core's dispatch authority before issuing the new identity. For a terminal/EA move, pause entries, resolve uncertain operations, verify protection, back up both journals, stop and fence the old host/terminal writer, restore the destination with trading disabled, then reconcile before resuming. If the old writer may still trade, the replacement EA stays halted. Running local PAPER and cloud LIVE is permitted; two independent deployments cannot write to the same live account. See the [deployment and restore design](execution-boundary.md#deployment-release-and-restore-runbook-design).

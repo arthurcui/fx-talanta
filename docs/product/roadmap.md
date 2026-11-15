@@ -35,7 +35,7 @@ Versioning starts in R1; R6 closes the loop. Rejection returns a candidate to re
 - Engineering completion and operational/economic qualification have separate verdicts.
 - UI controls cannot create broker authority or bypass risk.
 
-## Migration and reuse
+## Milestone mapping and reuse
 
 | Existing work | New role | Preserved boundary |
 | --- | --- | --- |
@@ -53,6 +53,18 @@ retains detailed gates. The [R0 register](../engineering/r0-strategy-research.md
 tracks actual implementation and gaps.
 
 ## Scope discipline
+
+**Pre-production data policy (owner clarification, November 14):** do not build
+legacy database migrations or backward compatibility for disposable development
+state before operational strategy PAPER/LIVE records exist. Schema changes may use
+a fresh development store. Preserve historical qualification reports, failures and
+explicitly retained experiment artifacts. This does not authorize bulk deletion.
+Within-version persistence, restart safety and idempotency remain required. Before
+real strategy PAPER/LIVE begins, identify protected stores and establish backup,
+schema-version and upgrade/rollback policy for those operational records.
+
+The milestone mapping above describes reuse of code and requirements, not a data
+migration project. Fresh database initialization is still necessary.
 
 Prioritize strategy viability and its complete workflow. Defer peripheral deployment,
 additional brokers and polish. Use consolidated workflow PRs with fixed acceptance.
