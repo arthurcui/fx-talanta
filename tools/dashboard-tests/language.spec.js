@@ -236,6 +236,8 @@ test("select dataset and backtest without uploading a file", async ({
   await expect(page.locator("#research-message")).toContainText(
     "Not submitted: Executable rules is empty",
   );
+  await expect(page.locator("#research-message")).toBeFocused();
+  await expect(page.locator("#research-message")).toBeInViewport();
   expect(submissions).toBe(0);
   await page.locator("#research-rules").fill("{");
   await page.locator("#research-register").click();
@@ -256,10 +258,28 @@ test("select dataset and backtest without uploading a file", async ({
   );
   await expect(page.locator("#research-file")).toBeHidden();
   await page.locator("#research-reviewed").check();
+  let releaseRegistration;
+  const gate = new Promise((resolve) => {
+    releaseRegistration = resolve;
+  });
+  await page.route("**/api/research/select_dataset", async (route) => {
+    await gate;
+    await route.continue();
+  });
   await page.locator("#research-register").click();
+  await expect(page.locator("#research-register")).toHaveText("Registering…");
+  await expect(page.locator("#research-register")).toBeDisabled();
+  await expect(page.locator("#research-register")).toHaveAttribute(
+    "aria-busy",
+    "true",
+  );
+  releaseRegistration();
   await expect(page.locator("#research-message")).toContainText(
     "Registered immutable study",
   );
+  await expect(page.locator("#research-register")).toBeEnabled();
+  await expect(page.locator("#research-registration")).not.toHaveValue("");
+  await expect(page.locator("#research-message")).toBeInViewport();
   await page.locator("#research-run").click();
   await expect(page.locator("#research-message")).toContainText(
     "Backtest retained",

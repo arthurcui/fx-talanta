@@ -861,3 +861,15 @@ footer {
   margin-top: 24px;
   scroll-margin-top: 20px;
 }
+
+#research-message:not(:empty),
+#research-candidate-status {
+  padding: 12px 14px;
+  border-left: 3px solid var(--teal, #16796a);
+  background: #edf5f2;
+  overflow-wrap: anywhere;
+}
+#research-message:focus-visible {
+  outline: 2px solid var(--teal, #16796a);
+  outline-offset: 2px;
+}

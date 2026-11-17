@@ -196,3 +196,9 @@ An empty/unreadable server response instead reports an uncertain outcome and
 instructs the user to inspect retained evidence. No automatic resend is added.
 Browser acceptance reproduces reopen/select-frozen, blank/malformed rules,
 zero submissions, explicit rules restoration, registration and replay.
+
+Registration feedback is displayed immediately below its button, with the selected
+frozen candidate identified above it. During submission the button reads Registering
+and prevents duplicate clicks. Success selects the registered experiment; validation
+errors and outcomes receive focus and scroll into view. Browser acceptance verifies
+these behaviors with a deliberately held registration response.

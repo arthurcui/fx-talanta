@@ -214,6 +214,10 @@ Object.assign(labels, {
   "Loading rules keeps your selected candidate unchanged. Review the mapping again before registering.":
     "加载规则不会更改选中的候选策略。注册前请重新审核规则映射。",
 });
+Object.assign(labels, {
+  "No frozen candidate selected. Choose one in Step 2.":
+    "尚未选择冻结候选策略。请在第 2 步选择。",
+});
 const languageSelect = document.getElementById("ui-language");
 let currentLanguage = "en";
 const originals = new Map();

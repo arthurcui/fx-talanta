@@ -1019,6 +1019,8 @@ function strategySpec() {
 function clearStrategy() {
   $("research-reviewed").checked = false;
   selectedStrategy = null;
+  $("research-candidate-status").textContent =
+    "No frozen candidate selected. Choose one in Step 2.";
   strategyId = crypto.randomUUID();
   strategyRetry = null;
   $("strategy-form").reset();
@@ -1032,6 +1034,13 @@ function clearStrategy() {
 function selectStrategy(record) {
   $("research-reviewed").checked = false;
   selectedStrategy = record;
+  $("research-candidate-status").textContent =
+    record.state === "FROZEN_FOR_RESEARCH"
+      ? "Selected frozen candidate: " +
+        record.specification.name +
+        " · version " +
+        record.version
+      : "Selected candidate is not frozen. Save and freeze it in Step 2 first.";
   strategyId = record.strategy_id;
   strategyRetry = null;
   strategyFields.forEach((k) => {
@@ -1187,6 +1196,7 @@ async function researchExport(item) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+let latestRegistration = null;
 let researchDatasets = [],
   researchProposals = [];
 class ResearchInputError extends Error {}
@@ -1291,7 +1301,7 @@ async function refreshResearch() {
   $("research-provider-status").textContent = data.ai_enabled
     ? "OpenAI configured: lifetime ceiling 10 requests; uncertain calls are not resent."
     : "AI disabled: configure a private research key file on the server.";
-  const choice = $("research-registration").value;
+  const choice = latestRegistration || $("research-registration").value;
   $("research-registration").replaceChildren(
     ...data.items
       .filter((x) => x.kind === "REGISTRATION")
@@ -1310,6 +1320,7 @@ async function refreshResearch() {
   );
   if ([...$("research-registration").options].some((o) => o.value === choice))
     $("research-registration").value = choice;
+  latestRegistration = null;
   $("research-results").replaceChildren(
     ...data.items
       .filter((x) => ["BACKTEST", "AI_PROPOSAL", "EXPOSURE"].includes(x.kind))
@@ -1413,7 +1424,19 @@ async function refreshResearch() {
   );
 }
 async function researchAction(button, fn) {
+  const output = $(
+    button.id === "research-generate" ? "proposal-message" : "research-message",
+  );
+  const originalLabel = button.textContent;
   button.disabled = true;
+  button.setAttribute("aria-busy", "true");
+  if (button.id === "research-register") {
+    button.textContent = document.documentElement.lang.startsWith("zh")
+      ? "正在注册…"
+      : "Registering…";
+    output.textContent = "Checking registration inputs…";
+  }
+  output.focus({ preventScroll: true });
   try {
     await fn();
     await refreshResearch();
@@ -1428,6 +1451,10 @@ async function researchAction(button, fn) {
         : "Not confirmed: " + e.message + "; refresh evidence before retrying.";
   } finally {
     button.disabled = false;
+    button.removeAttribute("aria-busy");
+    button.textContent = originalLabel;
+    output.scrollIntoView({ block: "nearest" });
+    output.focus({ preventScroll: true });
   }
 }
 $("research-generate").onclick = () =>
@@ -1481,7 +1508,11 @@ $("research-register").onclick = () =>
         dataset_id: $("research-dataset").value,
       });
     }
-    $("research-message").textContent = "Registered immutable study " + item.id;
+    latestRegistration = item.id;
+    $("research-message").textContent =
+      "Registered immutable study " +
+      item.id.slice(0, 12) +
+      ". Selected below. Choose a window and click Run registered backtest.";
   });
 $("research-run").onclick = () =>
   researchAction($("research-run"), async () => {
