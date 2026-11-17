@@ -1,5 +1,7 @@
 // UI labels only: never translate stored evidence, field values, identifiers or JSON.
 const labels = {
+  "Tested symbol": "测试货币对",
+  "Why no closed trades?": "为什么没有已平仓交易？",
   "Continue current strategy": "继续当前策略",
   Overview: "概览",
   Strategies: "策略",

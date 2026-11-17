@@ -165,6 +165,10 @@
   empty.textContent =
     "No backtest results for this strategy yet. Complete Backtest to see outcomes here.";
   pages["/strategies/results"].append(empty);
+  const runs = document.createElement("div");
+  runs.id = "research-runs";
+  runs.setAttribute("role", "status");
+  pages["/strategies/results"].prepend(runs);
   const flow = document.createElement("div");
   flow.id = "strategy-flow";
   flow.innerHTML =

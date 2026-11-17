@@ -59,9 +59,9 @@ Each run contains one symbol and one position at a time. Combined EURUSD/USDJPY
 portfolio testing and signed USD exposure evaluation across simultaneous symbols
 remain open, rather than being inferred by adding two independent equity curves.
 
-Interactive bounds: 2,000 bars and 5,000 market events per registration. Larger
-historical studies remain in the CLI research pipeline pending integration of its
-streamed execution into this UI. This bounded integration is not full R2 closure.
+Uploaded bundles retain the 2,000-bar/5,000-event interactive limit. Server-pinned
+full-session indexes now use background streamed execution (see below), preserving
+every tick with bounded memory. Neither path constitutes full R2 qualification.
 
 ## Authority, retries and evidence
 
@@ -176,7 +176,8 @@ from their pinned evidence even if the catalog file later changes.
 
 Advanced imports require an explicit checkbox and retain the existing validation
 path. Changing the selected dataset or import mode clears mapping confirmation.
-Larger historical runs and custom date/window construction are not added here.
+Custom date/window construction remains outside this UI; full-session catalog
+entries now provide longer fixed windows through the background path below.
 
 The CI regressions fixed alongside this work were an absent `local_workspace`
 attribute in the existing deployment launcher and an unintentionally enlarged
@@ -259,3 +260,60 @@ Verified against an actual preview restart with an open background browser:
 no sign-in page, preserved draft across reload, one rejected write with no resend,
 and unchanged saved strategy hashes. See
 [restart receipt](../evidence/docker-local-recovery-20261116.json).
+
+## Full-session catalog and result diagnostics
+
+The preview now adds **EUR/USD and USD/JPY, January 21–23, 2025**: three complete
+24-hour partitions per pair (training, validation, previously available holdout).
+Each has 312 pre-start H1 and 1,254 M15 bars, sufficient to initialize the supported
+H1 trend/M15 breakout or pullback rules. Every selected tick is replayed in source
+order, including timestamp ties. No sparse sampling or invented quotes are used.
+The earlier tiny bundles and all old results remain intact.
+
+| Pair | Training ticks | Validation ticks | Holdout ticks | Total |
+| --- | ---: | ---: | ---: | ---: |
+| EUR/USD | 122,952 | 88,605 | 101,193 | 312,750 |
+| USD/JPY | 167,688 | 115,620 | 117,768 | 401,076 |
+
+**Tested symbol** explicitly filters dataset choices. The strategy specification
+covers both permitted pairs, but a study still tests one selected pair; the name
+of a strategy is not a symbol binding. Results display the actual pair, UTC bounds,
+duration, number of evaluations, candidate signals, closed trades and recorded
+hold reasons. Zero closed trades are distinguished from no signals, no evaluations
+and positions still open. Diagnostics are derived from retained decisions, so old
+results become explainable without rerunning or rewriting their evidence.
+
+Long studies run in a single bounded background worker. Durable admission prevents
+duplicate starts; browser reload only observes progress. A process interruption is
+reported as INTERRUPTED_NO_RESEND, never silently restarted. Full tick processing
+uses the existing streamed simulator engine and bounded compressed journal/equity
+spools. Result exports contain sampled chart values, full decisions/trades and
+hash receipts for the exact local audit streams under the private state directory.
+They do not embed the entire tick archive or gzip streams. At most one background
+run is admitted at a time; each partition remains bounded to 300,000 ticks/one day.
+
+The index and manifest are pinned by SHA-256; bindings are checked before and after
+replay. Index files are read-only copies mounted in the preview catalog. Create a
+catalog reproducibly from an existing full-session plan and local indexes:
+
+```powershell
+python -m tools.dev.catalog_sessions --plan PLAN.json --index EURUSD=EURUSD_INDEX.sqlite --index USDJPY=USDJPY_INDEX.sqlite --output CATALOG_DIRECTORY
+```
+
+This preserves the prior M3 sources, B01 verdict and M1 gaps. The existing dataset
+assumption remains counterfactual: calendar/news are assumed clear, receipt latency
+is modeled at 250 ms, and costs are uncalibrated. Previously exposed January data
+is not a fresh independent holdout. Three days provide more signal opportunities
+than the original minutes-long slices, but do not establish profitability or
+permission for PAPER/LIVE promotion. Trading remains disabled.
+
+Actual Docker acceptance exercised the owner's retained strategy with each pair's
+24-hour validation window, without mocked responses or new AI calls. EUR/USD
+processed 88,605 ticks and produced 96 evaluations, five candidate signals and one
+closed simulated trade. USD/JPY processed 115,620 ticks and produced 96 evaluations,
+seven candidate signals and one closed simulated trade. Both remain
+INSUFFICIENT_EVIDENCE. Reload during processing, completed result display and
+browser export passed. The earlier 11-minute zero-trade result now explicitly
+shows USD/JPY, one evaluation and NO_SIGNAL without changing its retained record.
+See [actual full-history receipt](../evidence/docker-full-history-20261116.json)
+and [catalog/source receipt](../evidence/historical-catalog-20261116.json).

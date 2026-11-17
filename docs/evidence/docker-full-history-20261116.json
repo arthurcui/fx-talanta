@@ -1,0 +1,50 @@
+{
+  "test": "Actual Docker full-session historical research",
+  "mocked_requests": false,
+  "trading_enabled": false,
+  "runs": [
+    {
+      "symbol": "EURUSD",
+      "partition": "validation",
+      "duration_seconds": 86400,
+      "ticks": 88605,
+      "evaluations": 96,
+      "actions": {
+        "HOLD": 91,
+        "CANDIDATE": 5,
+        "SUBMITTED_TO_SIMULATOR": 1,
+        "EXPIRED": 4
+      },
+      "hold_reasons": {
+        "OUTSIDE_SESSION": 60,
+        "NO_SIGNAL": 31
+      },
+      "closed_trades": 1,
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "background_survived_page_reload": true,
+      "export_verified": true
+    },
+    {
+      "symbol": "USDJPY",
+      "partition": "validation",
+      "duration_seconds": 86400,
+      "ticks": 115620,
+      "evaluations": 96,
+      "actions": {
+        "HOLD": 89,
+        "CANDIDATE": 7,
+        "SUBMITTED_TO_SIMULATOR": 1,
+        "EXPIRED": 6
+      },
+      "hold_reasons": {
+        "OUTSIDE_SESSION": 60,
+        "NO_SIGNAL": 29
+      },
+      "closed_trades": 1,
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "background_survived_page_reload": true,
+      "export_verified": true
+    }
+  ],
+  "errors": []
+}

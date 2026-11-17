@@ -660,3 +660,16 @@ Save, inspect, freeze, revise and export candidates for EURUSD/USDJPY. Proposed 
 percentages do not alter account mandates. A freeze preserves content for research;
 it does not qualify execution. AI generation and candidate-bound backtest execution
 are not connected to this form yet. The UI states these limits explicitly.
+
+### Choose a historical study
+
+On Backtest, choose **Tested symbol** first, then the matching dataset. The
+`three-full-days` datasets contain January 21–23, 2025, with pre-start H1/M15
+warm-up bars. Each training/validation/holdout choice runs one complete 24-hour
+window. The older pilot datasets remain available for quick software checks.
+
+After **Run backtest**, Results shows background status; you can leave the page
+or reload without starting another run. Completed results show the tested pair,
+UTC window, duration, evaluation counts and reasons for holding. A zero-trade
+result is evidence of what those rules did on that window, not a profitability
+assessment. All datasets retain their source/cost/calendar qualification caveats.

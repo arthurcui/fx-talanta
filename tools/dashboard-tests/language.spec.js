@@ -395,6 +395,15 @@ test("guided pages retain context, isolate results and support history and direc
     page.locator("#research-results article:visible"),
   ).not.toHaveCount(0);
   await expect(page.locator("#research-workflow")).toBeHidden();
+  await expect(page.locator("#research-results article:visible")).toContainText(
+    "Tested symbol: EURUSD",
+  );
+  await expect(page.locator("#research-results article:visible")).toContainText(
+    "Strategy evaluations:",
+  );
+  await expect(page.locator("#research-results article:visible")).toContainText(
+    "hours",
+  );
   await page.reload();
   await expect(
     page.locator("#research-results article:visible"),

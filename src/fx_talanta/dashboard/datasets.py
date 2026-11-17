@@ -6,6 +6,7 @@ from pathlib import Path
 
 from pydantic import Field
 
+from fx_talanta.dashboard.indexed_research import IndexedBundle, describe
 from fx_talanta.domain.models import FrozenModel
 from fx_talanta.research.replay import Dataset, Experiment
 
@@ -19,18 +20,25 @@ class Bundle(FrozenModel):
 
 class DatasetCatalog:
     def __init__(self, directory=None):
+        self.directory = directory
         self.entries = {}
         self.metadata = []
         if directory is None:
             return
         root = Path(directory).resolve(strict=True)
-        paths = sorted(root.glob("*-bundle.json"))
+        paths = sorted([*root.glob("*-index.json"), *root.glob("*-bundle.json")])
         if len(paths) > 8:
             raise ValueError("catalog supports at most eight bounded bundles")
         for path in paths:
             if path.is_symlink() or path.resolve().parent != root:
                 raise ValueError("catalog files must remain in configured directory")
             raw = self._read(path)
+            if path.name.endswith("-index.json"):
+                bundle = IndexedBundle.model_validate_json(raw)
+                key = hashlib.sha256(raw).hexdigest()
+                self.entries[key] = path
+                self.metadata.append(describe(root, bundle, key))
+                continue
             bundle = Bundle.model_validate_json(raw)
             d, e = bundle.dataset, bundle.experiment
             if len(d.bars) > 2000 or len(d.events) > 5000:
@@ -81,4 +89,6 @@ class DatasetCatalog:
         raw = self._read(path)
         if hashlib.sha256(raw).hexdigest() != key:
             raise ValueError("dataset changed; reload configured catalog before registering")
-        return Bundle.model_validate_json(raw)
+        return (IndexedBundle if path.name.endswith("-index.json") else Bundle).model_validate_json(
+            raw
+        )

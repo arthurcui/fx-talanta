@@ -1,11 +1,12 @@
 """Candidate-bound offline research; model proposals never grant execution authority."""
 
 import json
+import threading
 from decimal import Decimal
 from pathlib import Path
 from uuid import UUID
 
-from pydantic import Field, ValidationError
+from pydantic import Field, ValidationError, model_validator
 
 from fx_talanta.advisor.provider import MODEL
 from fx_talanta.dashboard.strategies import Specification, canonical
@@ -36,11 +37,33 @@ class Registration(FrozenModel):
     candidate_sha256: Hash
     rules: Rules
     reviewed_mapping: bool
-    dataset: Dataset
+    dataset: Dataset | None = None
+    indexed: bool = False
     experiment: Experiment
     minimum_closed_trades: int = Field(ge=1, le=10000, strict=True)
     maximum_drawdown_fraction: Decimal = Field(gt=0, le=1)
     engine_sha256: Hash | None = None
+
+    @model_validator(mode="after")
+    def source(self):
+        if self.indexed == (self.dataset is not None):
+            raise ValueError("exactly one bounded dataset or pinned index required")
+        if self.indexed and self.dataset_catalog_sha256 is None:
+            raise ValueError("index requires pinned catalog")
+        return self
+
+
+def indexed_engine_hash():
+    from fx_talanta.research.session_study import engine_hash as session_hash
+
+    module = Path(__file__).with_name("indexed_research.py")
+    return digest(
+        dict(
+            candidate=engine_hash(),
+            session=session_hash(),
+            adapter=module.read_text(encoding="utf-8-sig"),
+        )
+    )
 
 
 def engine_hash():
@@ -115,11 +138,14 @@ class Research:
         from fx_talanta.dashboard.datasets import DatasetCatalog
 
         self.catalog = DatasetCatalog(dataset_directory)
+        self.active_runs = set()
         self.app, self.repo, self.transport = app, app.repo, transport
         with self.repo.lock, self.repo.conn:
             self.repo.conn.executescript("""
                 CREATE TABLE IF NOT EXISTS research_items
                 (id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS research_runs
+                (id TEXT PRIMARY KEY, request TEXT NOT NULL, result TEXT);
                 CREATE TABLE IF NOT EXISTS research_jobs
                 (id TEXT PRIMARY KEY, input TEXT NOT NULL, result TEXT);
                 CREATE TRIGGER IF NOT EXISTS immutable_research_items_update
@@ -142,7 +168,15 @@ class Research:
                 "SELECT id,kind,payload FROM research_items ORDER BY rowid DESC LIMIT 20"
             ).fetchall()
             jobs = self.repo.conn.execute("SELECT id,result FROM research_jobs").fetchall()
+        with self.repo.lock:
+            runs = [
+                r[0]
+                for r in self.repo.conn.execute(
+                    "SELECT id FROM research_runs ORDER BY rowid DESC LIMIT 10"
+                )
+            ]
         return dict(
+            runs=[self.run_status(key) for key in runs],
             datasets=self.catalog.metadata,
             execution_enabled=False,
             ai_enabled=self.transport is not None,
@@ -165,11 +199,18 @@ class Research:
         value.pop("journal", None)
         result = value.get("result")
         if result:
+            from fx_talanta.dashboard.indexed_research import diagnostics
+
+            result["diagnostics"] = diagnostics(result)
             result.pop("decisions", None)
             samples = result["equity_samples"]
             step = max(1, len(samples) // 300)
             result["equity_samples"] = samples[::step]
-            result["chart_note"] = "Display samples reduced; export contains exact observations"
+            result["chart_note"] = (
+                "Display samples reduced; exact audit streams retained locally with exported hashes"
+                if result.get("audit_streams")
+                else "Display samples reduced; export contains exact observations"
+            )
         return value
 
     def item(self, key):
@@ -288,7 +329,17 @@ class Research:
         }
         experiment = bundle.experiment.model_dump(mode="json")
         experiment["policy"].update({k: str(v) for k, v in updates.items()})
-        prepared = bundle.model_dump(mode="json")
+        from fx_talanta.dashboard.indexed_research import IndexedBundle
+
+        prepared = (
+            dict(
+                indexed=True,
+                minimum_closed_trades=bundle.minimum_closed_trades,
+                maximum_drawdown_fraction=bundle.maximum_drawdown_fraction,
+            )
+            if isinstance(bundle, IndexedBundle)
+            else bundle.model_dump(mode="json")
+        )
         prepared["experiment"] = experiment
         return self.register(
             dict(
@@ -305,9 +356,12 @@ class Research:
         plan = Registration.model_validate(data)
         if plan.dataset_catalog_sha256 is not None and not catalog_selection:
             raise ValueError("catalog provenance requires server dataset selection")
-        if plan.engine_sha256 not in (None, engine_hash()):
+        expected_engine = indexed_engine_hash() if plan.indexed else engine_hash()
+        if plan.indexed and not catalog_selection:
+            raise ValueError("indexed inputs require server catalog selection")
+        if plan.engine_sha256 not in (None, expected_engine):
             raise ValueError("engine changed; review a new registration")
-        plan = plan.model_copy(update={"engine_sha256": engine_hash()})
+        plan = plan.model_copy(update={"engine_sha256": expected_engine})
         if not plan.reviewed_mapping:
             raise ValueError("review executable mapping first")
         with self.repo.lock:
@@ -323,11 +377,37 @@ class Research:
             if actual > Decimal(spec[field]) / 100:
                 raise ValueError("experiment exceeds candidate percentage limits")
         # Bound CPU/memory for synchronous local research; larger studies use the CLI.
-        if len(plan.dataset.bars) > 2000 or len(plan.dataset.events) > 5000:
+        if plan.dataset is not None and (
+            len(plan.dataset.bars) > 2000 or len(plan.dataset.events) > 5000
+        ):
             raise ValueError("interactive study exceeds bounded size")
         return self.retain("REGISTRATION", plan.model_dump(mode="json"))
 
+    def run_status(self, key):
+        with self.repo.lock:
+            row = self.repo.conn.execute(
+                "SELECT request,result FROM research_runs WHERE id=?", (key,)
+            ).fetchone()
+            if not row:
+                raise ValueError("unknown research run")
+            request, result = row
+            if result:
+                outcome = json.loads(result)
+                if outcome.get("kind") == "BACKTEST":
+                    outcome["payload"] = self.summary(outcome["payload"])
+                return dict(
+                    id=key, status="COMPLETED", request=json.loads(request), outcome=outcome
+                )
+            return dict(
+                id=key,
+                status="RUNNING" if key in self.active_runs else "INTERRUPTED_NO_RESEND",
+                request=json.loads(request),
+            )
+
     def execute(self, data):
+        return self._execute(data)
+
+    def _execute(self, data, worker=False):
         if set(data) != {"registration_id", "partition"} or data["partition"] not in {
             "training",
             "validation",
@@ -342,9 +422,37 @@ class Research:
         if not row:
             raise ValueError("unknown registration")
         plan = Registration.model_validate_json(row[0])
-        if plan.engine_sha256 != engine_hash():
+        if plan.engine_sha256 != (indexed_engine_hash() if plan.indexed else engine_hash()):
             raise ValueError("registered engine changed; original evidence preserved")
         key = digest(data)
+        if plan.indexed and not worker:
+            with self.repo.lock, self.repo.conn:
+                existing = self.repo.conn.execute(
+                    "SELECT id FROM research_runs WHERE id=?", (key,)
+                ).fetchone()
+                if existing:
+                    return dict(kind="BACKGROUND_RUN", **self.run_status(key))
+                if self.active_runs:
+                    raise ValueError("another historical replay is running; wait for its outcome")
+                self.repo.conn.execute(
+                    "INSERT INTO research_runs VALUES (?,?,NULL)", (key, canonical(data))
+                )
+                self.active_runs.add(key)
+
+            def work():
+                try:
+                    outcome = self._execute(data, worker=True)
+                except Exception as error:
+                    outcome = dict(status="FAILED_NO_RESEND", error_type=type(error).__name__)
+                with self.repo.lock, self.repo.conn:
+                    self.repo.conn.execute(
+                        "UPDATE research_runs SET result=? WHERE id=? AND result IS NULL",
+                        (canonical(outcome), key),
+                    )
+                    self.active_runs.discard(key)
+
+            threading.Thread(target=work, daemon=True).start()
+            return dict(kind="BACKGROUND_RUN", **self.run_status(key))
         with self.repo.lock, self.repo.conn:
             old = self.repo.conn.execute(
                 "SELECT payload FROM research_items WHERE id=?", (key,)
@@ -363,20 +471,25 @@ class Research:
             self.repo.conn.execute(
                 "INSERT INTO research_items VALUES (?,?,?)", (key, "EXPOSURE", canonical(exposure))
             )
-        result, journal = run(
-            plan.dataset,
-            plan.experiment,
-            data["partition"],
-            signal=plan.rules.evaluate,
-            strategy_version="candidate/"
-            + digest(
-                dict(
-                    candidate=plan.candidate_sha256,
-                    rules=plan.rules.model_dump(mode="json"),
-                    engine=plan.engine_sha256,
-                )
-            ),
-        )
+        if plan.indexed:
+            from fx_talanta.dashboard.indexed_research import replay
+
+            result, journal = replay(self, plan, data["partition"], key)
+        else:
+            result, journal = run(
+                plan.dataset,
+                plan.experiment,
+                data["partition"],
+                signal=plan.rules.evaluate,
+                strategy_version="candidate/"
+                + digest(
+                    dict(
+                        candidate=plan.candidate_sha256,
+                        rules=plan.rules.model_dump(mode="json"),
+                        engine=plan.engine_sha256,
+                    )
+                ),
+            )
         metrics = result["metrics"]
         inadequate = (
             metrics["closed_trades"] < plan.minimum_closed_trades or not result["fully_settled"]
@@ -398,7 +511,11 @@ class Research:
                 **data,
                 candidate_sha256=plan.candidate_sha256,
                 rules=plan.rules.model_dump(mode="json"),
-                dataset_sha256=digest(plan.dataset.model_dump(mode="json")),
+                dataset_sha256=(
+                    self.catalog.read(plan.dataset_catalog_sha256).index_sha256
+                    if plan.indexed
+                    else digest(plan.dataset.model_dump(mode="json"))
+                ),
                 result=result,
                 journal=journal,
                 verdict=verdict,

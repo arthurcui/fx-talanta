@@ -186,6 +186,8 @@ def test_http_auth_origin_paths_body_limits_and_no_order_routes(app):
         ):
             assert request("GET", path)[0] == 403
             assert request("GET", path, headers=auth)[0] == 200
+        assert request("GET", "/api/research/run/unknown")[0] == 403
+        assert request("GET", "/api/research/run/unknown", headers=auth)[0] == 404
         assert request("GET", "/api/research/item/unknown")[0] == 403
         assert request("GET", "/api/research/item/unknown", headers=auth)[0] == 404
         assert request("GET", "/api/incidents?before=no", headers=auth)[0] == 400

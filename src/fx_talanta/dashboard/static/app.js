@@ -1088,6 +1088,7 @@ function saveResearchContext(registration) {
     draft: strategySpec(),
     brief: $("research-brief").value,
     rules: $("research-rules").value,
+    symbol: $("research-symbol").value,
     dataset: $("research-dataset").value,
     proposal: $("research-rule-proposal").value,
     partition: $("research-partition").value,
@@ -1158,7 +1159,8 @@ function selectStrategy(record, carry = false) {
     researchContext = readResearchContext(record.sha256);
     $("research-rules").value = researchContext.rules || "";
     $("research-registration").value = researchContext.registration || "";
-    $("research-dataset").value = researchContext.dataset || "";
+    $("research-symbol").value = researchContext.symbol || "EURUSD";
+    populateDatasets(researchContext.dataset || "");
     const matchingProposal = researchProposals.find((p) =>
       record.specification.provenance.includes(p.id),
     );
@@ -1402,6 +1404,36 @@ function parseResearchJSON(text, label) {
     throw new ResearchInputError(label + " must be a JSON object.");
   return value;
 }
+function populateDatasets(choice) {
+  const datasets = researchDatasets.filter(
+    (x) => x.symbol === $("research-symbol").value,
+  );
+  $("research-dataset").replaceChildren(
+    new Option("Select an available dataset", ""),
+    ...datasets.map(
+      (x) =>
+        new Option(
+          x.symbol +
+            " · " +
+            x.start.slice(0, 10) +
+            " → " +
+            x.end.slice(0, 10) +
+            " · " +
+            x.name,
+          x.id,
+        ),
+    ),
+  );
+  $("research-dataset").value = datasets.some((x) => x.id === choice)
+    ? choice
+    : "";
+  showDataset();
+}
+$("research-symbol").addEventListener("change", () => {
+  populateDatasets("");
+  $("research-reviewed").checked = false;
+  saveResearchContext();
+});
 function showDataset() {
   const selected = researchDatasets.find(
     (x) => x.id === $("research-dataset").value,
@@ -1414,6 +1446,29 @@ function showDataset() {
       : "No datasets configured. Advanced import is available.";
   if (!selected) return;
   const details = $("research-dataset-details");
+  const hours = (new Date(selected.end) - new Date(selected.start)) / 3600000;
+  $("research-dataset-status").textContent =
+    selected.symbol +
+    " · " +
+    hours.toFixed(1) +
+    " hours total · " +
+    (selected.timeframes || ["H1", "M15"]).join(" / ") +
+    " · " +
+    selected.qualification +
+    (selected.replay_mode
+      ? " · Full ticks, background replay"
+      : " · Short software-check slice");
+  if (selected.warmup_bars)
+    details.append(
+      node(
+        "p",
+        "Pre-start warm-up: " +
+          selected.warmup_bars.H1 +
+          " H1 bars / " +
+          selected.warmup_bars.M15 +
+          " M15 bars",
+      ),
+    );
   [
     selected.source,
     selected.provenance +
@@ -1464,23 +1519,35 @@ async function refreshResearch() {
     $("research-rule-proposal").value = researchProposals[0].id;
   $("research-load-rules").disabled = !researchProposals.length;
   researchDatasets = data.datasets || [];
-  const datasetChoice = $("research-dataset").value;
-  $("research-dataset").replaceChildren(
-    new Option("Select an available dataset", ""),
-    ...researchDatasets.map(
-      (x) =>
-        new Option(
-          x.symbol + " · " + x.start.slice(0, 10) + " · " + x.name,
-          x.id,
-        ),
-    ),
+  populateDatasets($("research-dataset").value);
+  const registeredForCandidate = new Set(
+    data.items
+      .filter(
+        (x) =>
+          x.kind === "REGISTRATION" &&
+          x.payload.candidate_sha256 ===
+            (selectedStrategy?.sha256 || rememberedCandidate()),
+      )
+      .map((x) => x.id),
   );
-  $("research-dataset").value = researchDatasets.some(
-    (x) => x.id === datasetChoice,
-  )
-    ? datasetChoice
-    : "";
-  showDataset();
+  $("research-runs").replaceChildren(
+    ...(data.runs || [])
+      .filter((r) => registeredForCandidate.has(r.request.registration_id))
+      .map((r) =>
+        node(
+          "p",
+          "Historical replay · " +
+            r.request.partition +
+            " · " +
+            (r.status === "COMPLETED"
+              ? r.outcome.payload?.verdict || r.outcome.status
+              : r.status) +
+            (r.status === "RUNNING"
+              ? " · Processing every tick in the background. You can leave this page and return."
+              : ""),
+        ),
+      ),
+  );
   $("research-generate").disabled = !data.ai_enabled;
   $("research-provider-status").textContent = data.ai_enabled
     ? "OpenAI configured: lifetime ceiling 10 requests; uncertain calls are not resent."
@@ -1551,6 +1618,79 @@ async function refreshResearch() {
         if (item.kind === "BACKTEST") {
           const p = item.payload,
             r = p.result;
+          const d = r.diagnostics;
+          if (d) {
+            box.append(node("h3", "Tested symbol: " + d.symbol));
+            box.append(
+              node(
+                "p",
+                p.partition +
+                  " · " +
+                  (d.duration_seconds / 3600).toFixed(2) +
+                  " hours · " +
+                  d.start +
+                  " → " +
+                  d.end,
+              ),
+            );
+            box.append(
+              node(
+                "p",
+                "Strategy evaluations: " +
+                  d.evaluations +
+                  " · Candidate signals: " +
+                  (d.actions.CANDIDATE || 0) +
+                  " · Closed trades: " +
+                  d.closed_trades,
+              ),
+            );
+            if (d.closed_trades === 0) {
+              box.append(node("h4", "Why no closed trades?"));
+              box.append(
+                node(
+                  "p",
+                  d.open_positions
+                    ? "Positions remain open at the end of this window; this is not a completed-trade result."
+                    : d.evaluations === 0
+                      ? "No completed bar evaluations occurred in this window."
+                      : !d.actions.CANDIDATE
+                        ? "No evaluated setup met all entry conditions. Recorded reasons:"
+                        : "Signals occurred, but no position completed a round trip. Inspect decision and entry outcomes below.",
+                ),
+              );
+            }
+            const reasons = node("ul");
+            const explanation = {
+              NO_SIGNAL: "Trend and breakout/pullback conditions did not align",
+              INDICATOR_WARMUP: "Not enough completed bars for the indicators",
+              OUTSIDE_SESSION: "Outside the strategy's UTC trading session",
+              SIGNAL_EXPIRED_OR_HISTORY_STALE:
+                "Signal expired or hourly history was stale",
+              DATASET_COMPLETENESS_UNVERIFIED:
+                "Historical input completeness was not assumed",
+              POSITION_ALREADY_OPEN: "A position was already open",
+            };
+            for (const [reason, count] of Object.entries(d.hold_reasons))
+              reasons.append(
+                node(
+                  "li",
+                  (explanation[reason] || reason) +
+                    " — " +
+                    count +
+                    " (" +
+                    reason +
+                    ")",
+                ),
+              );
+            box.append(reasons);
+            if (d.duration_seconds < 86400)
+              box.append(
+                node(
+                  "p",
+                  "Short research window: this alone cannot establish strategy performance.",
+                ),
+              );
+          }
           box.append(
             node(
               "p",
@@ -1558,11 +1698,14 @@ async function refreshResearch() {
                 " · " +
                 p.verdict +
                 " · Net P&L " +
-                r.net_realized_pnl +
+                Number(r.net_realized_pnl).toFixed(2) +
                 " · Closed trades " +
                 r.metrics.closed_trades +
                 " · Max observed drawdown " +
-                r.metrics.maximum_observed_drawdown_fraction,
+                (
+                  Number(r.metrics.maximum_observed_drawdown_fraction) * 100
+                ).toFixed(4) +
+                "%",
             ),
           );
           box.append(node("p", p.limitations.join("; ")));
@@ -1598,6 +1741,7 @@ async function refreshResearch() {
               "pre",
               JSON.stringify(
                 {
+                  diagnostics: r.diagnostics,
                   deals: r.deals,
                   fill_costs: r.fill_costs,
                   financing: r.financing,
@@ -1745,9 +1889,13 @@ $("research-start").onclick = () =>
       partition: $("research-partition").value,
     });
     $("research-message").textContent =
-      result.kind === "BACKTEST"
-        ? "Backtest retained: " + result.payload.verdict
-        : "Previously exposed run; inspect retained result. No silent rerun.";
+      result.kind === "BACKGROUND_RUN"
+        ? "Historical replay accepted: " +
+          result.status +
+          ". Progress and results appear here; no need to submit again."
+        : result.kind === "BACKTEST"
+          ? "Backtest retained: " + result.payload.verdict
+          : "Previously exposed run; inspect retained result. No silent rerun.";
     window.fxPages.navigate("/strategies/results");
   });
 $("research-run").onclick = () =>
@@ -1762,9 +1910,13 @@ $("research-run").onclick = () =>
       partition: $("research-partition").value,
     });
     $("research-message").textContent =
-      result.kind === "BACKTEST"
-        ? "Backtest retained: " + result.payload.verdict
-        : "Previously exposed run; inspect retained result. No silent rerun.";
+      result.kind === "BACKGROUND_RUN"
+        ? "Historical replay accepted: " +
+          result.status +
+          ". Progress and results appear here; no need to submit again."
+        : result.kind === "BACKTEST"
+          ? "Backtest retained: " + result.payload.verdict
+          : "Previously exposed run; inspect retained result. No silent rerun.";
     saveResearchContext();
     window.fxPages.navigate("/strategies/results");
   });

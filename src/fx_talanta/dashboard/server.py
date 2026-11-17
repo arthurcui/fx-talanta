@@ -294,6 +294,11 @@ def make_server(
                 return self.reply(200, result)
             if not self.allowed(private=self.path.startswith("/api/")):
                 return self.reply(403, {"error": "Access denied or session expired"})
+            if self.path.startswith("/api/research/run/"):
+                try:
+                    return self.reply(200, app.research.run_status(self.path.rsplit("/", 1)[1]))
+                except ValueError:
+                    return self.reply(404, {"error": "Unknown research run"})
             if self.path.startswith("/api/research/item/"):
                 try:
                     return self.reply(200, app.research.item(self.path.rsplit("/", 1)[1]))
