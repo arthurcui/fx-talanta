@@ -1,0 +1,136 @@
+{
+  "schema": "full-history-study-attempt/1",
+  "date": "2026-11-17",
+  "engine_commit": "e7d97353e687ad62cdf7b8eea37fc34a2af83684",
+  "agent_run_id": "f4b823e619efeb1cadc3449528774f47f339b4173c27164375fcab70a1b081d6",
+  "candidate_sha256": "8ce7a0108e5fcbbd0284b4aa987369e82d4c94657eee885517a15eb7ddd9388e",
+  "requested": {
+    "symbols": [
+      "EURUSD",
+      "USDJPY"
+    ],
+    "sessions_per_symbol": 126,
+    "start": "2026-05-24T00:00:00+00:00",
+    "end": "2026-11-17T00:00:00+00:00"
+  },
+  "status": "FAILED_NO_RESEND",
+  "completed_backtests": 0,
+  "eurusd_preparation": {
+    "symbol": "EURUSD",
+    "index_sha256": "16bfee856c1b2c52c913da3e925422569006c2c95878de2b2bcc5069b0cffd49",
+    "rows": 8868381,
+    "sources": [
+      {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202605",
+        "bytes": 9055562,
+        "sha256": "e07d491a3401e678bc9de37632a915d82fe57a82213f17cf7016303e68f30ac4",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/5"
+      },
+      {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202606",
+        "bytes": 8718488,
+        "sha256": "5aab06309fe390d711a2b547258228b7c12fa0c5151a931ff3701a1792cab79d",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/6"
+      },
+      {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202607",
+        "bytes": 5573051,
+        "sha256": "ba434e57730d953d2d434ed606cdd6f98d313aa58c50f80af8f52da00de3592d",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/7"
+      },
+      {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202608",
+        "bytes": 4325257,
+        "sha256": "09f1c164d36433e4a73958d0dcf153f9654488122ac397e2350f6c48b9df7b7a",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/8"
+      },
+      {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202609",
+        "bytes": 5485151,
+        "sha256": "8e78067d18012478815e9beff3a2c3caa68782b3416cc623113a629ce97045df",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/9"
+      },
+      {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202610",
+        "bytes": 7033165,
+        "sha256": "27c2a6612ac230086ccbc40fe8127db036f93eed0831f84559463c63aa8268f0",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/10"
+      },
+      {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202611",
+        "bytes": 3543038,
+        "sha256": "e917737a27cdc963bc767a4cc3d14ab9d5ec59520349b93a2364921eaea4b608",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/11"
+      }
+    ],
+    "start": "2026-05-24T00:00:00+00:00",
+    "end": "2026-11-17T00:00:00+00:00",
+    "observed_days": 150,
+    "gaps_over_one_hour": 25,
+    "end_lag_seconds": 266401.0,
+    "timestamp_order": "STABLE_SORT_WITH_SOURCE_ORDER_RETAINED",
+    "missing_weekdays": [
+      "2026-11-16"
+    ],
+    "first_ms": 1778450404966,
+    "last_ms": 1794607199000,
+    "qualification": "UNQUALIFIED_RESEARCH_ONLY",
+    "calendar_news": "NOT_ACQUIRED",
+    "broker_costs": "UNCALIBRATED"
+  },
+  "eurusd_replay": {
+    "status": "FAILED_NO_RESEND",
+    "training_ticks_available": 4361547,
+    "last_progress_ticks": 1925000,
+    "journal_rows_retained": 1949132,
+    "journal_raw_bytes": 8589933369,
+    "raw_byte_limit": 8589934592,
+    "maximum_record_bytes": 6371,
+    "cause": "AUDIT_RAW_SIZE_BOUND",
+    "compressed_journal_bytes": 360857992,
+    "compressed_journal_sha256": "08bddf5e4f6b8ad769558f7eed937d165dd4b72f28380595ff1cdf3f381c987a",
+    "equity_bytes": 9761007,
+    "equity_sha256": "fd1ba208af215fb1cbdd9d700b52d8add5d25f55819423003c09a8a6e9b58859",
+    "first_integrity_halt_at": "2026-05-27T13:30:31.937000+00:00",
+    "first_integrity_halt_row": 111073,
+    "halt_trigger": "NOT_YET_PROVEN",
+    "last_journal_at": "2026-07-07T06:41:58.250000+00:00"
+  },
+  "usdjpy_status": "NOT_STARTED_BECAUSE_PRECEDING_SYMBOL_FAILED",
+  "ui": {
+    "terminal_status_visible": true,
+    "export_matches_saved_result": true,
+    "reload_passed": true,
+    "page_errors": []
+  },
+  "execution_enabled": false,
+  "qualified_for_paper": false,
+  "validation_or_holdout_opened": false,
+  "pr_merged": false,
+  "limitations": [
+    "No completed full-period or per-symbol performance verdict",
+    "EURUSD missing source weekday 2026-11-16",
+    "Earlier integrity halt requires independent diagnosis; not assumed a quote or broker defect",
+    "Source, costs, calendar/news and independent holdout remain unqualified"
+  ],
+  "follow_up": [
+    "Segment replay audit storage with explicit bounded capacity and independently readable receipts",
+    "Persist a safe specific failure code instead of only the exception class",
+    "Diagnose the first integrity halt before any corrected study",
+    "Preserve this failed exposure; a corrected study needs its own engine/plan identity"
+  ]
+}

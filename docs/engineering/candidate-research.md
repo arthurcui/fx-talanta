@@ -440,6 +440,29 @@ agent-selected horizon; this acceptance override exists only in the private test
 server, not production code. See
 [actual Docker receipt](../evidence/history-acquisition-docker-20261117.json).
 
-The full six-month study has not been run to completion by this acceptance test.
-The production button can acquire and prepare that plan automatically; a successful
-download alone never changes the strategy's qualification verdict.
+### Full 126-session attempt (November 17)
+
+The actual preview launched the frozen candidate's May 24–November 17 plan for
+EURUSD and USDJPY, targeting 126 weekday sessions per pair. **It did not complete.**
+EURUSD acquisition prepared 8,868,381 ticks including warmup, but the source lacked
+November 16. Training contained 4,361,547 ticks. Replay stopped after the last
+1,925,000-tick progress marker because its retained audit reached the inherited
+8 GiB uncompressed limit (8,589,933,369 bytes retained). This was not a container
+crash or an out-of-memory event. USDJPY was not started by the sequential worker.
+
+The preserved journal also first records an integrity halt on May 27 at
+13:30:31.937 UTC. Its exact trigger is not yet proven; it must not be labeled a
+broker, clock or stale-quote defect. There is no completed performance verdict.
+Validation and holdout remained closed. Trading remained disabled.
+
+The Results page displays `FAILED_NO_RESEND`; actual browser checks verified its
+export, reload and absence of JavaScript errors. The failed exposure, source data
+and compressed journal/equity files remain intact. Temporary CPU/memory allowances
+were restored after the worker stopped. See the
+[full-study failure receipt](../evidence/full-history-study-attempt-20261117.json).
+
+Before a corrected run, the long-study path needs segmented, bounded audit storage
+with independently readable receipts, specific safe failure diagnostics, and a
+diagnosis of that first integrity halt. Do not erase this failed exposure or treat
+it as a completed 126-session study. Any corrected run must have a distinct
+engine/plan identity; acquisition alone never changes qualification.
