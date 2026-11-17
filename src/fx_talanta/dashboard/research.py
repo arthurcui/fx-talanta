@@ -468,7 +468,17 @@ class Research:
                 try:
                     outcome = self._execute(data, worker=True)
                 except Exception as error:
-                    outcome = dict(status="FAILED_NO_RESEND", error_type=type(error).__name__)
+                    message = str(error)
+                    code = (
+                        "AUDIT_DISK_RESERVE"
+                        if message == "audit disk reserve exhausted"
+                        else "AUDIT_CAPACITY"
+                        if "audit" in message and "bound" in message
+                        else "REPLAY_FAILED"
+                    )
+                    outcome = dict(
+                        status="FAILED_NO_RESEND", error_type=type(error).__name__, error_code=code
+                    )
                 with self.repo.lock, self.repo.conn:
                     self.repo.conn.execute(
                         "UPDATE research_runs SET result=? WHERE id=? AND result IS NULL",
@@ -520,7 +530,9 @@ class Research:
             metrics["closed_trades"] < plan.minimum_closed_trades or not result["fully_settled"]
         )
         verdict = (
-            "INSUFFICIENT_EVIDENCE"
+            "REJECT_OR_REVISE"
+            if result.get("integrity_halt")
+            else "INSUFFICIENT_EVIDENCE"
             if inadequate
             else "REJECT_OR_REVISE"
             if (

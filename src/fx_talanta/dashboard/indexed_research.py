@@ -11,7 +11,7 @@ from pydantic import Field, model_validator
 from fx_talanta.domain.models import FrozenModel, Hash
 from fx_talanta.research.replay import Experiment, digest, execute_timeline
 from fx_talanta.research.session_study import TrackedEvents, timeline
-from fx_talanta.research.spool import EquitySpool, Spool, file_hash, rows
+from fx_talanta.research.spool import EquitySpool, SegmentedSpool, Spool, file_hash, rows
 from fx_talanta.research.tick_index import TickIndex, milliseconds
 
 
@@ -144,7 +144,11 @@ def replay(research, plan, partition, key):
             end,
             maximum_ticks=50_000_000 if bundle.acquired_history else 300000,
         )
-        journal = Spool(directory / "journal.jsonl.gz")
+        journal = (
+            SegmentedSpool(directory / "journal.manifest.json")
+            if bundle.acquired_history
+            else Spool(directory / "journal.jsonl.gz")
+        )
         equity = EquitySpool(directory / "equity.jsonl.gz", plan.experiment.policy.capital)
         result, _ = execute_timeline(
             metadata,

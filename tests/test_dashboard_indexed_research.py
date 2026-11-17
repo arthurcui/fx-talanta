@@ -88,6 +88,32 @@ def test_full_index_background_result_and_duplicate_request(indexed):
     assert not payload["execution_enabled"]
 
 
+def test_acquired_index_uses_readable_segmented_audit(indexed):
+    from fx_talanta.research.spool import rows
+
+    app, original, catalog = indexed
+    bundle = IndexedBundle.model_validate_json((catalog / "eurusd-index.json").read_text())
+    path = catalog / "acquired-index.json"
+    path.write_text(bundle.model_copy(update={"acquired_history": True}).model_dump_json())
+    metadata = app.research.catalog.add_prepared(path)
+    reg = app.research.select_dataset(
+        dict(
+            dataset_id=metadata["id"],
+            candidate_sha256=original["payload"]["candidate_sha256"],
+            rules=RULES,
+            reviewed_mapping=True,
+        )
+    )
+    started = app.research.execute(dict(registration_id=reg["id"], partition="training"))
+    result = completed(app, started["id"])["outcome"]["payload"]["result"]
+    receipt = result["audit_streams"]["journal"]
+    manifest = app.state / "research-runs" / started["id"] / receipt["file"]
+    records = list(rows(manifest))
+    assert len(records) == receipt["rows"]
+    assert records[-1]["hash"] == result["journal_tip"]
+    assert result["coverage"]["ticks"] == 3
+
+
 def test_index_mutation_fails_once_and_cannot_be_forged_by_upload(indexed):
     app, reg, catalog = indexed
     with pytest.raises(ValueError, match="catalog"):

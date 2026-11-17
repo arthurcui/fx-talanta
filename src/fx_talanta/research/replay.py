@@ -476,6 +476,9 @@ def execute_timeline(
                 "m1_qualified": False,
                 "economic_acceptance": False,
             }
+            if strategy_version != VERSION:
+                result["integrity_halt"] = gateway.book.integrity_halt
+                result["risk_halt"] = getattr(gateway, "integrity_breach", None)
             if broker_costs:
                 result["cost_model"] = "broker-costs/1"
                 result["cost_qualification"] = experiment.costs.status

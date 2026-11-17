@@ -195,6 +195,9 @@ class ValidationAgent:
             candidate, rules, self.research.catalog.metadata, self.research.app.clock.now()
         )
         value["automatic_acquisition"] = os.environ.get("FX_HISTORY_ACQUISITION") == "histdata"
+        from fx_talanta.dashboard.research import indexed_engine_hash
+
+        value["engine_sha256"] = indexed_engine_hash()
         return self.research.retain("VALIDATION_PLAN", value)
 
     def status(self, key):
@@ -235,6 +238,10 @@ class ValidationAgent:
         if record["kind"] != "VALIDATION_PLAN":
             raise ValueError("expected validation plan")
         plan = record["payload"]
+        from fx_talanta.dashboard.research import indexed_engine_hash
+
+        if plan.get("engine_sha256") != indexed_engine_hash():
+            raise ValueError("research engine changed; review a new plan")
         # Check selected catalog identities now; old plans never silently substitute data.
         for source in plan["datasets"]:
             if source["dataset_id"]:
@@ -376,6 +383,10 @@ class ValidationAgent:
                             raise ValueError("interrupted replay; no resend")
                         outcome = outcome["outcome"]
                     if outcome.get("kind") != "BACKTEST":
+                        progress[-1].update(
+                            status="FAILED", error_code=outcome.get("error_code", "REPLAY_FAILED")
+                        )
+                        self._progress(key, progress)
                         raise ValueError("failed or uncertain replay; no resend")
                     result = outcome["payload"]["result"]
                     decision = assessment(result, phase)
@@ -432,9 +443,24 @@ class ValidationAgent:
         except Exception as error:
             import urllib.error
 
+            for step in progress:
+                if step.get("status") == "RUNNING":
+                    step["status"] = "FAILED"
+            completed_symbols = {step["symbol"] for step in progress}
+            for source in plan["datasets"]:
+                if source["symbol"] not in completed_symbols:
+                    progress.append(
+                        dict(symbol=source["symbol"], status="NOT_STARTED_AFTER_FAILURE")
+                    )
+            self._progress(key, progress)
+
             result = dict(
                 status="FAILED_NO_RESEND",
                 error_type=type(error).__name__,
+                error_code=next(
+                    (p["error_code"] for p in reversed(progress) if "error_code" in p),
+                    "PREPARATION_OR_REPLAY_FAILED",
+                ),
                 execution_enabled=False,
                 qualified_for_paper=False,
                 validation_complete=False,

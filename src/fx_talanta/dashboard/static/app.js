@@ -1620,6 +1620,27 @@ async function refreshResearch() {
           const p = item.payload,
             r = p.result;
           const d = r.diagnostics;
+          if (r.integrity_halt) {
+            box.append(node("h4", "Risk halt — strategy requires revision"));
+            box.append(
+              node(
+                "p",
+                r.risk_halt
+                  ? r.risk_halt.at +
+                      " · " +
+                      r.risk_halt.reason +
+                      " · " +
+                      JSON.stringify(r.risk_halt.limits)
+                  : "Integrity halt recorded; exact cause requires investigation.",
+              ),
+            );
+            box.append(
+              node(
+                "p",
+                "Risk limits were preserved. Entries stayed blocked after the halt; this is not a successful validation.",
+              ),
+            );
+          }
           if (d) {
             box.append(node("h3", "Tested symbol: " + d.symbol));
             box.append(

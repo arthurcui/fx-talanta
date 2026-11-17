@@ -466,3 +466,34 @@ with independently readable receipts, specific safe failure diagnostics, and a
 diagnosis of that first integrity halt. Do not erase this failed exposure or treat
 it as a completed 126-session study. Any corrected run must have a distinct
 engine/plan identity; acquisition alone never changes qualification.
+
+### Long-study remediation
+
+The preserved May 27 checkpoint reproduces an **actual aggregate-risk breach**:
+10.08 of modeled open risk exceeded the 9.99695792198 equity-based limit. A favorable
+price move increased liquidation-to-stop exposure while the stop remained fixed.
+This is not a stale quote or broker defect. The exact checkpoint regression proves
+the original policy still closes the simulated position and keeps HARD_HALT latched.
+No risk limit, quote-age rule or reset behavior was changed. Candidate results now
+include the measured breach and report REJECT_OR_REVISE when an integrity halt
+occurred, even if the trade sample is small. The UI shows the reason and values.
+
+Acquired-history journals use lossless segments (256 MiB raw per segment), a final
+manifest and independent hashes/counts/sequence ranges. Every original record and
+chain hash remains reconstructible; this is not downsampling. Per-study bounds are
+512 segments, 128 GiB raw and 8 GiB compressed, with a 512 MiB free-disk reserve
+checked before each segment. Incomplete streams retain their parts without a success
+manifest. Readers reject changed/missing/reordered parts and receipt mismatches.
+Legacy short-study storage and committed B01 numerical evidence remain unchanged.
+
+Plans now pin the engine hash; a changed engine requires a distinct reviewed plan.
+Audit-capacity/disk failures receive safe specific codes, and subsequent unstarted
+pairs are explicit. A corrected run preserves the prior failed exposure and reuses
+only verified source inputs; it does not acquire trading authority.
+
+Verification before rerun: the original checkpoint closes and remains halted;
+segmented reconstruction crosses the old per-file bound in a bounded fixture and
+detects tampering, interruption and disk exhaustion. Acquired-index replay/export
+uses the new manifest in integration tests. Native suite: 1,381 passed, 145 skipped;
+31 affected tests passed after the final manifest guard/integration test. All 19
+headless browser tests and all 36 B01 numerical-parity cases passed.
