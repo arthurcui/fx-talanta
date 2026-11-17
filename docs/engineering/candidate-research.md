@@ -246,3 +246,16 @@ preview also uses retained model output and an actual historical catalog bundle,
 without mocked HTTP responses or new model calls. Its INSUFFICIENT_EVIDENCE result
 is a workflow verification, not a strategy qualification. See the
 [Docker guided-page receipt](../evidence/docker-guided-pages-20261116.json).
+
+## Local preview restart recovery
+
+A Docker rebuild rotates the local CSRF value. An already-open tab now refreshes
+its local connection on a rejected request without showing sign-in or clearing
+its draft/context. The rejected action is never resent automatically; the UI asks
+the user to review and submit again. Authenticated deployments retain ordinary
+session-expiry behavior and all Host/Origin/CSRF checks remain enforced.
+
+Verified against an actual preview restart with an open background browser:
+no sign-in page, preserved draft across reload, one rejected write with no resend,
+and unchanged saved strategy hashes. See
+[restart receipt](../evidence/docker-local-recovery-20261116.json).

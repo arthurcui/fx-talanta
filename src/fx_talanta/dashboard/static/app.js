@@ -1,6 +1,7 @@
 "use strict";
 let bootstrap = new URLSearchParams(location.hash.slice(1)).get("token") || "";
 let authenticated = false,
+  accessMode = "",
   csrf = "",
   sessionEpoch = 0;
 history.replaceState(null, "", location.pathname + location.search);
@@ -57,8 +58,30 @@ async function api(path, options = {}) {
     response.status === 403 &&
     !path.startsWith("/api/operator/") &&
     path !== "/api/session"
-  )
+  ) {
+    if (accessMode === "LOCAL_WORKSPACE") {
+      // A restarted local server rotates CSRF. Never clear drafts or replay a mutation.
+      try {
+        const session = await api("/api/session");
+        if (!session.authenticated || session.mode !== "LOCAL_WORKSPACE")
+          throw new Error("Access mode changed");
+        csrf = session.csrf || "";
+        $("login").hidden = true;
+        notice(
+          "Local connection refreshed. Your inputs are preserved; the rejected action was not resent.",
+        );
+      } catch (_) {
+        notice(
+          "Local service unavailable or access mode changed. Your inputs are preserved; reload after checking the service.",
+        );
+        throw new Error("Local connection unavailable; no action was resent");
+      }
+      throw new Error(
+        "Local connection refreshed. The rejected action was not resent; review your inputs and submit again",
+      );
+    }
     signedOut();
+  }
   if (!response.ok) throw new Error(data.error || "Inspection unavailable");
   return data;
 }
@@ -516,10 +539,16 @@ async function openSession(data) {
           }
         : {},
     );
+    accessMode = result.mode;
     const local = ["LOCAL_OWNER", "LOCAL_SETUP"].includes(result.mode);
     const setup = result.mode === "LOCAL_SETUP";
     $("login-form").hidden = !local && result.mode !== "OWNER";
-    $("login-title").textContent = setup ? "Set up your workspace" : "Sign in";
+    $("login-title").textContent =
+      result.mode === "LOCAL_WORKSPACE"
+        ? "Local connection"
+        : setup
+          ? "Set up your workspace"
+          : "Sign in";
     $("login-submit").textContent = setup ? "Create account" : "Sign in";
     $("password").minLength = setup ? 16 : 1;
     $("password").autocomplete = setup ? "new-password" : "current-password";
@@ -527,13 +556,16 @@ async function openSession(data) {
     $("password-confirm").hidden = !setup;
     $("password-confirm").required = setup;
     $("logout-all").hidden = !(local && result.authenticated);
-    $("login-help").textContent = setup
-      ? "Choose a username (email-style names are allowed; no spaces) and a password of at least 16 characters. This account is only for this local workspace."
-      : local
-        ? "Sign in normally. Sessions last up to 30 days, with a 7-day inactivity limit. You can revoke all sessions. Trading remains disabled."
-        : result.mode === "OWNER"
-          ? "Use your configured owner credentials. Trading remains disabled."
-          : "Open your private dashboard launch shortcut. No token needs to be pasted here.";
+    $("login-help").textContent =
+      result.mode === "LOCAL_WORKSPACE"
+        ? "No account or launch shortcut is required. Reload to reconnect to the local service."
+        : setup
+          ? "Choose a username (email-style names are allowed; no spaces) and a password of at least 16 characters. This account is only for this local workspace."
+          : local
+            ? "Sign in normally. Sessions last up to 30 days, with a 7-day inactivity limit. You can revoke all sessions. Trading remains disabled."
+            : result.mode === "OWNER"
+              ? "Use your configured owner credentials. Trading remains disabled."
+              : "Open your private dashboard launch shortcut. No token needs to be pasted here.";
     authenticated = result.authenticated;
     csrf = result.csrf || "";
     $("logout").hidden = !authenticated || result.mode === "LOCAL_WORKSPACE";
@@ -541,7 +573,7 @@ async function openSession(data) {
   } catch (e) {
     if (data && "bootstrap" in data) return openSession(null);
     notice(e.message);
-    $("login").hidden = false;
+    $("login").hidden = accessMode === "LOCAL_WORKSPACE";
   }
 }
 $("login-form").addEventListener("submit", async (e) => {

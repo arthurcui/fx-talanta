@@ -1,0 +1,11 @@
+{
+  "test": "Actual Docker restart with already-open local tab",
+  "mocked_requests": false,
+  "local_recovery": true,
+  "login_not_shown": true,
+  "draft_preserved": true,
+  "rejected_write_not_resent": true,
+  "strategy_record_hashes_unchanged": true,
+  "reload_without_shortcut": true,
+  "trading_enabled": false
+}

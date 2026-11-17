@@ -436,3 +436,52 @@ test("guided pages retain context, isolate results and support history and direc
   await expect(page.locator("h1")).toHaveText("策略");
   expect(errors).toEqual([]);
 });
+
+test("local server restart refreshes CSRF without clearing drafts or resending writes", async ({
+  page,
+}) => {
+  await page.goto(url);
+  await openPage(page, "/strategies/review");
+  await page.locator("#strategy-new").click();
+  const values = {
+    name: "Restart preserved draft",
+    risk_per_trade_pct: "0.10",
+    total_open_risk_pct: "0.20",
+    daily_loss_limit_pct: "0.50",
+  };
+  for (const key of [
+    "hypothesis",
+    "input_policy",
+    "entry_rules",
+    "exit_rules",
+    "portfolio_policy",
+    "evaluation_plan",
+    "provenance",
+  ])
+    values[key] = "Synthetic restart validation only";
+  for (const [key, value] of Object.entries(values))
+    await page.locator("#strategy-" + key).fill(value);
+  let saves = 0;
+  page.on("request", (r) => {
+    if (r.url().endsWith("/api/strategies/save")) saves++;
+  });
+  const stopped = new Promise((resolve) => child.once("exit", resolve));
+  child.kill();
+  await stopped;
+  await start(true);
+  await page.locator("#strategy-save").click();
+  await expect(page.locator("#strategy-message")).toContainText(
+    "Local connection refreshed",
+  );
+  await expect(page.locator("#login")).toBeHidden();
+  await expect(page.locator("#strategy-name")).toHaveValue(values.name);
+  expect(saves).toBe(1);
+  await page.locator("#strategy-save").click();
+  await expect(page.locator("#strategy-message")).toContainText(
+    "Saved descriptive",
+  );
+  expect(saves).toBe(2);
+  await page.reload();
+  await expect(page.locator("#login")).toBeHidden();
+  await expect(page.locator("#strategy-name")).toHaveValue(values.name);
+});
