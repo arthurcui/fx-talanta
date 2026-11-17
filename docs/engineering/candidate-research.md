@@ -18,16 +18,14 @@ preview has been updated to PR #65 with [direct local workspace access](../guide
 4. Supply the supported executable-rule JSON and explicitly confirm the reviewed
    mapping. Differences from the prose must be treated as research assumptions;
    the application cannot prove that a human review was correct.
-5. Select an available historical dataset in step 3. Inspect its source, exact
-   chronological windows, qualification caveats and cost/risk assumptions. No file
-   chooser is required. The server caps the selected policy to the frozen candidate
-   limits, preserving the lower existing risk settings. Advanced import remains
-   available for a custom JSON bundle containing `dataset`, `experiment`,
-   `minimum_closed_trades` and `maximum_drawdown_fraction`.
-6. Register before execution; choose a partition and run. Inspect verdict, net P&L,
-   trade count, observed drawdown, equity chart, deals and costs. Export the exact
-   evidence, including registration, candidate hash and simulator journal. Display
-   charts are reduced samples; exports retain all observations.
+5. Choose **Preview agent plan** to see the strategy-selected period and available
+   data. **Run agent research** checks adequacy, selects both pairs' catalog inputs
+   and drives the permitted stages. You do not need to choose dates or files.
+   Inadequate inputs allow labeled exploratory training only, not full validation.
+6. Inspect Results for each stage, data requirements, net P&L, trade count, drawdown,
+   equity and recorded HOLD reasons. Export the agent report and underlying research
+   evidence. Advanced controls retain manual dataset/partition selection and custom
+   bundle import; all registrations cap risk to the lower frozen candidate limits.
 
 For a runnable **synthetic** upload (not historical evidence):
 
@@ -317,3 +315,68 @@ browser export passed. The earlier 11-minute zero-trade result now explicitly
 shows USD/JPY, one evaluation and NO_SIGNAL without changing its retained record.
 See [actual full-history receipt](../evidence/docker-full-history-20261116.json)
 and [catalog/source receipt](../evidence/historical-catalog-20261116.json).
+
+## Agent-selected periods and staged validation
+
+The default Backtest page now asks the owner to review executable rules and select
+**Run agent research**. The agent chooses both pairs' catalog inputs and stages;
+manual dataset/partition selection remains under Advanced. Preview agent plan
+explains the requested dates, warmup, available dates, age, coverage gaps and why a
+stage is blocked. Results retain progress, stage decisions and a downloadable
+agent report. A reload observes the same job rather than creating another one.
+
+`dashboard/validation_agent.py` implements versioned policy `strategy-validation/1`.
+The model authors the strategy; a deterministic strategy-aware planner chooses the
+research period before looking at outcomes. It does not ask a model to guess dates
+or search for a profitable window. The initial planning heuristic uses active UTC
+hours, M15 signal lookback and holding bars to request at least 126 weekday sessions,
+or more for slower/narrower-session rules. Targets are 100/50/50 closed trades in
+chronological 60/20/20 development/validation/holdout windows. These are engineering
+planning assumptions, not statistical power guarantees or measured trade frequency.
+Actual observations determine whether a stage has enough evidence.
+
+The requested end is the current UTC day's start. Catalog selection ranks overlap
+with the requested dates, then duration, recency and stable identity, never P&L.
+Checks include H1/M15 warmup, history length, requested-date coverage, source/cost/
+calendar qualification, independent holdout evidence and exact planned window
+bindings. Weekday counts are a preliminary availability estimate, not proof of
+complete market sessions. The current catalog is explicitly unqualified, so it
+cannot pass the full data gate regardless of a profitable exploratory result.
+
+The worker automatically registers the reviewed frozen strategy and runs available
+training partitions for each pair. With inadequate data those are explicitly
+EXPLORATORY_ONLY: the existing catalog windows are used and disclosed, not relabeled
+as the requested recent period. Validation and holdout stay closed. With qualified,
+exactly matched windows, the staged coordinator requires sufficient closed trades,
+settled positions, positive net P&L and preserved drawdown/underlying study gates
+before advancing. This staged coordinator is regression-tested with controlled
+outcomes; full qualified-window execution is not demonstrated by today's catalog.
+Walk-forward robustness, stress costs, benchmarks, uncertainty and combined-portfolio
+validation remain R2 requirements. No stage grants PAPER or LIVE authority.
+
+Admission is durable and at-most-once per plan. Changed catalog manifests are refused;
+manual replay cannot compete with an active agent. Interrupted or uncertain work is
+reported without automatic resend. Prior results, exposed holdouts and B01 remain
+unchanged. New history is requested as a data requirement; this change does not
+silently download an unverified substitute or claim external data acquisition.
+
+Owner walkthrough: **Strategies → select frozen strategy → Backtest → Load proposal
+rules for review → review mapping → Preview agent plan → Run agent research → Results**.
+No dates, symbols, datasets or partitions need to be selected on the default path.
+
+Actual Docker acceptance used the owner's existing frozen strategy and retained AI
+rules with no new model calls, mocked responses or manual date/dataset selection.
+The plan requested 126 sessions from May 24 to November 17, 2026 (UTC). The catalog
+has three January 2025 sessions per pair, outside those requested dates. The agent
+ran each available training day: EUR/USD 122,952 ticks, eight candidate signals,
+one closed simulated trade; USD/JPY 167,688 ticks, three candidate signals, one
+closed simulated trade. Both failed the 100-trade training target; final state was
+DATA_REQUIRED, not strategy acceptance. No validation or holdout was opened by this
+agent run. Earlier standalone validation evidence remains unchanged.
+
+Actual UI verification covered plan preview, start, reload while processing, final
+results, report export, container-restart persistence, duplicate-start returning
+the original job and mobile width. A test-receipt script initially expected derived
+diagnostics in the raw immutable item; it was corrected to read the existing summary
+API. The completed studies were not repeated. See
+[Docker agent validation receipt](../evidence/docker-agent-validation-20261116.json).

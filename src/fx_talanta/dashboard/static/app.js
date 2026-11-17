@@ -1501,6 +1501,7 @@ function showDataset() {
 }
 async function refreshResearch() {
   const data = await api("/api/research");
+  renderAgent(data);
   researchProposals = data.items.filter((x) => x.kind === "AI_PROPOSAL");
   const previousProposal = $("research-rule-proposal").value;
   $("research-rule-proposal").replaceChildren(
@@ -1773,6 +1774,8 @@ async function researchAction(button, fn) {
     "research-register",
     "research-run",
     "research-start",
+    "agent-start",
+    "agent-plan-button",
   ].map($);
   researchButtons.forEach((b) => {
     b.disabled = true;
@@ -2009,3 +2012,198 @@ $("strategy-form").addEventListener("input", () => {
     );
 });
 $("research-brief").addEventListener("input", () => saveResearchContext());
+
+function renderAgent(data) {
+  const sha = selectedStrategy?.sha256 || rememberedCandidate();
+  const plan = data.items.find(
+    (x) => x.kind === "VALIDATION_PLAN" && x.payload.candidate_sha256 === sha,
+  )?.payload;
+  const area = $("agent-plan");
+  area.replaceChildren();
+  if (plan) {
+    area.append(
+      node("h4", "Agent-selected research period"),
+      node(
+        "p",
+        plan.requested_start.slice(0, 10) +
+          " → " +
+          plan.requested_end.slice(0, 10) +
+          " · " +
+          plan.required_sessions +
+          " trading sessions requested per pair",
+      ),
+    );
+    area.append(
+      node(
+        "p",
+        "Plan fixed before results. The period is chosen by a strategy-aware policy, not by searching for profitable dates.",
+      ),
+    );
+    const rationale = node("details");
+    rationale.append(node("summary", "Why this period?"));
+    plan.rationale.forEach((r) => rationale.append(node("p", r)));
+    area.append(rationale);
+    const names = {
+      INSUFFICIENT_HISTORY: "Not enough history",
+      REQUESTED_PERIOD_NOT_COVERED: "Recommended recent dates are not covered",
+      WARMUP_NOT_VERIFIED: "Indicator warm-up not verified",
+      SOURCE_COST_CALENDAR_UNQUALIFIED:
+        "Source, costs and calendar/news are not qualified",
+      PLANNED_WINDOWS_NOT_AVAILABLE:
+        "Available dataset windows do not match the planned training, validation and holdout dates",
+      INDEPENDENT_HOLDOUT_UNVERIFIED: "No verified unexposed holdout",
+      NO_DATASET: "No dataset available",
+    };
+    for (const d of plan.datasets) {
+      area.append(
+        node(
+          "h4",
+          d.symbol +
+            " · " +
+            d.available_sessions +
+            " / " +
+            d.required_sessions +
+            " sessions available",
+        ),
+      );
+      if (d.available_start)
+        area.append(
+          node(
+            "p",
+            "Available: " +
+              d.available_start.slice(0, 10) +
+              " → " +
+              d.available_end.slice(0, 10) +
+              " · " +
+              d.age_days +
+              " days old",
+          ),
+        );
+      const gaps = node("ul");
+      d.blockers.forEach((reason) =>
+        gaps.append(node("li", names[reason] || reason)),
+      );
+      area.append(gaps);
+    }
+    area.append(
+      node(
+        "p",
+        plan.full_validation_ready
+          ? "Data gates met. Training must pass before validation and holdout."
+          : "Full validation is blocked by data adequacy. The agent can run available exploratory training checks; it will not open the holdout or authorize trading.",
+      ),
+    );
+  } else
+    area.append(
+      node(
+        "p",
+        "Review the strategy's executable rules, then preview or run its agent-selected plan.",
+      ),
+    );
+  const results = $("agent-validation-results");
+  results.replaceChildren();
+  for (const run of (data.agent_runs || []).filter(
+    (x) => x.candidate_sha256 === sha,
+  )) {
+    const section = node("article");
+    section.append(node("h3", "Research agent · " + run.status));
+    section.append(
+      node(
+        "p",
+        "Requested period: " +
+          run.plan.requested_start.slice(0, 10) +
+          " → " +
+          run.plan.requested_end.slice(0, 10),
+      ),
+    );
+    for (const step of run.progress)
+      section.append(
+        node(
+          "p",
+          step.symbol +
+            " · " +
+            (step.phase || "data check") +
+            " · " +
+            step.status +
+            (step.closed_trades !== undefined
+              ? " · " +
+                step.closed_trades +
+                " / " +
+                step.minimum_closed_trades +
+                " required closed trades · " +
+                step.assessment
+              : ""),
+        ),
+      );
+    if (run.result)
+      section.append(
+        node(
+          "p",
+          run.result.next_action ||
+            "The run failed or was interrupted. No automatic restart is permitted.",
+        ),
+      );
+    section.append(
+      node("p", "Trading disabled. No PAPER or LIVE qualification granted."),
+    );
+    const exportPlan = node("button", "Export agent research report");
+    exportPlan.onclick = async () => {
+      try {
+        const report = await api("/api/research/validation/" + run.id);
+        const url = URL.createObjectURL(
+          new Blob([JSON.stringify(report, null, 2)], {
+            type: "application/json",
+          }),
+        );
+        const link = node("a");
+        link.href = url;
+        link.download = "agent-research-" + run.id + ".json";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (error) {
+        section.append(node("p", "Export unavailable: " + error.message));
+      }
+    };
+    section.append(exportPlan);
+    results.append(section);
+  }
+}
+async function agentPlan() {
+  if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
+    throw new ResearchInputError("Save and freeze your strategy first");
+  if (
+    strategyFields.some(
+      (k) => strategySpec()[k] !== selectedStrategy.specification[k],
+    )
+  )
+    throw new ResearchInputError(
+      "Save and freeze your changed strategy fields first",
+    );
+  return researchPost("plan_validation", {
+    candidate_sha256: selectedStrategy.sha256,
+    rules: parseResearchJSON($("research-rules").value, "Executable rules"),
+  });
+}
+$("agent-plan-button").onclick = () =>
+  researchAction($("agent-plan-button"), async () => {
+    await agentPlan();
+    $("research-message").textContent =
+      "Research period and data adequacy assessed. Review the agent plan below.";
+  });
+$("agent-start").onclick = () =>
+  researchAction($("agent-start"), async () => {
+    if (!$("research-reviewed").checked)
+      throw new ResearchInputError(
+        "Confirm that the executable rules match your frozen strategy first",
+      );
+    const plan = await agentPlan();
+    const run = await researchPost("start_validation", {
+      plan_id: plan.id,
+      reviewed_mapping: true,
+    });
+    $("research-message").textContent =
+      "Research agent: " +
+      run.status +
+      ". The agent chooses datasets and stages; page reload does not start another run.";
+    window.fxPages.navigate("/strategies/results");
+  });

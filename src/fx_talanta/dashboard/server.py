@@ -294,6 +294,13 @@ def make_server(
                 return self.reply(200, result)
             if not self.allowed(private=self.path.startswith("/api/")):
                 return self.reply(403, {"error": "Access denied or session expired"})
+            if self.path.startswith("/api/research/validation/"):
+                try:
+                    return self.reply(
+                        200, app.research.validation_agent.status(self.path.rsplit("/", 1)[1])
+                    )
+                except ValueError:
+                    return self.reply(404, {"error": "Unknown validation run"})
             if self.path.startswith("/api/research/run/"):
                 try:
                     return self.reply(200, app.research.run_status(self.path.rsplit("/", 1)[1]))
@@ -447,6 +454,8 @@ def make_server(
                 "/api/research/register",
                 "/api/research/select_dataset",
                 "/api/research/execute",
+                "/api/research/plan_validation",
+                "/api/research/start_validation",
                 "/api/strategies/save",
                 "/api/strategies/freeze",
                 "/api/notifications/ack",

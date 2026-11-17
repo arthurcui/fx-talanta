@@ -366,6 +366,9 @@ test("guided pages retain context, isolate results and support history and direc
     "Guided route fixture",
   );
   await page.locator("#strategy-continue").click();
+  await page.locator("#research-manual").evaluate((el) => {
+    el.open = true;
+  });
   await expect(page.locator("#candidate-review")).toBeHidden();
   await expect(page.locator("#research-workflow")).toBeVisible();
   await page.locator("#research-rules").fill(
@@ -389,6 +392,9 @@ test("guided pages retain context, isolate results and support history and direc
   await expect(page.locator("#research-candidate")).toHaveValue(candidate);
   await expect(page.locator("#research-reviewed")).not.toBeChecked();
   await page.locator("#research-reviewed").check();
+  await page.locator("#research-manual").evaluate((el) => {
+    el.open = true;
+  });
   await page.locator("#research-start").click();
   await expect(page).toHaveURL(/\/strategies\/results\?candidate=/);
   await expect(
@@ -421,6 +427,9 @@ test("guided pages retain context, isolate results and support history and direc
   );
   await page.locator('#strategy-flow a[href="/strategies/backtest"]').click();
   await page.locator("#research-reviewed").check();
+  await page.locator("#research-manual").evaluate((el) => {
+    el.open = true;
+  });
   await page.locator("#research-start").click();
   await expect(page.locator("#research-message")).toContainText(
     "Save and freeze your changed strategy fields",
@@ -493,4 +502,85 @@ test("local server restart refreshes CSRF without clearing drafts or resending w
   await page.reload();
   await expect(page.locator("#login")).toBeHidden();
   await expect(page.locator("#strategy-name")).toHaveValue(values.name);
+});
+
+test("agent plans and checks data without manual period or dataset selection", async ({
+  page,
+}) => {
+  await page.goto(url);
+  await openPage(page, "/strategies/review");
+  await page.locator("#strategy-new").click();
+  const fields = {
+    name: "Agent workflow fixture",
+    risk_per_trade_pct: "0.10",
+    total_open_risk_pct: "0.20",
+    daily_loss_limit_pct: "0.50",
+  };
+  for (const key of [
+    "hypothesis",
+    "input_policy",
+    "entry_rules",
+    "exit_rules",
+    "portfolio_policy",
+    "evaluation_plan",
+    "provenance",
+  ])
+    fields[key] = "Synthetic agent orchestration test only";
+  for (const [key, value] of Object.entries(fields))
+    await page.locator("#strategy-" + key).fill(value);
+  await page.locator("#strategy-save").click();
+  await expect(page.locator("#strategy-message")).toContainText(
+    "Saved descriptive",
+  );
+  await page.locator("#strategy-freeze").click();
+  await expect(page.locator("#strategy-selection")).toContainText(
+    "FROZEN_FOR_RESEARCH",
+  );
+  await page.locator("#strategy-continue").click();
+  await expect(page.locator("#research-dataset")).toBeHidden();
+  await page.locator("#research-rules").fill(
+    JSON.stringify({
+      family: "TREND_BREAKOUT",
+      trend_period: 50,
+      signal_period: 20,
+      atr_period: 14,
+      stop_atr: "1.5",
+      reward_risk: "2",
+      hold_bars: 16,
+      start_hour_utc: 8,
+      end_hour_utc: 17,
+      calendar_policy: "REQUIRE_MARKET_HEALTH",
+    }),
+  );
+  await page.locator("#agent-plan-button").click();
+  await expect(page.locator("#agent-plan")).toContainText(
+    "126 trading sessions",
+  );
+  await expect(page.locator("#agent-plan")).toContainText(
+    "Full validation is blocked",
+  );
+  await page.locator("#agent-start").click();
+  await expect(page.locator("#research-message")).toContainText(
+    "Confirm that the executable rules",
+  );
+  await page.locator("#research-reviewed").check();
+  await page.locator("#agent-start").click();
+  await expect(page).toHaveURL(/\/strategies\/results\?candidate=/);
+  await expect(page.locator("#agent-validation-results")).toContainText(
+    "DATA_REQUIRED",
+  );
+  await page.reload();
+  await expect(page.locator("#agent-validation-results")).toContainText(
+    "DATA_REQUIRED",
+  );
+  const download = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Export agent research report" })
+    .click();
+  const report = JSON.parse(
+    readFileSync(await (await download).path(), "utf8"),
+  );
+  expect(report.result.execution_enabled).toBe(false);
+  expect(report.result.holdout_opened).toBe(false);
+  expect(report.result.validation_complete).toBe(false);
 });

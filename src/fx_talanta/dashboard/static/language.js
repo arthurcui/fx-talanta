@@ -1,5 +1,18 @@
 // UI labels only: never translate stored evidence, field values, identifiers or JSON.
 const labels = {
+  "Export agent research report": "导出智能体研究报告",
+  "Agent-selected research period": "智能体选择的研究期间",
+  "Why this period?": "为什么选择这个期间？",
+  "Review the rules, then let the agent plan and run the research.":
+    "审阅规则后，让智能体规划并执行研究。",
+  "Agent-led strategy validation": "智能体主导策略验证",
+  "Preview agent plan": "预览研究计划",
+  "Run agent research": "启动智能体研究",
+  "Review rules and start agent research": "审阅规则并启动研究",
+  "Advanced: choose datasets and run individual studies":
+    "高级：手动选择数据及运行研究",
+  "Validate your strategy": "验证策略",
+
   "Tested symbol": "测试货币对",
   "Why no closed trades?": "为什么没有已平仓交易？",
   "Continue current strategy": "继续当前策略",

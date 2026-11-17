@@ -154,6 +154,16 @@ class Research:
                 BEFORE DELETE ON research_items BEGIN SELECT RAISE(ABORT,'immutable research'); END;
             """)
 
+        from fx_talanta.dashboard.validation_agent import ValidationAgent
+
+        self.validation_agent = ValidationAgent(self)
+
+    def plan_validation(self, data):
+        return self.validation_agent.plan(data)
+
+    def start_validation(self, data):
+        return self.validation_agent.start(data)
+
     def retain(self, kind, value):
         key = digest(value)
         with self.repo.lock, self.repo.conn:
@@ -165,7 +175,10 @@ class Research:
     def read(self):
         with self.repo.lock:
             rows = self.repo.conn.execute(
-                "SELECT id,kind,payload FROM research_items ORDER BY rowid DESC LIMIT 20"
+                "SELECT id,kind,payload FROM research_items WHERE rowid IN "
+                "(SELECT rowid FROM research_items ORDER BY rowid DESC LIMIT 20) "
+                "OR rowid IN (SELECT rowid FROM research_items WHERE kind='AI_PROPOSAL' "
+                "ORDER BY rowid DESC LIMIT 10) ORDER BY rowid DESC"
             ).fetchall()
             jobs = self.repo.conn.execute("SELECT id,result FROM research_jobs").fetchall()
         with self.repo.lock:
@@ -176,6 +189,7 @@ class Research:
                 )
             ]
         return dict(
+            agent_runs=self.validation_agent.recent(),
             runs=[self.run_status(key) for key in runs],
             datasets=self.catalog.metadata,
             execution_enabled=False,
@@ -407,7 +421,14 @@ class Research:
     def execute(self, data):
         return self._execute(data)
 
-    def _execute(self, data, worker=False):
+    def _execute(self, data, worker=False, agent_key=None):
+        with self.repo.lock:
+            if (
+                not worker
+                and self.validation_agent.active
+                and agent_key not in self.validation_agent.active
+            ):
+                raise ValueError("agent validation is using the research worker")
         if set(data) != {"registration_id", "partition"} or data["partition"] not in {
             "training",
             "validation",
@@ -427,6 +448,8 @@ class Research:
         key = digest(data)
         if plan.indexed and not worker:
             with self.repo.lock, self.repo.conn:
+                if self.validation_agent.active and agent_key not in self.validation_agent.active:
+                    raise ValueError("agent validation is using the research worker")
                 existing = self.repo.conn.execute(
                     "SELECT id FROM research_runs WHERE id=?", (key,)
                 ).fetchone()

@@ -21,8 +21,8 @@
       "Review the rules and risk limits. Save a revision, then freeze it for research.",
     ],
     "/strategies/backtest": [
-      "Backtest your strategy",
-      "Review executable rules and historical data before running a study.",
+      "Validate your strategy",
+      "Review the rules, then let the agent plan and run the research.",
     ],
     "/strategies/results": [
       "Review backtest results",
@@ -182,6 +182,35 @@
   root.append(document.querySelector("footer"));
   root.prepend(flow);
   flow.append(byId("research-message"));
+  const manualResearch = document.createElement("details");
+  manualResearch.id = "research-manual";
+  manualResearch.innerHTML =
+    "<summary>Advanced: choose datasets and run individual studies</summary>";
+  byId("research-workflow").append(manualResearch);
+  const symbolLabel = byId("research-symbol").closest("label");
+  const symbolNote = symbolLabel.nextElementSibling;
+  manualResearch.append(
+    symbolLabel,
+    symbolNote,
+    byId("research-dataset").closest("label"),
+    byId("research-dataset-status"),
+    datasetDetails,
+    byId("research-advanced"),
+    byId("research-partition").closest("label"),
+    start,
+    advanced,
+    byId("research-refresh"),
+  );
+  const agent = document.createElement("section");
+  agent.id = "validation-agent";
+  agent.innerHTML =
+    '<h3>Agent-led strategy validation</h3><p>The agent chooses a research period from your strategy, checks available history, and manages the validation stages. You do not need to choose dates or datasets.</p><button id="agent-plan-button" type="button" class="secondary">Preview agent plan</button> <button id="agent-start" type="button">Run agent research</button><div id="agent-plan" role="status"></div>';
+  manualResearch.before(agent);
+  byId("research-workflow").querySelector("h3").textContent =
+    "Review rules and start agent research";
+  const agentResults = document.createElement("section");
+  agentResults.id = "agent-validation-results";
+  pages["/strategies/results"].prepend(agentResults);
   const legacy = {
     workspace: "/overview",
     "strategy-workspace": "/strategies",

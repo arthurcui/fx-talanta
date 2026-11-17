@@ -1,0 +1,377 @@
+"""Evidence-bound research planning and staged, offline validation orchestration.
+
+Period heuristics are versioned planning assumptions, never profitability forecasts.
+The agent cannot change rules, weaken gates, or grant trading authority.
+"""
+
+import json
+import math
+import threading
+import time
+from datetime import datetime, timedelta
+from decimal import Decimal
+
+from fx_talanta.research.replay import digest
+
+POLICY = "strategy-validation/1"
+TRADE_TARGETS = {"training": 100, "validation": 50, "holdout": 50}
+
+
+def parse(value):
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def sessions(start, end):
+    return sum(
+        (start + timedelta(days=i)).weekday() < 5
+        for i in range(math.ceil((end - start).total_seconds() / 86400))
+    )
+
+
+def choose_plan(candidate, rules, catalog, now):
+    hours = rules.end_hour_utc - rules.start_hour_utc
+    spacing = max(rules.signal_period, rules.hold_bars)
+    target_days = max(126, math.ceil(sum(TRADE_TARGETS.values()) * spacing / (hours * 4)))
+    end = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    start = end - timedelta(days=math.ceil(target_days * 7 / 5))
+    boundaries = [start, start + (end - start) * 0.6, start + (end - start) * 0.8, end]
+    warmup = {
+        "H1": rules.trend_period + 3,
+        "M15": max(rules.signal_period + 1, rules.atr_period + 1),
+    }
+    selected = []
+    for symbol in candidate["specification"]["pairs"]:
+        choices = [x for x in catalog if x["symbol"] == symbol]
+        # Choose coverage before seeing outcomes. Never rank datasets by P&L.
+        choices.sort(
+            key=lambda x: (
+                max(0, (min(parse(x["end"]), end) - max(parse(x["start"]), start)).total_seconds()),
+                (parse(x["end"]) - parse(x["start"])).total_seconds(),
+                x["end"],
+                x["id"],
+            ),
+            reverse=True,
+        )
+        if not choices:
+            selected.append(
+                dict(
+                    symbol=symbol,
+                    dataset_id=None,
+                    blockers=["NO_DATASET"],
+                    available_sessions=0,
+                    required_sessions=target_days,
+                    exploratory_ready=False,
+                )
+            )
+            continue
+        data = choices[0]
+        available = sessions(parse(data["start"]), parse(data["end"]))
+        actual_warmup = data.get("warmup_bars", {})
+        warmup_ok = all(actual_warmup.get(tf, 0) >= n for tf, n in warmup.items())
+        blockers = []
+        if available < target_days:
+            blockers.append("INSUFFICIENT_HISTORY")
+        if parse(data["start"]) > start or parse(data["end"]) < end:
+            blockers.append("REQUESTED_PERIOD_NOT_COVERED")
+        if not warmup_ok:
+            blockers.append("WARMUP_NOT_VERIFIED")
+        if data.get("qualification") != "QUALIFIED":
+            blockers.append("SOURCE_COST_CALENDAR_UNQUALIFIED")
+        if data.get("independent_holdout") is not True:
+            blockers.append("INDEPENDENT_HOLDOUT_UNVERIFIED")
+        windows = data.get("windows", {})
+        if any(
+            windows.get(phase, {}).get("start") != boundaries[i].isoformat()
+            or windows.get(phase, {}).get("end") != boundaries[i + 1].isoformat()
+            for i, phase in enumerate(TRADE_TARGETS)
+        ):
+            blockers.append("PLANNED_WINDOWS_NOT_AVAILABLE")
+        selected.append(
+            dict(
+                symbol=symbol,
+                dataset_id=data["id"],
+                source=data["source"],
+                available_start=data["start"],
+                available_end=data["end"],
+                available_sessions=available,
+                required_sessions=target_days,
+                missing_sessions=max(0, target_days - available),
+                age_days=max(0, (end - parse(data["end"])).days),
+                warmup=actual_warmup,
+                blockers=blockers,
+                exploratory_ready=warmup_ok and data.get("replay_mode") == "FULL_TICK_BACKGROUND",
+                available_windows=data.get("windows", {}),
+            )
+        )
+    return dict(
+        policy=POLICY,
+        planner="DETERMINISTIC_STRATEGY_POLICY",
+        candidate_sha256=candidate["sha256"],
+        rules=rules.model_dump(mode="json"),
+        as_of=end.isoformat(),
+        requested_start=start.isoformat(),
+        requested_end=end.isoformat(),
+        required_sessions=target_days,
+        warmup_required=warmup,
+        planned_windows={
+            phase: dict(
+                start=boundaries[i].isoformat(),
+                end=boundaries[i + 1].isoformat(),
+                minimum_closed_trades=TRADE_TARGETS[phase],
+            )
+            for i, phase in enumerate(TRADE_TARGETS)
+        },
+        rationale=[
+            (
+                f"H1 trend requires {warmup['H1']} completed hourly bars; M15 "
+                f"signal/ATR requires {warmup['M15']} completed bars before the "
+                f"test."
+            ),
+            (
+                f"{hours} active UTC hours/day, {spacing} signal/holding bars: "
+                f"planning proxy only, not a measured trading frequency."
+            ),
+            (
+                f"Request at least {target_days} trading sessions (minimum "
+                f"six-month planning floor) to seek 100/50/50 closed trades across "
+                f"chronological 60/20/20 windows."
+            ),
+            (
+                "Dates and gates are fixed before results. Insufficient "
+                "observations request more data; periods are never searched for "
+                "better profits."
+            ),
+        ],
+        datasets=selected,
+        full_validation_ready=all(not x["blockers"] for x in selected),
+        execution_enabled=False,
+        qualified_for_paper=False,
+    )
+
+
+def assessment(result, phase):
+    metrics = result["metrics"]
+    ceiling = min(
+        Decimal(".05"),
+        Decimal(result.get("experiment", {}).get("policy", {}).get("drawdown_fraction", ".05")),
+    )
+    if metrics["closed_trades"] < TRADE_TARGETS[phase] or not result["fully_settled"]:
+        return "MORE_OBSERVATIONS_REQUIRED"
+    if (
+        Decimal(result["net_realized_pnl"]) <= 0
+        or Decimal(metrics["maximum_observed_drawdown_fraction"]) > ceiling
+    ):
+        return "REJECT_OR_REVISE"
+    return "PASS_TO_NEXT_STAGE"
+
+
+class ValidationAgent:
+    def __init__(self, research):
+        self.research = research
+        self.repo = research.repo
+        self.active = set()
+        with self.repo.lock, self.repo.conn:
+            self.repo.conn.executescript("""
+                CREATE TABLE IF NOT EXISTS validation_agent_runs
+                (id TEXT PRIMARY KEY, plan TEXT NOT NULL, progress TEXT NOT NULL, result TEXT);
+            """)
+
+    def plan(self, data):
+        from pydantic import TypeAdapter
+
+        from fx_talanta.domain.models import Hash
+        from fx_talanta.research.candidate import Rules
+
+        if set(data) != {"candidate_sha256", "rules"}:
+            raise ValueError("invalid plan request")
+        sha = TypeAdapter(Hash).validate_python(data["candidate_sha256"])
+        rules = Rules.model_validate(data["rules"])
+        with self.repo.lock:
+            candidate = self.research.app.strategies._record(sha)
+        if candidate["state"] != "FROZEN_FOR_RESEARCH":
+            raise ValueError("freeze strategy before planning")
+        value = choose_plan(
+            candidate, rules, self.research.catalog.metadata, self.research.app.clock.now()
+        )
+        return self.research.retain("VALIDATION_PLAN", value)
+
+    def status(self, key):
+        with self.repo.lock:
+            row = self.repo.conn.execute(
+                "SELECT plan,progress,result FROM validation_agent_runs WHERE id=?", (key,)
+            ).fetchone()
+            if not row:
+                raise ValueError("unknown agent run")
+            plan, progress, result = map(lambda x: json.loads(x) if x else None, row)
+            return dict(
+                id=key,
+                candidate_sha256=plan["candidate_sha256"],
+                plan=plan,
+                progress=progress,
+                status=result["status"]
+                if result
+                else "RUNNING"
+                if key in self.active
+                else "INTERRUPTED_NO_RESEND",
+                result=result,
+            )
+
+    def recent(self):
+        with self.repo.lock:
+            keys = [
+                x[0]
+                for x in self.repo.conn.execute(
+                    "SELECT id FROM validation_agent_runs ORDER BY rowid DESC LIMIT 10"
+                )
+            ]
+        return [self.status(key) for key in keys]
+
+    def start(self, data):
+        if set(data) != {"plan_id", "reviewed_mapping"} or data["reviewed_mapping"] is not True:
+            raise ValueError("review rules mapping before starting agent research")
+        record = self.research.item(data["plan_id"])
+        if record["kind"] != "VALIDATION_PLAN":
+            raise ValueError("expected validation plan")
+        plan = record["payload"]
+        # Check selected catalog identities now; old plans never silently substitute data.
+        for source in plan["datasets"]:
+            if source["dataset_id"]:
+                self.research.catalog.read(source["dataset_id"])
+        if plan["policy"] != POLICY:
+            raise ValueError("planning policy changed; create a new plan")
+        key = digest(dict(plan=data["plan_id"]))
+        with self.repo.lock, self.repo.conn:
+            old = self.repo.conn.execute(
+                "SELECT id FROM validation_agent_runs WHERE id=?", (key,)
+            ).fetchone()
+            if old:
+                return self.status(key)
+            if self.active or self.research.active_runs:
+                raise ValueError("another research worker is active")
+            self.repo.conn.execute(
+                "INSERT INTO validation_agent_runs VALUES (?,?,?,NULL)",
+                (key, json.dumps(plan), "[]"),
+            )
+            self.active.add(key)
+        threading.Thread(target=self._work, args=(key, plan), daemon=True).start()
+        return self.status(key)
+
+    def _work(self, key, plan):
+        progress = []
+        try:
+            for source in plan["datasets"]:
+                if not source["exploratory_ready"]:
+                    progress.append(
+                        dict(
+                            symbol=source["symbol"],
+                            status="DATA_REQUIRED",
+                            reasons=source["blockers"],
+                        )
+                    )
+                    self._progress(key, progress)
+                    continue
+                reg = self.research.select_dataset(
+                    dict(
+                        dataset_id=source["dataset_id"],
+                        candidate_sha256=plan["candidate_sha256"],
+                        rules=plan["rules"],
+                        reviewed_mapping=True,
+                    )
+                )
+                for phase in TRADE_TARGETS:
+                    if phase != "training" and source["blockers"]:
+                        break
+                    progress.append(
+                        dict(
+                            symbol=source["symbol"],
+                            phase=phase,
+                            status="RUNNING",
+                            scope="EXPLORATORY_ONLY" if source["blockers"] else "VALIDATION",
+                        )
+                    )
+                    self._progress(key, progress)
+                    outcome = self.research._execute(
+                        dict(registration_id=reg["id"], partition=phase), agent_key=key
+                    )
+                    if outcome.get("kind") == "BACKGROUND_RUN":
+                        while outcome["status"] == "RUNNING":
+                            time.sleep(0.25)
+                            outcome = self.research.run_status(outcome["id"])
+                        if outcome["status"] != "COMPLETED":
+                            raise ValueError("interrupted replay; no resend")
+                        outcome = outcome["outcome"]
+                    if outcome.get("kind") != "BACKTEST":
+                        raise ValueError("failed or uncertain replay; no resend")
+                    result = outcome["payload"]["result"]
+                    decision = assessment(result, phase)
+                    if outcome["payload"]["verdict"] == "REJECT_OR_REVISE":
+                        decision = "REJECT_OR_REVISE"
+                    elif outcome["payload"]["verdict"] == "INSUFFICIENT_EVIDENCE":
+                        decision = "MORE_OBSERVATIONS_REQUIRED"
+                    progress[-1].update(
+                        status="COMPLETE",
+                        result_id=outcome["id"],
+                        closed_trades=result["metrics"]["closed_trades"],
+                        minimum_closed_trades=TRADE_TARGETS[phase],
+                        assessment=decision,
+                    )
+                    self._progress(key, progress)
+                    if decision != "PASS_TO_NEXT_STAGE":
+                        break
+            status = (
+                "DATA_REQUIRED"
+                if not plan["full_validation_ready"]
+                else "REJECT_OR_REVISE"
+                if any(x.get("assessment") == "REJECT_OR_REVISE" for x in progress)
+                else "MORE_OBSERVATIONS_REQUIRED"
+                if any(x.get("assessment") == "MORE_OBSERVATIONS_REQUIRED" for x in progress)
+                else "OFFLINE_GATES_COMPLETE_NOT_PAPER_AUTHORIZED"
+                if all(
+                    any(
+                        x.get("symbol") == source["symbol"]
+                        and x.get("phase") == "holdout"
+                        and x.get("assessment") == "PASS_TO_NEXT_STAGE"
+                        for x in progress
+                    )
+                    for source in plan["datasets"]
+                )
+                else "DATA_REQUIRED"
+            )
+            result = dict(
+                status=status,
+                execution_enabled=False,
+                qualified_for_paper=False,
+                validation_complete=status == "OFFLINE_GATES_COMPLETE_NOT_PAPER_AUTHORIZED",
+                next_action=(
+                    "Acquire source-verified recent history for the requested dates, "
+                    "dated costs, calendar/news coverage and an unexposed holdout; "
+                    "retain these exploratory results."
+                )
+                if not plan["full_validation_ready"]
+                else (
+                    "Revise/review strategy if rejected; collect more observations if "
+                    "insufficient. No trading permission."
+                ),
+                holdout_opened=any(x.get("phase") == "holdout" for x in progress),
+            )
+        except Exception as error:
+            result = dict(
+                status="FAILED_NO_RESEND",
+                error_type=type(error).__name__,
+                execution_enabled=False,
+                qualified_for_paper=False,
+                validation_complete=False,
+            )
+        with self.repo.lock, self.repo.conn:
+            self.repo.conn.execute(
+                "UPDATE validation_agent_runs SET result=? WHERE id=? AND result IS NULL",
+                (json.dumps(result), key),
+            )
+            self.active.discard(key)
+
+    def _progress(self, key, progress):
+        with self.repo.lock, self.repo.conn:
+            self.repo.conn.execute(
+                "UPDATE validation_agent_runs SET progress=? WHERE id=? AND result IS NULL",
+                (json.dumps(progress), key),
+            )
