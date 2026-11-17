@@ -202,3 +202,21 @@ frozen candidate identified above it. During submission the button reads Registe
 and prevents duplicate clicks. Success selects the registered experiment; validation
 errors and outcomes receive focus and scroll into view. Browser acceptance verifies
 these behaviors with a deliberately held registration response.
+
+## Actual Docker UI verification, November 16
+
+Step 3 now provides a frozen-candidate selector directly. Selection is restored
+from its hash in browser session storage after reloading, only if that record is
+still returned as frozen by the server. This stores no translation or credentials;
+clearing selection/signing out clears the preference. Mapping review is always
+reset on selection, including restoration.
+
+The actual running Docker preview was exercised headlessly, without route mocks,
+using its retained AI proposal, real EURUSD catalog bundle and a separately named
+`UI registration verification 2026-11-16` candidate. Existing candidate records
+were not changed. Save/freeze, reload/restore, rule loading, registration, automatic
+experiment selection, training backtest and result persistence succeeded. Both
+registration and backtest returned HTTP 200; zero browser errors occurred. The
+result was INSUFFICIENT_EVIDENCE with zero closed trades. The test candidate and
+its evidence are retained in the preview, clearly separate from the owner's work.
+See [actual UI receipt](../evidence/docker-registration-ui-20261116.json).

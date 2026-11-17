@@ -1,0 +1,16 @@
+{
+  "test": "Actual Docker UI: retained AI proposal, real historical dataset, isolated test candidate",
+  "mocked_requests": false,
+  "trading_enabled": false,
+  "errors": [],
+  "candidate_restored_after_reload": true,
+  "rule_loading_preserved_candidate": true,
+  "registration_http": 200,
+  "registration_visible": true,
+  "experiment_selected": true,
+  "backtest_http": 200,
+  "verdict": "INSUFFICIENT_EVIDENCE",
+  "closed_trades": 0,
+  "result_visible": true,
+  "result_retained_after_reload": true
+}

@@ -218,6 +218,10 @@ Object.assign(labels, {
   "No frozen candidate selected. Choose one in Step 2.":
     "尚未选择冻结候选策略。请在第 2 步选择。",
 });
+Object.assign(labels, {
+  "Frozen candidate for this backtest": "本次回测的冻结候选策略",
+  "Select a frozen candidate": "选择冻结候选策略",
+});
 const languageSelect = document.getElementById("ui-language");
 let currentLanguage = "en";
 const originals = new Map();

@@ -228,10 +228,17 @@ test("select dataset and backtest without uploading a file", async ({
     "FROZEN_FOR_RESEARCH",
   );
   await page.reload();
-  await page
-    .locator("#strategy-history button")
-    .filter({ hasText: "Catalog browser candidate" })
-    .click();
+  await expect(page.locator("#research-candidate")).not.toHaveValue("");
+  await expect(page.locator("#research-candidate-status")).toContainText(
+    "Selected frozen candidate:",
+  );
+  const remembered = await page.locator("#research-candidate").inputValue();
+  await page.locator("#research-candidate").selectOption("");
+  await page.locator("#research-register").click();
+  await expect(page.locator("#research-message")).toContainText(
+    "Select a frozen candidate first",
+  );
+  await page.locator("#research-candidate").selectOption(remembered);
   await page.locator("#research-register").click();
   await expect(page.locator("#research-message")).toContainText(
     "Not submitted: Executable rules is empty",

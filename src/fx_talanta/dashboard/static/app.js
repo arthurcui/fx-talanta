@@ -1007,6 +1007,22 @@ const strategyFields = [
   "authorship",
   "provenance",
 ];
+let frozenCandidates = [];
+function rememberCandidate(sha) {
+  try {
+    if (sha) sessionStorage.setItem("fx-research-candidate", sha);
+    else sessionStorage.removeItem("fx-research-candidate");
+  } catch (_) {
+    /* Storage may be disabled. Selection still works for this page. */
+  }
+}
+function rememberedCandidate() {
+  try {
+    return sessionStorage.getItem("fx-research-candidate") || "";
+  } catch (_) {
+    return "";
+  }
+}
 let selectedStrategy = null,
   strategyId = crypto.randomUUID(),
   strategyRetry = null;
@@ -1019,6 +1035,8 @@ function strategySpec() {
 function clearStrategy() {
   $("research-reviewed").checked = false;
   selectedStrategy = null;
+  rememberCandidate(null);
+  $("research-candidate").value = "";
   $("research-candidate-status").textContent =
     "No frozen candidate selected. Choose one in Step 2.";
   strategyId = crypto.randomUUID();
@@ -1034,6 +1052,11 @@ function clearStrategy() {
 function selectStrategy(record) {
   $("research-reviewed").checked = false;
   selectedStrategy = record;
+  rememberCandidate(
+    record.state === "FROZEN_FOR_RESEARCH" ? record.sha256 : null,
+  );
+  $("research-candidate").value =
+    record.state === "FROZEN_FOR_RESEARCH" ? record.sha256 : "";
   $("research-candidate-status").textContent =
     record.state === "FROZEN_FOR_RESEARCH"
       ? "Selected frozen candidate: " +
@@ -1064,6 +1087,31 @@ async function refreshStrategies() {
   try {
     await refreshResearch();
     const data = await api("/api/strategies");
+    frozenCandidates = data.records.filter(
+      (record) => record.state === "FROZEN_FOR_RESEARCH",
+    );
+    $("research-candidate").replaceChildren(
+      new Option("Select a frozen candidate", ""),
+      ...frozenCandidates.map(
+        (record) =>
+          new Option(
+            record.specification.name +
+              " · v" +
+              record.version +
+              " · " +
+              record.sha256.slice(0, 12),
+            record.sha256,
+          ),
+      ),
+    );
+    const remembered = frozenCandidates.find(
+      (record) => record.sha256 === rememberedCandidate(),
+    );
+    if (!selectedStrategy && remembered) selectStrategy(remembered);
+    $("research-candidate").value =
+      selectedStrategy?.state === "FROZEN_FOR_RESEARCH"
+        ? selectedStrategy.sha256
+        : "";
     $("lifecycle-status").textContent =
       data.mode +
       " · Trading disabled · Research runs do not qualify a strategy";
@@ -1570,4 +1618,16 @@ $("research-load-rules").addEventListener("click", () => {
   $("research-reviewed").checked = false;
   $("research-message").textContent =
     "Proposal rules loaded. Your candidate is unchanged; review their mapping before registering.";
+});
+
+$("research-candidate").addEventListener("change", () => {
+  const record = frozenCandidates.find(
+    (candidate) => candidate.sha256 === $("research-candidate").value,
+  );
+  if (record) selectStrategy(record);
+  else clearStrategy();
+  $("research-reviewed").checked = false;
+  $("research-message").textContent = record
+    ? "Frozen candidate selected. Load or review executable rules, choose a dataset, and confirm the mapping."
+    : "Select a frozen candidate before registering.";
 });
