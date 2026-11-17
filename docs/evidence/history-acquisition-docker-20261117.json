@@ -1,0 +1,124 @@
+{
+  "scope": "Bounded pipeline acceptance; three one-hour partitions, not full 126-session validation",
+  "network_downloads": "Real HistData October ZIPs downloaded on host; verified cache reused by Docker",
+  "mocked_http": false,
+  "trading_enabled": false,
+  "progress": [
+    {
+      "symbol": "EURUSD",
+      "phase": "acquisition",
+      "status": "PREPARED",
+      "receipt": {
+        "symbol": "EURUSD",
+        "index_sha256": "7740b8cb48f814bdf328aa180f09108f6c0e1d4eefb6d6766c073516844b41ce",
+        "rows": 790379,
+        "sources": [
+          {
+            "provider": "HistData",
+            "symbol": "EURUSD",
+            "month": "202610",
+            "bytes": 7033165,
+            "sha256": "27c2a6612ac230086ccbc40fe8127db036f93eed0831f84559463c63aa8268f0",
+            "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/10"
+          }
+        ],
+        "start": "2026-10-20T12:00:00+00:00",
+        "end": "2026-10-20T15:00:00+00:00",
+        "observed_days": 1,
+        "gaps_over_one_hour": 0,
+        "end_lag_seconds": 3,
+        "timestamp_order": "STABLE_SORT_WITH_SOURCE_ORDER_RETAINED",
+        "missing_weekdays": [],
+        "first_ms": 1791288000000,
+        "last_ms": 1792508397000,
+        "qualification": "UNQUALIFIED_RESEARCH_ONLY",
+        "calendar_news": "NOT_ACQUIRED",
+        "broker_costs": "UNCALIBRATED"
+      },
+      "dataset_id": "4d58e9a13cf02666bc321746331eaa1ee536469f164217d64ed3869ec4b43cfa"
+    },
+    {
+      "symbol": "EURUSD",
+      "phase": "training",
+      "status": "COMPLETE",
+      "scope": "EXPLORATORY_ONLY",
+      "result_id": "b640ce7854244bae8fb6df17fcd3f5638185054b678eb3dfc90fee6a31be0a4c",
+      "closed_trades": 0,
+      "minimum_closed_trades": 100,
+      "assessment": "MORE_OBSERVATIONS_REQUIRED"
+    },
+    {
+      "symbol": "USDJPY",
+      "phase": "acquisition",
+      "status": "PREPARED",
+      "receipt": {
+        "symbol": "USDJPY",
+        "index_sha256": "adad6a765f4b1fe3ce135ebba9c2fe0c77ebb863bddaa42a5704ae6584d49221",
+        "rows": 981596,
+        "sources": [
+          {
+            "provider": "HistData",
+            "symbol": "USDJPY",
+            "month": "202610",
+            "bytes": 9510817,
+            "sha256": "da3b22b6eb2c5c048ba6a7dc09a286b1a17b0c0a23a343cca6829ea9a94d92aa",
+            "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/usdjpy/2026/10"
+          }
+        ],
+        "start": "2026-10-20T12:00:00+00:00",
+        "end": "2026-10-20T15:00:00+00:00",
+        "observed_days": 1,
+        "gaps_over_one_hour": 0,
+        "end_lag_seconds": 1,
+        "timestamp_order": "STABLE_SORT_WITH_SOURCE_ORDER_RETAINED",
+        "missing_weekdays": [],
+        "first_ms": 1791288000000,
+        "last_ms": 1792508399000,
+        "qualification": "UNQUALIFIED_RESEARCH_ONLY",
+        "calendar_news": "NOT_ACQUIRED",
+        "broker_costs": "UNCALIBRATED"
+      },
+      "dataset_id": "27c6b9d8b9c49e9f135fcf9be28a886c891c57953808eda104886e9df4e15fad"
+    },
+    {
+      "symbol": "USDJPY",
+      "phase": "training",
+      "status": "COMPLETE",
+      "scope": "EXPLORATORY_ONLY",
+      "result_id": "fe81e3004d3de7c5c45768d81bc98c28512d65493d1ad75168b9e15c9f86708b",
+      "closed_trades": 0,
+      "minimum_closed_trades": 100,
+      "assessment": "MORE_OBSERVATIONS_REQUIRED"
+    }
+  ],
+  "result": {
+    "status": "DATA_REQUIRED",
+    "execution_enabled": false,
+    "qualified_for_paper": false,
+    "validation_complete": false,
+    "next_action": "Review acquired data coverage and exploratory results. Dated costs, calendar/news coverage and independent holdout qualification remain required.",
+    "holdout_opened": false
+  },
+  "reload_verified": true,
+  "export_verified": true,
+  "errors": [],
+  "direct_docker_downloads": [
+    {
+      "provider": "HistData",
+      "symbol": "EURUSD",
+      "month": "202610",
+      "bytes": 7033165,
+      "sha256": "27c2a6612ac230086ccbc40fe8127db036f93eed0831f84559463c63aa8268f0",
+      "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/10"
+    },
+    {
+      "provider": "HistData",
+      "symbol": "USDJPY",
+      "month": "202610",
+      "bytes": 9510817,
+      "sha256": "da3b22b6eb2c5c048ba6a7dc09a286b1a17b0c0a23a343cca6829ea9a94d92aa",
+      "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/usdjpy/2026/10"
+    }
+  ],
+  "docker_download_hashes_match_replayed_sources": true
+}

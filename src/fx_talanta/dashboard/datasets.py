@@ -19,6 +19,16 @@ class Bundle(FrozenModel):
 
 
 class DatasetCatalog:
+    def add_prepared(self, path):
+        path = Path(path)
+        raw = self._read(path)
+        key = hashlib.sha256(raw).hexdigest()
+        bundle = IndexedBundle.model_validate_json(raw)
+        metadata = describe(path.parent, bundle, key)
+        self.entries[key] = path
+        self.metadata = [m for m in self.metadata if m["id"] != key] + [metadata]
+        return metadata
+
     def __init__(self, directory=None):
         self.directory = directory
         self.entries = {}

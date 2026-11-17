@@ -23,12 +23,13 @@ class IndexedBundle(FrozenModel):
     assume_research_inputs: bool = False
     minimum_closed_trades: int = Field(default=20, ge=1, le=10000)
     maximum_drawdown_fraction: float = Field(default=0.05, gt=0, le=1)
+    acquired_history: bool = False
 
     @model_validator(mode="after")
     def bounded(self):
         for phase in ("training", "validation", "holdout"):
             start, end = self.experiment.window(phase)
-            if end - start > timedelta(days=1):
+            if end - start > timedelta(days=366 if self.acquired_history else 1):
                 raise ValueError("each partition supports at most one full day")
         return self
 
@@ -55,7 +56,7 @@ def describe(directory, bundle, key):
                 "SELECT count(*) FROM ticks WHERE at_ms>=? AND at_ms<?",
                 (milliseconds(start) - bundle.latency_ms, milliseconds(end) - bundle.latency_ms),
             ).fetchone()[0]
-            if not 1 <= n <= 300000:
+            if not 1 <= n <= (50_000_000 if bundle.acquired_history else 300000):
                 raise ValueError("full-session partition tick bound")
             windows[phase] = dict(
                 start=start.isoformat(),
@@ -86,9 +87,9 @@ def describe(directory, bundle, key):
             minimum_closed_trades=bundle.minimum_closed_trades,
             maximum_drawdown_fraction=str(bundle.maximum_drawdown_fraction),
             qualification="UNQUALIFIED_RESEARCH_ONLY",
-            exposure_note=(
-                "Previously available January 2025 inputs; not an independent fresh holdout"
-            ),
+            exposure_note="New acquisition; independent holdout and data quality not qualified"
+            if bundle.acquired_history
+            else ("Previously available January 2025 inputs; not an independent fresh holdout"),
             windows=windows,
             timeframes=["H1", "M15"],
             warmup_bars={
@@ -123,7 +124,7 @@ def diagnostics(result):
 
 def replay(research, plan, partition, key):
     bundle = research.catalog.read(plan.dataset_catalog_sha256)
-    path = index_path(research.catalog.directory, bundle)
+    path = index_path(research.catalog.entries[plan.dataset_catalog_sha256].parent, bundle)
     directory = research.app.state / "research-runs" / key
     directory.mkdir(parents=True, exist_ok=False)
     index = TickIndex(path)
@@ -138,7 +139,10 @@ def replay(research, plan, partition, key):
             source=f"HistData {plan.experiment.symbol} SHA256 {index.metadata['archive_sha256']}",
         )
         events = TrackedEvents(
-            index.events(start, end, bundle.latency_ms, bundle.assume_research_inputs), start, end
+            index.events(start, end, bundle.latency_ms, bundle.assume_research_inputs),
+            start,
+            end,
+            maximum_ticks=50_000_000 if bundle.acquired_history else 300000,
         )
         journal = Spool(directory / "journal.jsonl.gz")
         equity = EquitySpool(directory / "equity.jsonl.gz", plan.experiment.policy.capital)

@@ -357,8 +357,8 @@ validation remain R2 requirements. No stage grants PAPER or LIVE authority.
 Admission is durable and at-most-once per plan. Changed catalog manifests are refused;
 manual replay cannot compete with an active agent. Interrupted or uncertain work is
 reported without automatic resend. Prior results, exposed holdouts and B01 remain
-unchanged. New history is requested as a data requirement; this change does not
-silently download an unverified substitute or claim external data acquisition.
+unchanged. Automatic acquisition is now available through the explicitly configured fixed
+provider described below. Downloaded prices remain unqualified research inputs.
 
 Owner walkthrough: **Strategies → select frozen strategy → Backtest → Load proposal
 rules for review → review mapping → Preview agent plan → Run agent research → Results**.
@@ -380,3 +380,66 @@ the original job and mobile width. A test-receipt script initially expected deri
 diagnostics in the raw immutable item; it was corrected to read the existing summary
 API. The completed studies were not repeated. See
 [Docker agent validation receipt](../evidence/docker-agent-validation-20261116.json).
+
+## Automatic historical acquisition (November 17)
+
+Set `FX_HISTORY_ACQUISITION=histdata` explicitly on the research service to enable
+fixed-origin downloads. The local Docker preview enables this setting. It does not
+configure broker connections or trading. With acquisition disabled, existing
+catalog-only behavior remains available. **Run agent research** now acquires missing
+history before replay; the UI shows downloading month, preparation and study stages.
+No file upload or manually selected dates are needed on this path.
+
+The provider is HistData's public monthly ASCII bid/ask tick ZIP download form.
+Only EURUSD and USDJPY are supported. HTTPS origin is pinned to www.histdata.com;
+redirects to another host or plaintext are refused. Download form identity, ZIP
+signature, byte limits, original archive SHA-256, member/month validation and price
+validation are checked. Requests are serial with bounded timeouts, no paid service,
+no account credentials and no automatic retries on provider errors. The form token
+is transient and never included in receipts. HTTP errors remain failures, not empty
+market sessions. Source archives are private and not committed or redistributed.
+
+Preparation downloads the months covering the fixed research period plus warmup.
+Completed months are cached immutably; the current month has a dated snapshot key
+so later plans can acquire a newer version without replacing old evidence. Cache
+and prepared index hashes are checked before reuse. Interrupted preparation is
+preserved rather than overwritten. The job itself remains at-most-once; a stopped
+job is not automatically restarted. Templates retain reviewed risk/cost assumptions;
+expired dated broker costs are not silently extended.
+
+October's actual EURUSD source contained reversed timestamps. The default legacy
+importer still rejects these. The acquisition path explicitly uses stable sorting
+by timestamp and original row sequence, retaining original ZIPs and a source-order
+SQLite journal. Equal-time ticks and duplicates remain intact; no prices/ticks are
+invented or sampled. The first rejected import was retained privately. UTC mapping
+continues to use the existing fixed-EST HistData convention. Gaps, observed days,
+missing weekdays and end lag are reported, not equated with certified coverage.
+
+Prepared data is registered in a separate private catalog under the dashboard state
+and restored on server restart. New acquisitions can span up to 366 days per
+partition, 50 million ticks per index/partition and 14 source months, with streaming
+replay and disk-backed normalization. Legacy catalog limits remain one day/300,000
+ticks. Larger studies may take substantial time and several GB of disk. Existing
+registrations retain their original engine hash and cannot execute against changed
+code; their saved results and all B01/M1 evidence remain untouched.
+
+Acquisition does **not** qualify source reliability, receipt timing, broker costs,
+calendar/news or untouched holdout evidence. Training uses explicitly disclosed
+assumed-clear calendar/news and modeled receipt latency for exploratory research.
+Missing warmup prevents replay. Later stages remain gated; no result grants trading
+permission. Walk-forward/portfolio robustness remains separate work.
+
+Verification: real October 2026 archives downloaded for both pairs on the host and
+inside Docker, with matching SHA-256 identities. An isolated Docker acceptance
+store exercised UI start → verified cache → preparation → training → result/export,
+using three explicitly bounded one-hour windows, not the full 126-session plan.
+Prepared inputs contained 790,379 EURUSD and 981,596 USDJPY ticks including warmup;
+both training studies finished, returned insufficient observations and opened no
+holdout. Reload and report export passed. The normal preview retains the full
+agent-selected horizon; this acceptance override exists only in the private test
+server, not production code. See
+[actual Docker receipt](../evidence/history-acquisition-docker-20261117.json).
+
+The full six-month study has not been run to completion by this acceptance test.
+The production button can acquire and prepare that plan automatically; a successful
+download alone never changes the strategy's qualification verdict.

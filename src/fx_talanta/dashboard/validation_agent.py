@@ -6,6 +6,7 @@ The agent cannot change rules, weaken gates, or grant trading authority.
 
 import json
 import math
+import os
 import threading
 import time
 from datetime import datetime, timedelta
@@ -13,7 +14,7 @@ from decimal import Decimal
 
 from fx_talanta.research.replay import digest
 
-POLICY = "strategy-validation/1"
+POLICY = "strategy-validation/2"
 TRADE_TARGETS = {"training": 100, "validation": 50, "holdout": 50}
 
 
@@ -193,6 +194,7 @@ class ValidationAgent:
         value = choose_plan(
             candidate, rules, self.research.catalog.metadata, self.research.app.clock.now()
         )
+        value["automatic_acquisition"] = os.environ.get("FX_HISTORY_ACQUISITION") == "histdata"
         return self.research.retain("VALIDATION_PLAN", value)
 
     def status(self, key):
@@ -260,6 +262,79 @@ class ValidationAgent:
         progress = []
         try:
             for source in plan["datasets"]:
+                if plan.get("automatic_acquisition") and any(
+                    b in source["blockers"]
+                    for b in (
+                        "NO_DATASET",
+                        "INSUFFICIENT_HISTORY",
+                        "REQUESTED_PERIOD_NOT_COVERED",
+                        "PLANNED_WINDOWS_NOT_AVAILABLE",
+                    )
+                ):
+                    from fx_talanta.dashboard.indexed_research import IndexedBundle
+                    from fx_talanta.research.acquisition import prepare
+
+                    def update(value):
+                        if progress and progress[-1].get("phase") == "acquisition":
+                            progress[-1] = value
+                        else:
+                            progress.append(value)
+                        self._progress(key, progress)
+
+                    directory, receipt = prepare(
+                        self.research.app.state / "history",
+                        source["symbol"],
+                        parse(plan["requested_start"]),
+                        parse(plan["requested_end"]),
+                        plan["warmup_required"]["H1"],
+                        update,
+                    )
+                    if not source["dataset_id"]:
+                        raise ValueError("no reviewed cost/risk template for acquired symbol")
+                    template = self.research.catalog.read(source["dataset_id"])
+                    experiment = template.experiment.model_dump(mode="json")
+                    experiment.update(
+                        start=plan["requested_start"],
+                        end=plan["requested_end"],
+                        training_end=plan["planned_windows"]["training"]["end"],
+                        validation_end=plan["planned_windows"]["validation"]["end"],
+                    )
+                    bundle = IndexedBundle(
+                        index_file="ticks.sqlite",
+                        index_sha256=receipt["index_sha256"],
+                        experiment=experiment,
+                        acquired_history=True,
+                        assume_research_inputs=True,
+                        minimum_closed_trades=100,
+                    )
+                    manifest = directory / "acquired-index.json"
+                    encoded = bundle.model_dump_json()
+                    if manifest.exists() and manifest.read_text(encoding="utf8") != encoded:
+                        raise ValueError("prepared registration binding changed")
+                    manifest.write_text(encoded, encoding="utf8")
+                    with self.repo.lock:
+                        metadata = self.research.catalog.add_prepared(manifest)
+                    source = dict(
+                        source,
+                        dataset_id=metadata["id"],
+                        exploratory_ready=all(
+                            metadata["warmup_bars"].get(tf, 0) >= n
+                            for tf, n in plan["warmup_required"].items()
+                        ),
+                        blockers=[
+                            "SOURCE_COST_CALENDAR_UNQUALIFIED",
+                            "INDEPENDENT_HOLDOUT_UNVERIFIED",
+                        ],
+                    )
+                    update(
+                        dict(
+                            symbol=source["symbol"],
+                            phase="acquisition",
+                            status="PREPARED",
+                            receipt=receipt,
+                            dataset_id=metadata["id"],
+                        )
+                    )
                 if not source["exploratory_ready"]:
                     progress.append(
                         dict(
@@ -343,9 +418,9 @@ class ValidationAgent:
                 qualified_for_paper=False,
                 validation_complete=status == "OFFLINE_GATES_COMPLETE_NOT_PAPER_AUTHORIZED",
                 next_action=(
-                    "Acquire source-verified recent history for the requested dates, "
-                    "dated costs, calendar/news coverage and an unexposed holdout; "
-                    "retain these exploratory results."
+                    "Review acquired data coverage and exploratory results. "
+                    "Dated costs, calendar/news coverage and independent holdout "
+                    "qualification remain required."
                 )
                 if not plan["full_validation_ready"]
                 else (
@@ -355,12 +430,23 @@ class ValidationAgent:
                 holdout_opened=any(x.get("phase") == "holdout" for x in progress),
             )
         except Exception as error:
+            import urllib.error
+
             result = dict(
                 status="FAILED_NO_RESEND",
                 error_type=type(error).__name__,
                 execution_enabled=False,
                 qualified_for_paper=False,
                 validation_complete=False,
+                next_action=(
+                    f"Historical provider returned HTTP {error.code}; "
+                    "downloads were stopped. No automatic retry or substitution."
+                )
+                if isinstance(error, urllib.error.HTTPError)
+                else (
+                    "Preparation or replay failed; preserved files require review. "
+                    "No automatic retry."
+                ),
             )
         with self.repo.lock, self.repo.conn:
             self.repo.conn.execute(

@@ -28,7 +28,30 @@ def milliseconds(at):
     return (at - EPOCH) // MILLISECOND
 
 
-def build_index(archive_path, symbol, output):
+def normalized_rows(source, output):
+    """Preserve source order on disk; stable time ordering never invents ticks."""
+    db = sqlite3.connect(output / "source-order.sqlite")
+    try:
+        db.execute("CREATE TABLE source(seq INTEGER PRIMARY KEY,at_ms INTEGER,row TEXT)")
+        batch = []
+        for seq, row in enumerate(source):
+            at, _, _ = parse_row(row)
+            if seq >= MAX_TICKS:
+                raise ValueError("source tick bound")
+            batch.append((seq, milliseconds(at), json.dumps(row)))
+            if len(batch) == 5000:
+                db.executemany("INSERT INTO source VALUES(?,?,?)", batch)
+                batch.clear()
+        db.executemany("INSERT INTO source VALUES(?,?,?)", batch)
+        db.execute("CREATE INDEX source_time ON source(at_ms,seq)")
+        db.commit()
+        for (row,) in db.execute("SELECT row FROM source ORDER BY at_ms,seq"):
+            yield json.loads(row)
+    finally:
+        db.close()
+
+
+def build_index(archive_path, symbol, output, *, normalize_timestamps=False):
     archive_path, output = Path(archive_path), Path(output)
     if symbol not in {"EURUSD", "USDJPY"} or archive_path.stat().st_size > MAX_ARCHIVE:
         raise ValueError("unsupported source or archive bound")
@@ -57,9 +80,10 @@ def build_index(archive_path, symbol, output):
             if member.file_size > MAX_CSV or member.flag_bits & 1:
                 raise ValueError("CSV bound or encryption")
             with archive.open(member) as stream:
-                for seq, row in enumerate(
-                    csv.reader(io.TextIOWrapper(stream, encoding="ascii", newline=""))
-                ):
+                source = csv.reader(io.TextIOWrapper(stream, encoding="ascii", newline=""))
+                if normalize_timestamps:
+                    source = normalized_rows(source, output)
+                for seq, row in enumerate(source):
                     at, bid, ask = parse_row(row)
                     if at.astimezone(EST).strftime("%Y%m") != month:
                         raise ValueError("row outside named source month")
@@ -125,6 +149,9 @@ def build_index(archive_path, symbol, output):
             "receipt_times": "UNKNOWN",
             "source_revisions": "UNKNOWN",
             "m1_qualified": False,
+            "timestamp_order": "STABLE_SORT_WITH_SOURCE_ORDER_RETAINED"
+            if normalize_timestamps
+            else "ORIGINAL",
         }
         db.execute("INSERT INTO metadata VALUES(?)", (json.dumps(metadata),))
         db.execute("CREATE INDEX ticks_time ON ticks(at_ms,seq)")

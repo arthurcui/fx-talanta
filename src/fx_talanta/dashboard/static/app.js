@@ -2021,6 +2021,13 @@ function renderAgent(data) {
   const area = $("agent-plan");
   area.replaceChildren();
   if (plan) {
+    if (plan.automatic_acquisition)
+      area.append(
+        node(
+          "p",
+          "Automatic HistData acquisition enabled. The agent downloads missing monthly tick archives, verifies and prepares them, then runs exploratory research. Calendar/news and broker costs remain separate qualification requirements.",
+        ),
+      );
     area.append(
       node("h4", "Agent-selected research period"),
       node(
@@ -2125,6 +2132,10 @@ function renderAgent(data) {
             (step.phase || "data check") +
             " · " +
             step.status +
+            (step.month ? " · " + step.month : "") +
+            (step.receipt
+              ? " · " + step.receipt.rows + " ticks prepared"
+              : "") +
             (step.closed_trades !== undefined
               ? " · " +
                 step.closed_trades +

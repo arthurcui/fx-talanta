@@ -138,6 +138,8 @@ class Research:
         from fx_talanta.dashboard.datasets import DatasetCatalog
 
         self.catalog = DatasetCatalog(dataset_directory)
+        for manifest in sorted((app.state / "history").glob("*/acquired-index.json")):
+            self.catalog.add_prepared(manifest)
         self.active_runs = set()
         self.app, self.repo, self.transport = app, app.repo, transport
         with self.repo.lock, self.repo.conn:
