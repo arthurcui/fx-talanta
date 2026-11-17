@@ -1,0 +1,20 @@
+{
+  "test": "Docker guided strategy pages",
+  "mocked_requests": false,
+  "new_model_calls": 0,
+  "trading_enabled": false,
+  "checks": [
+    "Retained AI proposal carries rules into Review; isolated test revision saved and frozen",
+    "Saved strategy opens Review with exact version context",
+    "Direct backtest URL reload restores candidate, rules and dataset; mapping confirmation resets",
+    "Single Run backtest action registers and executes actual retained historical inputs",
+    "Results evidence exported through browser",
+    "Results survive reload; browser Back and Forward restore correct pages",
+    "Revised as a separate draft and exported it; original frozen version preserved",
+    "Five main pages show only their own content",
+    "Mobile Describe page has no horizontal overflow"
+  ],
+  "errors": [],
+  "verdict": "INSUFFICIENT_EVIDENCE",
+  "closed_trades": 0
+}

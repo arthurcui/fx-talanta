@@ -10,6 +10,22 @@ and a read-only historical broker-journal panel, as described below. It never
 connects to MT5 or enables broker trading. The optional operator mode below
 attaches only the existing offline PAPER simulator gateway.
 
+## Find your task
+
+- **Overview**: current research status and trading boundaries.
+- **Strategies**: create a strategy or open a saved version.
+- **Market & Data**: EA/Python/MCP status, quote latency, calendar and news.
+- **Advisor**: evidence-backed questions and explanations.
+- **Activity**: journal, incidents and service records.
+
+For strategy research, follow **Describe → Review → Backtest → Results**.
+Describe your idea, review a proposal, save and freeze a version, then choose a
+historical dataset and confirm its executable rules. **Run backtest** handles
+registration and execution together. Results show the verdict and exportable
+evidence. Use **Revise this strategy** to return to its form. The selected version
+stays with you across pages and reloads. Review confirmation must be checked again
+after reload; unsaved edits must be saved/frozen before backtesting.
+
 ## Open the UI
 
 From an installed checkout (Python 3.11+ and the project's normal dependencies):

@@ -184,24 +184,39 @@ chat request-body ceiling. The launcher defaults safely to authenticated mode;
 the existing 4 KiB chat ceiling is restored while research briefs retain their
 Unicode-sized request allowance.
 
-## Restoring executable rules after reopening the page
+## Guided pages and strategy context
 
-A saved descriptive candidate is not itself executable-rule JSON. In step 3,
-select the retained AI proposal under **Saved AI proposal rules** and click
-**Load proposal rules for review**. This restores only its parameter mapping,
-keeps the selected frozen candidate unchanged, and clears review confirmation.
-Review the mapping against the candidate before registering. Blank or malformed
-JSON is now reported as **Not submitted**, with no registration HTTP request.
-An empty/unreadable server response instead reports an uncertain outcome and
-instructs the user to inspect retained evidence. No automatic resend is added.
-Browser acceptance reproduces reopen/select-frozen, blank/malformed rules,
-zero submissions, explicit rules restoration, registration and replay.
+The primary navigation is Overview, Strategies, Market & Data, Advisor and
+Activity. Strategies has a task sequence with real, reloadable URLs:
+`/strategies/describe` → `/strategies/review` → `/strategies/backtest` →
+`/strategies/results`. Browser Back/Forward works without submitting requests.
+Legacy section links still route to their corresponding page.
 
-Registration feedback is displayed immediately below its button, with the selected
-frozen candidate identified above it. During submission the button reads Registering
-and prevents duplicate clicks. Success selects the registered experiment; validation
-errors and outcomes receive focus and scroll into view. Browser acceptance verifies
-these behaviors with a deliberately held registration response.
+Describe accepts English or Chinese instructions and displays retained proposals.
+Review loads the chosen proposal and its executable mapping together. Save a
+revision, freeze it, then choose Continue to backtest. The strategy name, version
+and state remain visible throughout; its immutable hash is carried in the URL.
+Saved strategies open directly in Review. Saving changes to a frozen version
+creates a new revision; the frozen evidence is retained.
+
+Backtest requires a frozen version, an explicitly reviewed rules mapping and a
+historical dataset. **Run backtest** registers these inputs and executes the chosen
+partition in one action, then opens Results. Separate registration and previous
+registered studies remain under Advanced. File import remains optional. Invalid
+input never submits; uncertain requests are not automatically resent. Results
+are filtered to the selected version and retain export, costs, limitations and
+verdict evidence. Missing or unknown candidate hashes show no other strategy's
+results. Nothing here grants trading authority or changes qualification gates.
+
+Within the browser tab, strategy draft fields, rules, proposal choice, dataset,
+partition and registered-study choice survive navigation/reload. Mapping approval
+is deliberately not persisted and must be checked again after reload or changing
+inputs. Translation previews and credentials are never included in this state;
+sign-out clears the tab's flow state. Server records are the source of truth for
+saved/frozen versions. Reload validates the selected hash against returned records.
+For older candidates without tab state, select a saved proposal and explicitly
+load its rules; an exact provenance match (or sole available proposal) preselects
+the dropdown but does not automatically assert mapping review.
 
 ## Actual Docker UI verification, November 16
 
@@ -220,3 +235,14 @@ registration and backtest returned HTTP 200; zero browser errors occurred. The
 result was INSUFFICIENT_EVIDENCE with zero closed trades. The test candidate and
 its evidence are retained in the preview, clearly separate from the owner's work.
 See [actual UI receipt](../evidence/docker-registration-ui-20261116.json).
+
+
+## Separate-page acceptance, November 16
+
+Browser regression coverage exercises the guided flow, direct URL reload,
+Back/Forward, saved and unsaved context, result isolation, Chinese labels, mobile
+width, mapping reapproval and refusal to backtest unsaved changes. The real Docker
+preview also uses retained model output and an actual historical catalog bundle,
+without mocked HTTP responses or new model calls. Its INSUFFICIENT_EVIDENCE result
+is a workflow verification, not a strategy qualification. See the
+[Docker guided-page receipt](../evidence/docker-guided-pages-20261116.json).

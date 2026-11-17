@@ -1,5 +1,29 @@
 // UI labels only: never translate stored evidence, field values, identifiers or JSON.
 const labels = {
+  "Continue current strategy": "继续当前策略",
+  Overview: "概览",
+  Strategies: "策略",
+  "Market & Data": "市场与数据",
+  Activity: "活动记录",
+  Describe: "描述",
+  Review: "审阅",
+  Backtest: "回测",
+  Results: "结果",
+  "Create a strategy": "创建策略",
+  "Review your strategy": "审阅策略",
+  "Backtest your strategy": "回测策略",
+  "Review backtest results": "查看回测结果",
+  "Continue to backtest": "继续回测",
+  "Run backtest": "运行回测",
+  "Saved strategies": "已保存的策略",
+  "Write a strategy manually": "手动编写策略",
+  "Revise this strategy": "修订此策略",
+  "Describe your strategy": "描述策略",
+  "Review rules and risk limits": "审阅规则与风险限制",
+  "Choose data and run a backtest": "选择数据并运行回测",
+  "Advanced: registered studies": "高级：已注册研究",
+  "Dataset windows and cost assumptions": "数据时间窗口与成本假设",
+
   "Skip to workspace": "跳转到工作区",
   "OPERATING WORKSPACE": "操作工作区",
   OBSERVATORY: "市场观察",
@@ -333,3 +357,15 @@ const actionObserver = new MutationObserver((records) => {
   applyLanguage();
 });
 actionObserver.observe(document.body, { childList: true, subtree: true });
+
+window.addEventListener("fx-page-change", () => {
+  for (const el of document.querySelectorAll(".heading h1, #page-breadcrumb")) {
+    for (const child of el.childNodes)
+      if (
+        child.nodeType === Node.TEXT_NODE &&
+        labels[normalizeLabel(child.data)]
+      )
+        originals.set(child, child.data);
+  }
+  applyLanguage();
+});

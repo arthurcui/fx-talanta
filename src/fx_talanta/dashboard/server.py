@@ -315,8 +315,21 @@ def make_server(
                 "/language.js": ("language.js", "text/javascript"),
                 "/style.css": ("style.css", "text/css"),
             }
-            if self.path in assets:
-                name, mime = assets[self.path]
+            assets["/pages.js"] = ("pages.js", "text/javascript")
+            for page in (
+                "/overview",
+                "/strategies",
+                "/strategies/describe",
+                "/strategies/review",
+                "/strategies/backtest",
+                "/strategies/results",
+                "/market",
+                "/advisor",
+                "/activity",
+            ):
+                assets[page] = ("index.html", "text/html; charset=utf-8")
+            if urlsplit(self.path).path in assets:
+                name, mime = assets[urlsplit(self.path).path]
                 return self.reply(
                     200, files("fx_talanta.dashboard").joinpath("static", name).read_bytes(), mime
                 )

@@ -3,7 +3,7 @@ let bootstrap = new URLSearchParams(location.hash.slice(1)).get("token") || "";
 let authenticated = false,
   csrf = "",
   sessionEpoch = 0;
-history.replaceState(null, "", location.pathname);
+history.replaceState(null, "", location.pathname + location.search);
 let lastIncident = null,
   retryExplanation = null;
 let snapshot = null,
@@ -476,6 +476,12 @@ $("kind").addEventListener("change", renderRecords);
 $("evidence-search").addEventListener("input", renderRecords);
 $("refresh").addEventListener("click", refresh);
 function signedOut() {
+  try {
+    for (const key of Object.keys(sessionStorage))
+      if (key.startsWith("fx-flow-")) sessionStorage.removeItem(key);
+  } catch (_) {
+    /* Optional tab storage. */
+  }
   clearStrategy();
   $("strategy-history").replaceChildren();
   $("lifecycle-milestones").replaceChildren();
@@ -850,7 +856,7 @@ window.addEventListener("hashchange", () => {
   const supplied = new URLSearchParams(location.hash.slice(1)).get("token");
   if (!supplied) return;
   sessionEpoch++;
-  history.replaceState(null, "", location.pathname);
+  history.replaceState(null, "", location.pathname + location.search);
   historyLoaded = false;
   openSession({ bootstrap: supplied });
 });
@@ -1018,10 +1024,64 @@ function rememberCandidate(sha) {
 }
 function rememberedCandidate() {
   try {
-    return sessionStorage.getItem("fx-research-candidate") || "";
+    return (
+      new URLSearchParams(location.search).get("candidate") ||
+      sessionStorage.getItem("fx-research-candidate") ||
+      ""
+    );
   } catch (_) {
     return "";
   }
+}
+let researchContext = {};
+let restoredDraft = false;
+function updateStrategyURL(sha) {
+  const url = new URL(location.href);
+  if (sha) url.searchParams.set("candidate", sha);
+  else url.searchParams.delete("candidate");
+  history.replaceState(null, "", url.pathname + url.search);
+}
+function readResearchContext(sha) {
+  try {
+    return JSON.parse(
+      sessionStorage.getItem("fx-flow-" + (sha || "draft")) || "{}",
+    );
+  } catch (_) {
+    return {};
+  }
+}
+function saveResearchContext(registration) {
+  researchContext = {
+    ...researchContext,
+    draft: strategySpec(),
+    brief: $("research-brief").value,
+    rules: $("research-rules").value,
+    dataset: $("research-dataset").value,
+    proposal: $("research-rule-proposal").value,
+    partition: $("research-partition").value,
+    registration:
+      registration ||
+      $("research-registration").value ||
+      researchContext.registration ||
+      "",
+  };
+  try {
+    sessionStorage.setItem(
+      "fx-flow-" + (selectedStrategy?.sha256 || "draft"),
+      JSON.stringify(researchContext),
+    );
+  } catch (_) {
+    /* Forms remain usable when browser storage is disabled. */
+  }
+}
+function filterResearchResults() {
+  let count = 0;
+  for (const card of $("research-results").children) {
+    card.hidden =
+      !selectedStrategy || card.dataset.candidate !== selectedStrategy.sha256;
+    if (!card.hidden && card.dataset.researchKind === "BACKTEST") count++;
+  }
+  $("results-empty").hidden = count > 0;
 }
 let selectedStrategy = null,
   strategyId = crypto.randomUUID(),
@@ -1033,12 +1093,24 @@ function strategySpec() {
   ]);
 }
 function clearStrategy() {
+  researchContext = {};
+  restoredDraft = true;
+  try {
+    sessionStorage.removeItem("fx-flow-draft");
+  } catch (_) {
+    /* Optional tab storage. */
+  }
+  $("research-rules").value = "";
+  $("research-registration").value = "";
+  updateStrategyURL(null);
+  $("strategy-continue").disabled = true;
+  $("strategy-context").textContent = "New strategy · not saved";
   $("research-reviewed").checked = false;
   selectedStrategy = null;
   rememberCandidate(null);
   $("research-candidate").value = "";
   $("research-candidate-status").textContent =
-    "No frozen candidate selected. Choose one in Step 2.";
+    "Choose a strategy, then save and freeze a version on Review.";
   strategyId = crypto.randomUUID();
   strategyRetry = null;
   $("strategy-form").reset();
@@ -1049,12 +1121,28 @@ function clearStrategy() {
   $("strategy-research-status").textContent =
     "Not evaluated. Freezing does not qualify a strategy.";
 }
-function selectStrategy(record) {
+function selectStrategy(record, carry = false) {
+  if (!carry && selectedStrategy?.sha256 !== record.sha256) {
+    researchContext = readResearchContext(record.sha256);
+    $("research-rules").value = researchContext.rules || "";
+    $("research-registration").value = researchContext.registration || "";
+    $("research-dataset").value = researchContext.dataset || "";
+    const matchingProposal = researchProposals.find((p) =>
+      record.specification.provenance.includes(p.id),
+    );
+    $("research-rule-proposal").value =
+      researchContext.proposal ||
+      matchingProposal?.id ||
+      (researchProposals.length === 1 ? researchProposals[0].id : "");
+    $("research-partition").value = researchContext.partition || "training";
+  }
+  updateStrategyURL(record.sha256);
+  $("strategy-context").textContent =
+    record.specification.name + " · v" + record.version + " · " + record.state;
+  $("strategy-continue").disabled = record.state !== "FROZEN_FOR_RESEARCH";
   $("research-reviewed").checked = false;
   selectedStrategy = record;
-  rememberCandidate(
-    record.state === "FROZEN_FOR_RESEARCH" ? record.sha256 : null,
-  );
+  rememberCandidate(record.sha256);
   $("research-candidate").value =
     record.state === "FROZEN_FOR_RESEARCH" ? record.sha256 : "";
   $("research-candidate-status").textContent =
@@ -1063,7 +1151,7 @@ function selectStrategy(record) {
         record.specification.name +
         " · version " +
         record.version
-      : "Selected candidate is not frozen. Save and freeze it in Step 2 first.";
+      : "Save and freeze this version on Review first.";
   strategyId = record.strategy_id;
   strategyRetry = null;
   strategyFields.forEach((k) => {
@@ -1082,6 +1170,8 @@ function selectStrategy(record) {
   $("strategy-research-status").textContent =
     record.state +
     " · Descriptive only; not executable, evaluated or approved for paper.";
+  if (restoredDraft || carry) saveResearchContext();
+  filterResearchResults();
 }
 async function refreshStrategies() {
   try {
@@ -1104,10 +1194,23 @@ async function refreshStrategies() {
           ),
       ),
     );
-    const remembered = frozenCandidates.find(
+    const remembered = data.records.find(
       (record) => record.sha256 === rememberedCandidate(),
     );
     if (!selectedStrategy && remembered) selectStrategy(remembered);
+    if (!restoredDraft) {
+      restoredDraft = true;
+      const saved = readResearchContext(selectedStrategy?.sha256);
+      if (saved.draft)
+        strategyFields.forEach((k) => {
+          $("strategy-" + k).value = saved.draft[k] || "";
+        });
+      if (!selectedStrategy) {
+        researchContext = saved;
+        $("research-rules").value = saved.rules || "";
+      }
+      if (saved.brief) $("research-brief").value = saved.brief;
+    }
     $("research-candidate").value =
       selectedStrategy?.state === "FROZEN_FOR_RESEARCH"
         ? selectedStrategy.sha256
@@ -1135,6 +1238,7 @@ async function refreshStrategies() {
         b.type = "button";
         b.addEventListener("click", () => {
           selectStrategy(record);
+          window.fxPages.navigate("/strategies/review");
         });
         return b;
       }),
@@ -1171,7 +1275,7 @@ $("strategy-form").addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(strategyRetry.request),
     });
-    selectStrategy(record);
+    selectStrategy(record, true);
     $("strategy-message").textContent =
       "Saved descriptive revision. No model call or trading authority.";
     await refreshStrategies();
@@ -1202,7 +1306,7 @@ $("strategy-freeze").addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sha256: selectedStrategy.sha256 }),
     });
-    selectStrategy(record);
+    selectStrategy(record, true);
     $("strategy-message").textContent =
       "Frozen for research only. Backtest and qualification remain pending.";
     await refreshStrategies();
@@ -1349,10 +1453,18 @@ async function refreshResearch() {
   $("research-provider-status").textContent = data.ai_enabled
     ? "OpenAI configured: lifetime ceiling 10 requests; uncertain calls are not resent."
     : "AI disabled: configure a private research key file on the server.";
-  const choice = latestRegistration || $("research-registration").value;
+  const choice =
+    latestRegistration ||
+    researchContext.registration ||
+    $("research-registration").value;
   $("research-registration").replaceChildren(
     ...data.items
-      .filter((x) => x.kind === "REGISTRATION")
+      .filter(
+        (x) =>
+          x.kind === "REGISTRATION" &&
+          x.payload.candidate_sha256 ===
+            (selectedStrategy?.sha256 || rememberedCandidate()),
+      )
       .map((x) => {
         const o = node(
           "option",
@@ -1375,6 +1487,7 @@ async function refreshResearch() {
       .map((item) => {
         const box = node("article");
         box.dataset.researchKind = item.kind;
+        box.dataset.candidate = item.payload.candidate_sha256 || "";
         box.append(node("h4", item.kind + " · " + item.id.slice(0, 12)));
         const exportButton = node("button", "Export research evidence");
         exportButton.onclick = () => researchExport(item);
@@ -1393,7 +1506,10 @@ async function refreshResearch() {
               "; " +
               p.specification.provenance;
             $("research-rules").value = JSON.stringify(p.rules, null, 2);
-            $("candidate-review").scrollIntoView({ block: "start" });
+            researchContext.proposal = item.id;
+            $("research-rule-proposal").value = item.id;
+            saveResearchContext();
+            window.fxPages.navigate("/strategies/review");
             $("strategy-name").focus({ preventScroll: true });
             $("research-message").textContent =
               "Proposal loaded; review, save and freeze before registering a study.";
@@ -1470,12 +1586,21 @@ async function refreshResearch() {
       '[data-research-kind="AI_PROPOSAL"]',
     ),
   );
+  filterResearchResults();
 }
 async function researchAction(button, fn) {
   const output = $(
     button.id === "research-generate" ? "proposal-message" : "research-message",
   );
   const originalLabel = button.textContent;
+  const researchButtons = [
+    "research-register",
+    "research-run",
+    "research-start",
+  ].map($);
+  researchButtons.forEach((b) => {
+    b.disabled = true;
+  });
   button.disabled = true;
   button.setAttribute("aria-busy", "true");
   if (button.id === "research-register") {
@@ -1498,11 +1623,16 @@ async function researchAction(button, fn) {
         ? "Not submitted: " + e.message
         : "Not confirmed: " + e.message + "; refresh evidence before retrying.";
   } finally {
+    researchButtons.forEach((b) => {
+      b.disabled = false;
+    });
     button.disabled = false;
     button.removeAttribute("aria-busy");
     button.textContent = originalLabel;
-    output.scrollIntoView({ block: "nearest" });
-    output.focus({ preventScroll: true });
+    if (output.getClientRects().length) {
+      output.scrollIntoView({ block: "nearest" });
+      output.focus({ preventScroll: true });
+    }
   }
 }
 $("research-generate").onclick = () =>
@@ -1526,52 +1656,85 @@ $("research-generate").onclick = () =>
           result.status +
           "]";
   });
+async function registerCurrentStudy() {
+  if (
+    selectedStrategy &&
+    strategyFields.some(
+      (k) => strategySpec()[k] !== selectedStrategy.specification[k],
+    )
+  )
+    throw new ResearchInputError(
+      "Save and freeze your changed strategy fields before backtesting.",
+    );
+  if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
+    throw new ResearchInputError("Select a frozen candidate first");
+  const common = {
+    candidate_sha256: selectedStrategy.sha256,
+    rules: parseResearchJSON($("research-rules").value, "Executable rules"),
+    reviewed_mapping: $("research-reviewed").checked,
+  };
+  if (!common.reviewed_mapping)
+    throw new ResearchInputError(
+      "Confirm that you reviewed the executable rules against the frozen candidate.",
+    );
+  let item;
+  if ($("research-use-upload").checked) {
+    const file = $("research-file").files[0];
+    if (!file || file.size > 8 * 1024 * 1024)
+      throw new Error("Choose a research JSON bundle up to 8 MiB");
+    item = await researchPost("register", {
+      ...parseResearchJSON(await file.text(), "Uploaded research bundle"),
+      ...common,
+    });
+  } else {
+    if (!$("research-dataset").value)
+      throw new ResearchInputError("Select an available historical dataset");
+    item = await researchPost("select_dataset", {
+      ...common,
+      dataset_id: $("research-dataset").value,
+    });
+  }
+  latestRegistration = item.id;
+  researchContext.registration = item.id;
+  saveResearchContext(item.id);
+  $("research-message").textContent =
+    "Registered immutable study " +
+    item.id.slice(0, 12) +
+    ". Inputs preserved for this strategy version.";
+  return item;
+}
 $("research-register").onclick = () =>
-  researchAction($("research-register"), async () => {
-    if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
-      throw new ResearchInputError("Select a frozen candidate first");
-    const common = {
-      candidate_sha256: selectedStrategy.sha256,
-      rules: parseResearchJSON($("research-rules").value, "Executable rules"),
-      reviewed_mapping: $("research-reviewed").checked,
-    };
-    if (!common.reviewed_mapping)
-      throw new ResearchInputError(
-        "Confirm that you reviewed the executable rules against the frozen candidate.",
-      );
-    let item;
-    if ($("research-use-upload").checked) {
-      const file = $("research-file").files[0];
-      if (!file || file.size > 8 * 1024 * 1024)
-        throw new Error("Choose a research JSON bundle up to 8 MiB");
-      item = await researchPost("register", {
-        ...parseResearchJSON(await file.text(), "Uploaded research bundle"),
-        ...common,
-      });
-    } else {
-      if (!$("research-dataset").value)
-        throw new ResearchInputError("Select an available historical dataset");
-      item = await researchPost("select_dataset", {
-        ...common,
-        dataset_id: $("research-dataset").value,
-      });
-    }
-    latestRegistration = item.id;
-    $("research-message").textContent =
-      "Registered immutable study " +
-      item.id.slice(0, 12) +
-      ". Selected below. Choose a window and click Run registered backtest.";
-  });
-$("research-run").onclick = () =>
-  researchAction($("research-run"), async () => {
+  researchAction($("research-register"), registerCurrentStudy);
+$("research-start").onclick = () =>
+  researchAction($("research-start"), async () => {
+    const item = await registerCurrentStudy();
     const result = await researchPost("execute", {
-      registration_id: $("research-registration").value,
+      registration_id: item.id,
       partition: $("research-partition").value,
     });
     $("research-message").textContent =
       result.kind === "BACKTEST"
         ? "Backtest retained: " + result.payload.verdict
         : "Previously exposed run; inspect retained result. No silent rerun.";
+    window.fxPages.navigate("/strategies/results");
+  });
+$("research-run").onclick = () =>
+  researchAction($("research-run"), async () => {
+    if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
+      throw new ResearchInputError("Select a frozen candidate first");
+    const registration = $("research-registration").value;
+    if (!registration)
+      throw new ResearchInputError("Register the reviewed inputs first");
+    const result = await researchPost("execute", {
+      registration_id: registration,
+      partition: $("research-partition").value,
+    });
+    $("research-message").textContent =
+      result.kind === "BACKTEST"
+        ? "Backtest retained: " + result.payload.verdict
+        : "Previously exposed run; inspect retained result. No silent rerun.";
+    saveResearchContext();
+    window.fxPages.navigate("/strategies/results");
   });
 $("research-refresh").onclick = () =>
   researchAction($("research-refresh"), refreshResearch);
@@ -1631,3 +1794,34 @@ $("research-candidate").addEventListener("change", () => {
     ? "Frozen candidate selected. Load or review executable rules, choose a dataset, and confirm the mapping."
     : "Select a frozen candidate before registering.";
 });
+
+// Retain reviewed input choices in this browser tab, never translation text or credentials.
+for (const id of [
+  "research-rules",
+  "research-dataset",
+  "research-rule-proposal",
+  "research-partition",
+  "research-registration",
+]) {
+  $(id).addEventListener("change", () => saveResearchContext());
+}
+$("research-rules").addEventListener("input", () => saveResearchContext());
+$("research-load-rules").addEventListener("click", () => saveResearchContext());
+window.addEventListener("popstate", () => {
+  const sha = new URLSearchParams(location.search).get("candidate");
+  if (sha && sha !== selectedStrategy?.sha256) {
+    selectedStrategy = null;
+    refreshStrategies();
+  }
+});
+
+$("strategy-form").addEventListener("input", () => {
+  saveResearchContext();
+  $("strategy-continue").disabled =
+    !selectedStrategy ||
+    selectedStrategy.state !== "FROZEN_FOR_RESEARCH" ||
+    strategyFields.some(
+      (k) => strategySpec()[k] !== selectedStrategy.specification[k],
+    );
+});
+$("research-brief").addEventListener("input", () => saveResearchContext());

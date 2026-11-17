@@ -873,3 +873,64 @@ footer {
   outline: 2px solid var(--teal, #16796a);
   outline-offset: 2px;
 }
+/* Routed task pages share the shell, never expose unrelated forms. */
+.app-page[hidden],
+#strategy-flow[hidden] {
+  display: none !important;
+}
+.app-page {
+  min-width: 0;
+}
+.app-page > .panel,
+.app-page > section {
+  margin-bottom: 20px;
+}
+.app-page .advisor {
+  position: static;
+  max-width: 900px;
+}
+#strategy-flow {
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid var(--border, #31433f);
+  border-radius: 10px;
+}
+#strategy-flow nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+#strategy-flow a,
+.primary-link,
+.secondary-link {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 6px;
+  color: inherit;
+}
+#strategy-flow a.active,
+.primary-link {
+  background: #143d34;
+  color: #c7f8e9;
+}
+#strategy-context {
+  overflow-wrap: anywhere;
+  margin-top: 0;
+}
+#strategy-history {
+  display: grid;
+  gap: 10px;
+}
+#strategy-history button {
+  text-align: left;
+  white-space: normal;
+}
+#strategy-continue {
+  margin-top: 16px;
+}
+.app-page #research-results article {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid #31433f;
+  border-radius: 8px;
+}

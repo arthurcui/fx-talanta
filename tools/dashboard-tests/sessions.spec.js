@@ -1,3 +1,4 @@
+import { openPage } from "./navigation.js";
 import { test, expect } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtempSync, readFileSync, existsSync } from "node:fs";
@@ -68,6 +69,7 @@ test("owner signs in, reloads and revokes the browser session without trading au
   await expect(
     page.getByText("Trading disabled", { exact: true }),
   ).toBeVisible();
+  await openPage(page, "/activity");
   await page.locator("#operator-read").click();
   await expect(page.locator("#operator-result")).toContainText("denied");
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
