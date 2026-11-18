@@ -282,6 +282,7 @@ def execute_timeline(
     samples_sink=None,
     signal=None,
     strategy_version=VERSION,
+    compact_journal=False,
 ):
     """Shared risk/execution loop; alternate sinks do not change trading decisions."""
     start, end = experiment.window(partition)
@@ -290,6 +291,7 @@ def execute_timeline(
     )
     clock = FakeClock(start)
     gateway = Gateway.for_replay(account, run_id, clock, experiment.policy)
+    gateway.store.compact = compact_journal
     broker_costs = isinstance(experiment.costs, BrokerCosts)
     if broker_costs:
         costs = experiment.costs

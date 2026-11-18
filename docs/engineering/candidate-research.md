@@ -497,3 +497,27 @@ detects tampering, interruption and disk exhaustion. Acquired-index replay/expor
 uses the new manifest in integration tests. Native suite: 1,381 passed, 145 skipped;
 31 affected tests passed after the final manifest guard/integration test. All 19
 headless browser tests and all 36 B01 numerical-parity cases passed.
+
+The first corrected attempt completed EURUSD training (4,361,547 ticks; two closed
+trades; net simulated P&L −3.52216512778; REJECT_OR_REVISE). Its 19.5 GB logical
+journal successfully crossed the former limit in 73 segments. USDJPY then exposed
+a further scaling cost: repeating a growing entry history on every tick. That
+attempt was deliberately stopped and preserved, including its completed EURUSD
+result and interrupted USDJPY stream; it is not a completed two-pair study.
+
+The acquired-history path now uses versioned `book-delta/1` records inside those
+segments. Every event is retained; exact prior books are reconstructed by applying
+each delta to its preceding checkpoint. Hash chains cover the encoded records.
+Validated frozen core fields can be reused when their identities are unchanged;
+nested mutable mappings are separately compared against detached snapshots, and
+changes force full revalidation. Dynamic fields are still validated for every
+update. Legacy replay keeps full snapshots, preserving the committed B01 evidence.
+
+Tests compare every reconstructed book and all financial outputs against legacy
+replay and verify that nested mapping mutation invalidates the cache. A separate
+benchmark using the captured 15-entry simulator history processed the same 2,000
+updates in 4.54 seconds / 54.7 MB with full snapshots versus 0.31 seconds / 0.76 MB
+with deltas; this is a serialization benchmark, not a strategy result. The native
+suite passed 1,385 tests with 145 skipped. Corrected-engine plans can explicitly
+supersede a stopped plan while preserving its exact period, rules, source bindings
+and gates; they cannot restart the original exposure or repeat the same engine.

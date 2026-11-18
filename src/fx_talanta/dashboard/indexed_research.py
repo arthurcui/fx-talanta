@@ -157,6 +157,7 @@ def replay(research, plan, partition, key):
             timeline(bars, events, start, end),
             uuid5(NAMESPACE_URL, key),
             journal_sink=journal,
+            compact_journal=bundle.acquired_history,
             samples_sink=equity,
             signal=plan.rules.evaluate,
             strategy_version="candidate/"
@@ -180,6 +181,7 @@ def replay(research, plan, partition, key):
             if i % step == 0 or i == equity.count - 1
         ]
         result["audit_streams"] = {"journal": journal.receipt(), "equity": equity.receipt()}
+        result["audit_encoding"] = "book-delta/1" if bundle.acquired_history else "full-book/1"
         result["chart_note"] = (
             "Sampled display; complete tick processing and exact local audit streams preserved"
         )

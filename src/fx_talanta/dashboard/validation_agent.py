@@ -178,6 +178,26 @@ class ValidationAgent:
             """)
 
     def plan(self, data):
+        from fx_talanta.dashboard.research import indexed_engine_hash
+
+        if set(data) == {"from_plan_id"}:
+            prior = self.research.item(data["from_plan_id"])
+            if prior["kind"] != "VALIDATION_PLAN":
+                raise ValueError("expected prior validation plan")
+            value = dict(prior["payload"])
+            if value.get("engine_sha256") == indexed_engine_hash():
+                raise ValueError("same engine; inspect the existing run instead")
+            if self.active or self.research.active_runs:
+                raise ValueError("research worker still active")
+            previous = self.status(digest(dict(plan=prior["id"])))
+            if previous["status"] == "RUNNING":
+                raise ValueError("prior study still active")
+            if value["policy"] != POLICY:
+                raise ValueError("planning policy changed; review a new plan")
+            value["supersedes_plan_id"] = prior["id"]
+            value["engine_sha256"] = indexed_engine_hash()
+            return self.research.retain("VALIDATION_PLAN", value)
+
         from pydantic import TypeAdapter
 
         from fx_talanta.domain.models import Hash

@@ -102,3 +102,55 @@ def test_segmented_audit_interruption_and_disk_reserve(tmp_path, monkeypatch):
     monkeypatch.setattr(spool.shutil, "disk_usage", lambda _: SimpleNamespace(free=0))
     with pytest.raises(ValueError, match="disk reserve"):
         SegmentedSpool(tmp_path / "full.json")
+
+
+def test_compact_audit_reconstructs_exact_legacy_states_and_financials():
+    from fx_talanta.research.replay import execute_timeline
+    from fx_talanta.research.session_study import timeline
+    from fx_talanta.research.store import reconstruct_books
+    from tools.fixtures.b01_replay import scenario
+
+    data, experiment = scenario()
+    start, end = experiment.window("training")
+    run_id = uuid4()
+
+    def run(compact):
+        return execute_timeline(
+            data,
+            experiment,
+            "training",
+            timeline(data.bars, data.events, start, end),
+            run_id,
+            compact_journal=compact,
+        )
+
+    normal, original = run(False)
+    compact, encoded = run(True)
+    normal.pop("journal_tip")
+    compact.pop("journal_tip")
+    assert normal == compact
+    expanded = list(reconstruct_books(encoded))
+    assert len(expanded) == len(original)
+    for before, after in zip(original, expanded, strict=True):
+        a, b = dict(before["payload"]), dict(after["payload"])
+        a.pop("previous")
+        b.pop("previous")
+        b.pop("encoding", None)
+        assert a == b
+    assert any("book_delta" in r["payload"] for r in encoded)
+
+
+def test_compact_cache_detects_nested_mapping_mutation():
+    from fx_talanta.research.store import ReplayStore, reconstruct_books
+
+    data = json.loads((Path(__file__).parent / "fixtures/research-halt.json").read_text())
+    book = GatewayBook.model_validate(data["gateway"])
+    store = ReplayStore(book.account, uuid4(), FakeClock(datetime.fromisoformat(data["at"])))
+    store.compact = True
+    store.save("gateway", book, "BEFORE")
+    currency = book.entries[-1].reservation.currency_per_lot
+    currency["USD"] += Decimal(1)
+    store.save("gateway", book, "AFTER")
+    expanded = list(reconstruct_books(store.journal))
+    assert expanded[-1]["payload"]["book"] == book.model_dump(mode="json")
+    assert "entries" in store.journal[-1]["payload"]["book_delta"]

@@ -79,6 +79,27 @@ def test_interrupted_agent_never_restarts(indexed):
     assert not app.research.validation_agent.active
 
 
+def test_corrected_engine_plan_preserves_period_rules_and_prior_exposure(indexed, monkeypatch):
+    app, reg, _ = indexed
+    original = plan(app, reg)
+    key = digest(dict(plan=original["id"]))
+    with app.repo.conn:
+        app.repo.conn.execute(
+            "INSERT INTO validation_agent_runs VALUES (?,?,?,NULL)",
+            (key, json.dumps(original["payload"]), "[]"),
+        )
+    with pytest.raises(ValueError, match="same engine"):
+        app.research.plan_validation(dict(from_plan_id=original["id"]))
+    monkeypatch.setattr("fx_talanta.dashboard.research.indexed_engine_hash", lambda: "b" * 64)
+    corrected = app.research.plan_validation(dict(from_plan_id=original["id"]))
+    value = dict(corrected["payload"])
+    assert value.pop("supersedes_plan_id") == original["id"]
+    value["engine_sha256"] = original["payload"]["engine_sha256"]
+    assert value == original["payload"]
+    assert corrected["id"] != original["id"]
+    assert app.research.validation_agent.status(key)["status"] == "INTERRUPTED_NO_RESEND"
+
+
 def test_manual_replay_cannot_compete_with_agent(indexed):
     app, reg, _ = indexed
     app.research.validation_agent.active.add("held")
