@@ -1,5 +1,6 @@
 // UI labels only: never translate stored evidence, field values, identifiers or JSON.
 const labels = {
+  "How can I help?": "有什么可以帮你？",
   "Session results": "分时段研究结果",
   "Session / overlap": "交易时段／重叠时段",
   "Closed-trade drawdown": "已平仓交易回撤",

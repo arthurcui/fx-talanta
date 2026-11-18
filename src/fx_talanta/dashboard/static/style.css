@@ -140,22 +140,13 @@ p {
   margin-top: 4px;
 }
 .mark {
-  width: 34px;
-  height: 38px;
-  font-size: 27px;
-  color: #9ad6c6;
-  letter-spacing: -6px;
-  line-height: 38px;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: block;
 }
-.mark span {
-  font-size: 21px;
-  color: #fff;
-}
-.nav-label {
-  font-size: 10px;
-  letter-spacing: 1.6px;
-  margin: 50px 12px 14px;
-  color: #8ba5af;
+.sidebar > nav {
+  margin-top: 32px;
 }
 nav a {
   display: block;
@@ -696,7 +687,6 @@ footer {
     width: 100%;
     padding: 18px;
   }
-  .nav-label,
   .sidebar-bottom {
     display: none;
   }
