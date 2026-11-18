@@ -592,3 +592,25 @@ EURUSD full-study training result and suggested signal_period 20 → 24 as an
 unvalidated hypothesis. That live diagnosis survived a preview recreation. Its
 suggestion has not been run on the full historical study and is not an improvement
 claim. See [workflow acceptance](../evidence/ai-improvement-20261118.json).
+
+### Authorized 24-bar EURUSD comparison
+
+The subsequent owner-authorized comparison ran the real saved AI revision against
+the original EURUSD training inputs. Only `signal_period` changed, from 20 to 24
+completed M15 bars. Dataset, May 24–September 7 at 04:48 UTC window, engine, costs,
+risk policy and acceptance thresholds were verified identical before execution
+and again when the comparison receipt was created.
+
+All 4,361,547 ticks completed. Both versions produced two closed trades (one win),
+net simulated P&L −3.52216512778, and maximum observed drawdown 0.05522%. The net
+P&L difference is zero. Independent deal comparison found identical entry/exit
+times and economic values after excluding version-specific identifiers. The same
+aggregate-risk halt occurred May 27 at 13:30:31.937 UTC; both ended flat and remain
+REJECT_OR_REVISE. This hypothesis produced **no observed improvement** and did not
+resolve the risk-policy behavior. Two trades cannot support broader inference.
+
+The journal chain, lossless reconstruction and equity stream were independently
+verified; original baseline segments and equity hashes remain unchanged. The UI
+shows both versions in Improve, with a verified comparison export. No validation
+or holdout was opened, no risk limit changed, and trading remains disabled.
+See [the actual comparison receipt](../evidence/eurusd-24bar-comparison-20261118.json).

@@ -1,0 +1,135 @@
+{
+  "schema": "eurusd-24bar-comparison/1",
+  "verified_date_utc": "2026-11-18",
+  "engine_commit": "64e9769a376055cf2a020c226a0d371256873db3",
+  "identity": {
+    "baseline": "ca91178a0a0a37ef887ab05af0933eb28971d07ab112b57c9125cd3bf354cfa6",
+    "diagnosis": "46e4ca5bba24cbacd05d07cf855099bf4bb8598e3543e5d832861ef7df273d19",
+    "comparison_id": "64451eb8b05f3dc850a853597026441980998b4abdf40a1dc30ae6125b77a844",
+    "revision_id": "9205081754f97df1522291dcce0931e9b374081f82d916b7b117fac6350c1831",
+    "candidate_sha256": "439422cc59019394269a5d99c809be1043a00707d50013d55e5b0bee4870f3ba",
+    "registration_id": "480b52705915795f2792531725aeef55ff97c23946613ed14aaf58ce1cc1385c",
+    "run_id": "a1e55e2f42cefe0421843cd2e9661a2599c7661540b8925df25319ba1d09af05",
+    "status": "COMPLETED",
+    "inputs_identical": true,
+    "risk_limits_unchanged": true,
+    "execution_enabled": false
+  },
+  "comparison_receipt": {
+    "id": "a4fb529894c1cd55b2f760b1602cfe0f39d947cbab98c3e828b75581ea87f5bf",
+    "kind": "COMPARISON",
+    "payload": {
+      "assessment": "REJECT_OR_REVISE",
+      "baseline_id": "ca91178a0a0a37ef887ab05af0933eb28971d07ab112b57c9125cd3bf354cfa6",
+      "candidate_sha256": "439422cc59019394269a5d99c809be1043a00707d50013d55e5b0bee4870f3ba",
+      "comparison_id": "64451eb8b05f3dc850a853597026441980998b4abdf40a1dc30ae6125b77a844",
+      "execution_enabled": false,
+      "inputs_identical": true,
+      "net_pnl_delta": "0E-30",
+      "original": {
+        "closed_trades": 2,
+        "fully_settled": true,
+        "integrity_halt": true,
+        "maximum_observed_drawdown_fraction": "0.0005522078019444444444444444444444",
+        "net_expectancy": "-1.761082563888888888888888888888888",
+        "net_pnl": "-3.522165127777777777777777777777",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios.",
+        "verdict": "REJECT_OR_REVISE",
+        "winning_trades": 1
+      },
+      "partition": "training",
+      "qualified_for_paper": false,
+      "registration_id": "480b52705915795f2792531725aeef55ff97c23946613ed14aaf58ce1cc1385c",
+      "revised": {
+        "closed_trades": 2,
+        "fully_settled": true,
+        "integrity_halt": true,
+        "maximum_observed_drawdown_fraction": "0.0005522078019444444444444444444444",
+        "net_expectancy": "-1.761082563888888888888888888888888",
+        "net_pnl": "-3.522165127777777777777777777777",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios.",
+        "verdict": "REJECT_OR_REVISE",
+        "winning_trades": 1
+      },
+      "revised_result_id": "b3f95e2b8967f801b8f2c2eee9397254d8045391b10663b8e4a53583e6a45a79",
+      "revision_id": "9205081754f97df1522291dcce0931e9b374081f82d916b7b117fac6350c1831",
+      "risk_limits_unchanged": true,
+      "warning": "Reused training data; not independent validation, portfolio evidence or promotion."
+    }
+  },
+  "only_rule_change": {
+    "field": "signal_period",
+    "original": 20,
+    "revised": 24
+  },
+  "training_window": {
+    "start": "2026-05-24T00:00:00Z",
+    "end": "2026-09-07T04:48:00Z"
+  },
+  "coverage": {
+    "first": "2026-05-24T22:00:05.192000+00:00",
+    "last": "2026-09-07T04:47:56.250000+00:00",
+    "maximum_arrival_gap_seconds_including_edges": "173042.881",
+    "receipt_timing": "MODELED_NOT_MEASURED",
+    "ticks": 4361547
+  },
+  "risk_halt": {
+    "at": "2026-05-27T13:30:31.937000+00:00",
+    "limits": {
+      "aggregate_risk": {
+        "actual": "10.08000000",
+        "limit": "9.996957921980555555555555555555556"
+      }
+    },
+    "reason": "RISK_LIMIT_BREACH"
+  },
+  "audit_streams": {
+    "equity": {
+      "file": "equity.jsonl.gz",
+      "raw_bytes": 474426465,
+      "raw_sha256": "7c4d2110779157268877be0d96aa5199f54fc86cd03ae85a92f09cb9058a30d4",
+      "rows": 4361547,
+      "sha256": "6f8edc04cae9c180430b04ab814a889fc13c46590d7f98b988f7b73e9858b1bf"
+    },
+    "journal": {
+      "file": "journal.manifest.json",
+      "raw_bytes": 1546901486,
+      "raw_sha256": "f7fe708ac7a39b8ac85958fab63f22bd91abd2578c55206657dfc9d3c10af586",
+      "rows": 4361583,
+      "sha256": "89ce4f2d815fa51274125264fe611d62a7fdf29d078bfeddb6512e9240073d1c"
+    }
+  },
+  "journal_verification": {
+    "run_id": "a1e55e2f42cefe0421843cd2e9661a2599c7661540b8925df25319ba1d09af05",
+    "result_id": "b3f95e2b8967f801b8f2c2eee9397254d8045391b10663b8e4a53583e6a45a79",
+    "journal_rows": 4361583,
+    "journal_tip": "69ef7d1890c65ddb7db528e53bf34186b85d722666b30e650c038914b6cfc906",
+    "chain_verified": true,
+    "delta_reconstruction_verified": true,
+    "equity_rows": 4361547,
+    "equity_verified": true,
+    "baseline_files_unchanged": true,
+    "final_gateway_state": "HARD_HALT"
+  },
+  "economic_parity": {
+    "economic_deals_identical": true,
+    "deal_count": 4,
+    "metrics_identical": true,
+    "risk_halt_identical": true,
+    "trade_ids_excluded_from_comparison": true
+  },
+  "ui": {
+    "comparison_id": "a4fb529894c1cd55b2f760b1602cfe0f39d947cbab98c3e828b75581ea87f5bf",
+    "page_errors": [],
+    "export_matches": true,
+    "reload_passed": true
+  },
+  "conclusion": "NO_OBSERVED_IMPROVEMENT",
+  "limitations": [
+    "Identical economic deals and risk halt; this change did not improve the observed run.",
+    "Two closed trades; no statistical generalization.",
+    "Reused exploratory training inputs; validation and holdout unopened.",
+    "Historical cost/calendar/source qualification gaps preserved.",
+    "No trading, policy relaxation or promotion."
+  ]
+}
