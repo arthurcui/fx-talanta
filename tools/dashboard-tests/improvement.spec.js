@@ -47,11 +47,23 @@ test("diagnose, review, compare, export and reload with real backend and synthet
     .getByRole("button", { name: "Diagnose and improve", exact: true })
     .click();
   await expect(page).toHaveURL(/strategies\/improve/);
+  await expect(page.locator("[data-session-results]")).toContainText(
+    "INSUFFICIENT_SESSION_SAMPLE",
+  );
+  const sessionDownload = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Export session results", exact: true })
+    .click();
+  const sessionReport = JSON.parse(
+    readFileSync(await (await sessionDownload).path(), "utf8"),
+  );
+  expect(sessionReport.payload.sessions.symbol).toBe("EURUSD");
+  expect(sessionReport.payload.sessions.execution_enabled).toBe(false);
   await page
     .getByRole("button", { name: "Generate AI diagnosis", exact: true })
     .click();
   const diagnosis = page.locator("[data-diagnosis]");
-  await expect(diagnosis).toContainText("shorter signal lookback");
+  await expect(diagnosis).toContainText("London-only filter");
   await diagnosis
     .getByRole("button", { name: "Create reviewed revision", exact: true })
     .click();
@@ -88,4 +100,48 @@ test("diagnose, review, compare, export and reload with real backend and synthet
     "Reused training data",
   );
   expect(errors).toEqual([]);
+});
+
+test("session controls update reviewed rules without altering risk parameters and survive reload", async ({
+  page,
+}) => {
+  const target = new URL(url);
+  target.pathname = "/strategies/backtest";
+  await page.goto(target.href);
+  await expect(page.locator("#research-candidate")).toHaveValue(
+    target.searchParams.get("candidate"),
+  );
+  const rules = await page.evaluate(async () => {
+    const data = await api("/api/research");
+    return data.items.find((x) => x.kind === "REGISTRATION").payload.rules;
+  });
+  await page.locator("#research-rules").fill(JSON.stringify(rules));
+  await page.locator("#research-session-settings summary").click();
+  await page.locator("#research-entry-session").selectOption("LONDON");
+  await page
+    .locator("#research-reference-window")
+    .selectOption("CURRENT_SESSION");
+  await page
+    .getByRole("button", {
+      name: "Apply session settings to rules",
+      exact: true,
+    })
+    .click();
+  const updated = JSON.parse(
+    await page.locator("#research-rules").inputValue(),
+  );
+  expect(updated.entry_session).toBe("LONDON");
+  expect(updated.reference_window).toBe("CURRENT_SESSION");
+  for (const key of Object.keys(rules).filter(
+    (k) => !["entry_session", "reference_window"].includes(k),
+  ))
+    expect(updated[key]).toEqual(rules[key]);
+  await expect(page.locator("#research-reviewed")).not.toBeChecked();
+  await page.reload();
+  await expect(page.locator("#research-rules")).toHaveValue(
+    JSON.stringify(updated, null, 2),
+  );
+  await expect(
+    page.getByText("Trading disabled", { exact: true }),
+  ).toBeVisible();
 });

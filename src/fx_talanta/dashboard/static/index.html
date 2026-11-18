@@ -6,6 +6,7 @@
     <title>FX-Talanta</title>
     <link rel="stylesheet" href="/style.css" />
     <script src="/pages.js" defer></script>
+    <script src="/market-sessions.js" defer></script>
     <script src="/app.js" defer></script>
     <script src="/improvement.js" defer></script>
     <script src="/language.js" defer></script>
@@ -369,6 +370,46 @@
                   rows="10"
                 ></textarea>
               </label>
+              <details id="research-session-settings">
+                <summary>Session-aware rules</summary>
+                <p>
+                  Choose the trading session and the range used for breakout
+                  research. Apply these settings to the JSON, then review the
+                  mapping again. Existing results are unchanged.
+                </p>
+                <label
+                  >Entry session<select id="research-entry-session">
+                    <option value="UTC_WINDOW">UTC window only (legacy)</option>
+                    <option value="TOKYO">Tokyo</option>
+                    <option value="LONDON">London</option>
+                    <option value="NEW_YORK">New York</option>
+                    <option value="LONDON_NEW_YORK_OVERLAP">
+                      London–New York overlap
+                    </option>
+                  </select></label
+                >
+                <label
+                  >Breakout reference<select id="research-reference-window">
+                    <option value="ROLLING">Previous N completed bars</option>
+                    <option value="CURRENT_SESSION">
+                      Current named session range
+                    </option>
+                    <option value="PREVIOUS_COMPLETED_TOKYO">
+                      Latest completed Tokyo range
+                    </option>
+                  </select></label
+                >
+                <p>
+                  Tokyo 09–18 local; London and New York 08–17 local, with
+                  daylight-saving handling. The UTC window remains an additional
+                  cap. Session ranges use all complete reference bars, not
+                  signal_period. Missing or incomplete ranges block signals.
+                  These are research conventions, not holiday calendars.
+                </p>
+                <button type="button" id="research-session-apply">
+                  Apply session settings to rules
+                </button>
+              </details>
               <p>
                 Supported: H1 EMA trend with M15 breakout or EMA pullback,
                 simple ATR stop, reward/risk target, time exit and UTC weekday

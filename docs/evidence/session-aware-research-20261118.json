@@ -1,0 +1,610 @@
+{
+  "scope": "Session-aware research implementation; retrospective historical attribution and synthetic revision acceptance",
+  "historical_reports": [
+    {
+      "id": "a82c90525e3666985956735cc8a52997378d4e3e9924651d0197c28247b5a9ab",
+      "kind": "SESSION_ANALYSIS",
+      "payload": {
+        "baseline_id": "ca91178a0a0a37ef887ab05af0933eb28971d07ab112b57c9125cd3bf354cfa6",
+        "candidate_sha256": "8ce7a0108e5fcbbd0284b4aa987369e82d4c94657eee885517a15eb7ddd9388e",
+        "sessions": {
+          "version": "fx-sessions/1",
+          "tzdata": "2026.6",
+          "symbol": "EURUSD",
+          "partition": "training",
+          "conventions": {
+            "TOKYO": {
+              "timezone": "Asia/Tokyo",
+              "open_hour": 9,
+              "close_hour": 18
+            },
+            "LONDON": {
+              "timezone": "Europe/London",
+              "open_hour": 8,
+              "close_hour": 17
+            },
+            "NEW_YORK": {
+              "timezone": "America/New_York",
+              "open_hour": 8,
+              "close_hour": 17
+            }
+          },
+          "buckets": [
+            {
+              "regime": "LONDON",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 900,
+              "candidates": 68,
+              "evaluations_before_halt": 36,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 864,
+              "candidates_after_halt": 68,
+              "holds": {
+                "NO_SIGNAL": 832
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "LONDON+NEW_YORK",
+              "closed_trades": 2,
+              "wins": 1,
+              "losses": 1,
+              "net_pnl": "-3.522165127777777777777777777777777",
+              "closed_trade_drawdown": "4.802078019444444444444444444444444",
+              "evaluations": 1200,
+              "candidates": 93,
+              "evaluations_before_halt": 39,
+              "candidates_before_halt": 2,
+              "evaluations_after_halt": 1161,
+              "candidates_after_halt": 91,
+              "holds": {
+                "NO_SIGNAL": 1107
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "NEW_YORK",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 1500,
+              "candidates": 10,
+              "evaluations_before_halt": 40,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 1460,
+              "candidates_after_halt": 10,
+              "holds": {
+                "NO_SIGNAL": 290,
+                "OUTSIDE_SESSION": 1200
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "OFF_SESSION",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 905,
+              "candidates": 0,
+              "evaluations_before_halt": 31,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 874,
+              "candidates_after_halt": 0,
+              "holds": {
+                "OUTSIDE_SESSION": 905
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "TOKYO",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 2116,
+              "candidates": 0,
+              "evaluations_before_halt": 84,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 2032,
+              "candidates_after_halt": 0,
+              "holds": {
+                "OUTSIDE_SESSION": 2116
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "TOKYO+LONDON",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 600,
+              "candidates": 33,
+              "evaluations_before_halt": 24,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 576,
+              "candidates_after_halt": 33,
+              "holds": {
+                "OUTSIDE_SESSION": 300,
+                "NO_SIGNAL": 267
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            }
+          ],
+          "attributed_net_pnl": "-3.522165127777777777777777777777777",
+          "unattributed_realized_pnl": "7.77E-31",
+          "risk_halt": {
+            "at": "2026-05-27T13:30:31.937000+00:00",
+            "limits": {
+              "aggregate_risk": {
+                "actual": "10.08000000",
+                "limit": "9.996957921980555555555555555555556"
+              }
+            },
+            "reason": "RISK_LIMIT_BREACH"
+          },
+          "attribution": "Each closed position counted once, by entry session combination.",
+          "limitations": [
+            "Session hours are research conventions, not exchange schedules or holiday calendars.",
+            "Overlaps are separate, mutually exclusive buckets; no double counting.",
+            "Closed-trade drawdown is not intratrade or marked-equity drawdown.",
+            "Unattributed realized amounts may include open fees, separate financing or Decimal rounding.",
+            "Twenty trades is a descriptive warning threshold, not statistical qualification.",
+            "Post-halt evaluations are not executable opportunities; session effects cannot explain away a risk halt.",
+            "No per-session spread/volatility or causal performance claim is inferred from aggregate results."
+          ],
+          "execution_enabled": false,
+          "qualified_for_paper": false
+        },
+        "analyzer_sha256": "663a5cf4652f156e6390a60498cc243dcb37c40129d830f73ae31cb785edbcb5",
+        "source_result_sha256": "d3ef219cecc8f7dc0efb93c16c47339889187145aadc406c51b561dddd0727a6",
+        "scope": "Retrospective attribution of retained trades; no strategy rerun or changed verdict.",
+        "execution_enabled": false
+      }
+    },
+    {
+      "id": "b22bd9b445f11444ce59b8050d8ba3255182b71ebd562dcdea27313ab97bdcdd",
+      "kind": "SESSION_ANALYSIS",
+      "payload": {
+        "baseline_id": "b3f95e2b8967f801b8f2c2eee9397254d8045391b10663b8e4a53583e6a45a79",
+        "candidate_sha256": "439422cc59019394269a5d99c809be1043a00707d50013d55e5b0bee4870f3ba",
+        "sessions": {
+          "version": "fx-sessions/1",
+          "tzdata": "2026.6",
+          "symbol": "EURUSD",
+          "partition": "training",
+          "conventions": {
+            "TOKYO": {
+              "timezone": "Asia/Tokyo",
+              "open_hour": 9,
+              "close_hour": 18
+            },
+            "LONDON": {
+              "timezone": "Europe/London",
+              "open_hour": 8,
+              "close_hour": 17
+            },
+            "NEW_YORK": {
+              "timezone": "America/New_York",
+              "open_hour": 8,
+              "close_hour": 17
+            }
+          },
+          "buckets": [
+            {
+              "regime": "LONDON",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 900,
+              "candidates": 68,
+              "evaluations_before_halt": 36,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 864,
+              "candidates_after_halt": 68,
+              "holds": {
+                "NO_SIGNAL": 832
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "LONDON+NEW_YORK",
+              "closed_trades": 2,
+              "wins": 1,
+              "losses": 1,
+              "net_pnl": "-3.522165127777777777777777777777777",
+              "closed_trade_drawdown": "4.802078019444444444444444444444444",
+              "evaluations": 1200,
+              "candidates": 89,
+              "evaluations_before_halt": 39,
+              "candidates_before_halt": 2,
+              "evaluations_after_halt": 1161,
+              "candidates_after_halt": 87,
+              "holds": {
+                "NO_SIGNAL": 1111
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "NEW_YORK",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 1500,
+              "candidates": 9,
+              "evaluations_before_halt": 40,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 1460,
+              "candidates_after_halt": 9,
+              "holds": {
+                "NO_SIGNAL": 291,
+                "OUTSIDE_SESSION": 1200
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "OFF_SESSION",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 905,
+              "candidates": 0,
+              "evaluations_before_halt": 31,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 874,
+              "candidates_after_halt": 0,
+              "holds": {
+                "OUTSIDE_SESSION": 905
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "TOKYO",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 2116,
+              "candidates": 0,
+              "evaluations_before_halt": 84,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 2032,
+              "candidates_after_halt": 0,
+              "holds": {
+                "OUTSIDE_SESSION": 2116
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "TOKYO+LONDON",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 600,
+              "candidates": 29,
+              "evaluations_before_halt": 24,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 576,
+              "candidates_after_halt": 29,
+              "holds": {
+                "OUTSIDE_SESSION": 300,
+                "NO_SIGNAL": 271
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            }
+          ],
+          "attributed_net_pnl": "-3.522165127777777777777777777777777",
+          "unattributed_realized_pnl": "7.77E-31",
+          "risk_halt": {
+            "at": "2026-05-27T13:30:31.937000+00:00",
+            "limits": {
+              "aggregate_risk": {
+                "actual": "10.08000000",
+                "limit": "9.996957921980555555555555555555556"
+              }
+            },
+            "reason": "RISK_LIMIT_BREACH"
+          },
+          "attribution": "Each closed position counted once, by entry session combination.",
+          "limitations": [
+            "Session hours are research conventions, not exchange schedules or holiday calendars.",
+            "Overlaps are separate, mutually exclusive buckets; no double counting.",
+            "Closed-trade drawdown is not intratrade or marked-equity drawdown.",
+            "Unattributed realized amounts may include open fees, separate financing or Decimal rounding.",
+            "Twenty trades is a descriptive warning threshold, not statistical qualification.",
+            "Post-halt evaluations are not executable opportunities; session effects cannot explain away a risk halt.",
+            "No per-session spread/volatility or causal performance claim is inferred from aggregate results."
+          ],
+          "execution_enabled": false,
+          "qualified_for_paper": false
+        },
+        "analyzer_sha256": "663a5cf4652f156e6390a60498cc243dcb37c40129d830f73ae31cb785edbcb5",
+        "source_result_sha256": "f123685c1010a6327d85d81c650fba54428f9e6399575d9937fb4e4b6bd0fcaf",
+        "scope": "Retrospective attribution of retained trades; no strategy rerun or changed verdict.",
+        "execution_enabled": false
+      }
+    },
+    {
+      "id": "0ee93b9c2184f4fc9330525727e55e9aa20cb624c2cd5e20f97b32d3160fb2d9",
+      "kind": "SESSION_ANALYSIS",
+      "payload": {
+        "baseline_id": "53c7c11eee937a5948aeb469b7f605afaeaa6257d08fb798110813147c5dd77d",
+        "candidate_sha256": "8ce7a0108e5fcbbd0284b4aa987369e82d4c94657eee885517a15eb7ddd9388e",
+        "sessions": {
+          "version": "fx-sessions/1",
+          "tzdata": "2026.6",
+          "symbol": "USDJPY",
+          "partition": "training",
+          "conventions": {
+            "TOKYO": {
+              "timezone": "Asia/Tokyo",
+              "open_hour": 9,
+              "close_hour": 18
+            },
+            "LONDON": {
+              "timezone": "Europe/London",
+              "open_hour": 8,
+              "close_hour": 17
+            },
+            "NEW_YORK": {
+              "timezone": "America/New_York",
+              "open_hour": 8,
+              "close_hour": 17
+            }
+          },
+          "buckets": [
+            {
+              "regime": "LONDON",
+              "closed_trades": 3,
+              "wins": 2,
+              "losses": 1,
+              "net_pnl": "0.855301483462954719695217439595978",
+              "closed_trade_drawdown": "4.922011188724925804852644986227942",
+              "evaluations": 900,
+              "candidates": 63,
+              "evaluations_before_halt": 171,
+              "candidates_before_halt": 3,
+              "evaluations_after_halt": 729,
+              "candidates_after_halt": 60,
+              "holds": {
+                "NO_SIGNAL": 815,
+                "POSITION_ALREADY_OPEN": 22
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "LONDON+NEW_YORK",
+              "closed_trades": 10,
+              "wins": 5,
+              "losses": 5,
+              "net_pnl": "-5.902503140004821805536693864288581",
+              "closed_trade_drawdown": "21.32325673506735766568272422444436",
+              "evaluations": 1200,
+              "candidates": 86,
+              "evaluations_before_halt": 224,
+              "candidates_before_halt": 10,
+              "evaluations_after_halt": 976,
+              "candidates_after_halt": 76,
+              "holds": {
+                "NO_SIGNAL": 1084,
+                "POSITION_ALREADY_OPEN": 30
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "NEW_YORK",
+              "closed_trades": 7,
+              "wins": 1,
+              "losses": 6,
+              "net_pnl": "-14.66803924784080585611339885308464",
+              "closed_trade_drawdown": "14.66803924784080585611339885308464",
+              "evaluations": 1489,
+              "candidates": 26,
+              "evaluations_before_halt": 269,
+              "candidates_before_halt": 7,
+              "evaluations_after_halt": 1220,
+              "candidates_after_halt": 19,
+              "holds": {
+                "NO_SIGNAL": 252,
+                "OUTSIDE_SESSION": 1182,
+                "POSITION_ALREADY_OPEN": 29
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "OFF_SESSION",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 900,
+              "candidates": 0,
+              "evaluations_before_halt": 170,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 730,
+              "candidates_after_halt": 0,
+              "holds": {
+                "OUTSIDE_SESSION": 900
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "TOKYO",
+              "closed_trades": 0,
+              "wins": 0,
+              "losses": 0,
+              "net_pnl": "0",
+              "closed_trade_drawdown": "0",
+              "evaluations": 2114,
+              "candidates": 0,
+              "evaluations_before_halt": 418,
+              "candidates_before_halt": 0,
+              "evaluations_after_halt": 1696,
+              "candidates_after_halt": 0,
+              "holds": {
+                "OUTSIDE_SESSION": 2114
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            },
+            {
+              "regime": "TOKYO+LONDON",
+              "closed_trades": 3,
+              "wins": 0,
+              "losses": 3,
+              "net_pnl": "-9.271737456023194768831595941386773",
+              "closed_trade_drawdown": "9.271737456023194768831595941386773",
+              "evaluations": 600,
+              "candidates": 32,
+              "evaluations_before_halt": 120,
+              "candidates_before_halt": 3,
+              "evaluations_after_halt": 480,
+              "candidates_after_halt": 29,
+              "holds": {
+                "OUTSIDE_SESSION": 300,
+                "NO_SIGNAL": 265,
+                "POSITION_ALREADY_OPEN": 3
+              },
+              "sample_status": "INSUFFICIENT_SESSION_SAMPLE"
+            }
+          ],
+          "attributed_net_pnl": "-28.98697836040586771078647121916401",
+          "unattributed_realized_pnl": "1E-32",
+          "risk_halt": {
+            "at": "2026-06-12T09:38:01.777000+00:00",
+            "limits": {
+              "aggregate_risk": {
+                "actual": "10.09629633562135794989663291874000",
+                "limit": "9.971554525345844132289213528780835"
+              }
+            },
+            "reason": "RISK_LIMIT_BREACH"
+          },
+          "attribution": "Each closed position counted once, by entry session combination.",
+          "limitations": [
+            "Session hours are research conventions, not exchange schedules or holiday calendars.",
+            "Overlaps are separate, mutually exclusive buckets; no double counting.",
+            "Closed-trade drawdown is not intratrade or marked-equity drawdown.",
+            "Unattributed realized amounts may include open fees, separate financing or Decimal rounding.",
+            "Twenty trades is a descriptive warning threshold, not statistical qualification.",
+            "Post-halt evaluations are not executable opportunities; session effects cannot explain away a risk halt.",
+            "No per-session spread/volatility or causal performance claim is inferred from aggregate results."
+          ],
+          "execution_enabled": false,
+          "qualified_for_paper": false
+        },
+        "analyzer_sha256": "663a5cf4652f156e6390a60498cc243dcb37c40129d830f73ae31cb785edbcb5",
+        "source_result_sha256": "2e31c69c541b0031a91e26c2a3228c63efd8d0756b581b02a15b659f133ef488",
+        "scope": "Retrospective attribution of retained trades; no strategy rerun or changed verdict.",
+        "execution_enabled": false
+      }
+    }
+  ],
+  "real_ai": {
+    "id": "85041602cc2d290834d27f78cd6632fee911092a607979f6ebb3d168cbdf6a8c",
+    "model": "gpt-6-luna",
+    "request_sha256": "1d1ba263ad73c4f8bffe77b8382734b82ce6ca4be3a0704b0482f64779a318a3",
+    "response_sha256": "3186211252a41d87ed70c0c7ecf48eeb1b90d57ad636e884a6800d638046fe86",
+    "usage": {
+      "input_tokens": 3579,
+      "input_tokens_details": {
+        "cache_write_tokens": 3576,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 3576
+        },
+        "cached_tokens": 0
+      },
+      "output_tokens": 634,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 4213
+    },
+    "session_analysis_id": "a82c90525e3666985956735cc8a52997378d4e3e9924651d0197c28247b5a9ab",
+    "verified_risk_diagnosis_included": true,
+    "baseline_engine_current": false,
+    "proposal": {
+      "explanation": "Measured: the study closed 2 trades (1 win), with net realized PnL of -3.5222 and maximum observed drawdown of 0.0005522. Both trades were entered in the London/New York overlap bucket, which had 2 closed trades, 1 win, and -3.5222 net PnL; all session buckets are marked insufficient, and other buckets had no closed trades. These sparse results do not establish that any session is profitable or unfavorable. The verified replay reproduces an aggregate-risk breach on the second trade: current-to-stop risk, including unrealized profit exposed to giveback at a fixed stop, rose to 10.08 against a 9.99696 limit. The documented policy matched the replay and no calculation defect was reproduced. This is a risk-policy event, not evidence that changing entry sessions would fix it. The simulation is not qualified for paper use: it is a single-symbol training study with unqualified historical inputs and costs, modeled rather than measured receipt timing, a large maximum arrival gap, calendar health dependent on supplied historical Market health, and no independent holdout reuse claim. Execution was disabled; the results do not validate profitability.",
+      "hypothesis": "The halt arose because ongoing current-to-stop exposure included unrealized gains that could be surrendered to the fixed stop, rather than because initial entry-to-stop risk alone exceeded the limit. The verified replay supports this explanation; it does not establish an entry-session effect.",
+      "proposed_change": "No strategy-rule change is justified by these results. Preserve the supplied rules and investigate protective management and aggregate-risk policy behavior before any further parameter sweep; do not relax risk limits.",
+      "falsification": "Keep all current rules and risk limits unchanged while investigating the protective-management and risk-policy semantics with independently reviewed event-level evidence. The diagnosis would be challenged if an independently reproducible replay of the retained events showed that current-to-stop risk did not exceed the documented aggregate limit at the halt, or identified a calculation defect. A future session hypothesis would require materially more closed trades across the disjoint session buckets, with comparable cost treatment and independently qualified data; the present two-trade sample cannot test it.",
+      "uncertainty": "Only two trades were observed, both in one session bucket; the remaining session buckets provide no comparative closed-trade evidence. Costs are uncalibrated research assumptions and receipt timing is modeled, while historical input quality and calendar-health assumptions remain unqualified. The recorded drawdown is based on observed simulation metrics and does not by itself characterize intratrade or portfolio risk. No profitability, generalizability, or paper-readiness conclusion is supported.",
+      "recommendation": "INVESTIGATE_DATA_OR_POLICY",
+      "rules": {
+        "family": "TREND_BREAKOUT",
+        "trend_period": 50,
+        "signal_period": 20,
+        "atr_period": 14,
+        "stop_atr": "1.5",
+        "reward_risk": "2",
+        "hold_bars": 16,
+        "start_hour_utc": 8,
+        "end_hour_utc": 17,
+        "calendar_policy": "REQUIRE_MARKET_HEALTH",
+        "entry_session": "UTC_WINDOW",
+        "reference_window": "ROLLING"
+      }
+    },
+    "rules_unchanged": true,
+    "requests": 1
+  },
+  "ui": {
+    "actual_eurusd_usdjpy_visible": true,
+    "exports_match": true,
+    "reload_passed": true,
+    "chinese_labels_verified": true,
+    "ai_diagnosis_visible": true,
+    "investigation_cannot_create_revision": true,
+    "original_result_hashes_unchanged": {
+      "ca91178a0a0a37ef887ab05af0933eb28971d07ab112b57c9125cd3bf354cfa6": "3a0df67cfa4a07508350f63e19940e44641d938227a8297be75a89caad8b4072",
+      "b3f95e2b8967f801b8f2c2eee9397254d8045391b10663b8e4a53583e6a45a79": "5a14f0f8b7c08ead7318e7624a0c0dcb88f76288c32088bb28685ad0c4955c1d",
+      "53c7c11eee937a5948aeb469b7f605afaeaa6257d08fb798110813147c5dd77d": "c318639a41acc4f0449be625b43abe91c27087e9347b3890f05275eee8e1a701"
+    },
+    "active_replays": 0,
+    "model_requests_used": 6,
+    "page_errors": []
+  },
+  "verification": {
+    "full_native_passed": 1406,
+    "full_native_skipped": 145,
+    "final_session_and_planner_tests_passed": 21,
+    "synthetic_end_to_end": "Session evidence \u2192 AI London filter \u2192 review \u2192 freeze \u2192 comparison \u2192 export/reload; unchanged policy",
+    "real_docker": "Existing historical results \u2192 separate session reports \u2192 real AI diagnosis \u2192 UI/export/reload",
+    "browser_passed": 21,
+    "session_selector_race_fixed": true
+  },
+  "full_historical_rerun": false,
+  "validation_or_holdout_opened": false,
+  "risk_limits_changed": false,
+  "two_second_rule_changed": false,
+  "trading_enabled": false,
+  "broker_connections_used": false,
+  "new_campaign": false,
+  "pr_merged": false,
+  "limitations": [
+    "Every traded session bucket has fewer than 20 trades; no session edge is established",
+    "Session-specific spread/volatility estimates and holiday-calendar qualification remain open",
+    "Older-engine baselines remain frozen; a new matched baseline is needed for a new-engine comparison",
+    "Original M1/data/cost/calendar qualification gaps and B01 verdict are unchanged"
+  ]
+}

@@ -100,6 +100,16 @@
       el("p", p.limitations.join("; ")),
     );
     content.append(facts);
+    const sessions = await researchPost("analyze_sessions", {
+      result_id: baseline,
+    });
+    if (current !== generation) return;
+    const sessionBox = window.fxSessions.render(sessions.payload.sessions);
+    sessionBox.append(el("p", sessions.payload.scope));
+    sessionBox.append(
+      action("Export session results", () => researchExport(sessions)),
+    );
+    content.append(sessionBox);
     if (r.risk_halt?.limits?.aggregate_risk) {
       facts.append(
         action("Investigate risk halt", () =>
@@ -224,7 +234,17 @@
     label.append(instructions);
     content.append(label);
     const generate = action("Generate AI diagnosis", async () => {
-      const identity = JSON.stringify([baseline, instructions.value]);
+      const identity = JSON.stringify([
+        baseline,
+        instructions.value,
+        sessions.id,
+        data.items
+          .filter(
+            (x) =>
+              x.kind === "RISK_DIAGNOSIS" && x.payload.baseline_id === baseline,
+          )
+          .map((x) => x.id),
+      ]);
       const stored = JSON.parse(
         sessionStorage.getItem("fx-diagnosis-request") || "null",
       );
@@ -251,6 +271,13 @@
       const box = el("article");
       box.dataset.diagnosis = item.id;
       box.append(el("h3", "2. AI hypothesis — review before revising"));
+      if (item.payload.evidence.baseline_engine_current === false)
+        box.append(
+          el(
+            "p",
+            "This baseline uses an older engine. A new matched baseline is required before running a revision comparison; the saved result stays unchanged.",
+          ),
+        );
       for (const [title, value] of [
         ["Explanation", d.explanation],
         ["Hypothesis", d.hypothesis],

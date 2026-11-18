@@ -1625,6 +1625,15 @@ async function refreshResearch() {
           const p = item.payload,
             r = p.result;
           const d = r.diagnostics;
+          const sessionReport =
+            r.session_results ||
+            data.items.find(
+              (x) =>
+                x.kind === "SESSION_ANALYSIS" &&
+                x.payload.baseline_id === item.id,
+            )?.payload.sessions;
+          if (sessionReport)
+            box.append(window.fxSessions.render(sessionReport));
           if (r.integrity_halt) {
             box.append(node("h4", "Risk halt — strategy requires revision"));
             box.append(
@@ -1691,6 +1700,10 @@ async function refreshResearch() {
               NO_SIGNAL: "Trend and breakout/pullback conditions did not align",
               INDICATOR_WARMUP: "Not enough completed bars for the indicators",
               OUTSIDE_SESSION: "Outside the strategy's UTC trading session",
+              OUTSIDE_NAMED_SESSION:
+                "Outside the named local-time session or overlap",
+              REFERENCE_RANGE_INCOMPLETE:
+                "Required completed session range is missing or incomplete",
               SIGNAL_EXPIRED_OR_HISTORY_STALE:
                 "Signal expired or hourly history was stale",
               DATASET_COMPLETENESS_UNVERIFIED:

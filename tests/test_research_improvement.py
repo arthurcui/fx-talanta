@@ -43,6 +43,7 @@ def diagnose(app, result):
     assert len(calls) == 1
     sent = json.loads(calls[0])
     assert json.loads(sent["input"])["evidence"]["baseline_id"] == result["id"]
+    assert json.loads(sent["input"])["evidence"]["session_results"]["version"] == "fx-sessions/1"
     return receipt
 
 

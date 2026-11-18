@@ -14,7 +14,7 @@ from decimal import Decimal
 
 from fx_talanta.research.replay import digest
 
-POLICY = "strategy-validation/2"
+POLICY = "strategy-validation/3"
 TRADE_TARGETS = {"training": 100, "validation": 50, "holdout": 50}
 
 
@@ -31,6 +31,26 @@ def sessions(start, end):
 
 def choose_plan(candidate, rules, catalog, now):
     hours = rules.end_hour_utc - rules.start_hour_utc
+    if rules.entry_session != "UTC_WINDOW":
+        from fx_talanta.research.market_sessions import bounds
+
+        names = (
+            ["LONDON", "NEW_YORK"]
+            if rules.entry_session == "LONDON_NEW_YORK_OVERLAP"
+            else [rules.entry_session]
+        )
+        observed = []
+        for i in range(366):
+            day = (now - timedelta(days=i)).replace(hour=12, minute=0, second=0, microsecond=0)
+            if day.weekday() >= 5:
+                continue
+            windows = [bounds(name, day) for name in names]
+            start = max([day.replace(hour=rules.start_hour_utc)] + [w[0] for w in windows])
+            end = min([day.replace(hour=rules.end_hour_utc)] + [w[1] for w in windows])
+            observed.append(max(0, (end - start).total_seconds() / 3600))
+        hours = sum(observed) / len(observed)
+        if not hours:
+            raise ValueError("named session does not overlap the UTC cap")
     spacing = max(rules.signal_period, rules.hold_bars)
     target_days = max(126, math.ceil(sum(TRADE_TARGETS.values()) * spacing / (hours * 4)))
     end = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -38,7 +58,10 @@ def choose_plan(candidate, rules, catalog, now):
     boundaries = [start, start + (end - start) * 0.6, start + (end - start) * 0.8, end]
     warmup = {
         "H1": rules.trend_period + 3,
-        "M15": max(rules.signal_period + 1, rules.atr_period + 1),
+        "M15": max(
+            rules.signal_period + 1 if rules.reference_window == "ROLLING" else 37,
+            rules.atr_period + 1,
+        ),
     }
     selected = []
     for symbol in candidate["specification"]["pairs"]:
@@ -129,7 +152,8 @@ def choose_plan(candidate, rules, catalog, now):
                 f"test."
             ),
             (
-                f"{hours} active UTC hours/day, {spacing} signal/holding bars: "
+                f"{hours:.2f} average eligible hours/weekday within session and UTC caps, "
+                f"{spacing} signal/holding bars: "
                 f"planning proxy only, not a measured trading frequency."
             ),
             (

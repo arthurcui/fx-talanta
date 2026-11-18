@@ -329,6 +329,7 @@ def make_server(
             }
             assets["/pages.js"] = ("pages.js", "text/javascript")
             assets["/improvement.js"] = ("improvement.js", "text/javascript")
+            assets["/market-sessions.js"] = ("market-sessions.js", "text/javascript")
             for page in (
                 "/overview",
                 "/strategies",
@@ -460,6 +461,7 @@ def make_server(
                 "/api/research/start_validation",
                 "/api/research/diagnose",
                 "/api/research/investigate_halt",
+                "/api/research/analyze_sessions",
                 "/api/research/revise_diagnosis",
                 "/api/research/compare_revision",
                 "/api/research/improvement_status",

@@ -656,3 +656,11 @@ unchanged policies. Each verified 111,073 journal-prefix rows and all pinned
 compressed-part hashes. The full baseline/revision results remain REJECT_OR_REVISE;
 M1 qualification gaps, costs and historical-input limitations remain open.
 See [the diagnosis and UI verification receipt](../evidence/shared-risk-halt-20261118.json).
+
+### Session-aware research
+
+Named local-time entry sessions, overlap attribution, explicit breakout reference
+ranges, and session evidence in AI diagnosis are now available. Existing frozen
+results are interpreted in separate immutable reports, never rewritten or silently
+rerun. See [session-aware research](session-aware-research.md) for precise clock,
+range, UI, comparison and sample-size semantics.

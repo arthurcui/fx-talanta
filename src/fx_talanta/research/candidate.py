@@ -8,6 +8,7 @@ from pydantic import Field, model_validator
 
 from fx_talanta.domain.models import FrozenModel
 from fx_talanta.research.baseline import ema, visible
+from fx_talanta.research.market_sessions import context, entry_window, reference_bars
 from fx_talanta.research.replay import digest
 
 
@@ -22,11 +23,19 @@ class Rules(FrozenModel):
     start_hour_utc: int = Field(ge=0, le=22, strict=True)
     end_hour_utc: int = Field(ge=1, le=23, strict=True)
     calendar_policy: Literal["REQUIRE_MARKET_HEALTH"] = "REQUIRE_MARKET_HEALTH"
+    entry_session: Literal[
+        "UTC_WINDOW", "TOKYO", "LONDON", "NEW_YORK", "LONDON_NEW_YORK_OVERLAP"
+    ] = "UTC_WINDOW"
+    reference_window: Literal["ROLLING", "CURRENT_SESSION", "PREVIOUS_COMPLETED_TOKYO"] = "ROLLING"
 
     @model_validator(mode="after")
     def session(self):
         if self.start_hour_utc >= self.end_hour_utc:
             raise ValueError("same-day UTC session required")
+        if self.reference_window != "ROLLING" and self.family != "TREND_BREAKOUT":
+            raise ValueError("session ranges require breakout rules")
+        if self.reference_window == "CURRENT_SESSION" and self.entry_session == "UTC_WINDOW":
+            raise ValueError("current-session range requires a named entry session")
         return self
 
     def evaluate(self, bars, symbol, cutoff, *, history_complete=False, position_open=False):
@@ -37,6 +46,8 @@ class Rules(FrozenModel):
             symbol=symbol,
             input_hash=digest([b.model_dump(mode="json") for b in selected]),
             execution_enabled=False,
+            market_session=context(cutoff),
+            reference_window=self.reference_window,
         )
 
         def hold(reason):
@@ -48,21 +59,34 @@ class Rules(FrozenModel):
             return hold("POSITION_ALREADY_OPEN")
         if cutoff.weekday() >= 5 or not self.start_hour_utc <= cutoff.hour < self.end_hour_utc:
             return hold("OUTSIDE_SESSION")
+        window = entry_window(self.entry_session, cutoff)
+        if self.entry_session != "UTC_WINDOW" and window is None:
+            return hold("OUTSIDE_NAMED_SESSION")
         h1 = [b for b in selected if b.timeframe == "H1"]
         m15 = [b for b in selected if b.timeframe == "M15"]
-        if len(h1) < self.trend_period + 3 or len(m15) < max(
-            self.signal_period + 1, self.atr_period + 1
-        ):
+        lookback = self.signal_period if self.reference_window == "ROLLING" else 1
+        if len(h1) < self.trend_period + 3 or len(m15) < max(lookback + 1, self.atr_period + 1):
             return hold("INDICATOR_WARMUP")
         signal = m15[-1]
         expires = first[("M15", signal.close_at)] + timedelta(seconds=60)
+        if window is not None:
+            expires = min(expires, window[1])
         if cutoff >= expires or cutoff - h1[-1].close_at >= timedelta(hours=1):
             return hold("SIGNAL_EXPIRED_OR_HISTORY_STALE")
         values = [b.close for b in h1]
         trend, prior = ema(values, self.trend_period), ema(values[:-3], self.trend_period)
         up, down = values[-1] > trend > prior, values[-1] < trend < prior
         if self.family == "TREND_BREAKOUT":
-            preceding = m15[-self.signal_period - 1 : -1]
+            preceding = reference_bars(
+                self.reference_window, self.entry_session, m15, signal, self.signal_period, cutoff
+            )
+            if not preceding:
+                return hold("REFERENCE_RANGE_INCOMPLETE")
+            base["reference_range"] = dict(
+                bars=len(preceding),
+                start=preceding[0].close_at.isoformat(),
+                end=preceding[-1].close_at.isoformat(),
+            )
             buy = signal.close > max(b.high for b in preceding)
             sell = signal.close < min(b.low for b in preceding)
         else:
@@ -88,6 +112,8 @@ class Rules(FrozenModel):
         if distance <= 0:
             return hold("ZERO_RISK_DISTANCE")
         end = cutoff.replace(hour=self.end_hour_utc, minute=0, second=0, microsecond=0)
+        if window is not None:
+            end = min(end, window[1])
         return dict(
             base,
             action="CANDIDATE",

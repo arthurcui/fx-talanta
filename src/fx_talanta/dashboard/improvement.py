@@ -7,7 +7,7 @@ from uuid import UUID, uuid5
 
 from pydantic import Field
 
-from fx_talanta.dashboard.research import Registration
+from fx_talanta.dashboard.research import Registration, engine_hash, indexed_engine_hash
 from fx_talanta.domain.models import FrozenModel, Hash
 from fx_talanta.research.candidate import Rules
 from fx_talanta.research.replay import digest
@@ -61,6 +61,16 @@ INSTRUCTIONS = (
     "No claims of profit or validation from reused training data. Rules use H1 EMA trend, "
     "M15 breakout or EMA pullback, ATR stop, reward/risk target, holding bars and UTC session. "
     "Calendar health is mandatory. Decimals must be strings. All fields required."
+    " Use the supplied session_results and verified risk diagnosis when available. "
+    "Session buckets are disjoint entry-time combinations; compare sample counts and costs "
+    "before hypotheses. Sparse samples cannot justify declaring a session profitable or bad. "
+    "Session hours are DST-aware research conventions, not exchange holidays. "
+    "entry_session can restrict Tokyo, London, New York or London/New York overlap, within "
+    "the unchanged UTC cap. reference_window can be ROLLING, CURRENT_SESSION (named session "
+    "required), or PREVIOUS_COMPLETED_TOKYO (latest full range no older than 24h). "
+    "Nonrolling ranges require TREND_BREAKOUT and ignore signal_period for range length. "
+    "A session change cannot repair an aggregate-risk halt. Do not propose a session winner "
+    "from two trades; prefer INVESTIGATE_DATA_OR_POLICY when evidence is insufficient."
 )
 
 
@@ -76,6 +86,14 @@ def evidence(research, result_id):
     with research.repo.lock:
         candidate = research.app.strategies._record(plan.candidate_sha256)
     r = p["result"]
+    sessions = research.analyze_sessions(dict(result_id=result_id))
+    with research.repo.lock:
+        saved = research.repo.conn.execute(
+            "SELECT payload FROM research_items WHERE kind='RISK_DIAGNOSIS'"
+        ).fetchall()
+    risk_diagnosis = next(
+        (json.loads(raw) for (raw,) in saved if json.loads(raw)["baseline_id"] == result_id), None
+    )
     return (
         item,
         plan,
@@ -83,6 +101,8 @@ def evidence(research, result_id):
         dict(
             baseline_id=result_id,
             candidate_sha256=plan.candidate_sha256,
+            baseline_engine_current=plan.engine_sha256
+            == (indexed_engine_hash() if plan.indexed else engine_hash()),
             rules=plan.rules.model_dump(mode="json"),
             risk_policy=plan.experiment.policy.model_dump(mode="json"),
             metrics=r["metrics"],
@@ -95,6 +115,9 @@ def evidence(research, result_id):
             verdict=p["verdict"],
             limitations=p["limitations"],
             costs=plan.experiment.model_dump(mode="json").get("costs"),
+            session_analysis_id=sessions["id"],
+            session_results=sessions["payload"]["sessions"],
+            verified_risk_diagnosis=risk_diagnosis,
             execution_enabled=False,
         ),
     )
@@ -129,6 +152,8 @@ def revise(research, data):
     ]
     if len(changes) > 1:
         raise ValueError("only one rule change per controlled revision")
+    if changes == ["signal_period"] and diagnosis.rules.reference_window != "ROLLING":
+        raise ValueError("signal_period is inactive for a session-range breakout")
     spec = dict(candidate["specification"])
     spec.update(
         hypothesis=diagnosis.hypothesis,
@@ -167,6 +192,8 @@ def compare(research, data):
         raise ValueError("reviewed research revision required")
     revision = item["payload"]
     baseline, plan, original, _ = evidence(research, revision["baseline_id"])
+    if plan.engine_sha256 != (indexed_engine_hash() if plan.indexed else engine_hash()):
+        raise ValueError("engine changed; preserve this result and register a new matched baseline")
     with research.repo.lock:
         candidate = research.app.strategies._record(revision["candidate_sha256"])
     if candidate["parent"] != original["sha256"]:

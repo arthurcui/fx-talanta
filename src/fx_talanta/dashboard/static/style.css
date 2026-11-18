@@ -954,3 +954,11 @@ footer {
 #strategy-improvement button {
   margin: 8px 12px 8px 0;
 }
+
+[data-session-results] {
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+[data-session-results] table {
+  width: 100%;
+}

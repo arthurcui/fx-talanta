@@ -67,8 +67,17 @@ def indexed_engine_hash():
 
 
 def engine_hash():
+    import tzdata
+
     kernel = Path(__file__).parents[1] / "research" / "candidate.py"
-    return digest(dict(replay=source_hash(), candidate=kernel.read_text(encoding="utf-8")))
+    return digest(
+        dict(
+            replay=source_hash(),
+            candidate=kernel.read_text(encoding="utf-8"),
+            sessions=kernel.with_name("market_sessions.py").read_text(encoding="utf-8-sig"),
+            tzdata=tzdata.__version__,
+        )
+    )
 
 
 INSTRUCTIONS = (
@@ -90,6 +99,14 @@ INSTRUCTIONS = (
     "start_hour_utc must be less than end_hour_utc (no overnight session). "
     "Decimal risk percentages, stop_atr and reward_risk must be decimal strings, not numbers. "
     "stop_atr and reward_risk must be greater than 0 and no greater than 5."
+    " Named entry_session uses Tokyo 09–18 Asia/Tokyo, London 08–17 Europe/London, "
+    "New York 08–17 America/New_York, or their London/New York intersection, with DST. "
+    "These are weekday research conventions, not holiday calendars or liquidity guarantees. "
+    "The UTC window remains an additional cap. Choose reference_window explicitly: ROLLING "
+    "uses signal_period completed bars; CURRENT_SESSION uses all preceding complete M15 bars "
+    "of a named entry session; PREVIOUS_COMPLETED_TOKYO uses the latest complete Tokyo range "
+    "no older than 24h. Nonrolling ranges require TREND_BREAKOUT; signal_period does not "
+    "set their range length. Missing range bars block the signal. No profit claims by session."
 )
 
 
@@ -177,6 +194,11 @@ class Research:
 
         return investigate(self, data)
 
+    def analyze_sessions(self, data):
+        from fx_talanta.dashboard.session_analysis import analyze
+
+        return analyze(self, data)
+
     def revise_diagnosis(self, data):
         from fx_talanta.dashboard.improvement import revise
 
@@ -206,9 +228,11 @@ class Research:
                 "SELECT id,kind,payload FROM research_items WHERE rowid IN "
                 "(SELECT rowid FROM research_items ORDER BY rowid DESC LIMIT 20) "
                 "OR rowid IN (SELECT rowid FROM research_items WHERE kind='AI_PROPOSAL' "
-                "ORDER BY rowid DESC LIMIT 10) OR kind IN "
+                "ORDER BY rowid DESC LIMIT 10) "
+                "OR rowid IN (SELECT rowid FROM research_items WHERE kind='BACKTEST' "
+                "ORDER BY rowid DESC LIMIT 20) OR kind IN "
                 "('AI_DIAGNOSIS','RESEARCH_REVISION','COMPARISON_PLAN','COMPARISON',"
-                "'RISK_DIAGNOSIS') "
+                "'RISK_DIAGNOSIS','SESSION_ANALYSIS') "
                 "ORDER BY rowid DESC"
             ).fetchall()
             jobs = self.repo.conn.execute("SELECT id,result FROM research_jobs").fetchall()
@@ -569,6 +593,9 @@ class Research:
                     )
                 ),
             )
+        from fx_talanta.research.session_results import summarize
+
+        result["session_results"] = summarize(result)
         metrics = result["metrics"]
         inadequate = (
             metrics["closed_trades"] < plan.minimum_closed_trades or not result["fully_settled"]
