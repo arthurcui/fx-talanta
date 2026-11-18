@@ -521,3 +521,38 @@ with deltas; this is a serialization benchmark, not a strategy result. The nativ
 suite passed 1,385 tests with 145 skipped. Corrected-engine plans can explicitly
 supersede a stopped plan while preserving its exact period, rules, source bindings
 and gates; they cannot restart the original exposure or repeat the same engine.
+
+### Corrected two-symbol study result — November 18
+
+Engine `66e7507` completed both exploratory training replays under the unchanged
+May 24–November 17, 126-weekday request. Training ran through September 7 at
+04:48 UTC; validation and holdout were not opened. The overall result is
+`DATA_REQUIRED`, not full-period qualification. Both sources lack November 16,
+and dated broker costs, calendar/news and independent holdout remain unqualified.
+
+| Training result | EURUSD | USDJPY |
+| --- | ---: | ---: |
+| Ticks processed | 4,361,547 | 6,433,389 |
+| Closed trades / wins | 2 / 1 | 23 / 8 |
+| Net simulated P&L | −3.52216513 | −28.98697836 |
+| Maximum observed drawdown | 0.05522% | 0.36235% |
+| Verdict | REJECT_OR_REVISE | REJECT_OR_REVISE |
+
+These are separate single-symbol studies, not portfolio returns. Both hit actual
+aggregate-risk limits and ended fully settled with no open positions. EURUSD's
+halt was May 27 at 13:30:31.937 UTC; USDJPY's was June 12 at 09:38:01.777 UTC
+(10.09629634 modeled open risk versus the unchanged 9.97155453 limit). The
+protective close and latched halt remain correct behavior; no threshold was
+relaxed to create trades or a passing result.
+
+The current journal retains 4,361,583 EURUSD and 6,433,782 USDJPY records using
+lossless deltas. EURUSD's financial outputs exactly match the prior completed
+full-snapshot replay. The failed original and deliberately interrupted
+segment-only attempt remain preserved with distinct identities. See the
+[corrected-study verification receipt](../evidence/full-history-remediation-20261118.json)
+for exact values, hashes, preservation checks and UI export verification.
+
+The Docker Results page shows both symbol verdicts and the specific risk halts;
+its exported agent report matches the stored result. Trading remains disabled.
+The same browser checks passed after restarting the preview with its original
+0.5-CPU / 256-MiB limits; both results and exports persisted without another run.
