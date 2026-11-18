@@ -172,6 +172,11 @@ class Research:
 
         return diagnose(self, data)
 
+    def investigate_halt(self, data):
+        from fx_talanta.dashboard.halt_analysis import investigate
+
+        return investigate(self, data)
+
     def revise_diagnosis(self, data):
         from fx_talanta.dashboard.improvement import revise
 
@@ -202,7 +207,8 @@ class Research:
                 "(SELECT rowid FROM research_items ORDER BY rowid DESC LIMIT 20) "
                 "OR rowid IN (SELECT rowid FROM research_items WHERE kind='AI_PROPOSAL' "
                 "ORDER BY rowid DESC LIMIT 10) OR kind IN "
-                "('AI_DIAGNOSIS','RESEARCH_REVISION','COMPARISON_PLAN','COMPARISON') "
+                "('AI_DIAGNOSIS','RESEARCH_REVISION','COMPARISON_PLAN','COMPARISON',"
+                "'RISK_DIAGNOSIS') "
                 "ORDER BY rowid DESC"
             ).fetchall()
             jobs = self.repo.conn.execute("SELECT id,result FROM research_jobs").fetchall()

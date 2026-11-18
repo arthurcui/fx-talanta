@@ -459,6 +459,7 @@ def make_server(
                 "/api/research/plan_validation",
                 "/api/research/start_validation",
                 "/api/research/diagnose",
+                "/api/research/investigate_halt",
                 "/api/research/revise_diagnosis",
                 "/api/research/compare_revision",
                 "/api/research/improvement_status",

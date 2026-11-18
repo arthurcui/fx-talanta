@@ -8,6 +8,7 @@
   const el = (tag, text = "") => {
     const n = document.createElement(tag);
     n.textContent = text;
+    if (["h3", "h4", "th", "summary"].includes(tag)) n.dataset.uiLabel = "";
     return n;
   };
   const message = el("p");
@@ -29,17 +30,19 @@
       if (busy) return;
       busy = true;
       b.disabled = true;
+      content.inert = true;
       message.textContent = "Working…";
       try {
         const value = await fn();
+        await render();
         message.textContent =
           value?.status || "Saved. Original evidence preserved.";
-        await render();
       } catch (e) {
         message.textContent =
           "Not confirmed: " + e.message + ". Refresh evidence before retrying.";
       } finally {
         busy = false;
+        content.inert = false;
         b.disabled = false;
       }
     };
@@ -97,6 +100,122 @@
       el("p", p.limitations.join("; ")),
     );
     content.append(facts);
+    if (r.risk_halt?.limits?.aggregate_risk) {
+      facts.append(
+        action("Investigate risk halt", () =>
+          researchPost("investigate_halt", { result_id: baseline }),
+        ),
+      );
+    }
+    for (const item of data.items.filter(
+      (x) => x.kind === "RISK_DIAGNOSIS" && x.payload.baseline_id === baseline,
+    )) {
+      const d = item.payload,
+        replay = d.replay;
+      const box = el("article");
+      box.dataset.riskDiagnosis = item.id;
+      box.append(
+        el("h3", "Verified risk-halt diagnosis"),
+        el("p", d.explanation),
+      );
+      const table = el("table");
+      const rows = [
+        ["Trade", "Symbol", "Volume", "Net P&L", "Exit reason"],
+        ...d.trades.map((t) => [
+          t.trade,
+          t.symbol,
+          t.volume,
+          Number(t.net_pnl).toFixed(6),
+          t.exit_reason,
+        ]),
+      ];
+      rows.forEach((cells, i) => {
+        const row = el("tr");
+        cells.forEach((value) =>
+          row.append(el(i ? "td" : "th", String(value))),
+        );
+        table.append(row);
+      });
+      const timing = el("details");
+      timing.append(el("summary", "Trade timing and entry risk"));
+      for (const t of d.trades)
+        timing.append(
+          el(
+            "p",
+            t.trade +
+              " · " +
+              t.opened_at +
+              " → " +
+              t.closed_at +
+              " · " +
+              t.side +
+              " · " +
+              t.admitted_risk,
+          ),
+        );
+      box.append(table, timing, el("h4", "Risk at the halt boundary"));
+      const risk = el("table");
+      [
+        ["Measurement", "Before", "Trigger"],
+        [
+          "Aggregate risk",
+          replay.before.aggregate_risk,
+          replay.trigger.aggregate_risk,
+        ],
+        [
+          "Aggregate limit",
+          replay.before.aggregate_limit,
+          replay.trigger.aggregate_limit,
+        ],
+        [
+          "Pending reservation risk",
+          replay.before.pending_reservation_risk,
+          replay.trigger.pending_reservation_risk,
+        ],
+      ].forEach((cells, i) => {
+        const row = el("tr");
+        cells.forEach((value) =>
+          row.append(el(i ? "td" : "th", String(value))),
+        );
+        risk.append(row);
+      });
+      box.append(risk);
+      for (const p of replay.trigger.positions) {
+        box.append(
+          el(
+            "p",
+            "Entry-to-stop loss + unrealized profit + exit buffer: " +
+              p.entry_to_stop_loss +
+              " + " +
+              p.unrealized_pnl +
+              " + " +
+              p.incremental_exit_buffer +
+              " = " +
+              p.aggregate_contribution,
+          ),
+        );
+      }
+      box.append(
+        el(
+          "p",
+          "Targeted replay: " +
+            replay.historical_observations +
+            " historical quotes over " +
+            replay.elapsed_seconds +
+            " seconds · " +
+            replay.final_state +
+            " · Open positions: " +
+            replay.remaining_positions,
+        ),
+        el(
+          "p",
+          "Recorded protective close reproduced. Risk limits unchanged. Trading disabled.",
+        ),
+        el("p", d.next_action),
+        action("Export risk-halt evidence", () => researchExport(item)),
+      );
+      content.append(box);
+    }
     const label = el("label", "Instructions (English or Chinese)");
     const instructions = document.createElement("textarea");
     instructions.id = "improvement-instructions";

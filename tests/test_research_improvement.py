@@ -137,3 +137,12 @@ def test_comparison_failure_is_not_reported_as_completed(app, monkeypatch):
     result = app.research.compare_revision(dict(revision_id=revision["id"], reviewed=True))
     assert result["status"] == "FAILED_NO_RESEND"
     assert result["kind"] == "COMPARISON_PENDING"
+
+
+def test_halt_diagnosis_requires_measured_training_halt(app):
+    _, original = baseline(app)
+    with pytest.raises(ValueError, match="measured aggregate-risk"):
+        app.research.investigate_halt(dict(result_id=original["id"]))
+    held = app.research.retain("BACKTEST", dict(original["payload"], partition="holdout"))
+    with pytest.raises(ValueError, match="training backtest"):
+        app.research.investigate_halt(dict(result_id=held["id"]))

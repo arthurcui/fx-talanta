@@ -614,3 +614,45 @@ verified; original baseline segments and equity hashes remain unchanged. The UI
 shows both versions in Improve, with a verified comparison export. No validation
 or holdout was opened, no risk limit changed, and trading remains disabled.
 See [the actual comparison receipt](../evidence/eurusd-24bar-comparison-20261118.json).
+
+### Shared risk-halt diagnosis (November 18)
+
+On a training result, **Diagnose and improve → Investigate risk halt** verifies
+its pinned engine, historical index and compressed journal parts, reconstructs
+the pre-halt gateway/broker books and ledger, then replays the two exact historical
+quotes straddling the first aggregate-risk halt in the in-memory simulator.
+The recorded close's action, volume, price, commission and realized amount must
+match. A repeated-quote check verifies that the halt remains latched and flat.
+The immutable report includes trade outcomes, risk decomposition, hashes and an
+export. This deterministic investigation does not consume an AI request, create
+an entry, rerun the full study, change policy or open validation/holdout.
+
+Both original 20-bar and revised 24-bar EURUSD runs reproduced the same outcome:
+
+| Trade | Simulated net P&L (USD) | Exit | Admitted entry risk |
+| --- | ---: | --- | ---: |
+| 1 | -4.802078 | Stop reached | 5.04 |
+| 2 | +1.279913 | Aggregate-risk protective close | 8.16 |
+
+At 13:30:31.831 UTC on May 27, risk was 9.92, below the 9.996798 cap.
+At 13:30:31.937, just 106 ms later, it was 10.08, above the 9.996958 cap:
+**7.12 entry-to-stop loss + 2.08 unrealized profit + 0.88 incremental exit buffer**.
+Unresolved reservation risk was zero; the filled entry was not double-counted.
+The cap remained 0.10% of eligible current equity. The original entry-risk
+calculation also budgets opening costs; it is not the same measurement as ongoing
+current-liquidation-to-stop exposure.
+
+This matches the [canonical risk definition](../architecture/specification.md):
+ongoing exposure includes profit that could be given back to the stop. No arithmetic
+defect was reproduced. The fixed stop and the halt policy interacted to close a
+profitable position and prevent subsequent entries. This explains the shared halt;
+it does not establish whether either strategy would be profitable without it.
+Changing breakout lookback produced identical trades and did not address that
+interaction. Protective management within the unchanged limits is the next
+research question, not permission to loosen the cap or silently reset the halt.
+
+Both short replays reproduced the original close and ended HARD_HALT, flat, with
+unchanged policies. Each verified 111,073 journal-prefix rows and all pinned
+compressed-part hashes. The full baseline/revision results remain REJECT_OR_REVISE;
+M1 qualification gaps, costs and historical-input limitations remain open.
+See [the diagnosis and UI verification receipt](../evidence/shared-risk-halt-20261118.json).

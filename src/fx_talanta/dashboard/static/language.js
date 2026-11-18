@@ -1,5 +1,21 @@
 // UI labels only: never translate stored evidence, field values, identifiers or JSON.
 const labels = {
+  "Investigate risk halt": "调查风险停机",
+  "Verified risk-halt diagnosis": "已核实的风险停机诊断",
+  "Risk at the halt boundary": "停机边界的风险",
+  "Export risk-halt evidence": "导出风险停机证据",
+  "Aggregate risk": "总风险",
+  "Aggregate limit": "总风险上限",
+  "Pending reservation risk": "待成交预留风险",
+  "Exit reason": "平仓原因",
+  "Admitted entry risk": "入场时批准的风险",
+  "Trade timing and entry risk": "交易时间及入场风险",
+  "Recorded protective close reproduced. Risk limits unchanged. Trading disabled.":
+    "已复现记录中的保护性平仓。风险限额未变。交易保持禁用。",
+  "Ongoing risk includes unrealized profit that can be given back to a fixed stop. This differs from initial entry-to-stop capital risk and matches the documented policy. The current-equity aggregate limit was crossed; the protective close was reproduced from retained evidence.":
+    "持仓风险包含价格回撤至固定止损时可能回吐的浮盈。这与初始入场至止损的本金风险不同，符合已记录的政策。持仓风险突破了按当前权益计算的总风险上限；保留证据已复现保护性平仓。",
+  "Review protective management within the unchanged limits before another parameter sweep.":
+    "在继续扫描参数之前，先审查在现有限额内的保护性管理。",
   Improve: "改进",
   "Improve your strategy": "改进策略",
   "Diagnose and improve": "诊断并改进",
@@ -378,9 +394,9 @@ const actionObserver = new MutationObserver((records) => {
   for (const record of records)
     for (const added of record.addedNodes) {
       if (added.nodeType !== Node.ELEMENT_NODE) continue;
-      const buttons = added.matches("button")
+      const buttons = added.matches("button, [data-ui-label]")
         ? [added]
-        : added.querySelectorAll("button");
+        : added.querySelectorAll("button, [data-ui-label]");
       for (const button of buttons)
         for (const node of button.childNodes) {
           if (
