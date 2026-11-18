@@ -928,9 +928,29 @@ footer {
 #strategy-continue {
   margin-top: 16px;
 }
-.app-page #research-results article {
+.app-page #research-results article,
+#strategy-improvement article {
   margin: 20px 0;
   padding: 18px;
   border: 1px solid #31433f;
   border-radius: 8px;
+}
+#strategy-improvement details {
+  margin: 16px 0;
+}
+#strategy-improvement table {
+  width: 100%;
+  margin: 18px 0;
+}
+#strategy-improvement td {
+  padding: 8px;
+  border-bottom: 1px solid #bccdc7;
+  overflow-wrap: anywhere;
+}
+#strategy-improvement label {
+  display: block;
+  margin: 16px 0;
+}
+#strategy-improvement button {
+  margin: 8px 12px 8px 0;
 }

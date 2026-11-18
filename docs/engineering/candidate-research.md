@@ -556,3 +556,39 @@ The Docker Results page shows both symbol verdicts and the specific risk halts;
 its exported agent report matches the stored result. Trading remains disabled.
 The same browser checks passed after restarting the preview with its original
 0.5-CPU / 256-MiB limits; both results and exports persisted without another run.
+
+### AI diagnosis, controlled revision and comparison
+
+From a training result, choose **Diagnose and improve**. The separate Improve page
+shows verified baseline facts, an optional English/Chinese instruction, and the
+AI's explanation, hypothesis, proposed rule change, falsification criterion and
+uncertainty. Model statements are hypotheses, not verified causal conclusions.
+The request is pinned to the retained result, policy, rules and metrics. It shares
+the existing ten-call research budget; uncertain requests are retained without
+automatic resend. No broker credentials or order capability enter this workflow.
+
+The owner reviews a single supported Rules change, then creates a linked draft.
+Risk percentages, pair scope and portfolio policy are inherited unchanged. An
+investigation-only recommendation, unchanged rules or multiple changed parameters
+cannot create a revision. Original versions and results remain immutable.
+
+**Freeze revision and run comparison** registers the exact original training data,
+window, costs, acceptance thresholds and engine with the new rule and candidate.
+The comparison checks those bindings again before displaying results. It reports
+original/revised P&L, trades, drawdown, risk halt and verdict side by side, with an
+exportable immutable receipt. Admission prevents duplicate replay; interrupted or
+failed comparisons are explicit and never retried automatically. Large indexed
+comparisons use the existing background worker and refresh while this page is open.
+
+This is exploratory reuse of training data. It cannot open validation/holdout,
+change the two-second rule, relax a risk limit, promote a strategy or enable
+trading. The AI's prose falsification criterion is retained for review; it is not
+arbitrary executable code. Deterministic assessment remains authoritative.
+
+Acceptance covered the real backend and Docker image through diagnosis, review,
+revision, freeze, replay, comparison, export and reload using explicitly synthetic
+market/provider fixtures. Separately, a real OpenAI call diagnosed the retained
+EURUSD full-study training result and suggested signal_period 20 → 24 as an
+unvalidated hypothesis. That live diagnosis survived a preview recreation. Its
+suggestion has not been run on the full historical study and is not an improvement
+claim. See [workflow acceptance](../evidence/ai-improvement-20261118.json).

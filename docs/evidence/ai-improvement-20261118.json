@@ -1,0 +1,102 @@
+{
+  "schema": "ai-improvement-acceptance/1",
+  "date_utc": "2026-11-18",
+  "authority": {
+    "execution_enabled": false,
+    "qualified_for_paper": false,
+    "risk_policy_changed": false,
+    "full_history_revision_run": false
+  },
+  "live_provider": {
+    "diagnosis_id": "46e4ca5bba24cbacd05d07cf855099bf4bb8598e3543e5d832861ef7df273d19",
+    "baseline_id": "ca91178a0a0a37ef887ab05af0933eb28971d07ab112b57c9125cd3bf354cfa6",
+    "model": "gpt-6-luna",
+    "request_sha256": "7de8ed6f98ec9d7f55180f4e2dc9c8f4b89a47a08921af1fe4a916bd4f68d712",
+    "response_sha256": "b113109a8365a511fb8b0e0d7f971f067bf719531bbd7fd977196767390c0fb3",
+    "usage": {
+      "input_tokens": 1154,
+      "output_tokens": 534
+    },
+    "recommendation": "REVISE_RULES",
+    "hypothesis": "A modestly longer M15 breakout signal period may filter some marginal entries and reduce aggregate-risk pressure. This is a testable hypothesis, not a conclusion supported by the two-trade sample.",
+    "rule_change": {
+      "field": "signal_period",
+      "original": 20,
+      "proposed": 24
+    },
+    "page_errors": [],
+    "persisted_after_preview_recreation": true
+  },
+  "isolated_docker_acceptance": {
+    "provider": "DETERMINISTIC_SYNTHETIC_FIXTURE",
+    "market": "SYNTHETIC_SIMULATION",
+    "stages": [
+      "diagnose",
+      "reject_unreviewed_revision",
+      "review",
+      "create_revision",
+      "freeze",
+      "replay",
+      "compare",
+      "export",
+      "reload"
+    ],
+    "passed": true,
+    "comparisons": [
+      {
+        "id": "fc933fa55dc6e4a41d34c5575978b042705308a289bddd012bc2cc2321578510",
+        "kind": "COMPARISON",
+        "payload": {
+          "assessment": "REJECT_OR_REVISE",
+          "baseline_id": "050e8ec3c36101af4a7e8166984622b3461af7b38f93565335f9b90baa14b659",
+          "candidate_sha256": "615b5bf2630bc4d5b936ce24ed887d5bc4562071b589f89a5c11c5af20fa4af3",
+          "comparison_id": "d0ca9f7aa678bc6f5eccb4a52a228926151e26aa1df458d37be1d3c917d6f6d4",
+          "execution_enabled": false,
+          "inputs_identical": true,
+          "net_pnl_delta": "0E-30",
+          "original": {
+            "closed_trades": 1,
+            "fully_settled": true,
+            "integrity_halt": false,
+            "maximum_observed_drawdown_fraction": "0.000202499687500000000000000000",
+            "net_expectancy": "-2.024996875000000000000000000000000",
+            "net_pnl": "-2.024996875000000000000000000000",
+            "uncertainty": "Bounded sample: no economic inference or annualized ratios.",
+            "verdict": "REJECT_OR_REVISE",
+            "winning_trades": 0
+          },
+          "partition": "training",
+          "qualified_for_paper": false,
+          "registration_id": "8d715d646082d90ad190280c17a0b26dbea8faedf40d9b19adf8827facf303b6",
+          "revised": {
+            "closed_trades": 1,
+            "fully_settled": true,
+            "integrity_halt": false,
+            "maximum_observed_drawdown_fraction": "0.000202499687500000000000000000",
+            "net_expectancy": "-2.024996875000000000000000000000000",
+            "net_pnl": "-2.024996875000000000000000000000",
+            "uncertainty": "Bounded sample: no economic inference or annualized ratios.",
+            "verdict": "REJECT_OR_REVISE",
+            "winning_trades": 0
+          },
+          "revised_result_id": "3ba7d7bebe68838201a4659b12cc70eb6ac47e0fffe8f6d7b109b7bbc84fe81c",
+          "revision_id": "c1428a349d66e8cac3d976d4cabeb7452f4d07afab1112b5baa856a6abae5fbd",
+          "risk_limits_unchanged": true,
+          "warning": "Reused training data; not independent validation, portfolio evidence or promotion."
+        }
+      }
+    ]
+  },
+  "validation": {
+    "native_suite_passed": 1389,
+    "native_suite_skipped": 145,
+    "final_targeted_improvement_tests_passed": 6,
+    "browser_suite_passed": 20
+  },
+  "limits": [
+    "Training-only comparison; original evidence immutable.",
+    "No independent validation, automatic promotion or policy relaxation.",
+    "AI hypotheses and falsification prose are not verified causes or executable policies.",
+    "No claim that the real revised strategy is profitable."
+  ]
+}

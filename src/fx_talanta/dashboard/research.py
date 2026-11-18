@@ -93,9 +93,9 @@ INSTRUCTIONS = (
 )
 
 
-def payload(brief):
+def payload(brief, *, contract=Proposal, instructions=INSTRUCTIONS):
     # Strict schema requires every property, including defaulted values.
-    schema = Proposal.model_json_schema(mode="serialization")
+    schema = contract.model_json_schema(mode="serialization")
 
     def strict(obj):
         if isinstance(obj, dict):
@@ -110,7 +110,8 @@ def payload(brief):
                 strict(value)
 
     strict(schema)
-    schema["$defs"]["Specification"]["properties"]["pairs"].update(minItems=2, maxItems=2)
+    if "Specification" in schema.get("$defs", {}):
+        schema["$defs"]["Specification"]["properties"]["pairs"].update(minItems=2, maxItems=2)
     return canonical(
         dict(
             model=MODEL,
@@ -119,7 +120,7 @@ def payload(brief):
             stream=False,
             max_output_tokens=3000,
             reasoning={"effort": "none"},
-            instructions=INSTRUCTIONS,
+            instructions=instructions,
             input=brief,
             text={
                 "format": {
@@ -166,6 +167,26 @@ class Research:
     def start_validation(self, data):
         return self.validation_agent.start(data)
 
+    def diagnose(self, data):
+        from fx_talanta.dashboard.improvement import diagnose
+
+        return diagnose(self, data)
+
+    def revise_diagnosis(self, data):
+        from fx_talanta.dashboard.improvement import revise
+
+        return revise(self, data)
+
+    def compare_revision(self, data):
+        from fx_talanta.dashboard.improvement import compare
+
+        return compare(self, data)
+
+    def improvement_status(self, data):
+        from fx_talanta.dashboard.improvement import status
+
+        return status(self, data)
+
     def retain(self, kind, value):
         key = digest(value)
         with self.repo.lock, self.repo.conn:
@@ -180,7 +201,9 @@ class Research:
                 "SELECT id,kind,payload FROM research_items WHERE rowid IN "
                 "(SELECT rowid FROM research_items ORDER BY rowid DESC LIMIT 20) "
                 "OR rowid IN (SELECT rowid FROM research_items WHERE kind='AI_PROPOSAL' "
-                "ORDER BY rowid DESC LIMIT 10) ORDER BY rowid DESC"
+                "ORDER BY rowid DESC LIMIT 10) OR kind IN "
+                "('AI_DIAGNOSIS','RESEARCH_REVISION','COMPARISON_PLAN','COMPARISON') "
+                "ORDER BY rowid DESC"
             ).fetchall()
             jobs = self.repo.conn.execute("SELECT id,result FROM research_jobs").fetchall()
         with self.repo.lock:
@@ -238,11 +261,25 @@ class Research:
             raise ValueError("unknown research evidence")
         return dict(id=key, kind=row[0], payload=json.loads(row[1]))
 
-    def generate(self, data):
+    def generate(
+        self,
+        data,
+        *,
+        contract=Proposal,
+        instructions=INSTRUCTIONS,
+        context=None,
+        kind="AI_PROPOSAL",
+    ):
         req = Generate.model_validate(data)
         if self.transport is None:
             raise ValueError("AI provider not configured")
-        raw = payload(req.brief)
+        raw = payload(
+            canonical(dict(instruction=req.brief, evidence=context)) if context else req.brief,
+            contract=contract,
+            instructions=instructions,
+        )
+        if len(raw) > 65536:
+            raise ValueError("research request too large")
         identity = digest(json.loads(raw))
         with self.repo.lock, self.repo.conn:
             self.repo.conn.execute("BEGIN IMMEDIATE")
@@ -274,7 +311,7 @@ class Research:
             if len(content) != 1 or content[0]["type"] != "output_text":
                 raise ValueError("refusal")
             stage = "PROPOSAL_VALIDATION"
-            proposal = Proposal.model_validate_json(content[0]["text"])
+            proposal = contract.model_validate_json(content[0]["text"])
             stage = "USAGE_VALIDATION"
             usage = value["usage"]
             if any(
@@ -283,7 +320,7 @@ class Research:
             ):
                 raise ValueError("invalid usage")
             result = self.retain(
-                "AI_PROPOSAL",
+                kind,
                 dict(
                     proposal=proposal.model_dump(mode="json"),
                     request_sha256=identity,
@@ -293,6 +330,7 @@ class Research:
                     usage=usage,
                     generated_at=self.app.clock.now().isoformat(),
                     execution_enabled=False,
+                    **({"evidence": context} if context else {}),
                 ),
             )
         except Exception as error:

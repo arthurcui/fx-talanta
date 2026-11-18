@@ -4,6 +4,10 @@
   const byId = (id) => document.getElementById(id);
   const root = byId("dashboard");
   const routes = {
+    "/strategies/improve": [
+      "Improve your strategy",
+      "Diagnose evidence, review one revision and compare on unchanged training inputs.",
+    ],
     "/overview": [
       "Overview",
       "Your strategy research and current trading boundaries.",
@@ -69,6 +73,9 @@
   move("/strategies/review", ["#candidate-review"]);
   move("/strategies/backtest", ["#research-workflow"]);
   move("/strategies/results", ["#research-results"]);
+  const improvement = document.createElement("section");
+  improvement.id = "strategy-improvement";
+  pages["/strategies/improve"].append(improvement);
   move("/strategies", ["#strategy-history"]);
   move("/market", ["#channels", "#calendar"]);
   move("/advisor", ["#advisor"]);
@@ -173,7 +180,7 @@
   flow.id = "strategy-flow";
   flow.innerHTML =
     '<p id="strategy-context" role="status">No strategy selected</p><nav aria-label="Strategy steps">' +
-    ["Describe", "Review", "Backtest", "Results"]
+    ["Describe", "Review", "Backtest", "Results", "Improve"]
       .map(
         (label) => `<a href="/strategies/${label.toLowerCase()}">${label}</a>`,
       )

@@ -1617,6 +1617,11 @@ async function refreshResearch() {
           box.append(load);
         }
         if (item.kind === "BACKTEST") {
+          if (item.payload.partition === "training") {
+            const improve = node("button", "Diagnose and improve");
+            improve.onclick = () => window.fxImprovement.open(item.id);
+            box.append(improve);
+          }
           const p = item.payload,
             r = p.result;
           const d = r.diagnostics;
