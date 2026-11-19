@@ -326,6 +326,7 @@ def make_server(
                 "/app.js": ("app.js", "text/javascript"),
                 "/language.js": ("language.js", "text/javascript"),
                 "/style.css": ("style.css", "text/css"),
+                "/brand-emblem.png": ("brand-emblem.png", "image/png"),
             }
             assets["/pages.js"] = ("pages.js", "text/javascript")
             assets["/improvement.js"] = ("improvement.js", "text/javascript")

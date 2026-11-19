@@ -22,7 +22,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 fx_talanta = ["storage/migrations/*.sql"]
-"fx_talanta.dashboard" = ["static/*.html", "static/*.css", "static/*.js"]
+"fx_talanta.dashboard" = ["static/*.html", "static/*.css", "static/*.js", "static/*.png"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
