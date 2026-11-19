@@ -1,5 +1,20 @@
 # Current product status
 
+## Market-setup roadmap revision (November 18, 2026)
+
+The [R0–R6 roadmap](roadmap.md) now starts research with market context, a known
+price level, an ordered pullback/retest, confirmation and invalidation. Preserve
+R0; the immediate gap is one auditable EUR/USD trend-pullback workflow and its
+compatibility with unchanged risk. Current kernels implement EMA recross and range
+breakout, not structural support/retest recognition. Setup timelines/charts and
+lifecycle admission sizing are **planned, not shipped**. USD/JPY follows as a
+separate study; the product scope remains forex, with no gold expansion.
+
+Engineering progress, observable setup validity, economic evidence and operational
+readiness remain separate. A rejected study can be completed without qualifying
+a strategy. This documentation revision starts no market study or campaign and changes no
+trading authority or runtime UI. PR #65 remains unmerged; trading stays disabled.
+
 ## Trading assessment priority (November 18, 2026)
 
 The [trading research assessment](trading-research-assessment.md) is complete as
@@ -14,7 +29,7 @@ exposed-training analysis, not a strategy backtest or current market view. No ne
 campaign or trading authority was created; PR #65 remains unmerged. This priority
 precedes further application features and the historical milestone sections below.
 
-## R0-R6 delivery direction (November 14, 2026)
+## Existing R0-R6 integration (begun November 14, 2026)
 
 The [revised roadmap](roadmap.md) organizes delivery around strategy design,
 backtesting, demo, capped live and controlled AI improvement, with UI acceptance

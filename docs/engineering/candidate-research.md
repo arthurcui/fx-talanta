@@ -4,6 +4,12 @@ This workflow connects strategy authoring to the existing replay simulator. It i
 offline research, not permission to trade or a claim of profitability. The Docker
 preview has been updated to PR #65 with [direct local workspace access](../guides/local-signin.md); its saved strategies were preserved.
 
+The [November 18 roadmap](../product/roadmap.md) defines a planned structural-setup
+extension. The implemented workflow described here still executes only the two
+kernels below. EMA recross is not verified support/retest recognition; a range
+breakout does not wait for a retest. New setup charts, opportunity-state records and
+lifecycle admission sizing are not present merely because the design is documented.
+
 ## Owner workflow
 
 1. Open the local Docker preview directly (no account required). Optional

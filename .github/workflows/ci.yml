@@ -54,7 +54,7 @@ jobs:
         working-directory: tools/dashboard-tests
         run: |
           npm ci
-          npx prettier --check ../../src/fx_talanta/dashboard/static/* *.js package.json
+          npx prettier --check "../../src/fx_talanta/dashboard/static/*.{html,css,js,json}" "*.js" package.json
           npx playwright install --with-deps chromium --only-shell
           cd ../..
           python -m tools.qualification.m5_acceptance --output .local/m5-acceptance.json

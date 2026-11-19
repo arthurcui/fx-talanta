@@ -15,6 +15,7 @@ submission boundary. A model cannot replace the EA or bypass those checks.
 | --- | --- | --- | --- |
 | Observe | `observer/`, provider/calendar adapters and channel telemetry observe; no order authority | Source timestamps, receipt times, provenance, revisions and channel state | Missing, stale or unqualified inputs block readiness; connection health alone is insufficient |
 | Propose | Bounded model selection and recorded/fixture runner integration; reviewed AI strategy proposals and offline research orchestration | Versioned intent, inputs, rationale and exact evidence references | Invalid/expired proposals are rejected; a model cannot grant itself execution rights |
+| Recognize setup (planned) | Reviewed deterministic rules, using point-in-time context; no order authority | Known level, closed-bar sequence, confirmation/invalidation, expiry and all watched opportunities | Future/absent evidence cannot confirm a setup; retire broken/expired setups and retain HOLD reasons. This extends the existing indicator kernels; it is not implemented yet |
 | Reserve risk | `risk/`, `safety/`, bounded demo budget and coordinator | Deterministic sizing, account scope, reservation and policy/budget fingerprints | Reject or hold before admission; committed reservations are not replenished by retries/restarts |
 | Execute | Fixed MQL5 EA validates native identity, authority, quote freshness and protection | Native attempt journal, request identity, broker response and protective state | Fail closed on bad identity/clock/freshness; uncertain submission is reconciled, never blindly resent |
 | Reconcile | Native reconciliation and backend projection compare broker orders/deals/positions | Positive entry/exit witnesses, protected state, durable outbox/ACK and final closure | Flatness alone is not proof; unresolved ownership/protection halts entry and retains evidence |
@@ -25,6 +26,11 @@ The earlier bounded demo required recovery; PR #25 later verified bounded same-s
 closure without recovery. Neither proves the full fault matrix. Advisor engineering
 exists, but the complete production learning loop remains unqualified. Read the
 [status](../product/status.md) for the exact boundary.
+
+The November 18 roadmap prioritizes one structural trend-pullback study before
+additional indicator families. Its chart, opportunity ledger and restrictive
+lifecycle sizing are planned. Existing EMA recross/range-breakout kernels remain
+accurately labeled; neither is proof of a confirmed support/retest strategy.
 
 ## Code and data boundaries
 

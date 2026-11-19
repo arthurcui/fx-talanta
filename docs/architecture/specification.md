@@ -2,7 +2,7 @@
 
 This repository-maintained specification contains the full planning baseline.
 See the [README](../../README.md) for current implementation status and the
-[documentation index](../../README.md#documentation) for increment details and
+[documentation index](../README.md) for increment details and
 operating instructions. Maintain project requirements here through pull requests.
 
 **Build FX-Talanta as a fully autonomous forex trading system with a conversational advisor, automatic market-news monitoring, durable experience memory, a portable Python application core, isolated backend risk/dispatch and fixed execution EAs, and separate PAPER and LIVE accounts.** MT5 is the first broker connection. Normal trading, protective management, temporary-fault recovery, and qualified strategy deployment operate within fixed mandates without per-trade human approval.
@@ -11,12 +11,13 @@ operating instructions. Maintain project requirements here through pull requests
 
 The principal risk is that reliable automation can execute a losing strategy reliably. Engineering acceptance and evidence of a trading edge are separate gates.
 
-# Current delivery baseline: R0-R6 (November 14, 2026)
+# Current delivery baseline: R0-R6 (revised November 18, 2026)
 
 The [trading lifecycle roadmap](../product/roadmap.md) supersedes the historical
 M0-M7 implementation order, not its safety or evidence gates. The product is an
-AI-led EURUSD/USDJPY trading agent: strategy design -> backtest -> prospective demo
--> capped live -> outcome evaluation -> challenger -> repeat validation. Profit
+AI-led EURUSD/USDJPY trading agent: market context -> known level and observable
+setup -> confirmation/invalidation -> governed economic validation -> prospective
+demo -> capped live -> outcome evaluation -> challenger -> repeat validation. Profit
 after costs is an evaluated objective, never inferred from automation or CI.
 
 The [lifecycle architecture](trading-lifecycle.md) defines component authority,
@@ -26,6 +27,14 @@ The historical B01 template below is a rejected research baseline, not the manda
 new Strategy V1. New candidates must register their own testable hypotheses and rules.
 The current authorization remains engineering/simulation only, trading disabled.
 No provider call, broker activation, deployment or new campaign follows from this plan.
+
+R0's foundation is retained. R1 now explicitly requires point-in-time structural
+setup definitions and chart verification; R2 separates feasibility, governed
+development and independent evaluation. The first planned implementation is one
+EUR/USD H1/M15 trend-pullback workflow plus restrictive lifecycle sizing, without
+new trading authority. Box retests are a later separate candidate; gold, indicator
+stacks and partial/trailing exit variants are outside that first scope. The
+roadmap defines its acceptance and distinguishes planned work from current kernels.
 
 # Product mandate
 

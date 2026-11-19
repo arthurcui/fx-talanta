@@ -439,6 +439,12 @@ assessment. A historical language-model explanation is not a prospective forecas
 
 ## Finite handoff before further coding
 
+Subsequent owner direction is incorporated in the [revised roadmap](roadmap.md).
+It groups the restrictive sizing work below with one structural trend-pullback
+workflow, chronological chart inspection and a bounded comparison. That new
+price-action hypothesis has no profitability verdict yet. EU-FIX-01 remains shelved
+and JP-POLICY-01 remains data-gated; neither is revived by the roadmap change.
+
 This assessment is complete when the retained halt arithmetic, unchanged-limit
 design choice, hypothesis cards, counterarguments and data gates are documented
 and checked. **That boundary is met; profitability and implementation are not.**
