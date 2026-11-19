@@ -103,11 +103,21 @@ does not demonstrate that the confirmation rule has positive expectancy.
 
 All 360 expected London M15 closes are present, with no duplicate source sequence
 IDs or tied quote timestamps. That does **not** establish full input eligibility.
-The strict contiguous H1 warmup restarts after weekend gaps: opportunities appeared
+The strict contiguous H1 input gate blocks after weekend gaps: opportunities appeared
 on June 3â€“5 and 10â€“12, only six of the ten nominal weekdays. Across the whole replay,
 445 evaluations reported `GAPPED_OR_STALE_INPUTS`; 306 were outside the session.
 The longest receipt gap is 172,844.985 seconds, including the weekend. These are
 retained limitations, not silently removed periods or qualified delivery metrics.
+
+**Diagnostic addendum:** the [no-trade investigation](structural-confirmation-diagnosis.md)
+also found a month-file join defect: two H1 and two M15 bars were omitted despite
+their source quotes being retained. Of 360 London decision cutoffs, 160 failed
+input eligibility; 16 remain blocked by this omission alone after separating the
+overlapping weekend effect. All four touched setups also fail the stored weakening
+proxy, although none reached its final confirmation check. This corrects the
+earlier weekend-only explanation, not the frozen results. The addendum recommends
+repairing inputs/calendar continuity before changing entry rules; no repair or
+new study has been executed.
 
 The funnel stops before a retest: four touches yielded one qualifying bounce,
 and no later valid retest/confirmation before invalidation or expiry. The next

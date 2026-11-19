@@ -1,0 +1,527 @@
+{
+  "schema": "structural-confirmation-diagnosis/1",
+  "execution_enabled": false,
+  "strategy_replayed": false,
+  "validation_or_holdout_opened": false,
+  "manifest_sha256": "347f376536387cbd75bc84a47ae5612bdca8211088f29e85e87489f7bf5a6f73",
+  "manifest_file_sha256": "8a3bc3cf68ed4b019aa8fffac7b002e091ad3112a2ac0049834cb746a880fc8a",
+  "index_sha256": "83da17cedb8aa0b532a7141308a2bfe859d82d3d54dca6588f0e669e3ae2a02f",
+  "engine_sha256": "f06f0c1420de4b4aab9a33617a95608057525cbb41e7b6ba48868d36a263caa4",
+  "result_ids": [
+    "49eff9d90392c6be73bfa0b26d090f8abc5061e94e562270ceee7797103d041c",
+    "fcae84fbc790483d7878bdd7e50a77e615ca4b55c651a15fe7f445f20a170c57"
+  ],
+  "window": [
+    "2026-06-01T00:00:00+00:00",
+    "2026-06-13T00:00:00+00:00"
+  ],
+  "quote_rows": 660471,
+  "risk_policy": {
+    "version": "offline-risk/1",
+    "capital": "10000",
+    "trade_fraction": "0.001",
+    "aggregate_fraction": "0.001",
+    "daily_fraction": "0.01",
+    "drawdown_fraction": "0.05",
+    "gross_multiple": "2",
+    "currency_multiple": "1",
+    "margin_fraction": "0.20",
+    "maximum_positions": 1,
+    "quote_age_seconds": 2,
+    "protection_seconds": 5,
+    "healthy_samples": 2,
+    "protection_mode": "INITIAL_STOP"
+  },
+  "confirmation": {
+    "decisions": 951,
+    "all_decisions_hold": true,
+    "entry_candidates": 0,
+    "deals": 0,
+    "risk_rejections_after_entry_candidate": 0,
+    "decision_reasons": {
+      "GAPPED_OR_STALE_INPUTS": 445,
+      "NO_UNUSED_CONFIRMED_LEVEL": 54,
+      "LEVEL_WATCHED_BEFORE_TOUCH": 13,
+      "LEVEL_NOT_KNOWN_BEFORE_BAR": 13,
+      "WAIT_LEVEL_KNOWN": 84,
+      "OUTSIDE_SESSION": 306,
+      "WAIT_TOUCHED": 4,
+      "STRUCTURAL_STOP_CROSSED": 5,
+      "NO_H1_TREND": 20,
+      "WAIT_BOUNCED": 7
+    }
+  },
+  "funnel": {
+    "EXPIRED": 7,
+    "LEVEL_KNOWN": 13,
+    "INVALIDATED": 6,
+    "TOUCHED": 4,
+    "BOUNCED": 1
+  },
+  "terminal_partition": {
+    "UNTOUCHED:SETUP_OR_SESSION_DEADLINE": 6,
+    "TOUCHED:STRUCTURAL_STOP_CROSSED": 3,
+    "UNTOUCHED:STRUCTURAL_STOP_CROSSED": 2,
+    "UNTOUCHED:H1_TREND_LOST": 1,
+    "TOUCHED:SETUP_OR_SESSION_DEADLINE": 1
+  },
+  "opportunities": [
+    {
+      "setup_id": "77d95bb1faefeda45dc84b6ef984ba6fa25fc302c58f0f635ab31819d40e6326",
+      "side": "SELL",
+      "known_at": "2026-06-03T14:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-03T14:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-03T16:00:00.250000+00:00",
+          "reason": "SETUP_OR_SESSION_DEADLINE",
+          "state": "EXPIRED"
+        }
+      ],
+      "expires_at": "2026-06-03T16:00:00+00:00"
+    },
+    {
+      "setup_id": "420393f4f5b6eb4288404b8c61f0a963f9e506c35aceda14fd280eb7e1297550",
+      "side": "SELL",
+      "known_at": "2026-06-04T07:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-04T07:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-04T07:30:00.250000+00:00",
+          "reason": "FIRST_TOUCH_CLOSED",
+          "state": "TOUCHED"
+        },
+        {
+          "at": "2026-06-04T07:45:00.250000+00:00",
+          "reason": "STRUCTURAL_STOP_CROSSED",
+          "state": "INVALIDATED"
+        }
+      ],
+      "expires_at": "2026-06-04T09:30:00+00:00",
+      "weakening": false,
+      "prior_two_ranges_pips": "6.50",
+      "recent_two_ranges_pips": "9.30",
+      "recent_to_prior_range_ratio": "1.430769230769230769230769231",
+      "control_outcome": {
+        "entry_at": "2026-06-04T07:30:00.507000Z",
+        "exit_at": "2026-06-04T07:35:54.814000Z",
+        "deal_actions": [
+          "ENTER",
+          "CLOSE"
+        ]
+      }
+    },
+    {
+      "setup_id": "bc5283ae56ebbc6540b69b40e2a7e05ed718ce20cd6479fa64ef6cd2e4de1bdd",
+      "side": "SELL",
+      "known_at": "2026-06-04T10:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-04T10:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-04T10:30:00.250000+00:00",
+          "reason": "STRUCTURAL_STOP_CROSSED",
+          "state": "INVALIDATED"
+        }
+      ],
+      "expires_at": "2026-06-04T16:00:00+00:00"
+    },
+    {
+      "setup_id": "07f7fe5ae024de2f543060256abd5a5052ee25aca4ad4f526b454323801fc96c",
+      "side": "BUY",
+      "known_at": "2026-06-04T12:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-04T12:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-04T16:00:00.250000+00:00",
+          "reason": "SETUP_OR_SESSION_DEADLINE",
+          "state": "EXPIRED"
+        }
+      ],
+      "expires_at": "2026-06-04T16:00:00+00:00"
+    },
+    {
+      "setup_id": "04513f1364f4537f5facf1449102768b3eea0783f912128b7e7e38f67297e5bb",
+      "side": "BUY",
+      "known_at": "2026-06-05T09:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-05T09:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-05T11:00:00.250000+00:00",
+          "reason": "SETUP_OR_SESSION_DEADLINE",
+          "state": "EXPIRED"
+        }
+      ],
+      "expires_at": "2026-06-05T11:00:00+00:00"
+    },
+    {
+      "setup_id": "81993d529ef8df39587b8b31f37d85b795351b167384b9bad23d5d7ce087805a",
+      "side": "BUY",
+      "known_at": "2026-06-05T11:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-05T11:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-05T13:45:00.250000+00:00",
+          "reason": "STRUCTURAL_STOP_CROSSED",
+          "state": "INVALIDATED"
+        }
+      ],
+      "expires_at": "2026-06-05T16:00:00+00:00"
+    },
+    {
+      "setup_id": "a220308d73ddae4091a87267935d438150ba1bfb67cea9e975a76a00b09cf34d",
+      "side": "SELL",
+      "known_at": "2026-06-05T15:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-05T15:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-05T16:00:00.250000+00:00",
+          "reason": "SETUP_OR_SESSION_DEADLINE",
+          "state": "EXPIRED"
+        }
+      ],
+      "expires_at": "2026-06-05T16:00:00+00:00"
+    },
+    {
+      "setup_id": "b92f435bfe42962e8d5cd7a32a597a10433a0c8a2e442f6627d724f4f7d27f97",
+      "side": "BUY",
+      "known_at": "2026-06-10T07:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-10T07:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-10T08:00:00.250000+00:00",
+          "reason": "H1_TREND_LOST",
+          "state": "INVALIDATED"
+        }
+      ],
+      "expires_at": "2026-06-10T09:00:00+00:00"
+    },
+    {
+      "setup_id": "3f60573b131b6444749f0b8304bf3b46fb7573d1e6000eeb198d5a75589affb2",
+      "side": "SELL",
+      "known_at": "2026-06-10T13:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-10T13:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-10T13:45:00.250000+00:00",
+          "reason": "FIRST_TOUCH_CLOSED",
+          "state": "TOUCHED"
+        },
+        {
+          "at": "2026-06-10T14:00:00.250000+00:00",
+          "reason": "STRUCTURAL_STOP_CROSSED",
+          "state": "INVALIDATED"
+        }
+      ],
+      "expires_at": "2026-06-10T15:45:00+00:00",
+      "weakening": false,
+      "prior_two_ranges_pips": "11.40",
+      "recent_two_ranges_pips": "24.10",
+      "recent_to_prior_range_ratio": "2.114035087719298245614035088",
+      "control_outcome": {
+        "entry_at": "2026-06-10T13:45:00.558000Z",
+        "exit_at": "2026-06-10T13:46:11.548000Z",
+        "deal_actions": [
+          "ENTER",
+          "CLOSE"
+        ]
+      }
+    },
+    {
+      "setup_id": "05ef6504476b54368c2ca3a4137748b8147ab60335b26ee4340ef8f6cd3ad78b",
+      "side": "SELL",
+      "known_at": "2026-06-11T07:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-11T07:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-11T08:30:00.250000+00:00",
+          "reason": "FIRST_TOUCH_CLOSED",
+          "state": "TOUCHED"
+        },
+        {
+          "at": "2026-06-11T08:45:00.250000+00:00",
+          "reason": "LATER_CLOSE_OUTSIDE_ZONE",
+          "state": "BOUNCED"
+        },
+        {
+          "at": "2026-06-11T10:30:00.250000+00:00",
+          "reason": "SETUP_OR_SESSION_DEADLINE",
+          "state": "EXPIRED"
+        }
+      ],
+      "expires_at": "2026-06-11T10:30:00+00:00",
+      "weakening": false,
+      "prior_two_ranges_pips": "9.60",
+      "recent_two_ranges_pips": "15.60",
+      "recent_to_prior_range_ratio": "1.625",
+      "control_outcome": {
+        "entry_at": "2026-06-11T08:30:01.982000Z",
+        "exit_at": "2026-06-11T09:00:36.415000Z",
+        "deal_actions": [
+          "ENTER",
+          "CLOSE"
+        ]
+      }
+    },
+    {
+      "setup_id": "1f4bc209aedc3e57b130fb80c2b969d73ee3d183919f2156b6bb38b2aed1e654",
+      "side": "SELL",
+      "known_at": "2026-06-11T11:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-11T11:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-11T16:00:00.250000+00:00",
+          "reason": "SETUP_OR_SESSION_DEADLINE",
+          "state": "EXPIRED"
+        }
+      ],
+      "expires_at": "2026-06-11T16:00:00+00:00"
+    },
+    {
+      "setup_id": "76f2cebab4e7caa4b92fa4f81f1276004ef8f2c81e42ac758d0f2a00bc3c6056",
+      "side": "BUY",
+      "known_at": "2026-06-12T07:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-12T07:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-12T08:30:00.250000+00:00",
+          "reason": "FIRST_TOUCH_CLOSED",
+          "state": "TOUCHED"
+        },
+        {
+          "at": "2026-06-12T08:45:00.250000+00:00",
+          "reason": "STRUCTURAL_STOP_CROSSED",
+          "state": "INVALIDATED"
+        }
+      ],
+      "expires_at": "2026-06-12T10:30:00+00:00",
+      "weakening": false,
+      "prior_two_ranges_pips": "12.80",
+      "recent_two_ranges_pips": "16.90",
+      "recent_to_prior_range_ratio": "1.3203125",
+      "control_outcome": {
+        "entry_at": "2026-06-12T08:30:00.530000Z",
+        "exit_at": "2026-06-12T08:33:56.386000Z",
+        "deal_actions": [
+          "ENTER",
+          "CLOSE"
+        ]
+      }
+    },
+    {
+      "setup_id": "f6791703a7b9ce5b1324db41890f2e0b474d861cb3611f02149c09893375eac5",
+      "side": "BUY",
+      "known_at": "2026-06-12T11:00:00.250000+00:00",
+      "transitions": [
+        {
+          "at": "2026-06-12T11:00:00.250000+00:00",
+          "reason": "CONFIRMED_H1_SWING_AND_TREND",
+          "state": "LEVEL_KNOWN"
+        },
+        {
+          "at": "2026-06-12T16:00:00.250000+00:00",
+          "reason": "SETUP_OR_SESSION_DEADLINE",
+          "state": "EXPIRED"
+        }
+      ],
+      "expires_at": "2026-06-12T16:00:00+00:00"
+    }
+  ],
+  "input_eligibility": {
+    "london_decision_cutoffs": 360,
+    "blocked": 160,
+    "blocked_h1_combinations": {
+      "MONTH_JOIN_OMISSION + OBSERVED_WEEKEND_BOUNDARY": 72,
+      "MONTH_JOIN_OMISSION": 16,
+      "OBSERVED_WEEKEND_BOUNDARY": 72
+    },
+    "overlapping_guard_reasons": {
+      "H1_NOT_CLOCK_CONTIGUOUS": 160,
+      "M15_NOT_CLOCK_CONTIGUOUS": 8
+    },
+    "by_date": {
+      "2026-06-01": {
+        "decision_cutoffs": 36,
+        "blocked_by_input_gate": 36
+      },
+      "2026-06-02": {
+        "decision_cutoffs": 36,
+        "blocked_by_input_gate": 36
+      },
+      "2026-06-03": {
+        "decision_cutoffs": 36,
+        "blocked_by_input_gate": 16,
+        "passed_input_gate": 20
+      },
+      "2026-06-04": {
+        "decision_cutoffs": 36,
+        "passed_input_gate": 36
+      },
+      "2026-06-05": {
+        "decision_cutoffs": 36,
+        "passed_input_gate": 36
+      },
+      "2026-06-08": {
+        "decision_cutoffs": 36,
+        "blocked_by_input_gate": 36
+      },
+      "2026-06-09": {
+        "decision_cutoffs": 36,
+        "blocked_by_input_gate": 36
+      },
+      "2026-06-10": {
+        "decision_cutoffs": 36,
+        "passed_input_gate": 36
+      },
+      "2026-06-11": {
+        "decision_cutoffs": 36,
+        "passed_input_gate": 36
+      },
+      "2026-06-12": {
+        "decision_cutoffs": 36,
+        "passed_input_gate": 36
+      }
+    }
+  },
+  "h1_discontinuities": [
+    {
+      "left": "2026-05-29T22:00:00+00:00",
+      "right": "2026-05-31T23:00:00+00:00",
+      "elapsed_hours": 49.0,
+      "classification": "OBSERVED_WEEKEND_BOUNDARY"
+    },
+    {
+      "left": "2026-06-01T04:00:00+00:00",
+      "right": "2026-06-01T07:00:00+00:00",
+      "elapsed_hours": 3.0,
+      "classification": "MONTH_JOIN_OMISSION"
+    },
+    {
+      "left": "2026-06-05T22:00:00+00:00",
+      "right": "2026-06-07T23:00:00+00:00",
+      "elapsed_hours": 49.0,
+      "classification": "OBSERVED_WEEKEND_BOUNDARY"
+    }
+  ],
+  "quote_buckets_missing_from_bars": [
+    {
+      "timeframe": "M15",
+      "close_at": "2026-06-01T05:00:00+00:00",
+      "quote_rows": 240,
+      "occupied_minutes": 15,
+      "expected_minutes": 15,
+      "first_quote_at": "2026-06-01T04:45:00.613000+00:00",
+      "last_quote_at": "2026-06-01T04:59:50.162000+00:00",
+      "maximum_internal_quote_gap_seconds": "40.705",
+      "reconstructed_ohlc_sha256": "da8a176374309b7fe257e732d40ec0689fbc9e54b6ac2a690df31ec9fc428d4a"
+    },
+    {
+      "timeframe": "M15",
+      "close_at": "2026-06-01T05:15:00+00:00",
+      "quote_rows": 221,
+      "occupied_minutes": 15,
+      "expected_minutes": 15,
+      "first_quote_at": "2026-06-01T05:00:04.979000+00:00",
+      "last_quote_at": "2026-06-01T05:14:40.011000+00:00",
+      "maximum_internal_quote_gap_seconds": "44.794",
+      "reconstructed_ohlc_sha256": "13cf286505519c255c4648bdd8cf074eedef06c816389053410c62510e4286b6"
+    },
+    {
+      "timeframe": "H1",
+      "close_at": "2026-06-01T05:00:00+00:00",
+      "quote_rows": 1283,
+      "occupied_minutes": 60,
+      "expected_minutes": 60,
+      "first_quote_at": "2026-06-01T04:00:00.119000+00:00",
+      "last_quote_at": "2026-06-01T04:59:50.162000+00:00",
+      "maximum_internal_quote_gap_seconds": "55.133",
+      "reconstructed_ohlc_sha256": "db7c70f532bd41930844e2f64d71873a4258b4dd96d9fb82f775caaadafc82e9"
+    },
+    {
+      "timeframe": "H1",
+      "close_at": "2026-06-01T06:00:00+00:00",
+      "quote_rows": 708,
+      "occupied_minutes": 60,
+      "expected_minutes": 60,
+      "first_quote_at": "2026-06-01T05:00:04.979000+00:00",
+      "last_quote_at": "2026-06-01T05:59:49.532000+00:00",
+      "maximum_internal_quote_gap_seconds": "70.031",
+      "reconstructed_ohlc_sha256": "ad43896dd04686a8a195816b06d819e6e635e2017caf501c2f008010b1989f48"
+    }
+  ],
+  "boundary_timestamp_sensitivity": {
+    "scope": "TIMESTAMP_GATE_ONLY; no signal, price-feature, order or P&L evaluation",
+    "additional_existing_london_cutoffs_passing": 16,
+    "cutoffs": [
+      "2026-06-03T07:00:00.250000+00:00",
+      "2026-06-03T07:15:00.250000+00:00",
+      "2026-06-03T07:30:00.250000+00:00",
+      "2026-06-03T07:45:00.250000+00:00",
+      "2026-06-03T08:00:00.250000+00:00",
+      "2026-06-03T08:15:00.250000+00:00",
+      "2026-06-03T08:30:00.250000+00:00",
+      "2026-06-03T08:45:00.250000+00:00",
+      "2026-06-03T09:00:00.250000+00:00",
+      "2026-06-03T09:15:00.250000+00:00",
+      "2026-06-03T09:30:00.250000+00:00",
+      "2026-06-03T09:45:00.250000+00:00",
+      "2026-06-03T10:00:00.250000+00:00",
+      "2026-06-03T10:15:00.250000+00:00",
+      "2026-06-03T10:30:00.250000+00:00",
+      "2026-06-03T10:45:00.250000+00:00"
+    ],
+    "remaining_blocked": 144
+  },
+  "interpretation": "Missing-input defect plus restrictive setup path; no profitability verdict",
+  "original_files_unchanged": true,
+  "original_file_count": 16,
+  "original_inventory_sha256": "e0bdea7cde5ffd7f48fac6c2ea0e92f0ec2ad2f1572acd61f0dd227980ac7ba2",
+  "analysis_script_sha256": "7c29f1e203255e39fd1391e55a59427e954efafb2ceefa70bea7bb7cd208f611"
+}
