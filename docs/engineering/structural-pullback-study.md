@@ -29,7 +29,7 @@ eligible sessions and missing inputs rather than claiming ten complete sessions.
 - Freeze simple M15 ATR14 when the level is watched. Zone half-width = 0.25 ATR;
   protective stop = another 0.25 ATR beyond the zone (rounded outward to tick).
   Price must depart the zone before a later touch. No moving zone or widened stop.
-- Entry window: London 08:00–17:00 local, using the existing pinned timezone
+- Entry window: London 08:00â€“17:00 local, using the existing pinned timezone
   definitions. This is a research convention, not a claim of optimal liquidity.
 - First touch arm: consider entry after the first touching bar closes. A bar
   crossing the structural stop invalidates the setup before any entry.
@@ -104,7 +104,7 @@ does not demonstrate that the confirmation rule has positive expectancy.
 All 360 expected London M15 closes are present, with no duplicate source sequence
 IDs or tied quote timestamps. That does **not** establish full input eligibility.
 The strict contiguous H1 warmup restarts after weekend gaps: opportunities appeared
-on June 3–5 and 10–12, only six of the ten nominal weekdays. Across the whole replay,
+on June 3â€“5 and 10â€“12, only six of the ten nominal weekdays. Across the whole replay,
 445 evaluations reported `GAPPED_OR_STALE_INPUTS`; 306 were outside the session.
 The longest receipt gap is 172,844.985 seconds, including the weekend. These are
 retained limitations, not silently removed periods or qualified delivery metrics.
@@ -130,7 +130,8 @@ commission, financing, P&L and percentage/lifecycle admission bounds. Each entry
 uses a modeled 0.25-second quote age. This validates the replay arithmetic, not
 real broker latency, market-data quality or executable cost calibration.
 
-The historical run's frozen engine hash is
+The historical engine is reproducible at commit `2dbe5a08a90e4c881e7e9c54603773840acbfb45`.
+Its frozen engine hash is
 `f06f0c1420de4b4aab9a33617a95608057525cbb41e7b6ba48868d36a263caa4`.
 A subsequent isolated recording fix retains an equity sample when a next quote
 has already crossed the planned stop. That path occurred **zero** times in both

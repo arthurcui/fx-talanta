@@ -268,5 +268,6 @@
     "Calendar/news assumed clear and costs uncalibrated",
     "250ms quote availability modeled, not measured broker delivery",
     "Only EURUSD; USDJPY and portfolio not evaluated"
-  ]
+  ],
+  "study_engine_commit": "2dbe5a08a90e4c881e7e9c54603773840acbfb45"
 }

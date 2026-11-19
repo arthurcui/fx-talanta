@@ -454,6 +454,13 @@ def execute_timeline(
                                     )
                                 )
                                 pending = None
+                                samples.append(
+                                    {
+                                        "at": at.isoformat(),
+                                        "equity": str(equity(gateway.broker.book, market)),
+                                        "state": gateway.book.state,
+                                    }
+                                )
                                 continue
                             benchmark = Decimal(pending["signal_price"])
                             if sign * (price - benchmark) > spec.maximum_adverse_move:

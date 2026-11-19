@@ -309,6 +309,37 @@ def test_gap_beyond_finite_envelope_still_halts_without_reset():
     assert result["metrics"]["closed_trades"] == 1
 
 
+def test_quote_crossing_stop_rejects_entry_but_preserves_equity_observation():
+    from fx_talanta.research.replay import run
+
+    data, experiment = scenario()
+    events = list(data.events)
+    index = next(
+        i
+        for i, e in enumerate(events)
+        if e.market.at == START + timedelta(minutes=75, milliseconds=300)
+    )
+    event = events[index]
+    quote = event.market.quotes[0].model_copy(update={"bid": D("1.10"), "ask": D("1.1001")})
+    market = event.market.model_copy(
+        update={"quotes": (quote,), "conversion": {"USD": D(1), "EUR": D("1.10")}}
+    )
+    events[index] = event.model_copy(update={"market": market})
+    result, _ = run(
+        data.model_copy(update={"events": tuple(events)}),
+        experiment,
+        "training",
+        signal=StructuralSignal(StructuralRules()),
+        strategy_version="candidate/crossed-stop",
+    )
+    assert result["structural_setups"]["opportunities"][0]["entry"]["disposition"] == (
+        "STOP_ALREADY_CROSSED"
+    )
+    assert not result["deals"] and result["fully_settled"]
+    assert len(result["equity_samples"]) == len(events)
+    assert any(s["at"] == event.available_at.isoformat() for s in result["equity_samples"])
+
+
 def test_structural_dashboard_register_control_export_and_resume(tmp_path):
     from uuid import uuid4
 
