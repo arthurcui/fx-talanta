@@ -1,5 +1,16 @@
 # Current product status
 
+## Trading assessment priority (November 18, 2026)
+
+The [trading research assessment](trading-research-assessment.md) is complete as
+an evidence review and design decision, not a profitability or implementation
+claim. It retains all limits and resolves the intended strategy/risk design by
+requiring smaller entries with headroom for current-to-stop exposure through the
+planned exit. That additional sizing check is not implemented. EUR/USD post-fix
+research is cost-gated; USD/JPY post-policy research is data-gated. No new replay,
+campaign or trading authority was created; PR #65 remains unmerged. This priority
+precedes further application features and the historical milestone sections below.
+
 ## R0-R6 delivery direction (November 14, 2026)
 
 The [revised roadmap](roadmap.md) organizes delivery around strategy design,

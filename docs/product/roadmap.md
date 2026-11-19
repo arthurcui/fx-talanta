@@ -10,6 +10,11 @@ strategy version; other accounts remain isolated. This plan does not select a ne
 broker, enable failover or authorize provider calls, deployment or a new campaign.
 **Current mode: local engineering and simulation; trading disabled.**
 
+November 18 priority: the [trading assessment](trading-research-assessment.md)
+comes before further R1/R2 feature work. Its lifecycle-sizing design preserves
+the existing risk mandate; implementation remains pending. The two research
+hypotheses require their stated data/cost screens before a new strategy study.
+
 Current integration: [AI proposals and candidate historical replay](../engineering/candidate-research.md) provide an owner-reviewable R1/R2 path. This is bounded single-symbol research, not complete portfolio validation or an approved strategy.
 
 ## Milestones and UI acceptance
