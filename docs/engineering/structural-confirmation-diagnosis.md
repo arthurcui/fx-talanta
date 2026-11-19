@@ -6,6 +6,10 @@ result comes from the setup conditions and restricted input eligibility, not an
 order failure, insufficient risk budget, the two-second quote limit, or a HALT.
 Neither arm was rerun. No strategy, risk policy, broker state or deployment changed.
 
+Subsequent owner-authorized work is recorded separately in the
+[corrected-input comparison](structural-input-repair.md). The diagnosis and
+original results below describe the earlier, unchanged study.
+
 ## What happened to the opportunities
 
 The frozen confirmation arm recorded 951 decisions, all HOLD. The ordered funnel

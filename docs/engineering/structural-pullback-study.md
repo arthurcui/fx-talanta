@@ -5,6 +5,9 @@ Status: implemented and the bounded development comparison completed on November
 money after modeled costs. **INSUFFICIENT_EVIDENCE**, not a qualified strategy.
 Research only, trading disabled. B01, M1 gaps and prior failed evidence are unchanged.
 
+The later owner-authorized [input repair and separate rerun](structural-input-repair.md)
+preserves every result reported here; it has its own dataset, manifest and evidence.
+
 ## Frozen question and scope
 
 Does waiting for a bounce, retest and closed-bar confirmation improve the recorded

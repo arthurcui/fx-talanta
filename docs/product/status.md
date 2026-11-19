@@ -9,11 +9,17 @@ period, cost and risk policy. Additional finite-target sizing reduces entry volu
 to allow for profit giveback; it does not relax the original caps or HALT behavior.
 See the [preregistered study and actual acceptance](../engineering/structural-pullback-study.md).
 
-The short exposed June comparison processed 660,471 quotes per arm: confirmation
-had no entries; the first-touch control closed four trades for **-$4.10 net**.
-Both watched the same 13 levels and completed without a risk/integrity halt.
-Independent audit/fill/cost reconstruction passed. The absence of confirmation
-trades and six-day setup coverage do not prove an economic edge.
+The original exposed June comparison remains preserved: confirmation had no
+entries; the first-touch control closed four trades for **-$4.10 net**, with 13
+watched levels and no risk/integrity halt. The authorized
+[corrected-input comparison](../engineering/structural-input-repair.md) restores
+four month-boundary bars and permits two explicitly reconciled archive weekends.
+All 660,471 quote rows per arm and the entry/risk/cost rules are unchanged.
+London input eligibility improves from 200/360 to 360/360 cutoffs; both corrected
+arms watch 22 levels. Confirmation still has no entries; the control closes five
+trades for **-$7.62 net**, without a risk/integrity halt. Independent audit/fill/cost
+reconstruction checks the separate results and preserved originals. Neither
+zero trades nor this small losing control establishes an economic edge.
 
 This is a bounded R1/R2A engineering increment, not a qualified trading strategy.
 USD/JPY, independent economic evaluation, production inputs and broker readiness

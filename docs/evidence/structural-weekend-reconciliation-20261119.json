@@ -1,0 +1,30 @@
+{
+  "schema": "histdata-weekend-reconciliation/1",
+  "source_index_sha256": "16bfee856c1b2c52c913da3e925422569006c2c95878de2b2bcc5069b0cffd49",
+  "source_timezone": "UTC-05:00_NO_DST",
+  "checks": [
+    {
+      "start": "2026-05-29T22:00:00+00:00",
+      "end": "2026-05-31T22:00:00+00:00",
+      "quotes_inside_closure": 0,
+      "last_quote_before_ms": 1780091999999,
+      "first_quote_after_ms": 1780264804728,
+      "exact_flanking_h1_and_m15": true
+    },
+    {
+      "start": "2026-06-05T22:00:00+00:00",
+      "end": "2026-06-07T22:00:00+00:00",
+      "quotes_inside_closure": 0,
+      "last_quote_before_ms": 1780696799853,
+      "first_quote_after_ms": 1780869644838,
+      "exact_flanking_h1_and_m15": true
+    }
+  ],
+  "basis": "RECONCILED_ARCHIVE_CONVENTION_NOT_PROVIDER_CERTIFIED",
+  "limitation": "Provider documents timestamps, not an authoritative session calendar; no broker-clock remapping, holiday exemption or delivery qualification",
+  "source_urls": [
+    "https://www.histdata.com/f-a-q/",
+    "https://www.histdata.com/f-a-q/data-files-detailed-specification/"
+  ],
+  "execution_enabled": false
+}

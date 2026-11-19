@@ -9,6 +9,7 @@ import pytest
 
 from fx_talanta.research.acquisition import prepare
 from fx_talanta.research.input_calendar import InputCalendar, WeekendClosure
+from fx_talanta.research.replay import digest
 from fx_talanta.research.spool import file_hash
 from fx_talanta.research.structural import StructuralRules, StructuralSignal, contiguous
 from fx_talanta.research.tick_index import bars_from_ticks, milliseconds
@@ -54,9 +55,20 @@ def test_month_join_aggregates_raw_quotes_and_keeps_prior_index(tmp_path):
         return dict(symbol=symbol, month=month, sha256=file_hash(destination))
 
     root = tmp_path / "history"
-    old = root / "old-v1-evidence"
+    old = root / digest(
+        dict(
+            symbol="EURUSD",
+            start=date("2026-06-01").isoformat(),
+            end=date("2026-06-02").isoformat(),
+            warm_start=date("2026-05-18").isoformat(),
+            version=1,
+        )
+    )
     old.mkdir(parents=True)
-    (old / "prepared.json").write_text('{"retained":"original"}')
+    (old / "ticks.sqlite").write_bytes(b"retained original index")
+    (old / "prepared.json").write_text(
+        json.dumps(dict(index_sha256=file_hash(old / "ticks.sqlite"), retained="original"))
+    )
     prior = file_hash(old / "prepared.json")
     path, report = prepare(
         root, "EURUSD", date("2026-06-01"), date("2026-06-02"), 53, lambda _: None, fetch=fetch
@@ -83,6 +95,7 @@ def test_month_join_aggregates_raw_quotes_and_keeps_prior_index(tmp_path):
     m15 = {datetime.fromisoformat(b["close_at"]) for b in meta["bars"] if b["timeframe"] == "M15"}
     assert {date("2026-06-01T05:00"), date("2026-06-01T05:15")} <= m15
     assert report["preparation_version"] == 2
+    assert path != old
     assert file_hash(old / "prepared.json") == prior
     assert (
         prepare(
@@ -176,3 +189,24 @@ def test_weekend_history_is_causal_and_missing_intraday_inputs_still_block():
         )["reason"]
         == "GAPPED_OR_STALE_INPUTS"
     )
+
+
+def test_calendar_cannot_bind_a_different_index_or_escape_development():
+    from test_structural_research import scenario
+
+    from fx_talanta.dashboard.indexed_research import IndexedBundle
+
+    _, experiment = scenario()
+    kwargs = dict(
+        index_file="ticks.sqlite",
+        index_sha256="a" * 64,
+        experiment=experiment,
+        acquired_history=True,
+        development_only=True,
+        input_calendar=calendar(),
+    )
+    assert IndexedBundle(**kwargs).input_calendar == calendar()
+    with pytest.raises(ValueError, match="exact development index"):
+        IndexedBundle(**dict(kwargs, index_sha256="c" * 64))
+    with pytest.raises(ValueError, match="exact development index"):
+        IndexedBundle(**dict(kwargs, development_only=False))
