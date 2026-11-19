@@ -1,0 +1,22 @@
+{
+  "purpose": "Descriptive market and cost anatomy before signal implementation; no strategy replay",
+  "source": "Existing acquired HistData indexes, read-only",
+  "start_utc": "2026-05-25T00:00:00+00:00",
+  "end_utc_exclusive": "2026-09-05T00:00:00+00:00",
+  "exposure": "Strictly inside previously exposed training; no validation/holdout outcome queries",
+  "sampling": "Last quote at each exact UTC minute; freshness <=2000ms by source timestamp, not measured receipt",
+  "session_buckets": "Existing versioned Tokyo/London/New York local-weekday conventions, disjoint overlaps",
+  "metrics": ["source-row validity and timestamp ties", "minute availability and source freshness", "session spread median/p95", "absolute subsequent 15-minute mid-price change and endpoint spread cost", "EURUSD 16:05-to-18:00 London endpoint diagnostic"],
+  "eurusd_endpoint_diagnostic": {
+    "direction": "LONG fixed before calculation",
+    "quotes": "as-of endpoint snapshots, source age <=2000ms",
+    "returns": "mid change and exit bid minus entry ask, pips; fees/slippage/financing unmeasured and omitted",
+    "split": "three consecutive blocks of 25 expected weekdays",
+    "uncertainty": "5000 fixed-seed resamples of observed ISO-week clusters; percentile interval for daily mean",
+    "scope": "All valid weekday endpoints, no calendar veto/stop/target/risk sizing; not executable strategy or independent validation"
+  },
+  "no_optimization": true,
+  "runtime_changes": false,
+  "trading_enabled": false,
+  "new_campaign": false
+}

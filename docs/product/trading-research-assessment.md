@@ -8,17 +8,162 @@ strategy/risk conflict through **smaller entry sizing that reserves room for a
 winner to reach its planned exit**, rather than increasing risk limits or clearing
 halts. This is an analytical design decision, **not an implemented fix**.
 
-Research two explicit hypotheses: EUR/USD post-London-fix drift, and USD/JPY
+The initial assessment proposed EUR/USD post-London-fix drift and USD/JPY
 post-BoJ-announcement continuation conditional on observed rate/price agreement.
-Both are untested adaptations of published mechanisms, not profitable strategies.
-EUR/USD first needs a cost-feasibility screen; USD/JPY first needs suitable
-point-in-time rates and announcement data. Neither is ready for paper trading.
+The market follow-up below now **shelves the EUR/USD idea**: its fixed-window
+endpoint diagnostic does not demonstrate an edge even before additional fees or
+slippage. USD/JPY remains data-gated. Neither is ready for paper trading. Preserve
+the original hypothesis cards below; do not rewrite them around observed winners.
 
-Scope: source review, retained-evidence arithmetic and research specifications.
+Initial assessment scope: source review, retained-evidence arithmetic and research specifications.
 No new replay, provider-model request, broker observation, order, campaign, Docker
 restart or production-code change. Trading stays disabled; PR #65 stays unmerged.
 M1 gaps and B01's rejection remain unchanged. The sources reviewed below do not
-establish that either proposed entry rule has predictive power today.
+establish that either proposed entry rule has predictive power today. The subsequent
+read-only market analysis adds observations from exposed training, not a new
+strategy replay, independent validation or current live-market assessment.
+
+## Market follow-up: measure before implementing
+
+**Decision:** keep session-aware measurement, shelve EU-FIX-01, and do not implement
+JP-POLICY-01 without its required inputs. More market movement is not predictable
+direction, and more software cannot make a negative or unidentified edge positive.
+
+The [pinned plan](../evidence/market-anatomy-plan-20261118.json) was written before
+calculation. The [result](../evidence/market-anatomy-20261118.json) covers May 25
+through September 4, 2026 inclusive: 75 nominal weekdays wholly inside previously
+exposed training. It reads 4,352,449 EUR/USD and 6,403,768 USD/JPY source rows.
+Validation and holdout outcomes were not queried. Dates are UTC unless a named
+local session is specified; this report is dated November 18 in Vancouver.
+
+### Session conditions
+
+Each UTC minute uses the last source bid/ask at or before that minute. Only quotes
+no older than two seconds enter these summaries. The 15-minute movement requires
+eligible quotes at both ends and the same session bucket and UTC day. It is an
+absolute mid-price change, **not a forecast or achievable profit**. Overlapping
+minute observations are not independent trades.
+
+| Disjoint session bucket | EUR/USD spread median / p95, pips | EUR/USD median absolute 15m move, pips (paired observations) | USD/JPY spread median / p95, pips | USD/JPY median absolute 15m move, pips (paired observations) |
+| --- | ---: | ---: | ---: | ---: |
+| Tokyo only | 0.30 / 0.50 | 1.55 (8,054) | 0.40 / 0.70 | 2.80 (11,574) |
+| Tokyo + London | 0.30 / 0.50 | 2.30 (4,129) | 0.40 / 0.60 | 3.10 (4,747) |
+| London only | 0.30 / 0.50 | 2.05 (5,633) | 0.40 / 0.60 | 2.65 (6,317) |
+| London + New York | 0.30 / 0.50 | 2.95 (10,900) | 0.40 / 0.60 | 3.15 (10,815) |
+| New York only | 0.30 / 0.50 | 2.05 (9,274) | 0.40 / 0.60 | 2.55 (10,287) |
+| Outside these sessions | 0.50 / 4.80 | 1.10 (1,428) | 0.70 / 6.10 | 1.75 (2,102) |
+
+Definitions are the existing versioned conventions: Tokyo 09:00–18:00 local,
+London 08:00–17:00 local, New York 08:00–17:00 local, weekdays, with timezone/DST
+conversion. Overlaps have separate buckets. These are not holiday calendars or
+claims that the global FX market is closed outside them. Pips differ in quote
+currency across pairs; this table is not a comparison of portfolio dollar risk.
+
+**Trading interpretation:** the EUR/USD sample offers larger movements during
+London–New York overlap than Tokyo alone, with similar median source spreads.
+The less favorable spread tail outside the named sessions merits a separate cost
+regime. These observations justify measuring signal behavior by session; they do
+not justify a long, short, breakout, mean-reversion or automatic session exclusion.
+USD/JPY's profile is distinct; a EUR/USD session rule cannot be assumed to transfer.
+
+### EUR/USD post-fix diagnostic
+
+The direction and window were fixed beforehand: long EUR/USD from 16:05 to 18:00
+Europe/London. This checks endpoint drift, **not** the full stop/target strategy.
+No calendar veto or verified fixing-day filter was available. Twelve of 75 nominal
+weekdays were excluded because at least one endpoint source quote exceeded two
+seconds; excluded dates and ages remain in the receipt. Selection may bias the
+63-day subset. There are only 15 observed week clusters, not millions of trials.
+
+| Metric | Observed result |
+| --- | ---: |
+| Mean mid-price change | −0.648 pips/day |
+| Mean exit bid minus entry ask | **−0.921 pips/day** |
+| Mean endpoint spread deduction | 0.273 pips/day |
+| Positive days after source spread | 30 / 63 |
+| Approximate 95% week-cluster percentile interval for mean bid/ask outcome | **−3.481 to +1.876 pips/day** |
+| First 25 expected weekdays | 18 included; mean −2.994 pips/day |
+| Middle 25 expected weekdays | 21 included; mean +2.429 pips/day |
+| Last 25 expected weekdays | 24 included; mean −2.296 pips/day |
+
+The interval uses 5,000 resamples of ISO-week clusters, seed 20261118. It is
+exploratory, assumes weeks are suitable resampling units and does not correct
+selection bias, prior research exposure or changing regimes. It is not a calibrated
+probability of future profit. Both signs remain plausible; two chronological
+blocks were negative. Fees, slippage and financing are omitted. On this recorded
+bid/ask sample there is no positive average margin available to absorb extra costs.
+
+**Disposition: SHELVED / EDGE_NOT_DEMONSTRATED.** Do not shift the window, reverse
+direction, select the middle block or optimize stops to rescue this observation.
+This does not prove that every fixing strategy loses, or establish the untested
+stop/target strategy's outcome. It is enough to decline further implementation of
+this proposal now. USD/JPY's session table does not test its macro hypothesis;
+synchronized historical rate expectations and release evidence are still absent.
+
+### Data trust and reproducibility
+
+The [HistData FAQ](https://www.histdata.com/f-a-q/) specifies fixed EST (UTC−5,
+without DST) for source timestamps and bid/ask for generic ASCII ticks. The
+repository parser uses that fixed offset before UTC conversion. HistData does not
+certify data quality or provide consolidated FX volume. These are source quotes,
+not measured CMC/FOREX.com fills or global order flow.
+
+All queried prices passed finite, positive, non-crossed and native precision checks.
+Equal timestamps occur frequently: 1,388,509 additional rows for EUR/USD and
+3,099,688 for USD/JPY; 89,005 and 428,861 respectively repeat a timestamp/quote
+combination. Sampling selects the last stored sequence at the timestamp instead
+of counting every tick as another opportunity. This convention does not independently
+validate vendor sequencing. No original data was deleted or deduplicated.
+
+The eligible minute fraction ranges from 29.8% to 79.1% across EUR/USD buckets
+and 36.5% to 78.0% for USD/JPY. Denominators include nominal weekday minutes,
+including closures and holidays. Inactive quotes, archive gaps and closures are
+not distinguished here. **These are not collector-reliability scores or observed
+network latency**, and cannot qualify or weaken the live two-second entry gate.
+Per-day coverage, exact denominators and source hashes remain in the result.
+
+The [non-production analysis script](../../tools/qualification/market_anatomy_20261118.py)
+reads SQLite in immutable read-only mode, checks both source hashes before and
+after, and independently verifies every included EUR/USD endpoint using point
+queries and Decimal arithmetic (126 checks). A second arithmetic review checked
+daily returns, block means, exclusions and minute denominators. All 780 previously
+tracked files were unchanged at the end of calculation, before adding this report.
+The [publication receipt](../evidence/market-anatomy-verification-20261118.json)
+records result/plan fingerprints and AST equivalence between the executed script
+and its formatted published copy. Published plan values are identical; Git
+normalizes its final CRLF to LF, so both byte fingerprints are recorded.
+Old qualification and strategy results remain
+unchanged. No product code, risk setting or running preview was modified.
+
+Reproduction requires the same two privately retained source indexes and manifests
+with the hashes in the result; raw vendor data is not republished. Use the study's
+pinned repository revision/image and timezone dependency recorded in the receipt.
+In an isolated container, mount those two history directories under
+`/data/preview/history` read-only and mount a **new empty** output directory at
+`/review` containing the published plan as `plan.json`. Run the published script with
+the repository `src` on `PYTHONPATH`. Disable networking; the original resource
+limits were 0.5 CPU and 256 MiB, with a read-only container root and temporary
+`/tmp`. The script refuses to overwrite `result.json`. Script and plan byte hashes
+differ from the original after formatting/newline normalization; the receipt
+checks unchanged code structure and plan values.
+Reproduction does not create fresh independent evidence.
+
+### How decisions change from here
+
+Market questions lead implementation: identify the participant behavior or
+information change, define an observable signal available at decision time, and
+write a falsification test before computing results. Compare against no trade and
+simple controls; account for source coverage, session, event risk and realistic
+costs. AI can challenge a thesis and explain measured outcomes; a plausible story
+is not a signal. Rejected ideas remain rejected unless new evidence motivates a
+separately registered hypothesis. Current market context must carry an as-of time
+and point-in-time sources; this historical sample is not a current trading view.
+
+Measure progress by eliminating bad ideas and finding robust economic evidence,
+not by feature count. Keep the risk-policy compatibility work restrictive, but
+do not confuse fixing that engineering constraint with discovering alpha. No new
+strategy kernel, model request, paper campaign or trading authority follows from
+this analysis.
 
 ## What the existing studies actually establish
 
@@ -191,7 +336,8 @@ insufficient evidence rather than a pass. Opposite-direction parity weakens the
 specific dollar-reversal explanation. Month-end and ordinary-day attribution is
 diagnostic; selecting only winning dates becomes a new registered hypothesis.
 
-**Current decision:** cost-feasibility research candidate only. The engine cannot
+**Original proposed decision, superseded by the follow-up above:** cost-feasibility
+research candidate only. The engine cannot
 faithfully express a 16:05 fixing rule as one of its existing two trend kernels.
 Do not silently map it to a generic breakout or build it before the cost screen.
 
@@ -272,8 +418,9 @@ a price-only strategy as macro-informed. No paid acquisition is authorized here.
    subtracting stop risk. Simulate shared capital, costs, reservations and limits;
    separate pair reports do not establish portfolio diversification.
 
-Published evidence does not establish either exact rule's profitability, and no
-new return estimate was generated in this assessment. No minimum trade count,
+Published evidence does not establish either exact rule's profitability. The
+initial assessment generated no return estimate; the follow-up above supplies a
+limited exploratory endpoint diagnostic, not a tradable result. No minimum trade count,
 fixed six-month period or low drawdown alone establishes an edge.
 
 ## What is worth keeping, and what stops now

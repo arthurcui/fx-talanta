@@ -6,8 +6,11 @@ The [trading research assessment](trading-research-assessment.md) is complete as
 an evidence review and design decision, not a profitability or implementation
 claim. It retains all limits and resolves the intended strategy/risk design by
 requiring smaller entries with headroom for current-to-stop exposure through the
-planned exit. That additional sizing check is not implemented. EUR/USD post-fix
-research is cost-gated; USD/JPY post-policy research is data-gated. No new replay,
+planned exit. That additional sizing check is not implemented. The subsequent
+75-weekday market analysis shelves EUR/USD post-fix research: 63 eligible endpoint
+pairs averaged −0.921 pips after source spread, before other costs; its uncertainty
+interval spans zero. USD/JPY post-policy research remains data-gated. This is
+exposed-training analysis, not a strategy backtest or current market view. No new replay,
 campaign or trading authority was created; PR #65 remains unmerged. This priority
 precedes further application features and the historical milestone sections below.
 

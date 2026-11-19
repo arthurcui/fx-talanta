@@ -1,0 +1,1803 @@
+{
+  "schema": "market-anatomy/1",
+  "date": "2026-11-18",
+  "plan": {
+    "purpose": "Descriptive market and cost anatomy before signal implementation; no strategy replay",
+    "source": "Existing acquired HistData indexes, read-only",
+    "start_utc": "2026-05-25T00:00:00+00:00",
+    "end_utc_exclusive": "2026-09-05T00:00:00+00:00",
+    "exposure": "Strictly inside previously exposed training; no validation/holdout outcome queries",
+    "sampling": "Last quote at each exact UTC minute; freshness <=2000ms by source timestamp, not measured receipt",
+    "session_buckets": "Existing versioned Tokyo/London/New York local-weekday conventions, disjoint overlaps",
+    "metrics": [
+      "source-row validity and timestamp ties",
+      "minute availability and source freshness",
+      "session spread median/p95",
+      "absolute subsequent 15-minute mid-price change and endpoint spread cost",
+      "EURUSD 16:05-to-18:00 London endpoint diagnostic"
+    ],
+    "eurusd_endpoint_diagnostic": {
+      "direction": "LONG fixed before calculation",
+      "quotes": "as-of endpoint snapshots, source age <=2000ms",
+      "returns": "mid change and exit bid minus entry ask, pips; fees/slippage/financing unmeasured and omitted",
+      "split": "three consecutive blocks of 25 expected weekdays",
+      "uncertainty": "5000 fixed-seed resamples of observed ISO-week clusters; percentile interval for daily mean",
+      "scope": "All valid weekday endpoints, no calendar veto/stop/target/risk sizing; not executable strategy or independent validation"
+    },
+    "no_optimization": true,
+    "runtime_changes": false,
+    "trading_enabled": false,
+    "new_campaign": false
+  },
+  "plan_sha256": "fe57380ba75970589023dc3b257fcb19e06a2ebeb84a4f09a9bbc8941e398ed3",
+  "script_sha256": "3af96574ec12f30432c203bb0be8468cc2717ad71a5d5401f1265d4e35c5eaff",
+  "execution_enabled": false,
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "index_sha256": "16bfee856c1b2c52c913da3e925422569006c2c95878de2b2bcc5069b0cffd49",
+      "bundle_sha256": "d99c17a4c87f656f74b63797c98ad32529d633855c6197d80310b37e718cddee",
+      "quality": {
+        "rows": 4352449,
+        "zero_spread_rows": 0,
+        "duplicate_timestamp_quote_rows": 89005,
+        "tied_timestamp_rows": 1388509
+      },
+      "sessions": [
+        {
+          "session": "TOKYO",
+          "expected_minutes": 31500,
+          "fresh_minutes": 15438,
+          "source_fresh_fraction": 0.4900952380952381,
+          "stale_minutes": 16061,
+          "no_quote_minutes": 1,
+          "spread_pips": {
+            "n": 15438,
+            "mean": 0.34946236559139787,
+            "median": 0.3,
+            "p05": 0.2,
+            "p95": 0.5
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 8054,
+            "mean": 2.0254780233424388,
+            "median": 1.55,
+            "p05": 0.15,
+            "p95": 5.45
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 8054,
+            "mean": 0.347082195182518,
+            "median": 0.35,
+            "p05": 0.2,
+            "p95": 0.5
+          }
+        },
+        {
+          "session": "TOKYO+LONDON",
+          "expected_minutes": 9000,
+          "fresh_minutes": 6438,
+          "source_fresh_fraction": 0.7153333333333334,
+          "stale_minutes": 2562,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 6438,
+            "mean": 0.2921404162783473,
+            "median": 0.3,
+            "p05": 0.1,
+            "p95": 0.5
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 4129,
+            "mean": 2.938847178493582,
+            "median": 2.3,
+            "p05": 0.2,
+            "p95": 7.75
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 4129,
+            "mean": 0.2931460402034391,
+            "median": 0.3,
+            "p05": 0.15,
+            "p95": 0.45
+          }
+        },
+        {
+          "session": "LONDON",
+          "expected_minutes": 13500,
+          "fresh_minutes": 8986,
+          "source_fresh_fraction": 0.6656296296296297,
+          "stale_minutes": 4514,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 8986,
+            "mean": 0.2878700200311596,
+            "median": 0.3,
+            "p05": 0.1,
+            "p95": 0.5
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 5633,
+            "mean": 2.7046600390555655,
+            "median": 2.05,
+            "p05": 0.2,
+            "p95": 7.25
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 5633,
+            "mean": 0.2885407420557429,
+            "median": 0.3,
+            "p05": 0.15,
+            "p95": 0.45
+          }
+        },
+        {
+          "session": "LONDON+NEW_YORK",
+          "expected_minutes": 18000,
+          "fresh_minutes": 14240,
+          "source_fresh_fraction": 0.7911111111111111,
+          "stale_minutes": 3760,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 14240,
+            "mean": 0.28267556179775283,
+            "median": 0.3,
+            "p05": 0.1,
+            "p95": 0.5
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 10900,
+            "mean": 4.0961880733944955,
+            "median": 2.95,
+            "p05": 0.25,
+            "p95": 11.45
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 10900,
+            "mean": 0.2836284403669725,
+            "median": 0.3,
+            "p05": 0.15,
+            "p95": 0.45
+          }
+        },
+        {
+          "session": "NEW_YORK",
+          "expected_minutes": 22500,
+          "fresh_minutes": 14438,
+          "source_fresh_fraction": 0.6416888888888889,
+          "stale_minutes": 8062,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 14438,
+            "mean": 0.27823105693309325,
+            "median": 0.3,
+            "p05": 0.1,
+            "p95": 0.5
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 9274,
+            "mean": 2.9355617856372653,
+            "median": 2.05,
+            "p05": 0.2,
+            "p95": 8.317500000000019
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 9274,
+            "mean": 0.2757170584429588,
+            "median": 0.25,
+            "p05": 0.15,
+            "p95": 0.4
+          }
+        },
+        {
+          "session": "OFF_SESSION",
+          "expected_minutes": 13500,
+          "fresh_minutes": 4028,
+          "source_fresh_fraction": 0.2983703703703704,
+          "stale_minutes": 9472,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 4028,
+            "mean": 1.2953823237338629,
+            "median": 0.5,
+            "p05": 0.2,
+            "p95": 4.8
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 1428,
+            "mean": 1.5681372549019608,
+            "median": 1.1,
+            "p05": 0.1,
+            "p95": 4.3
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 1428,
+            "mean": 1.4915266106442577,
+            "median": 0.6,
+            "p05": 0.25,
+            "p95": 4.5
+          }
+        }
+      ],
+      "day_coverage": {
+        "2026-05-25": {
+          "expected": 1440,
+          "fresh": 471
+        },
+        "2026-05-26": {
+          "expected": 1440,
+          "fresh": 613
+        },
+        "2026-05-27": {
+          "expected": 1440,
+          "fresh": 668
+        },
+        "2026-05-28": {
+          "expected": 1440,
+          "fresh": 700
+        },
+        "2026-05-29": {
+          "expected": 1440,
+          "fresh": 680
+        },
+        "2026-06-01": {
+          "expected": 1440,
+          "fresh": 644
+        },
+        "2026-06-02": {
+          "expected": 1440,
+          "fresh": 577
+        },
+        "2026-06-03": {
+          "expected": 1440,
+          "fresh": 678
+        },
+        "2026-06-04": {
+          "expected": 1440,
+          "fresh": 629
+        },
+        "2026-06-05": {
+          "expected": 1440,
+          "fresh": 684
+        },
+        "2026-06-08": {
+          "expected": 1440,
+          "fresh": 767
+        },
+        "2026-06-09": {
+          "expected": 1440,
+          "fresh": 736
+        },
+        "2026-06-10": {
+          "expected": 1440,
+          "fresh": 806
+        },
+        "2026-06-11": {
+          "expected": 1440,
+          "fresh": 834
+        },
+        "2026-06-12": {
+          "expected": 1440,
+          "fresh": 748
+        },
+        "2026-06-15": {
+          "expected": 1440,
+          "fresh": 635
+        },
+        "2026-06-16": {
+          "expected": 1440,
+          "fresh": 635
+        },
+        "2026-06-17": {
+          "expected": 1440,
+          "fresh": 617
+        },
+        "2026-06-18": {
+          "expected": 1440,
+          "fresh": 829
+        },
+        "2026-06-19": {
+          "expected": 1440,
+          "fresh": 637
+        },
+        "2026-06-22": {
+          "expected": 1440,
+          "fresh": 688
+        },
+        "2026-06-23": {
+          "expected": 1440,
+          "fresh": 648
+        },
+        "2026-06-24": {
+          "expected": 1440,
+          "fresh": 760
+        },
+        "2026-06-25": {
+          "expected": 1440,
+          "fresh": 745
+        },
+        "2026-06-26": {
+          "expected": 1440,
+          "fresh": 701
+        },
+        "2026-06-29": {
+          "expected": 1440,
+          "fresh": 935
+        },
+        "2026-06-30": {
+          "expected": 1440,
+          "fresh": 985
+        },
+        "2026-07-01": {
+          "expected": 1440,
+          "fresh": 963
+        },
+        "2026-07-02": {
+          "expected": 1440,
+          "fresh": 1030
+        },
+        "2026-07-03": {
+          "expected": 1440,
+          "fresh": 867
+        },
+        "2026-07-06": {
+          "expected": 1440,
+          "fresh": 904
+        },
+        "2026-07-07": {
+          "expected": 1440,
+          "fresh": 935
+        },
+        "2026-07-08": {
+          "expected": 1440,
+          "fresh": 1050
+        },
+        "2026-07-09": {
+          "expected": 1440,
+          "fresh": 928
+        },
+        "2026-07-10": {
+          "expected": 1440,
+          "fresh": 963
+        },
+        "2026-07-13": {
+          "expected": 1440,
+          "fresh": 1067
+        },
+        "2026-07-14": {
+          "expected": 1440,
+          "fresh": 1075
+        },
+        "2026-07-15": {
+          "expected": 1440,
+          "fresh": 1007
+        },
+        "2026-07-16": {
+          "expected": 1440,
+          "fresh": 932
+        },
+        "2026-07-17": {
+          "expected": 1440,
+          "fresh": 880
+        },
+        "2026-07-20": {
+          "expected": 1440,
+          "fresh": 931
+        },
+        "2026-07-21": {
+          "expected": 1440,
+          "fresh": 833
+        },
+        "2026-07-22": {
+          "expected": 1440,
+          "fresh": 899
+        },
+        "2026-07-23": {
+          "expected": 1440,
+          "fresh": 970
+        },
+        "2026-07-24": {
+          "expected": 1440,
+          "fresh": 860
+        },
+        "2026-07-27": {
+          "expected": 1440,
+          "fresh": 919
+        },
+        "2026-07-28": {
+          "expected": 1440,
+          "fresh": 858
+        },
+        "2026-07-29": {
+          "expected": 1440,
+          "fresh": 965
+        },
+        "2026-07-30": {
+          "expected": 1440,
+          "fresh": 1011
+        },
+        "2026-07-31": {
+          "expected": 1440,
+          "fresh": 1023
+        },
+        "2026-08-03": {
+          "expected": 1440,
+          "fresh": 1015
+        },
+        "2026-08-04": {
+          "expected": 1440,
+          "fresh": 932
+        },
+        "2026-08-05": {
+          "expected": 1440,
+          "fresh": 990
+        },
+        "2026-08-06": {
+          "expected": 1440,
+          "fresh": 846
+        },
+        "2026-08-07": {
+          "expected": 1440,
+          "fresh": 833
+        },
+        "2026-08-10": {
+          "expected": 1440,
+          "fresh": 832
+        },
+        "2026-08-11": {
+          "expected": 1440,
+          "fresh": 828
+        },
+        "2026-08-12": {
+          "expected": 1440,
+          "fresh": 800
+        },
+        "2026-08-13": {
+          "expected": 1440,
+          "fresh": 872
+        },
+        "2026-08-14": {
+          "expected": 1440,
+          "fresh": 812
+        },
+        "2026-08-17": {
+          "expected": 1440,
+          "fresh": 875
+        },
+        "2026-08-18": {
+          "expected": 1440,
+          "fresh": 856
+        },
+        "2026-08-19": {
+          "expected": 1440,
+          "fresh": 1008
+        },
+        "2026-08-20": {
+          "expected": 1440,
+          "fresh": 1035
+        },
+        "2026-08-21": {
+          "expected": 1440,
+          "fresh": 966
+        },
+        "2026-08-24": {
+          "expected": 1440,
+          "fresh": 951
+        },
+        "2026-08-25": {
+          "expected": 1440,
+          "fresh": 925
+        },
+        "2026-08-26": {
+          "expected": 1440,
+          "fresh": 891
+        },
+        "2026-08-27": {
+          "expected": 1440,
+          "fresh": 856
+        },
+        "2026-08-28": {
+          "expected": 1440,
+          "fresh": 895
+        },
+        "2026-08-31": {
+          "expected": 1440,
+          "fresh": 874
+        },
+        "2026-09-01": {
+          "expected": 1440,
+          "fresh": 899
+        },
+        "2026-09-02": {
+          "expected": 1440,
+          "fresh": 927
+        },
+        "2026-09-03": {
+          "expected": 1440,
+          "fresh": 1022
+        },
+        "2026-09-04": {
+          "expected": 1440,
+          "fresh": 908
+        }
+      },
+      "eurusd_post_fix_diagnostic": {
+        "expected_days": 75,
+        "included_days": 63,
+        "excluded_days": 12,
+        "mid_change_pips": {
+          "n": 63,
+          "mean": -0.6476190476190475,
+          "median": -0.4,
+          "p05": -19.085,
+          "p95": 19.575000000000003
+        },
+        "source_bid_ask_long_pips": {
+          "n": 63,
+          "mean": -0.9206349206349207,
+          "median": -0.5,
+          "p05": -19.28,
+          "p95": 19.46
+        },
+        "mean_interval_week_cluster_percentile95": [
+          -3.480741101223582,
+          1.8759186422413787
+        ],
+        "week_clusters": 15,
+        "positive_days": 30,
+        "blocks": [
+          {
+            "block": 1,
+            "expected_days": 25,
+            "source_bid_ask_long_pips": {
+              "n": 18,
+              "mean": -2.9944444444444445,
+              "median": -0.85,
+              "p05": -20.915,
+              "p95": 18.224999999999994
+            }
+          },
+          {
+            "block": 2,
+            "expected_days": 25,
+            "source_bid_ask_long_pips": {
+              "n": 21,
+              "mean": 2.428571428571429,
+              "median": -0.2,
+              "p05": -13.2,
+              "p95": 26.4
+            }
+          },
+          {
+            "block": 3,
+            "expected_days": 25,
+            "source_bid_ask_long_pips": {
+              "n": 24,
+              "mean": -2.2958333333333334,
+              "median": -0.65,
+              "p05": -18.765,
+              "p95": 7.229999999999996
+            }
+          }
+        ],
+        "daily": [
+          {
+            "date": "2026-05-25",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 271,
+            "exit_source_age_ms": 56,
+            "mid_change_pips": 0.55,
+            "bid_ask_long_pips": 0.2,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-05-26",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 115,
+            "exit_source_age_ms": 569,
+            "mid_change_pips": -7.45,
+            "bid_ask_long_pips": -7.7,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-05-27",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 138,
+            "exit_source_age_ms": 476,
+            "mid_change_pips": -8.85,
+            "bid_ask_long_pips": -9.1,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-05-28",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 1845,
+            "exit_source_age_ms": 617,
+            "mid_change_pips": 17.95,
+            "bid_ask_long_pips": 17.7,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-05-29",
+            "block": 1,
+            "included": false,
+            "entry_source_age_ms": 1361,
+            "exit_source_age_ms": 7628
+          },
+          {
+            "date": "2026-06-01",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 186,
+            "exit_source_age_ms": 686,
+            "mid_change_pips": 14.9,
+            "bid_ask_long_pips": 14.6,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-06-02",
+            "block": 1,
+            "included": false,
+            "entry_source_age_ms": 729,
+            "exit_source_age_ms": 2028
+          },
+          {
+            "date": "2026-06-03",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 98,
+            "exit_source_age_ms": 308,
+            "mid_change_pips": 1.35,
+            "bid_ask_long_pips": 1.0,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-06-04",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 25,
+            "exit_source_age_ms": 1009,
+            "mid_change_pips": -5.6,
+            "bid_ask_long_pips": -5.8,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-06-05",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 446,
+            "exit_source_age_ms": 1331,
+            "mid_change_pips": -41.05,
+            "bid_ask_long_pips": -41.4,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-06-08",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 14,
+            "exit_source_age_ms": 91,
+            "mid_change_pips": 3.2,
+            "bid_ask_long_pips": 2.9,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-06-09",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 157,
+            "exit_source_age_ms": 150,
+            "mid_change_pips": -16.35,
+            "bid_ask_long_pips": -16.6,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-06-10",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 1775,
+            "exit_source_age_ms": 1185,
+            "mid_change_pips": -13.7,
+            "bid_ask_long_pips": -14.1,
+            "spread_cost_pips": 0.4
+          },
+          {
+            "date": "2026-06-11",
+            "block": 1,
+            "included": false,
+            "entry_source_age_ms": 46,
+            "exit_source_age_ms": 3151
+          },
+          {
+            "date": "2026-06-12",
+            "block": 1,
+            "included": false,
+            "entry_source_age_ms": 440,
+            "exit_source_age_ms": 4567
+          },
+          {
+            "date": "2026-06-15",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 1185,
+            "exit_source_age_ms": 1011,
+            "mid_change_pips": -17.15,
+            "bid_ask_long_pips": -17.3,
+            "spread_cost_pips": 0.15
+          },
+          {
+            "date": "2026-06-16",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 34,
+            "exit_source_age_ms": 805,
+            "mid_change_pips": 21.55,
+            "bid_ask_long_pips": 21.2,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-06-17",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 1877,
+            "exit_source_age_ms": 303,
+            "mid_change_pips": -1.6,
+            "bid_ask_long_pips": -1.9,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-06-18",
+            "block": 1,
+            "included": false,
+            "entry_source_age_ms": 3416,
+            "exit_source_age_ms": 27
+          },
+          {
+            "date": "2026-06-19",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 1522,
+            "exit_source_age_ms": 799,
+            "mid_change_pips": 0.55,
+            "bid_ask_long_pips": 0.2,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-06-22",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 801,
+            "exit_source_age_ms": 1550,
+            "mid_change_pips": 2.85,
+            "bid_ask_long_pips": 2.6,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-06-23",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 713,
+            "exit_source_age_ms": 18,
+            "mid_change_pips": -4.7,
+            "bid_ask_long_pips": -5.0,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-06-24",
+            "block": 1,
+            "included": false,
+            "entry_source_age_ms": 1773,
+            "exit_source_age_ms": 2184
+          },
+          {
+            "date": "2026-06-25",
+            "block": 1,
+            "included": true,
+            "entry_source_age_ms": 602,
+            "exit_source_age_ms": 1748,
+            "mid_change_pips": 4.95,
+            "bid_ask_long_pips": 4.6,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-06-26",
+            "block": 1,
+            "included": false,
+            "entry_source_age_ms": 6079,
+            "exit_source_age_ms": 1395
+          },
+          {
+            "date": "2026-06-29",
+            "block": 2,
+            "included": false,
+            "entry_source_age_ms": 6000,
+            "exit_source_age_ms": 0
+          },
+          {
+            "date": "2026-06-30",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 19.6,
+            "bid_ask_long_pips": 19.5,
+            "spread_cost_pips": 0.1
+          },
+          {
+            "date": "2026-07-01",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -9.5,
+            "bid_ask_long_pips": -9.7,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-07-02",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 2.65,
+            "bid_ask_long_pips": 2.4,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-07-03",
+            "block": 2,
+            "included": false,
+            "entry_source_age_ms": 4000,
+            "exit_source_age_ms": 0
+          },
+          {
+            "date": "2026-07-06",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 10.55,
+            "bid_ask_long_pips": 10.3,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-07-07",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -5.3,
+            "bid_ask_long_pips": -5.6,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-07-08",
+            "block": 2,
+            "included": false,
+            "entry_source_age_ms": 3000,
+            "exit_source_age_ms": 0
+          },
+          {
+            "date": "2026-07-09",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 1000,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -7.0,
+            "bid_ask_long_pips": -7.1,
+            "spread_cost_pips": 0.1
+          },
+          {
+            "date": "2026-07-10",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 19.35,
+            "bid_ask_long_pips": 19.1,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-07-13",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -12.65,
+            "bid_ask_long_pips": -12.8,
+            "spread_cost_pips": 0.15
+          },
+          {
+            "date": "2026-07-14",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -25.9,
+            "bid_ask_long_pips": -26.1,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-07-15",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 3.15,
+            "bid_ask_long_pips": 2.9,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-07-16",
+            "block": 2,
+            "included": false,
+            "entry_source_age_ms": 3000,
+            "exit_source_age_ms": 0
+          },
+          {
+            "date": "2026-07-17",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 4.9,
+            "bid_ask_long_pips": 4.6,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-07-20",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -4.1,
+            "bid_ask_long_pips": -4.4,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-07-21",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -7.65,
+            "bid_ask_long_pips": -7.9,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-07-22",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -0.65,
+            "bid_ask_long_pips": -0.8,
+            "spread_cost_pips": 0.15
+          },
+          {
+            "date": "2026-07-23",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 3.55,
+            "bid_ask_long_pips": 3.2,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-07-24",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 8.55,
+            "bid_ask_long_pips": 8.3,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-07-27",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 0.2,
+            "bid_ask_long_pips": -0.2,
+            "spread_cost_pips": 0.4
+          },
+          {
+            "date": "2026-07-28",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 26.65,
+            "bid_ask_long_pips": 26.4,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-07-29",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -9.2,
+            "bid_ask_long_pips": -9.5,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-07-30",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -12.9,
+            "bid_ask_long_pips": -13.2,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-07-31",
+            "block": 2,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 52.05,
+            "bid_ask_long_pips": 51.6,
+            "spread_cost_pips": 0.45
+          },
+          {
+            "date": "2026-08-03",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -12.15,
+            "bid_ask_long_pips": -12.5,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-08-04",
+            "block": 3,
+            "included": false,
+            "entry_source_age_ms": 3000,
+            "exit_source_age_ms": 0
+          },
+          {
+            "date": "2026-08-05",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -1.65,
+            "bid_ask_long_pips": -1.9,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-08-06",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -19.3,
+            "bid_ask_long_pips": -19.5,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-08-07",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 5.35,
+            "bid_ask_long_pips": 5.1,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-08-10",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 1000,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 6.15,
+            "bid_ask_long_pips": 5.7,
+            "spread_cost_pips": 0.45
+          },
+          {
+            "date": "2026-08-11",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 1.7,
+            "bid_ask_long_pips": 1.5,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-08-12",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 1000,
+            "mid_change_pips": -14.4,
+            "bid_ask_long_pips": -14.6,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-08-13",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 2000,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -2.7,
+            "bid_ask_long_pips": -3.0,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-08-14",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -0.55,
+            "bid_ask_long_pips": -0.8,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-08-17",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -6.55,
+            "bid_ask_long_pips": -6.8,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-08-18",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -3.4,
+            "bid_ask_long_pips": -3.6,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-08-19",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 5.45,
+            "bid_ask_long_pips": 5.2,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-08-20",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 3.8,
+            "bid_ask_long_pips": 3.6,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-08-21",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 1.85,
+            "bid_ask_long_pips": 1.5,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-08-24",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 1000,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -0.4,
+            "bid_ask_long_pips": -0.5,
+            "spread_cost_pips": 0.1
+          },
+          {
+            "date": "2026-08-25",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 3.9,
+            "bid_ask_long_pips": 3.5,
+            "spread_cost_pips": 0.4
+          },
+          {
+            "date": "2026-08-26",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -0.95,
+            "bid_ask_long_pips": -1.3,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-08-27",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 0.85,
+            "bid_ask_long_pips": 0.5,
+            "spread_cost_pips": 0.35
+          },
+          {
+            "date": "2026-08-28",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -22.4,
+            "bid_ask_long_pips": -22.6,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-08-31",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 16.65,
+            "bid_ask_long_pips": 16.4,
+            "spread_cost_pips": 0.25
+          },
+          {
+            "date": "2026-09-01",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": -8.95,
+            "bid_ask_long_pips": -9.4,
+            "spread_cost_pips": 0.45
+          },
+          {
+            "date": "2026-09-02",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 2000,
+            "mid_change_pips": -9.6,
+            "bid_ask_long_pips": -9.8,
+            "spread_cost_pips": 0.2
+          },
+          {
+            "date": "2026-09-03",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 1.0,
+            "bid_ask_long_pips": 0.7,
+            "spread_cost_pips": 0.3
+          },
+          {
+            "date": "2026-09-04",
+            "block": 3,
+            "included": true,
+            "entry_source_age_ms": 0,
+            "exit_source_age_ms": 0,
+            "mid_change_pips": 7.75,
+            "bid_ask_long_pips": 7.5,
+            "spread_cost_pips": 0.25
+          }
+        ],
+        "independent_endpoint_checks": 126
+      },
+      "source_unchanged_after": true
+    },
+    {
+      "symbol": "USDJPY",
+      "index_sha256": "b7dfdc5a01cd857e2ee138994c1a66e85a82bc18ac8da6240d9903c3922f9056",
+      "bundle_sha256": "78ee05abc15a13158f7463880b92fdadfa6a8a7f4f62ce13be909f32739b27a2",
+      "quality": {
+        "rows": 6403768,
+        "zero_spread_rows": 0,
+        "duplicate_timestamp_quote_rows": 428861,
+        "tied_timestamp_rows": 3099688
+      },
+      "sessions": [
+        {
+          "session": "TOKYO",
+          "expected_minutes": 31500,
+          "fresh_minutes": 18194,
+          "source_fresh_fraction": 0.5775873015873015,
+          "stale_minutes": 13305,
+          "no_quote_minutes": 1,
+          "spread_pips": {
+            "n": 18194,
+            "mean": 0.43779267890513357,
+            "median": 0.4,
+            "p05": 0.2,
+            "p95": 0.7
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 11574,
+            "mean": 4.579428028339382,
+            "median": 2.8,
+            "p05": 0.25,
+            "p95": 13.7
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 11574,
+            "mean": 0.43666839467772595,
+            "median": 0.4,
+            "p05": 0.3,
+            "p95": 0.6
+          }
+        },
+        {
+          "session": "TOKYO+LONDON",
+          "expected_minutes": 9000,
+          "fresh_minutes": 6816,
+          "source_fresh_fraction": 0.7573333333333333,
+          "stale_minutes": 2184,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 6816,
+            "mean": 0.3990757042253521,
+            "median": 0.4,
+            "p05": 0.2,
+            "p95": 0.6
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 4747,
+            "mean": 4.825131662102381,
+            "median": 3.1,
+            "p05": 0.25,
+            "p95": 15.75
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 4747,
+            "mean": 0.3960817358331578,
+            "median": 0.4,
+            "p05": 0.25,
+            "p95": 0.55
+          }
+        },
+        {
+          "session": "LONDON",
+          "expected_minutes": 13500,
+          "fresh_minutes": 9272,
+          "source_fresh_fraction": 0.6868148148148148,
+          "stale_minutes": 4228,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 9272,
+            "mean": 0.3920944779982744,
+            "median": 0.4,
+            "p05": 0.2,
+            "p95": 0.6
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 6317,
+            "mean": 4.3655136932088014,
+            "median": 2.65,
+            "p05": 0.2,
+            "p95": 12.65
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 6317,
+            "mean": 0.391586195979104,
+            "median": 0.4,
+            "p05": 0.25,
+            "p95": 0.55
+          }
+        },
+        {
+          "session": "LONDON+NEW_YORK",
+          "expected_minutes": 18000,
+          "fresh_minutes": 14044,
+          "source_fresh_fraction": 0.7802222222222223,
+          "stale_minutes": 3956,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 14044,
+            "mean": 0.39540017089148394,
+            "median": 0.4,
+            "p05": 0.2,
+            "p95": 0.6
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 10815,
+            "mean": 6.191003236245955,
+            "median": 3.15,
+            "p05": 0.25,
+            "p95": 18.2
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 10815,
+            "mean": 0.39538603791030974,
+            "median": 0.4,
+            "p05": 0.25,
+            "p95": 0.6
+          }
+        },
+        {
+          "session": "NEW_YORK",
+          "expected_minutes": 22500,
+          "fresh_minutes": 15006,
+          "source_fresh_fraction": 0.6669333333333334,
+          "stale_minutes": 7494,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 15006,
+            "mean": 0.3750299880047981,
+            "median": 0.4,
+            "p05": 0.2,
+            "p95": 0.6
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 10287,
+            "mean": 4.126557791387188,
+            "median": 2.55,
+            "p05": 0.2,
+            "p95": 12.75
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 10287,
+            "mean": 0.37389909594634,
+            "median": 0.35,
+            "p05": 0.25,
+            "p95": 0.55
+          }
+        },
+        {
+          "session": "OFF_SESSION",
+          "expected_minutes": 13500,
+          "fresh_minutes": 4923,
+          "source_fresh_fraction": 0.36466666666666664,
+          "stale_minutes": 8577,
+          "no_quote_minutes": 0,
+          "spread_pips": {
+            "n": 4923,
+            "mean": 1.5627666057282146,
+            "median": 0.7,
+            "p05": 0.3,
+            "p95": 6.1
+          },
+          "absolute_15m_mid_change_pips": {
+            "n": 2102,
+            "mean": 3.4998097050428165,
+            "median": 1.75,
+            "p05": 0.15,
+            "p95": 10.2
+          },
+          "endpoint_roundtrip_spread_pips": {
+            "n": 2102,
+            "mean": 1.579733587059943,
+            "median": 0.7,
+            "p05": 0.35,
+            "p95": 5.55
+          }
+        }
+      ],
+      "day_coverage": {
+        "2026-05-25": {
+          "expected": 1440,
+          "fresh": 429
+        },
+        "2026-05-26": {
+          "expected": 1440,
+          "fresh": 522
+        },
+        "2026-05-27": {
+          "expected": 1440,
+          "fresh": 555
+        },
+        "2026-05-28": {
+          "expected": 1440,
+          "fresh": 615
+        },
+        "2026-05-29": {
+          "expected": 1440,
+          "fresh": 604
+        },
+        "2026-06-01": {
+          "expected": 1440,
+          "fresh": 650
+        },
+        "2026-06-02": {
+          "expected": 1440,
+          "fresh": 548
+        },
+        "2026-06-03": {
+          "expected": 1440,
+          "fresh": 629
+        },
+        "2026-06-04": {
+          "expected": 1440,
+          "fresh": 589
+        },
+        "2026-06-05": {
+          "expected": 1440,
+          "fresh": 495
+        },
+        "2026-06-08": {
+          "expected": 1440,
+          "fresh": 718
+        },
+        "2026-06-09": {
+          "expected": 1440,
+          "fresh": 652
+        },
+        "2026-06-10": {
+          "expected": 1440,
+          "fresh": 590
+        },
+        "2026-06-11": {
+          "expected": 1440,
+          "fresh": 654
+        },
+        "2026-06-12": {
+          "expected": 1440,
+          "fresh": 655
+        },
+        "2026-06-15": {
+          "expected": 1440,
+          "fresh": 587
+        },
+        "2026-06-16": {
+          "expected": 1440,
+          "fresh": 599
+        },
+        "2026-06-17": {
+          "expected": 1440,
+          "fresh": 587
+        },
+        "2026-06-18": {
+          "expected": 1440,
+          "fresh": 784
+        },
+        "2026-06-19": {
+          "expected": 1440,
+          "fresh": 577
+        },
+        "2026-06-22": {
+          "expected": 1440,
+          "fresh": 699
+        },
+        "2026-06-23": {
+          "expected": 1440,
+          "fresh": 668
+        },
+        "2026-06-24": {
+          "expected": 1440,
+          "fresh": 586
+        },
+        "2026-06-25": {
+          "expected": 1440,
+          "fresh": 666
+        },
+        "2026-06-26": {
+          "expected": 1440,
+          "fresh": 647
+        },
+        "2026-06-29": {
+          "expected": 1440,
+          "fresh": 938
+        },
+        "2026-06-30": {
+          "expected": 1440,
+          "fresh": 1092
+        },
+        "2026-07-01": {
+          "expected": 1440,
+          "fresh": 1031
+        },
+        "2026-07-02": {
+          "expected": 1440,
+          "fresh": 1138
+        },
+        "2026-07-03": {
+          "expected": 1440,
+          "fresh": 955
+        },
+        "2026-07-06": {
+          "expected": 1440,
+          "fresh": 1009
+        },
+        "2026-07-07": {
+          "expected": 1440,
+          "fresh": 1025
+        },
+        "2026-07-08": {
+          "expected": 1440,
+          "fresh": 1055
+        },
+        "2026-07-09": {
+          "expected": 1440,
+          "fresh": 1000
+        },
+        "2026-07-10": {
+          "expected": 1440,
+          "fresh": 1137
+        },
+        "2026-07-13": {
+          "expected": 1440,
+          "fresh": 1125
+        },
+        "2026-07-14": {
+          "expected": 1440,
+          "fresh": 1080
+        },
+        "2026-07-15": {
+          "expected": 1440,
+          "fresh": 1073
+        },
+        "2026-07-16": {
+          "expected": 1440,
+          "fresh": 959
+        },
+        "2026-07-17": {
+          "expected": 1440,
+          "fresh": 907
+        },
+        "2026-07-20": {
+          "expected": 1440,
+          "fresh": 933
+        },
+        "2026-07-21": {
+          "expected": 1440,
+          "fresh": 956
+        },
+        "2026-07-22": {
+          "expected": 1440,
+          "fresh": 980
+        },
+        "2026-07-23": {
+          "expected": 1440,
+          "fresh": 1001
+        },
+        "2026-07-24": {
+          "expected": 1440,
+          "fresh": 915
+        },
+        "2026-07-27": {
+          "expected": 1440,
+          "fresh": 943
+        },
+        "2026-07-28": {
+          "expected": 1440,
+          "fresh": 889
+        },
+        "2026-07-29": {
+          "expected": 1440,
+          "fresh": 1050
+        },
+        "2026-07-30": {
+          "expected": 1440,
+          "fresh": 1192
+        },
+        "2026-07-31": {
+          "expected": 1440,
+          "fresh": 1255
+        },
+        "2026-08-03": {
+          "expected": 1440,
+          "fresh": 1239
+        },
+        "2026-08-04": {
+          "expected": 1440,
+          "fresh": 1155
+        },
+        "2026-08-05": {
+          "expected": 1440,
+          "fresh": 1110
+        },
+        "2026-08-06": {
+          "expected": 1440,
+          "fresh": 922
+        },
+        "2026-08-07": {
+          "expected": 1440,
+          "fresh": 1021
+        },
+        "2026-08-10": {
+          "expected": 1440,
+          "fresh": 1073
+        },
+        "2026-08-11": {
+          "expected": 1440,
+          "fresh": 1032
+        },
+        "2026-08-12": {
+          "expected": 1440,
+          "fresh": 1000
+        },
+        "2026-08-13": {
+          "expected": 1440,
+          "fresh": 993
+        },
+        "2026-08-14": {
+          "expected": 1440,
+          "fresh": 1031
+        },
+        "2026-08-17": {
+          "expected": 1440,
+          "fresh": 1054
+        },
+        "2026-08-18": {
+          "expected": 1440,
+          "fresh": 1049
+        },
+        "2026-08-19": {
+          "expected": 1440,
+          "fresh": 1191
+        },
+        "2026-08-20": {
+          "expected": 1440,
+          "fresh": 1215
+        },
+        "2026-08-21": {
+          "expected": 1440,
+          "fresh": 1117
+        },
+        "2026-08-24": {
+          "expected": 1440,
+          "fresh": 1108
+        },
+        "2026-08-25": {
+          "expected": 1440,
+          "fresh": 1078
+        },
+        "2026-08-26": {
+          "expected": 1440,
+          "fresh": 1083
+        },
+        "2026-08-27": {
+          "expected": 1440,
+          "fresh": 1050
+        },
+        "2026-08-28": {
+          "expected": 1440,
+          "fresh": 988
+        },
+        "2026-08-31": {
+          "expected": 1440,
+          "fresh": 1111
+        },
+        "2026-09-01": {
+          "expected": 1440,
+          "fresh": 1034
+        },
+        "2026-09-02": {
+          "expected": 1440,
+          "fresh": 1202
+        },
+        "2026-09-03": {
+          "expected": 1440,
+          "fresh": 1279
+        },
+        "2026-09-04": {
+          "expected": 1440,
+          "fresh": 1177
+        }
+      },
+      "source_unchanged_after": true
+    }
+  ],
+  "limitations": [
+    "Exploratory, already-exposed training; neither independent validation nor live market monitoring.",
+    "Source timestamps do not measure receipt latency; quote freshness here does not qualify the live two-second gate.",
+    "No verified calendar/news veto, broker fills, commission, slippage or financing; source-spread returns are optimistic proxies.",
+    "Fixed minute snapshots and overlapping 15-minute changes are descriptive; ticks and minute counts are not independent trades.",
+    "Nominal weekday/session conventions do not establish holiday availability or institutional fixing flow.",
+    "Two-second endpoint selection can bias the observed day subset; exclusions and per-day counts are retained.",
+    "No stops, targets, risk engine, equity curve or trading authority in this diagnostic."
+  ]
+}
