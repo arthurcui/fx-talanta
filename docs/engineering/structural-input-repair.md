@@ -142,6 +142,13 @@ The test now retains the full error stack on recurrence. No assertion was remove
 automatic retry enabled, or application behavior changed to mask this finding.
 Later CI status is tracked on PR #66 separately from the completed study evidence.
 
+A [second CI attempt](https://github.com/arthurcui/fx-talanta/actions/runs/44599159570)
+passed the owner-session test but exposed a separate test-locator ambiguity:
+the hidden Results page and active Improve page both retain session reports.
+The improvement test now scopes inspection/export to the active panel and waits
+for both reports to exist, reproducing the ambiguous condition deliberately.
+This is a test correction, not an application or research-runtime change.
+
 The non-production preparer is
 [`correct_structural_inputs.py`](../../tools/research/correct_structural_inputs.py).
 It opens the parent and original study read-only, asserts an exact four-bar delta,
