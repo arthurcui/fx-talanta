@@ -132,6 +132,16 @@ and cache regressions passed separately. All 36 B01 numerical parity cases passe
 The initial sandbox attempt could not atomically replace a test file; the host
 rerun used a new isolated test directory and completed without that failure.
 
+The first remote check of `3d73943` passed all 1,573 integration tests and the
+Docker suite (1,572 passed, one platform skip), but one owner sign-in browser test
+reported `Cannot set properties of null (setting 'onclick')`. Its saved error
+artifact remains in [that CI run](https://github.com/arthurcui/fx-talanta/actions/runs/44596816562).
+The other 21 browser tests passed, including structural research. Twenty-five
+isolated local repetitions of the sign-in test passed; the cause is not proven.
+The test now retains the full error stack on recurrence. No assertion was removed,
+automatic retry enabled, or application behavior changed to mask this finding.
+Later CI status is tracked on PR #66 separately from the completed study evidence.
+
 The non-production preparer is
 [`correct_structural_inputs.py`](../../tools/research/correct_structural_inputs.py).
 It opens the parent and original study read-only, asserts an exact four-bar delta,

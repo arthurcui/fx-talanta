@@ -41,7 +41,7 @@ test("owner signs in, reloads and revokes the browser session without trading au
   context,
 }) => {
   const errors = [];
-  page.on("pageerror", (e) => errors.push(e.message));
+  page.on("pageerror", (e) => errors.push(e.stack || e.message));
   await page.goto(url);
   await expect(page.locator("#login-form")).toBeVisible();
   await expect(page.getByLabel("Session token", { exact: true })).toHaveCount(
