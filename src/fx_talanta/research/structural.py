@@ -35,9 +35,10 @@ class StructuralRules(FrozenModel):
     lifecycle_policy: Literal["FINITE_TARGET_90_PERCENT"] = "FINITE_TARGET_90_PERCENT"
 
 
-def contiguous(bars, minutes):
+def contiguous(bars, minutes, calendar=None):
     return all(
         b.close_at - a.close_at == timedelta(minutes=minutes)
+        or (calendar is not None and calendar.permits(a.close_at, b.close_at, minutes))
         for a, b in zip(bars, bars[1:], strict=False)
     )
 
@@ -47,8 +48,11 @@ def encoded(bars):
 
 
 class StructuralSignal:
-    def __init__(self, rules):
+    def __init__(self, rules, *, calendar=None):
         self.rules = rules
+        if calendar is not None and calendar.symbol != "EURUSD":
+            raise ValueError("structural input calendar symbol mismatch")
+        self.calendar = calendar
         self.setups = []
         self.active = None
         self.levels = set()
@@ -78,6 +82,11 @@ class StructuralSignal:
             market_session=context(cutoff),
             family=self.rules.family,
             arm=self.rules.arm,
+            input_calendar=(
+                digest(self.calendar.model_dump(mode="json"))
+                if self.calendar
+                else "STRICT_CLOCK_CONTIGUITY"
+            ),
         )
 
         def hold(reason):
@@ -106,8 +115,8 @@ class StructuralSignal:
         if (
             len(h1) < 53
             or len(m15) < 15
-            or not contiguous(h1[-53:], 60)
-            or not contiguous(m15[-15:], 15)
+            or not contiguous(h1[-53:], 60, self.calendar)
+            or not contiguous(m15[-15:], 15, self.calendar)
             or cutoff - h1[-1].close_at >= timedelta(hours=1)
             or cutoff >= first[("M15", bar.close_at)] + timedelta(seconds=60)
             or (

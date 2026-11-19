@@ -133,5 +133,9 @@ class Rules(FrozenModel):
 ExecutableRules = Annotated[Rules | StructuralRules, Field(discriminator="family")]
 
 
-def make_signal(rules):
-    return StructuralSignal(rules) if isinstance(rules, StructuralRules) else rules.evaluate
+def make_signal(rules, *, calendar=None):
+    return (
+        StructuralSignal(rules, calendar=calendar)
+        if isinstance(rules, StructuralRules)
+        else rules.evaluate
+    )

@@ -10,6 +10,7 @@ from pydantic import Field, model_validator
 
 from fx_talanta.domain.models import FrozenModel, Hash
 from fx_talanta.research.candidate import make_signal
+from fx_talanta.research.input_calendar import InputCalendar
 from fx_talanta.research.replay import Experiment, digest, execute_timeline
 from fx_talanta.research.session_study import TrackedEvents, timeline
 from fx_talanta.research.spool import EquitySpool, SegmentedSpool, Spool, file_hash, rows
@@ -26,9 +27,22 @@ class IndexedBundle(FrozenModel):
     maximum_drawdown_fraction: float = Field(default=0.05, gt=0, le=1)
     acquired_history: bool = False
     development_only: bool = False
+    input_calendar: InputCalendar | None = None
 
     @model_validator(mode="after")
     def bounded(self):
+        if self.input_calendar is not None:
+            calendar = self.input_calendar
+            if (
+                calendar.index_sha256 != self.index_sha256
+                or calendar.symbol != self.experiment.symbol
+                or not self.development_only
+                or not calendar.valid_from
+                <= self.experiment.start
+                < self.experiment.training_end
+                <= calendar.valid_to
+            ):
+                raise ValueError("input calendar must bind the exact development index and window")
         for phase in ("training", "validation", "holdout"):
             start, end = self.experiment.window(phase)
             if end - start > timedelta(days=366 if self.acquired_history else 1):
@@ -110,6 +124,9 @@ def describe(directory, bundle, key):
                 for tf in ("H1", "M15")
             },
             replay_mode="FULL_TICK_BACKGROUND",
+            input_calendar=bundle.input_calendar.model_dump(mode="json")
+            if bundle.input_calendar
+            else None,
         )
     finally:
         index.close()
@@ -172,7 +189,7 @@ def replay(research, plan, partition, key):
             journal_sink=journal,
             compact_journal=bundle.acquired_history,
             samples_sink=equity,
-            signal=make_signal(plan.rules),
+            signal=make_signal(plan.rules, calendar=bundle.input_calendar),
             strategy_version="candidate/"
             + digest(
                 dict(

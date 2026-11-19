@@ -80,6 +80,7 @@ def engine_hash():
             replay=source_hash(),
             candidate=kernel.read_text(encoding="utf-8"),
             structural=kernel.with_name("structural.py").read_text(encoding="utf-8-sig"),
+            input_calendar=kernel.with_name("input_calendar.py").read_text(encoding="utf-8-sig"),
             sessions=kernel.with_name("market_sessions.py").read_text(encoding="utf-8-sig"),
             tzdata=tzdata.__version__,
         )
