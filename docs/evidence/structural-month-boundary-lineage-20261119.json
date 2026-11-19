@@ -1,0 +1,47 @@
+{
+  "schema": "structural-month-boundary-lineage/1",
+  "parent_index_sha256": "16bfee856c1b2c52c913da3e925422569006c2c95878de2b2bcc5069b0cffd49",
+  "monthly_sources": [
+    {
+      "archive": {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202605",
+        "bytes": 9055562,
+        "sha256": "e07d491a3401e678bc9de37632a915d82fe57a82213f17cf7016303e68f30ac4",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/5"
+      },
+      "index_receipt": {
+        "schema": "historical-tick-index-receipt/1",
+        "archive_sha256": "e07d491a3401e678bc9de37632a915d82fe57a82213f17cf7016303e68f30ac4",
+        "index_sha256": "69e51d6fc714eacbb7f0ce4aca16495c3b9806ebdb3ab2ff3885da0ee51b1fe7",
+        "rows": 1443885,
+        "symbol": "EURUSD"
+      },
+      "first_quote_at": "2026-05-01T05:00:00.049000+00:00",
+      "last_quote_at": "2026-06-01T04:59:50.162000+00:00",
+      "index_hash_verified": true
+    },
+    {
+      "archive": {
+        "provider": "HistData",
+        "symbol": "EURUSD",
+        "month": "202606",
+        "bytes": 8718488,
+        "sha256": "5aab06309fe390d711a2b547258228b7c12fa0c5151a931ff3701a1792cab79d",
+        "source_url": "https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/eurusd/2026/6"
+      },
+      "index_receipt": {
+        "schema": "historical-tick-index-receipt/1",
+        "archive_sha256": "5aab06309fe390d711a2b547258228b7c12fa0c5151a931ff3701a1792cab79d",
+        "index_sha256": "dff2a9bcd47a9725517b483f381c1980696fc09217ab61d4fa2aa52e64241ff0",
+        "rows": 1420993,
+        "symbol": "EURUSD"
+      },
+      "first_quote_at": "2026-06-01T05:00:04.979000+00:00",
+      "last_quote_at": "2026-07-01T04:59:49+00:00",
+      "index_hash_verified": true
+    }
+  ],
+  "access": "metadata only; SQLite read-only; no historical rows beyond development queried"
+}

@@ -142,6 +142,14 @@ class EntryIntent(FrozenModel):
     benchmark: Positive
     expires_at: Timestamp
     exit_at: Timestamp
+    lifecycle_guard: Literal["FINITE_TARGET_90_PERCENT"] | None = None
+
+    @model_serializer(mode="wrap")
+    def legacy_shape(self, handler):
+        value = handler(self)
+        if self.lifecycle_guard is None:
+            value.pop("lifecycle_guard", None)
+        return value
 
 
 class Position(FrozenModel):
@@ -219,6 +227,14 @@ class Reservation(FrozenModel):
     gross_per_lot: NonNegative
     margin_per_lot: NonNegative
     currency_per_lot: dict[str, Amount]
+    lifecycle_bound: dict[str, Amount] | None = None
+
+    @model_serializer(mode="wrap")
+    def legacy_shape(self, handler):
+        value = handler(self)
+        if self.lifecycle_bound is None:
+            value.pop("lifecycle_bound", None)
+        return value
 
 
 class Entry(FrozenModel):

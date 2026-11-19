@@ -1,5 +1,18 @@
 // UI labels only: never translate stored evidence, field values, identifiers or JSON.
 const labels = {
+  "Structural opportunities": "结构化交易机会",
+  "Inspect opportunity": "检查交易机会",
+  "Watched level": "观察中的价位",
+  "Chart timeframe": "图表周期",
+  "As-of evidence cutoff": "查看当时可知的证据",
+  "Final account outcome (after study)": "研究结束后的账户结果",
+  "Structural pullback study · EUR/USD": "结构化回调研究 · 欧元／美元",
+  "Use structural pullback rules": "使用结构化回调规则",
+  "Run matched first-touch control": "运行相同条件的首次触及对照",
+  "Matched control already completed": "匹配对照已完成",
+  "Watched levels": "观察价位数",
+  Arm: "对照组",
+  "Risk halt": "风险停机",
   "How can I help?": "有什么可以帮你？",
   "Session results": "分时段研究结果",
   "Session / overlap": "交易时段／重叠时段",

@@ -459,6 +459,11 @@ separately registered targeted historical comparison. Do not launch a full study
 to discover whether the arithmetic is coherent. This document does not implement
 or start that work.
 
+Implementation follow-through is now recorded separately in the
+[structural development study](../engineering/structural-pullback-study.md).
+That review branch adds the restrictive admission check and causal setup workflow;
+it does not revise this assessment's earlier findings or qualify its hypotheses.
+
 EUR/USD's cost screen precedes a new signal implementation. USD/JPY's data audit
 precedes one. If their required inputs/cost economics fail, issue a rejection or
 insufficient-evidence decision and stop that hypothesis. No open-ended tuning loop

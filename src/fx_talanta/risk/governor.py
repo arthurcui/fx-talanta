@@ -183,6 +183,17 @@ def size(
         (eligible * policy.margin_fraction - margin)
         / (base * spec.margin_rate + policy.margin_fraction * equity_charge),
     )
+    peak_per_lot = None
+    if intent.lifecycle_guard is not None:
+        from fx_talanta.risk.lifecycle import finite_target_bound
+
+        try:
+            lifecycle_upper, peak_per_lot = finite_target_bound(
+                intent, spec, market, policy, eligible, per_lot, risk
+            )
+        except ValueError as error:
+            return None, str(error)
+        upper = min(upper, lifecycle_upper)
     lower = ZERO
     cap = max(ZERO, eligible - max(ZERO, upper) * equity_charge) * policy.currency_multiple
     for currency in currencies.keys() | legs.keys():
@@ -204,4 +215,12 @@ def size(
         gross_per_lot=base,
         margin_per_lot=base * spec.margin_rate,
         currency_per_lot=legs,
+        lifecycle_bound=None
+        if peak_per_lot is None
+        else {
+            "peak_per_lot": peak_per_lot,
+            "equity_floor": eligible - per_lot * volume,
+            "admission_fraction": Decimal("0.90") * policy.aggregate_fraction,
+            "peak_planned_giveback": peak_per_lot * volume,
+        },
     ), "approved"

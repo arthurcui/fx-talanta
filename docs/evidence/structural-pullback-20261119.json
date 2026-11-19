@@ -1,0 +1,273 @@
+{
+  "schema": "structural-independent-verification/1",
+  "verified": true,
+  "manifest_sha256": "347f376536387cbd75bc84a47ae5612bdca8211088f29e85e87489f7bf5a6f73",
+  "engine_sha256": "f06f0c1420de4b4aab9a33617a95608057525cbb41e7b6ba48868d36a263caa4",
+  "comparison_key": "7635bf0c171ab6bbd15c53637429922d1b9e7255b7b036fde2b7d79c397da62a",
+  "source_index_sha256": "16bfee856c1b2c52c913da3e925422569006c2c95878de2b2bcc5069b0cffd49",
+  "prepared_index_sha256": "83da17cedb8aa0b532a7141308a2bfe859d82d3d54dca6588f0e669e3ae2a02f",
+  "same_opportunity_geometry_and_transitions": true,
+  "economic_acceptance": false,
+  "execution_enabled": false,
+  "results": [
+    {
+      "arm": "RETEST_CONFIRMATION",
+      "result_id": "49eff9d90392c6be73bfa0b26d090f8abc5061e94e562270ceee7797103d041c",
+      "result_file_sha256": "703452a67a35933dfa41df353b420c23d6e1a4d6286f5b5e3557136d08451d50",
+      "audit_streams": {
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "raw_bytes": 50852013,
+          "raw_sha256": "ce278fcadf7b3191bda6005ccc7dd97e9d9e8a625b5694073597f8d71c0b616d",
+          "rows": 660471,
+          "sha256": "808a748d935081088633ec890b2ce9d757c3d424812ca2469007474293c62c02"
+        },
+        "journal": {
+          "file": "journal.manifest.json",
+          "raw_bytes": 243049018,
+          "raw_sha256": "cb345c1177d523141cab6141490b1fd87968ea069ec1e44aa36f6b013eaf0f17",
+          "rows": 660473,
+          "sha256": "8819c0b4250a995be29ffa6da314cf458ee4745d39e68fb976f133eb42660328"
+        }
+      },
+      "journal_tip": "9005faff3d2e1f3cdb2415cd68f1f4802d9ea87e336f518dcc2749d95fce02c5",
+      "fills_reconciled": 0,
+      "net_pnl_usd": "0",
+      "commission_usd": "0",
+      "financing_usd": "0",
+      "maximum_drawdown_fraction": "0",
+      "opportunity_states": {
+        "EXPIRED": 7,
+        "INVALIDATED": 6
+      },
+      "transitions": {
+        "LEVEL_KNOWN": 13,
+        "EXPIRED": 7,
+        "TOUCHED": 4,
+        "INVALIDATED": 6,
+        "BOUNCED": 1
+      },
+      "decision_reasons": {
+        "GAPPED_OR_STALE_INPUTS": 445,
+        "NO_UNUSED_CONFIRMED_LEVEL": 54,
+        "LEVEL_WATCHED_BEFORE_TOUCH": 13,
+        "LEVEL_NOT_KNOWN_BEFORE_BAR": 13,
+        "WAIT_LEVEL_KNOWN": 84,
+        "OUTSIDE_SESSION": 306,
+        "WAIT_TOUCHED": 4,
+        "STRUCTURAL_STOP_CROSSED": 5,
+        "NO_H1_TREND": 20,
+        "WAIT_BOUNCED": 7
+      },
+      "setup_dates": [
+        "2026-06-03",
+        "2026-06-04",
+        "2026-06-05",
+        "2026-06-10",
+        "2026-06-11",
+        "2026-06-12"
+      ],
+      "skipped_stop_crossing_paths": 0,
+      "trades": []
+    },
+    {
+      "arm": "FIRST_TOUCH",
+      "result_id": "fcae84fbc790483d7878bdd7e50a77e615ca4b55c651a15fe7f445f20a170c57",
+      "result_file_sha256": "4a7dc08eaf563e6fa6be255518ff87ff4607211346057bbf8726f9f38f0cbe28",
+      "audit_streams": {
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "raw_bytes": 65562147,
+          "raw_sha256": "412cdfd6e5baa50d6226d706127143f7ced28650a23d4e8af0c90d2d592ea73a",
+          "rows": 660471,
+          "sha256": "97f0ca08dca1059a93acc2ed13d1ce8f00423e68bd8c005f07b971e6683b7180"
+        },
+        "journal": {
+          "file": "journal.manifest.json",
+          "raw_bytes": 243399850,
+          "raw_sha256": "5e8a5edadb3f42fff54270cf7a17792d1d9502864f098b49eea6840afd2a63d9",
+          "rows": 660541,
+          "sha256": "e951e835775ba1ec7aefa0f5ea145f4ce46d2eb50a1c3666c2253c4745c125e6"
+        }
+      },
+      "journal_tip": "8158cf69dc6278e5877d9665abb5fe9a64169507f86139a831406be8c5b343e7",
+      "fills_reconciled": 8,
+      "net_pnl_usd": "-4.095535248263888888888888888888889",
+      "commission_usd": "2.32",
+      "financing_usd": "0.005535248263888888888888888888888890",
+      "maximum_drawdown_fraction": "0.0008890436026769792781171984627742058",
+      "opportunity_states": {
+        "EXPIRED": 7,
+        "INVALIDATED": 6
+      },
+      "transitions": {
+        "LEVEL_KNOWN": 13,
+        "EXPIRED": 7,
+        "TOUCHED": 4,
+        "INVALIDATED": 6,
+        "BOUNCED": 1
+      },
+      "decision_reasons": {
+        "GAPPED_OR_STALE_INPUTS": 445,
+        "NO_UNUSED_CONFIRMED_LEVEL": 54,
+        "LEVEL_WATCHED_BEFORE_TOUCH": 13,
+        "LEVEL_NOT_KNOWN_BEFORE_BAR": 13,
+        "WAIT_LEVEL_KNOWN": 84,
+        "OUTSIDE_SESSION": 306,
+        "CANDIDATE": 4,
+        "position volume and protective stop verified": 4,
+        "STRUCTURAL_STOP_CROSSED": 5,
+        "NO_H1_TREND": 20,
+        "WAIT_BOUNCED": 7
+      },
+      "setup_dates": [
+        "2026-06-03",
+        "2026-06-04",
+        "2026-06-05",
+        "2026-06-10",
+        "2026-06-11",
+        "2026-06-12"
+      ],
+      "skipped_stop_crossing_paths": 0,
+      "trades": [
+        {
+          "setup_id": "420393f4f5b6eb4288404b8c61f0a963f9e506c35aceda14fd280eb7e1297550",
+          "side": "SELL",
+          "entered_at": "2026-06-04T07:30:00.507000Z",
+          "exited_at": "2026-06-04T07:35:54.814000Z",
+          "volume": "0.07",
+          "net_pnl_usd": "-3.570861162847222222222222222222222",
+          "initial_planned_risk_usd": "3.78000000",
+          "exit": [
+            "STRUCTURAL_STOP_TOUCHED"
+          ]
+        },
+        {
+          "setup_id": "3f60573b131b6444749f0b8304bf3b46fb7573d1e6000eeb198d5a75589affb2",
+          "side": "SELL",
+          "entered_at": "2026-06-10T13:45:00.558000Z",
+          "exited_at": "2026-06-10T13:46:11.548000Z",
+          "volume": "0.08",
+          "net_pnl_usd": "-3.360197194444444444444444444444444",
+          "initial_planned_risk_usd": "3.60000000",
+          "exit": [
+            "STRUCTURAL_STOP_TOUCHED"
+          ]
+        },
+        {
+          "setup_id": "05ef6504476b54368c2ca3a4137748b8147ab60335b26ee4340ef8f6cd3ad78b",
+          "side": "SELL",
+          "entered_at": "2026-06-11T08:30:01.982000Z",
+          "exited_at": "2026-06-11T09:00:36.415000Z",
+          "volume": "0.06",
+          "net_pnl_usd": "4.676178264583333333333333333333333",
+          "initial_planned_risk_usd": "3.60000000",
+          "exit": [
+            "FIXED_TARGET_TOUCHED"
+          ]
+        },
+        {
+          "setup_id": "76f2cebab4e7caa4b92fa4f81f1276004ef8f2c81e42ac758d0f2a00bc3c6056",
+          "side": "BUY",
+          "entered_at": "2026-06-12T08:30:00.530000Z",
+          "exited_at": "2026-06-12T08:33:56.386000Z",
+          "volume": "0.08",
+          "net_pnl_usd": "-1.840655155555555555555555555555556",
+          "initial_planned_risk_usd": "2.08000000",
+          "exit": [
+            "STRUCTURAL_STOP_TOUCHED"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_quality": {
+    "source_index_sha256": "16bfee856c1b2c52c913da3e925422569006c2c95878de2b2bcc5069b0cffd49",
+    "rows": 660471,
+    "bars": 1796,
+    "duplicate_source_sequence_ids": 0,
+    "timestamp_ties": 0,
+    "rows_by_utc_date": {
+      "2026-06-01": 60932,
+      "2026-06-02": 41644,
+      "2026-06-03": 55368,
+      "2026-06-04": 48819,
+      "2026-06-05": 67387,
+      "2026-06-07": 2509,
+      "2026-06-08": 71750,
+      "2026-06-09": 67509,
+      "2026-06-10": 78543,
+      "2026-06-11": 93297,
+      "2026-06-12": 72713
+    },
+    "largest_gap_seconds_including_weekend": 172844.985,
+    "expected_london_m15_closes": 360,
+    "missing_london_m15_closes": [],
+    "source_time_convention": "HistData fixed EST translated to UTC; no DST",
+    "receipt_latency": "250ms modeled, not measured delivery",
+    "intended_use": "Exposed development comparison only; unqualified",
+    "source_unchanged": true,
+    "prepared_index_sha256": "83da17cedb8aa0b532a7141308a2bfe859d82d3d54dca6588f0e669e3ae2a02f"
+  },
+  "ui": {
+    "schema": "structural-preview-ui/1",
+    "at": "2026-11-19T07:14:09.740Z",
+    "preview": "http://127.0.0.1:8767/strategies/results?candidate=471c7b3ca672c32739e8bf5239d10f02ae37d62e137e767d57f7360779f81040",
+    "real_results": [
+      {
+        "id": "fcae84fbc790483d7878bdd7e50a77e615ca4b55c651a15fe7f445f20a170c57",
+        "arm": "FIRST_TOUCH",
+        "closed_trades": 4
+      },
+      {
+        "id": "49eff9d90392c6be73bfa0b26d090f8abc5061e94e562270ceee7797103d041c",
+        "arm": "RETEST_CONFIRMATION",
+        "closed_trades": 0
+      }
+    ],
+    "causal_chart_and_h1": true,
+    "filled_volume_from_deals": true,
+    "export_and_reload": true,
+    "english_and_chinese": true,
+    "new_studies_started": 0,
+    "page_errors": [],
+    "headless": true
+  },
+  "engineering": {
+    "native_full_suite": {
+      "passed": 1421,
+      "skipped": 145,
+      "scope": "before final recording-only stop-crossing fix"
+    },
+    "final_targeted_structural_and_lifecycle": 16,
+    "headless_full_suite": 22,
+    "final_headless_structural": 1,
+    "b01_numerical_parity_cases": 36,
+    "actual_preview_passed": true,
+    "ci": "See checks on the exact PR head; local receipt does not certify CI"
+  },
+  "recording_fix": {
+    "final_engine_sha256": "a96346a2cea6c9fbec98d70e39c080539fd645e2ba4935909c4ef9ece72f2d51",
+    "change": "Retain equity observation when a next quote has already crossed the planned structural stop",
+    "affected_paths_in_each_original_arm": 0,
+    "original_run_replayed": false,
+    "targeted_regression_passed": true
+  },
+  "verdict": {
+    "engineering": "PASS_LOCAL",
+    "economics": "INSUFFICIENT_EVIDENCE",
+    "paper_authorized": false,
+    "m1_qualified": false,
+    "b01_verdict_changed": false,
+    "pr65_merged": false
+  },
+  "limitations": [
+    "Already-exposed short training slice, not independent holdout",
+    "No confirmation entries; four control trades do not establish expectancy",
+    "Strict contiguous H1 warmup excludes post-weekend bars; six dates produced watched levels",
+    "Calendar/news assumed clear and costs uncalibrated",
+    "250ms quote availability modeled, not measured broker delivery",
+    "Only EURUSD; USDJPY and portfolio not evaluated"
+  ],
+  "study_engine_commit": "2dbe5a08a90e4c881e7e9c54603773840acbfb45"
+}

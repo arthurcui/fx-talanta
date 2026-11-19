@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 from decimal import ROUND_CEILING, Decimal
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, model_validator
 
@@ -10,6 +10,7 @@ from fx_talanta.domain.models import FrozenModel
 from fx_talanta.research.baseline import ema, visible
 from fx_talanta.research.market_sessions import context, entry_window, reference_bars
 from fx_talanta.research.replay import digest
+from fx_talanta.research.structural import StructuralRules, StructuralSignal
 
 
 class Rules(FrozenModel):
@@ -127,3 +128,14 @@ class Rules(FrozenModel):
                 end, signal.close_at + timedelta(minutes=15 * self.hold_bars)
             ).isoformat(),
         )
+
+
+ExecutableRules = Annotated[Rules | StructuralRules, Field(discriminator="family")]
+
+
+def make_signal(rules, *, calendar=None):
+    return (
+        StructuralSignal(rules, calendar=calendar)
+        if isinstance(rules, StructuralRules)
+        else rules.evaluate
+    )

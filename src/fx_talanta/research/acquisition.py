@@ -9,10 +9,10 @@ import urllib.request
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from fx_talanta.research.historical import MAX_ARCHIVE
+from fx_talanta.research.historical import EST, MAX_ARCHIVE
 from fx_talanta.research.replay import digest
 from fx_talanta.research.spool import file_hash
-from fx_talanta.research.tick_index import TickIndex, build_index, milliseconds
+from fx_talanta.research.tick_index import TickIndex, bars_from_ticks, build_index, milliseconds
 
 ORIGIN = "https://www.histdata.com"
 
@@ -106,7 +106,7 @@ def prepare(root, symbol, start, end, warmup_hours, progress, fetch=download):
             start=start.isoformat(),
             end=end.isoformat(),
             warm_start=warm_start.isoformat(),
-            version=1,
+            version=2,
         )
     )
     target = root / identity
@@ -119,7 +119,7 @@ def prepare(root, symbol, start, end, warmup_hours, progress, fetch=download):
     if target.exists():
         raise ValueError("interrupted preparation retained; no blind overwrite")
     sources = []
-    for month in months(warm_start, end):
+    for month in months(warm_start.astimezone(EST), end.astimezone(EST)):
         progress(dict(symbol=symbol, phase="acquisition", status="DOWNLOADING", month=month))
         suffix = "-" + end.strftime("%Y%m%d") if month == datetime.now(UTC).strftime("%Y%m") else ""
         archive = root / "cache" / f"{symbol}-{month}{suffix}.zip"
@@ -135,7 +135,7 @@ def prepare(root, symbol, start, end, warmup_hours, progress, fetch=download):
     progress(dict(symbol=symbol, phase="acquisition", status="PREPARING"))
     target.mkdir(parents=True)
     db = sqlite3.connect(target / "ticks.sqlite")
-    count, first, last, bars, previous = 0, None, None, {}, None
+    count, first, last, previous = 0, None, None, None
     active_days, large_gaps = set(), 0
     try:
         db.execute("CREATE TABLE ticks(seq INTEGER PRIMARY KEY,at_ms INTEGER,bid TEXT,ask TEXT)")
@@ -143,12 +143,6 @@ def prepare(root, symbol, start, end, warmup_hours, progress, fetch=download):
         for path, _ in sources:
             index = TickIndex(path / "ticks.sqlite")
             try:
-                for bar in index.metadata["bars"]:
-                    if warm_start <= datetime.fromisoformat(bar["close_at"]) <= end:
-                        key = bar["timeframe"], bar["close_at"]
-                        if key in bars and bars[key] != bar:
-                            raise ValueError("conflicting source bars")
-                        bars[key] = bar
                 cursor = index.db.execute(
                     "SELECT at_ms,bid,ask FROM ticks WHERE at_ms>=? AND at_ms<? ORDER BY at_ms,seq",
                     (milliseconds(warm_start), milliseconds(end)),
@@ -173,18 +167,20 @@ def prepare(root, symbol, start, end, warmup_hours, progress, fetch=download):
                 index.close()
         if not count:
             raise ValueError("no historical ticks in requested window")
+        db.execute("CREATE INDEX ticks_time ON ticks(at_ms,seq)")
+        bars, assembly = bars_from_ticks(db, symbol, warm_start, end)
         metadata = dict(
             schema="historical-tick-index/1",
             status="COMPLETE",
             symbol=symbol,
             archive_sha256=digest([s for _, s in sources]),
             rows=count,
-            bars=list(bars.values()),
+            bars=bars,
+            bar_assembly=assembly,
             receipt_times="UNKNOWN",
             m1_qualified=False,
         )
         db.execute("INSERT INTO metadata VALUES(?)", (json.dumps(metadata),))
-        db.execute("CREATE INDEX ticks_time ON ticks(at_ms,seq)")
         db.commit()
     finally:
         db.close()
@@ -199,6 +195,8 @@ def prepare(root, symbol, start, end, warmup_hours, progress, fetch=download):
         gaps_over_one_hour=large_gaps,
         end_lag_seconds=max(0, (milliseconds(end) - last) / 1000),
         timestamp_order="STABLE_SORT_WITH_SOURCE_ORDER_RETAINED",
+        preparation_version=2,
+        bar_assembly=assembly,
         missing_weekdays=[
             (start + timedelta(days=i)).date().isoformat()
             for i in range((end.date() - start.date()).days)

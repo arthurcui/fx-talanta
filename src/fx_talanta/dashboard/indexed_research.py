@@ -9,6 +9,8 @@ from uuid import NAMESPACE_URL, uuid5
 from pydantic import Field, model_validator
 
 from fx_talanta.domain.models import FrozenModel, Hash
+from fx_talanta.research.candidate import make_signal
+from fx_talanta.research.input_calendar import InputCalendar
 from fx_talanta.research.replay import Experiment, digest, execute_timeline
 from fx_talanta.research.session_study import TrackedEvents, timeline
 from fx_talanta.research.spool import EquitySpool, SegmentedSpool, Spool, file_hash, rows
@@ -24,9 +26,23 @@ class IndexedBundle(FrozenModel):
     minimum_closed_trades: int = Field(default=20, ge=1, le=10000)
     maximum_drawdown_fraction: float = Field(default=0.05, gt=0, le=1)
     acquired_history: bool = False
+    development_only: bool = False
+    input_calendar: InputCalendar | None = None
 
     @model_validator(mode="after")
     def bounded(self):
+        if self.input_calendar is not None:
+            calendar = self.input_calendar
+            if (
+                calendar.index_sha256 != self.index_sha256
+                or calendar.symbol != self.experiment.symbol
+                or not self.development_only
+                or not calendar.valid_from
+                <= self.experiment.start
+                < self.experiment.training_end
+                <= calendar.valid_to
+            ):
+                raise ValueError("input calendar must bind the exact development index and window")
         for phase in ("training", "validation", "holdout"):
             start, end = self.experiment.window(phase)
             if end - start > timedelta(days=366 if self.acquired_history else 1):
@@ -52,11 +68,20 @@ def describe(directory, bundle, key):
         windows = {}
         for phase in ("training", "validation", "holdout"):
             start, end = e.window(phase)
-            n = index.db.execute(
-                "SELECT count(*) FROM ticks WHERE at_ms>=? AND at_ms<?",
-                (milliseconds(start) - bundle.latency_ms, milliseconds(end) - bundle.latency_ms),
-            ).fetchone()[0]
-            if not 1 <= n <= (50_000_000 if bundle.acquired_history else 300000):
+            n = (
+                0
+                if bundle.development_only and phase != "training"
+                else index.db.execute(
+                    "SELECT count(*) FROM ticks WHERE at_ms>=? AND at_ms<?",
+                    (
+                        milliseconds(start) - bundle.latency_ms,
+                        milliseconds(end) - bundle.latency_ms,
+                    ),
+                ).fetchone()[0]
+            )
+            if bundle.development_only and phase != "training":
+                n = 0
+            elif not 1 <= n <= (50_000_000 if bundle.acquired_history else 300000):
                 raise ValueError("full-session partition tick bound")
             windows[phase] = dict(
                 start=start.isoformat(),
@@ -87,7 +112,9 @@ def describe(directory, bundle, key):
             minimum_closed_trades=bundle.minimum_closed_trades,
             maximum_drawdown_fraction=str(bundle.maximum_drawdown_fraction),
             qualification="UNQUALIFIED_RESEARCH_ONLY",
-            exposure_note="New acquisition; independent holdout and data quality not qualified"
+            exposure_note="Preregistered exposed development slice; validation/holdout disabled"
+            if bundle.development_only
+            else "New acquisition; independent holdout and data quality not qualified"
             if bundle.acquired_history
             else ("Previously available January 2025 inputs; not an independent fresh holdout"),
             windows=windows,
@@ -97,6 +124,9 @@ def describe(directory, bundle, key):
                 for tf in ("H1", "M15")
             },
             replay_mode="FULL_TICK_BACKGROUND",
+            input_calendar=bundle.input_calendar.model_dump(mode="json")
+            if bundle.input_calendar
+            else None,
         )
     finally:
         index.close()
@@ -159,7 +189,7 @@ def replay(research, plan, partition, key):
             journal_sink=journal,
             compact_journal=bundle.acquired_history,
             samples_sink=equity,
-            signal=plan.rules.evaluate,
+            signal=make_signal(plan.rules, calendar=bundle.input_calendar),
             strategy_version="candidate/"
             + digest(
                 dict(

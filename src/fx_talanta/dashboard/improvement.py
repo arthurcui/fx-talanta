@@ -11,6 +11,7 @@ from fx_talanta.dashboard.research import Registration, engine_hash, indexed_eng
 from fx_talanta.domain.models import FrozenModel, Hash
 from fx_talanta.research.candidate import Rules
 from fx_talanta.research.replay import digest
+from fx_talanta.research.structural import StructuralRules
 
 
 class Diagnose(FrozenModel):
@@ -30,7 +31,7 @@ class Diagnosis(FrozenModel):
     falsification: str = Field(min_length=10, max_length=1200)
     uncertainty: str = Field(min_length=10, max_length=1200)
     recommendation: Literal["REVISE_RULES", "INVESTIGATE_DATA_OR_POLICY"]
-    rules: Rules
+    rules: Rules | StructuralRules
 
 
 class Revision(FrozenModel):
@@ -71,6 +72,10 @@ INSTRUCTIONS = (
     "Nonrolling ranges require TREND_BREAKOUT and ignore signal_period for range length. "
     "A session change cannot repair an aggregate-risk halt. Do not propose a session winner "
     "from two trades; prefer INVESTIGATE_DATA_OR_POLICY when evidence is insufficient."
+    " STRUCTURAL_PULLBACK is a preregistered EURUSD H1 swing/M15 retest study, not EMA recross. "
+    "Its parameters and control are frozen: use INVESTIGATE_DATA_OR_POLICY with unchanged "
+    "rules. Explain the recorded transitions, entry vetoes and sample limitations; never "
+    "select a winner or expand the study from this exposed development slice."
 )
 
 
@@ -118,6 +123,10 @@ def evidence(research, result_id):
             session_analysis_id=sessions["id"],
             session_results=sessions["payload"]["sessions"],
             verified_risk_diagnosis=risk_diagnosis,
+            structural_opportunities=[
+                {k: v for k, v in setup.items() if k not in {"h1", "m15"}}
+                for setup in r.get("structural_setups", {}).get("opportunities", [])
+            ],
             execution_enabled=False,
         ),
     )
@@ -143,6 +152,10 @@ def revise(research, data):
     diagnosis = Diagnosis.model_validate(item["payload"]["proposal"])
     baseline_id = item["payload"]["evidence"]["baseline_id"]
     _, plan, candidate, facts = evidence(research, baseline_id)
+    if plan.rules.family == "STRUCTURAL_PULLBACK":
+        raise ValueError("structural revisions require a distinct preregistered study")
+    if diagnosis.rules.family != plan.rules.family:
+        raise ValueError("a controlled revision cannot switch strategy families")
     if facts != item["payload"]["evidence"]:
         raise ValueError("diagnosis evidence mismatch")
     if diagnosis.recommendation != "REVISE_RULES" or diagnosis.rules == plan.rules:

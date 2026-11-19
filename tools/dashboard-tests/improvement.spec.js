@@ -41,17 +41,25 @@ test("diagnose, review, compare, export and reload with real backend and synthet
   page,
 }) => {
   const errors = [];
-  page.on("pageerror", (e) => errors.push(e.message));
+  page.on("pageerror", (e) => errors.push(e.stack || e.message));
   await page.goto(url);
+  // Pages retain their mounted evidence. Ensure the background Results panel
+  // has rendered too, so this regression cannot pass only because of timing.
+  await expect(
+    page.locator("#research-results [data-session-results]"),
+  ).toHaveCount(1);
   await page
     .getByRole("button", { name: "Diagnose and improve", exact: true })
     .click();
   await expect(page).toHaveURL(/strategies\/improve/);
-  await expect(page.locator("[data-session-results]")).toContainText(
+  const improvement = page.locator("#strategy-improvement");
+  await expect(improvement).toBeVisible();
+  await expect(improvement.locator("[data-session-results]")).toContainText(
     "INSUFFICIENT_SESSION_SAMPLE",
   );
+  await expect(page.locator("[data-session-results]")).toHaveCount(2);
   const sessionDownload = page.waitForEvent("download");
-  await page
+  await improvement
     .getByRole("button", { name: "Export session results", exact: true })
     .click();
   const sessionReport = JSON.parse(
@@ -59,10 +67,10 @@ test("diagnose, review, compare, export and reload with real backend and synthet
   );
   expect(sessionReport.payload.sessions.symbol).toBe("EURUSD");
   expect(sessionReport.payload.sessions.execution_enabled).toBe(false);
-  await page
+  await improvement
     .getByRole("button", { name: "Generate AI diagnosis", exact: true })
     .click();
-  const diagnosis = page.locator("[data-diagnosis]");
+  const diagnosis = improvement.locator("[data-diagnosis]");
   await expect(diagnosis).toContainText("London-only filter");
   await diagnosis
     .getByRole("button", { name: "Create reviewed revision", exact: true })
@@ -74,7 +82,7 @@ test("diagnose, review, compare, export and reload with real backend and synthet
   await diagnosis
     .getByRole("button", { name: "Create reviewed revision", exact: true })
     .click();
-  const revision = page.locator("[data-revision]");
+  const revision = improvement.locator("[data-revision]");
   await expect(revision).toBeVisible();
   await revision.getByRole("checkbox").check();
   await revision
@@ -83,7 +91,7 @@ test("diagnose, review, compare, export and reload with real backend and synthet
       exact: true,
     })
     .click();
-  const comparison = page.locator("[data-comparison]");
+  const comparison = improvement.locator("[data-comparison]");
   await expect(comparison).toContainText("Reused training data");
   const download = page.waitForEvent("download");
   await comparison
@@ -96,7 +104,7 @@ test("diagnose, review, compare, export and reload with real backend and synthet
   expect(exported.payload.execution_enabled).toBe(false);
   expect(exported.payload.qualified_for_paper).toBe(false);
   await page.reload();
-  await expect(page.locator("[data-comparison]")).toContainText(
+  await expect(improvement.locator("[data-comparison]")).toContainText(
     "Reused training data",
   );
   expect(errors).toEqual([]);

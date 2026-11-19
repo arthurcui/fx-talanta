@@ -24,7 +24,9 @@ class DatasetCatalog:
         raw = self._read(path)
         key = hashlib.sha256(raw).hexdigest()
         bundle = IndexedBundle.model_validate_json(raw)
-        metadata = describe(path.parent, bundle, key)
+        metadata = dict(
+            describe(path.parent, bundle, key), development_only=bundle.development_only
+        )
         self.entries[key] = path
         self.metadata = [m for m in self.metadata if m["id"] != key] + [metadata]
         return metadata
@@ -47,7 +49,9 @@ class DatasetCatalog:
                 bundle = IndexedBundle.model_validate_json(raw)
                 key = hashlib.sha256(raw).hexdigest()
                 self.entries[key] = path
-                self.metadata.append(describe(root, bundle, key))
+                self.metadata.append(
+                    dict(describe(root, bundle, key), development_only=bundle.development_only)
+                )
                 continue
             bundle = Bundle.model_validate_json(raw)
             d, e = bundle.dataset, bundle.experiment

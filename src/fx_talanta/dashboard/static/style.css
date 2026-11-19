@@ -955,3 +955,28 @@ footer {
 [data-session-results] table {
   width: 100%;
 }
+
+[data-structural-setups] label {
+  display: block;
+  margin-block: 12px;
+}
+[data-structural-setups] figure {
+  margin: 12px 0;
+  max-width: 850px;
+}
+[data-structural-setups] input[type="range"] {
+  width: min(100%, 520px);
+  display: block;
+}
+[data-structural-setups] li {
+  margin-block: 10px;
+}
+[data-structural-comparison] {
+  width: 100%;
+  margin-block: 16px;
+}
+[data-structural-comparison] th,
+[data-structural-comparison] td {
+  padding: 8px;
+  text-align: left;
+}

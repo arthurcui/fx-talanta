@@ -1,11 +1,11 @@
 # R0 and Strategy + Research implementation register
 
 **Current priority:** the [November 18 roadmap revision](../product/roadmap.md)
-reuses this foundation and PR #65's research workflow. The next planned acceptance
-is an observable structural setup, cutoff-aware chart and risk-compatible governed
-comparison. The inventory and “next scope” below document the original November 14
-PR #64 handoff; they do not restart completed foundation work or claim today's
-structural setup is implemented.
+reuses this foundation and PR #65's research workflow. The separate
+[structural study](structural-pullback-study.md) implements one observable setup,
+cutoff-aware chart and risk-compatible governed comparison on the review branch.
+The inventory and “next scope” below document the original November 14 PR #64
+handoff; they do not restart completed foundation work or claim economic acceptance.
 
 Historical PR #64 scope below. The subsequent [candidate research integration](candidate-research.md) connects bounded AI proposals and reviewed single-symbol historical replay; it does not close full R1/R2 qualification.
 

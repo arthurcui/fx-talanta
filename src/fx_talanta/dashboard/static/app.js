@@ -1478,8 +1478,15 @@ function showDataset() {
       selected.events +
       " events",
     "Training: " + selected.start + " → " + selected.training_end,
-    "Validation: " + selected.training_end + " → " + selected.validation_end,
-    "Holdout: " + selected.validation_end + " → " + selected.end,
+    ...(selected.development_only
+      ? ["Development only: validation and holdout are disabled."]
+      : [
+          "Validation: " +
+            selected.training_end +
+            " → " +
+            selected.validation_end,
+          "Holdout: " + selected.validation_end + " → " + selected.end,
+        ]),
     selected.calendar_assumptions,
     selected.exposure_note,
     "Minimum closed trades: " +
@@ -1624,6 +1631,71 @@ async function refreshResearch() {
           }
           const p = item.payload,
             r = p.result;
+          if (r.structural_setups) {
+            box.append(window.fxStructural.render(r.structural_setups));
+            if (r.structural_setups.rules.arm === "RETEST_CONFIRMATION") {
+              const control = node("button", "Run matched first-touch control");
+              control.onclick = () =>
+                researchAction(control, async () => {
+                  const result = await researchPost("structural_control", {
+                    result_id: item.id,
+                  });
+                  $("research-message").textContent =
+                    result.kind === "BACKGROUND_RUN"
+                      ? "Matched control is running. Inputs and risk limits are unchanged."
+                      : "Matched control retained. Inspect both results; no profitability qualification granted.";
+                });
+              box.append(control);
+              const other = data.items.find(
+                (x) =>
+                  x.kind === "BACKTEST" &&
+                  x.payload.candidate_sha256 === p.candidate_sha256 &&
+                  x.payload.result?.structural_setups?.rules.arm ===
+                    "FIRST_TOUCH" &&
+                  p.structural_comparison_key &&
+                  x.payload.structural_comparison_key ===
+                    p.structural_comparison_key,
+              );
+              if (other) {
+                control.disabled = true;
+                control.textContent = "Matched control already completed";
+                control.dataset.uiLabel = "";
+                const table = node("table");
+                table.dataset.structuralComparison = "true";
+                const header = node("tr");
+                [
+                  "Arm",
+                  "Watched levels",
+                  "Closed trades",
+                  "Net P&L",
+                  "Risk halt",
+                ].forEach((t) => {
+                  const cell = node("th", t);
+                  cell.dataset.uiLabel = "";
+                  header.append(cell);
+                });
+                table.append(header);
+                for (const result of [r, other.payload.result]) {
+                  const row = node("tr");
+                  [
+                    result.structural_setups.rules.arm,
+                    result.structural_setups.opportunities.length,
+                    result.metrics.closed_trades,
+                    Number(result.net_realized_pnl).toFixed(2) + " USD",
+                    String(result.integrity_halt),
+                  ].forEach((t) => row.append(node("td", String(t))));
+                  table.append(row);
+                }
+                box.append(
+                  table,
+                  node(
+                    "p",
+                    "Matched development comparison. Exposed history and unqualified inputs; no winner or promotion inferred.",
+                  ),
+                );
+              }
+            }
+          }
           const d = r.diagnostics;
           const sessionReport =
             r.session_results ||

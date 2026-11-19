@@ -28,6 +28,80 @@ def milliseconds(at):
     return (at - EPOCH) // MILLISECOND
 
 
+def bars_from_ticks(db, symbol, start, end):
+    """Aggregate merged quotes in a declared coverage window, not file-edge lists.
+
+    Missing buckets stay missing. Only buckets fully within the requested window
+    are returned; an absent tick at the exact clock boundary is not a partial bar.
+    Caller retains the source coverage/qualification evidence separately.
+    """
+    begin_ms, end_ms = milliseconds(start), milliseconds(end)
+    if begin_ms >= end_ms or symbol not in {"EURUSD", "USDJPY"}:
+        raise ValueError("invalid bar aggregation window")
+    groups = {}
+    count = 0
+    previous = None
+    for seq, at_ms, bid in db.execute(
+        "SELECT seq,at_ms,bid FROM ticks WHERE at_ms>=? AND at_ms<? ORDER BY at_ms,seq",
+        (begin_ms, end_ms),
+    ):
+        if previous is not None and (at_ms, seq) <= previous:
+            raise ValueError("bar source ordering invalid")
+        previous = at_ms, seq
+        count += 1
+        value = Decimal(bid)
+        if not value.is_finite() or value <= 0:
+            raise ValueError("invalid bar source bid")
+        for minutes in (15, 60):
+            width = minutes * 60_000
+            bucket = at_ms // width * width
+            key = minutes, bucket
+            if key not in groups:
+                groups[key] = [value, value, value, value]
+            else:
+                prices = groups[key]
+                prices[1], prices[2], prices[3] = (
+                    max(prices[1], value),
+                    min(prices[2], value),
+                    value,
+                )
+        if len(groups) > 100_000:
+            raise ValueError("merged bar count bound")
+    bars, partial = [], []
+    for (minutes, bucket), prices in sorted(groups.items()):
+        close_ms = bucket + minutes * 60_000
+        close = EPOCH + close_ms * MILLISECOND
+        timeframe = "H1" if minutes == 60 else "M15"
+        if bucket < begin_ms or close_ms > end_ms:
+            partial.append(
+                dict(
+                    timeframe=timeframe, close_at=close.isoformat(), reason="PARTIAL_REQUEST_WINDOW"
+                )
+            )
+            continue
+        bars.append(
+            Bar(
+                symbol=symbol,
+                timeframe=timeframe,
+                close_at=close,
+                available_at=close,
+                revision=1,
+                open=prices[0],
+                high=prices[1],
+                low=prices[2],
+                close=prices[3],
+            ).model_dump(mode="json")
+        )
+    return bars, dict(
+        version="merged-bid-bars/2",
+        start=start.isoformat(),
+        end=end.isoformat(),
+        quote_rows=count,
+        partial_buckets=partial,
+        forward_fill=False,
+    )
+
+
 def normalized_rows(source, output):
     """Preserve source order on disk; stable time ordering never invents ticks."""
     db = sqlite3.connect(output / "source-order.sqlite")
