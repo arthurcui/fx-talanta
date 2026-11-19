@@ -48,6 +48,8 @@ class Dashboard:
         workflow_view=None,
         alert_config=None,
         alert_transport=None,
+        research_transport=None,
+        dataset_directory=None,
     ):
         self.snapshot, self.state, self.clock = snapshot, Path(state), clock
         self.broker_view = broker_view
@@ -63,7 +65,7 @@ class Dashboard:
         ):
             raise PermissionError("restore incomplete")
         if (self.state / "restored-inspection-only.json").exists() and (
-            model_budget or operator_gateway or alert_config
+            model_budget or operator_gateway or alert_config or research_transport
         ):
             raise PermissionError("restored state is inspection only; no copied authority")
         if snapshot.captured_at > clock.now():
@@ -89,6 +91,9 @@ class Dashboard:
         self.repo.conn.commit()
         try:
             self.strategies = Strategies(self.repo, self.clock)
+            from fx_talanta.dashboard.research import Research
+
+            self.research = Research(self, research_transport, dataset_directory)
             self.monitor = Monitor(self.repo, telemetry, telemetry_run)
             from fx_talanta.dashboard.service import Notifications
 
@@ -143,6 +148,23 @@ class Dashboard:
         except Exception:
             self.repo.close()
             raise
+
+    def renew_owner_access(self):
+        """Renew internal read capability only after persistent owner authentication."""
+        with self.repo.lock:
+            self.expires_at = self.clock.now() + timedelta(hours=8)
+            self.access = AccessControl(
+                (
+                    Principal(
+                        actor_id="local-viewer",
+                        account=self.snapshot.account,
+                        expires_at=self.expires_at,
+                        permissions=("read",),
+                        token_sha256=token_digest(self.token),
+                    ),
+                )
+            )
+            self.advisor.access = self.access
 
     def authorize(self, token):
         self.access.verify(token, self.snapshot.account, "read", self.clock.now())

@@ -1,0 +1,233 @@
+{
+  "schema": "full-history-remediation/1",
+  "verified_date_utc": "2026-11-18",
+  "engine_commit": "66e750723b4b3fd4870d5d7ca98d9aac372fce45",
+  "run_id": "9b7b9e92155f4335f6c3ea006c59f5f21328083c4f57801b92283f81554881d3",
+  "candidate_sha256": "8ce7a0108e5fcbbd0284b4aa987369e82d4c94657eee885517a15eb7ddd9388e",
+  "requested_period": {
+    "start": "2026-05-24T00:00:00Z",
+    "end": "2026-11-17T00:00:00Z",
+    "weekday_target": 126
+  },
+  "planned_windows": {
+    "holdout": {
+      "end": "2026-11-17T00:00:00+00:00",
+      "minimum_closed_trades": 50,
+      "start": "2026-10-12T14:24:00+00:00"
+    },
+    "training": {
+      "end": "2026-09-07T04:48:00+00:00",
+      "minimum_closed_trades": 100,
+      "start": "2026-05-24T00:00:00+00:00"
+    },
+    "validation": {
+      "end": "2026-10-12T14:24:00+00:00",
+      "minimum_closed_trades": 50,
+      "start": "2026-09-07T04:48:00+00:00"
+    }
+  },
+  "outcome": {
+    "status": "DATA_REQUIRED",
+    "execution_enabled": false,
+    "qualified_for_paper": false,
+    "validation_complete": false,
+    "next_action": "Review acquired data coverage and exploratory results. Dated costs, calendar/news coverage and independent holdout qualification remain required.",
+    "holdout_opened": false
+  },
+  "status": "DATA_REQUIRED",
+  "results": [
+    {
+      "symbol": "EURUSD",
+      "partition": "training",
+      "result_id": "ca91178a0a0a37ef887ab05af0933eb28971d07ab112b57c9125cd3bf354cfa6",
+      "assessment": "REJECT_OR_REVISE",
+      "metrics": {
+        "closed_trades": 2,
+        "maximum_observed_drawdown_fraction": "0.0005522078019444444444444444444444",
+        "net_expectancy": "-1.761082563888888888888888888888888",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios.",
+        "winning_trades": 1
+      },
+      "net_realized_pnl": "-3.522165127777777777777777777777",
+      "integrity_halt": true,
+      "risk_halt": {
+        "at": "2026-05-27T13:30:31.937000+00:00",
+        "limits": {
+          "aggregate_risk": {
+            "actual": "10.08000000",
+            "limit": "9.996957921980555555555555555555556"
+          }
+        },
+        "reason": "RISK_LIMIT_BREACH"
+      },
+      "fully_settled": true,
+      "open_positions": 0,
+      "coverage": {
+        "first": "2026-05-24T22:00:05.192000+00:00",
+        "last": "2026-09-07T04:47:56.250000+00:00",
+        "maximum_arrival_gap_seconds_including_edges": "173042.881",
+        "receipt_timing": "MODELED_NOT_MEASURED",
+        "ticks": 4361547
+      },
+      "audit_streams": {
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "raw_bytes": 474426465,
+          "raw_sha256": "7c4d2110779157268877be0d96aa5199f54fc86cd03ae85a92f09cb9058a30d4",
+          "rows": 4361547,
+          "sha256": "6f8edc04cae9c180430b04ab814a889fc13c46590d7f98b988f7b73e9858b1bf"
+        },
+        "journal": {
+          "file": "journal.manifest.json",
+          "raw_bytes": 1546901486,
+          "raw_sha256": "ab3198adbd627726de41b784c20cfcb12e530525440a59bf1d302dbbce6ef9ed",
+          "rows": 4361583,
+          "sha256": "fb8375215cef9c0bdae1512557175b326bfc03fe6ccc93333b5bcd4c521398e9"
+        }
+      },
+      "journal_tip": "ab4756d8624e4503ad7032d408bf6584ff56fcd3d5fa01e4dbbaa33557943b7d",
+      "audit_encoding": "book-delta/1"
+    },
+    {
+      "symbol": "USDJPY",
+      "partition": "training",
+      "result_id": "53c7c11eee937a5948aeb469b7f605afaeaa6257d08fb798110813147c5dd77d",
+      "assessment": "REJECT_OR_REVISE",
+      "metrics": {
+        "closed_trades": 23,
+        "maximum_observed_drawdown_fraction": "0.003623503318165237225942657779671748",
+        "net_expectancy": "-1.260303406974168161338542226920175",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios.",
+        "winning_trades": 8
+      },
+      "net_realized_pnl": "-28.986978360405867710786471219164",
+      "integrity_halt": true,
+      "risk_halt": {
+        "at": "2026-06-12T09:38:01.777000+00:00",
+        "limits": {
+          "aggregate_risk": {
+            "actual": "10.09629633562135794989663291874000",
+            "limit": "9.971554525345844132289213528780835"
+          }
+        },
+        "reason": "RISK_LIMIT_BREACH"
+      },
+      "fully_settled": true,
+      "open_positions": 0,
+      "coverage": {
+        "first": "2026-05-24T22:00:41.559000+00:00",
+        "last": "2026-09-07T04:47:56.250000+00:00",
+        "maximum_arrival_gap_seconds_including_edges": "180241.368",
+        "receipt_timing": "MODELED_NOT_MEASURED",
+        "ticks": 6433389
+      },
+      "audit_streams": {
+        "equity": {
+          "file": "equity.jsonl.gz",
+          "raw_bytes": 698374757,
+          "raw_sha256": "cdc2bb2c4e5137f6ef69cc931d8f4015047353a121f8bb39e49cff4924f7c5ea",
+          "rows": 6433389,
+          "sha256": "2544bcbf2380bde51e14206bee3cf42935f6755185c43b97948723176529d674"
+        },
+        "journal": {
+          "file": "journal.manifest.json",
+          "raw_bytes": 2251988443,
+          "raw_sha256": "24ae8271ef5e2dc3300c6c4f2a56344764c66f6e43cff08cf168270ecc9deeef",
+          "rows": 6433782,
+          "sha256": "eed3ecc7fc1925db90fa2c958fe43d92ffb2f2b15c6dd452dcda0de1c3351c51"
+        }
+      },
+      "journal_tip": "7fbd5c30650756cd02889633e6402fd87ccb0a3add9ef28f038da45697cb51e0",
+      "audit_encoding": "book-delta/1"
+    }
+  ],
+  "limitations": [
+    "Exploratory training only; validation and holdout unopened.",
+    "Both acquired sources lack November 16; not complete 126-session coverage.",
+    "Historical source, dated broker costs, calendar/news and independent holdout remain unqualified.",
+    "Separate single-symbol studies; not combined portfolio validation.",
+    "Both results have real aggregate-risk halts; risk limits unchanged."
+  ],
+  "prior_attempts": [
+    {
+      "id": "f4b823e619efeb1cadc3449528774f47f339b4173c27164375fcab70a1b081d6",
+      "status": "FAILED_NO_RESEND",
+      "evidence": "full-history-study-attempt-20261117.json"
+    },
+    {
+      "id": "b2c4f33e8c2b86dcea6591f6ea71dc20fd16cb91e4620553fd6b05cce7339091",
+      "status": "INTERRUPTED_NO_RESEND",
+      "reason": "Deliberately stopped after EURUSD completed to remedy growing repeated-book serialization cost; all evidence retained."
+    }
+  ],
+  "independent_audit_verification": {
+    "run_id": "9b7b9e92155f4335f6c3ea006c59f5f21328083c4f57801b92283f81554881d3",
+    "reports": [
+      {
+        "final_gateway_state": "HARD_HALT",
+        "reconstruction_verified": true,
+        "symbol": "EURUSD",
+        "partition": "training",
+        "journal_rows": 4361583,
+        "journal_tip": "ab4756d8624e4503ad7032d408bf6584ff56fcd3d5fa01e4dbbaa33557943b7d",
+        "receipt": {
+          "file": "journal.manifest.json",
+          "raw_bytes": 1546901486,
+          "raw_sha256": "ab3198adbd627726de41b784c20cfcb12e530525440a59bf1d302dbbce6ef9ed",
+          "rows": 4361583,
+          "sha256": "fb8375215cef9c0bdae1512557175b326bfc03fe6ccc93333b5bcd4c521398e9"
+        },
+        "chain_verified": true
+      },
+      {
+        "final_gateway_state": "HARD_HALT",
+        "reconstruction_verified": true,
+        "symbol": "USDJPY",
+        "partition": "training",
+        "journal_rows": 6433782,
+        "journal_tip": "7fbd5c30650756cd02889633e6402fd87ccb0a3add9ef28f038da45697cb51e0",
+        "receipt": {
+          "file": "journal.manifest.json",
+          "raw_bytes": 2251988443,
+          "raw_sha256": "24ae8271ef5e2dc3300c6c4f2a56344764c66f6e43cff08cf168270ecc9deeef",
+          "rows": 6433782,
+          "sha256": "eed3ecc7fc1925db90fa2c958fe43d92ffb2f2b15c6dd452dcda0de1c3351c51"
+        },
+        "chain_verified": true
+      }
+    ],
+    "old_failure_files_unchanged": true
+  },
+  "previous_attempt_fingerprints": {
+    "files_checked": 104,
+    "mismatches": []
+  },
+  "eurusd_full_snapshot_parity": {
+    "new_result_id": "ca91178a0a0a37ef887ab05af0933eb28971d07ab112b57c9125cd3bf354cfa6",
+    "prior_result_id": "397c4df0f1405e6eb9fee0280df4c66592af4e8457903e6a707722b127b896ff",
+    "compared": [
+      "metrics",
+      "net_realized_pnl",
+      "risk_halt",
+      "open_positions",
+      "fully_settled",
+      "coverage",
+      "risk_policy"
+    ],
+    "all_equal": true,
+    "symbol": "EURUSD"
+  },
+  "ui_verification": {
+    "export_matches": true,
+    "reload_passed": true,
+    "page_errors": []
+  },
+  "tests": {
+    "native_passed": 1385,
+    "native_skipped": 145,
+    "browser_passed": 19,
+    "b01_numerical_parity_passed": 36
+  },
+  "execution_enabled": false,
+  "pr_merged": false
+}

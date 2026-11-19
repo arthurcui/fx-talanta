@@ -1,0 +1,43 @@
+{
+  "schema": "market-anatomy-verification/1",
+  "checked_at_utc": "2026-11-19T04:25:28.035968+00:00",
+  "repository_head_before": "a8833d52645c354b35273f65ccd7a64f2bbc9807",
+  "analysis_image_id": "sha256:70ece1ba5b0b7387c40947ef19038df061c685fdc42dd46aaf05addd778f6489",
+  "tzdata": "2026.6",
+  "market_sessions_sha256": "2ef71995507a6a98f06eda08a6a41ff8779ec197a4d1b92abe4d5f3acd700924",
+  "result_sha256": "488fcad03a23548d01040a1a3a200317be6419653a90dd3a8e9985d68c96afe4",
+  "executed_script_sha256": "3af96574ec12f30432c203bb0be8468cc2717ad71a5d5401f1265d4e35c5eaff",
+  "published_script_sha256": "8816c1a4ca5f244684aedd64a3b0ae4862494281ece7f4832f3e708327315f6c",
+  "executed_published_ast_identical": true,
+  "all_tracked_files_unchanged_before_reporting": 780,
+  "changed_original_files_during_reporting": [
+    "docs/README.md",
+    "docs/product/roadmap.md",
+    "docs/product/status.md",
+    "docs/product/trading-research-assessment.md",
+    "tools/qualification/README.md"
+  ],
+  "all_other_tracked_files_unchanged": 775,
+  "original_evidence_unchanged": true,
+  "source_indexes_before_after_match": true,
+  "checks": [
+    "75 nominal weekdays and 108000 minute denominators per symbol",
+    "126 exact EURUSD endpoint point-query checks in original analysis",
+    "daily return and spread identity independently recomputed using Decimal",
+    "63 included and 12 older-endpoint exclusions independently checked",
+    "three chronological block counts and means independently recomputed",
+    "week-cluster interval reproduced with statistics.quantiles inclusive interpolation",
+    "published result matches execution bytes; published plan JSON equals the executed plan",
+    "published script AST matches executed script despite formatting"
+  ],
+  "trading_enabled": false,
+  "validation_holdout_outcomes_queried": false,
+  "current_market_assessment": false,
+  "strategy_backtest": false,
+  "eurusd_disposition": "SHELVED_EDGE_NOT_DEMONSTRATED",
+  "usdjpy_disposition": "MACRO_HYPOTHESIS_DATA_REQUIRED",
+  "executed_plan_sha256": "fe57380ba75970589023dc3b257fcb19e06a2ebeb84a4f09a9bbc8941e398ed3",
+  "published_plan_sha256": "c933d9ce45b1bd6b6467602b665748a02be6f819fb9b0262f3d99ee26301943b",
+  "executed_published_plan_json_identical": true,
+  "plan_normalization": "Git changes one final CRLF to LF; all JSON values and analytical scope are identical."
+}

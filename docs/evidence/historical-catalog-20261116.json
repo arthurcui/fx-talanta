@@ -1,0 +1,85 @@
+{
+  "execution_enabled": false,
+  "entries": [
+    {
+      "id": "fd1729d08109765c5ceb00128299896b190f49a5b010c9dc5b05bf43629a8fe6",
+      "symbol": "EURUSD",
+      "name": "eurusd-three-full-days",
+      "source": "HistData EURUSD SHA256 159f906f8055f6ee835d95806cf7fdf4023b6e3ef098aa308d2ab6ce53ac964a",
+      "calendar_assumptions": "Calendar/news assumed clear; receipt latency modeled; not qualified",
+      "start": "2025-01-21T00:00:00+00:00",
+      "end": "2025-01-24T00:00:00+00:00",
+      "events": 312750,
+      "qualification": "UNQUALIFIED_RESEARCH_ONLY",
+      "exposure_note": "Previously available January 2025 inputs; not an independent fresh holdout",
+      "windows": {
+        "training": {
+          "start": "2025-01-21T00:00:00+00:00",
+          "end": "2025-01-22T00:00:00+00:00",
+          "ticks": 122952,
+          "duration_seconds": 86400.0
+        },
+        "validation": {
+          "start": "2025-01-22T00:00:00+00:00",
+          "end": "2025-01-23T00:00:00+00:00",
+          "ticks": 88605,
+          "duration_seconds": 86400.0
+        },
+        "holdout": {
+          "start": "2025-01-23T00:00:00+00:00",
+          "end": "2025-01-24T00:00:00+00:00",
+          "ticks": 101193,
+          "duration_seconds": 86400.0
+        }
+      },
+      "timeframes": [
+        "H1",
+        "M15"
+      ],
+      "warmup_bars": {
+        "H1": 312,
+        "M15": 1254
+      }
+    },
+    {
+      "id": "a8a70642c4bf47cf54c4b22bcb670f7474b570d4bbe85678abc6fcf332cc0f13",
+      "symbol": "USDJPY",
+      "name": "usdjpy-three-full-days",
+      "source": "HistData USDJPY SHA256 72834b8a2d3c553e76018a8a3724af64ac30de4ec7211875378887b73232a896",
+      "calendar_assumptions": "Calendar/news assumed clear; receipt latency modeled; not qualified",
+      "start": "2025-01-21T00:00:00+00:00",
+      "end": "2025-01-24T00:00:00+00:00",
+      "events": 401076,
+      "qualification": "UNQUALIFIED_RESEARCH_ONLY",
+      "exposure_note": "Previously available January 2025 inputs; not an independent fresh holdout",
+      "windows": {
+        "training": {
+          "start": "2025-01-21T00:00:00+00:00",
+          "end": "2025-01-22T00:00:00+00:00",
+          "ticks": 167688,
+          "duration_seconds": 86400.0
+        },
+        "validation": {
+          "start": "2025-01-22T00:00:00+00:00",
+          "end": "2025-01-23T00:00:00+00:00",
+          "ticks": 115620,
+          "duration_seconds": 86400.0
+        },
+        "holdout": {
+          "start": "2025-01-23T00:00:00+00:00",
+          "end": "2025-01-24T00:00:00+00:00",
+          "ticks": 117768,
+          "duration_seconds": 86400.0
+        }
+      },
+      "timeframes": [
+        "H1",
+        "M15"
+      ],
+      "warmup_bars": {
+        "H1": 312,
+        "M15": 1254
+      }
+    }
+  ]
+}

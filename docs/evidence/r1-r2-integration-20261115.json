@@ -1,0 +1,67 @@
+{
+  "ai_model": "gpt-6-luna",
+  "ai_response_sha256": "37694e7ba85694c5297d3ba2ab11e59df8c9cd5e3b9ae5015c1cac07de55fe04",
+  "ai_usage": {
+    "input_tokens": 653,
+    "input_tokens_details": {
+      "cache_write_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 0
+      },
+      "cached_tokens": 0
+    },
+    "output_tokens": 661,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 1314
+  },
+  "historical": [
+    {
+      "symbol": "eurusd",
+      "registration_id": "e3b00dea8ae8b536cdf6ff7b35766db79f3273306198b6998141856dc10b1d08",
+      "result_id": "3e7375e82b8a9a9a44390a6459b23b3edd97e8abe324c050f387c4b7cc337ee5",
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "metrics": {
+        "closed_trades": 0,
+        "winning_trades": 0,
+        "net_expectancy": null,
+        "maximum_observed_drawdown_fraction": "0",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+      },
+      "event_count": 3000,
+      "source": "HISTORICAL_UNQUALIFIED",
+      "limitation": "Contiguous 3000-event prefix; integration only, previously exposed historical data; no qualification"
+    },
+    {
+      "symbol": "usdjpy",
+      "registration_id": "6641563637def758b7bc6be079d154c90985e13cc61120b576fcb783326c5f81",
+      "result_id": "d77f490ea3f934ffc0fa5636821023c0542127babeee6767b937318327c09a4b",
+      "verdict": "INSUFFICIENT_EVIDENCE",
+      "metrics": {
+        "closed_trades": 0,
+        "winning_trades": 0,
+        "net_expectancy": null,
+        "maximum_observed_drawdown_fraction": "0",
+        "uncertainty": "Bounded sample: no economic inference or annualized ratios."
+      },
+      "event_count": 3000,
+      "source": "HISTORICAL_UNQUALIFIED",
+      "limitation": "Contiguous 3000-event prefix; integration only, previously exposed historical data; no qualification"
+    }
+  ],
+  "execution_enabled": false,
+  "validation": {
+    "focused_backend_passed": 37,
+    "browser_scenarios_passed": 12,
+    "b01_parity_cases_passed": 36,
+    "broad_offline_run": {
+      "passed": 1342,
+      "skipped": 145,
+      "failed": 1,
+      "failure": "New test incorrectly expected 200 for unknown evidence; corrected to 404 and focused rerun passed"
+    },
+    "historical_scope": "Development integration captures before final engine identity hardening; not a profitability or latest-head historical qualification"
+  }
+}

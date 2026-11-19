@@ -1,0 +1,172 @@
+{
+  "test": "Actual Docker agent-selected validation",
+  "mocked_requests": false,
+  "new_model_calls": 0,
+  "trading_enabled": false,
+  "user_selected_dates": false,
+  "user_selected_datasets": false,
+  "required_sessions": 126,
+  "requested_start": "2026-05-24T00:00:00+00:00",
+  "requested_end": "2026-11-17T00:00:00+00:00",
+  "data_adequacy": [
+    {
+      "age_days": 662,
+      "available_end": "2025-01-24T00:00:00+00:00",
+      "available_sessions": 3,
+      "available_start": "2025-01-21T00:00:00+00:00",
+      "available_windows": {
+        "holdout": {
+          "duration_seconds": 86400,
+          "end": "2025-01-24T00:00:00+00:00",
+          "start": "2025-01-23T00:00:00+00:00",
+          "ticks": 101193
+        },
+        "training": {
+          "duration_seconds": 86400,
+          "end": "2025-01-22T00:00:00+00:00",
+          "start": "2025-01-21T00:00:00+00:00",
+          "ticks": 122952
+        },
+        "validation": {
+          "duration_seconds": 86400,
+          "end": "2025-01-23T00:00:00+00:00",
+          "start": "2025-01-22T00:00:00+00:00",
+          "ticks": 88605
+        }
+      },
+      "blockers": [
+        "INSUFFICIENT_HISTORY",
+        "REQUESTED_PERIOD_NOT_COVERED",
+        "SOURCE_COST_CALENDAR_UNQUALIFIED",
+        "INDEPENDENT_HOLDOUT_UNVERIFIED",
+        "PLANNED_WINDOWS_NOT_AVAILABLE"
+      ],
+      "dataset_id": "fd1729d08109765c5ceb00128299896b190f49a5b010c9dc5b05bf43629a8fe6",
+      "exploratory_ready": true,
+      "missing_sessions": 123,
+      "required_sessions": 126,
+      "source": "HistData EURUSD SHA256 159f906f8055f6ee835d95806cf7fdf4023b6e3ef098aa308d2ab6ce53ac964a",
+      "symbol": "EURUSD",
+      "warmup": {
+        "H1": 312,
+        "M15": 1254
+      }
+    },
+    {
+      "age_days": 662,
+      "available_end": "2025-01-24T00:00:00+00:00",
+      "available_sessions": 3,
+      "available_start": "2025-01-21T00:00:00+00:00",
+      "available_windows": {
+        "holdout": {
+          "duration_seconds": 86400,
+          "end": "2025-01-24T00:00:00+00:00",
+          "start": "2025-01-23T00:00:00+00:00",
+          "ticks": 117768
+        },
+        "training": {
+          "duration_seconds": 86400,
+          "end": "2025-01-22T00:00:00+00:00",
+          "start": "2025-01-21T00:00:00+00:00",
+          "ticks": 167688
+        },
+        "validation": {
+          "duration_seconds": 86400,
+          "end": "2025-01-23T00:00:00+00:00",
+          "start": "2025-01-22T00:00:00+00:00",
+          "ticks": 115620
+        }
+      },
+      "blockers": [
+        "INSUFFICIENT_HISTORY",
+        "REQUESTED_PERIOD_NOT_COVERED",
+        "SOURCE_COST_CALENDAR_UNQUALIFIED",
+        "INDEPENDENT_HOLDOUT_UNVERIFIED",
+        "PLANNED_WINDOWS_NOT_AVAILABLE"
+      ],
+      "dataset_id": "a8a70642c4bf47cf54c4b22bcb670f7474b570d4bbe85678abc6fcf332cc0f13",
+      "exploratory_ready": true,
+      "missing_sessions": 123,
+      "required_sessions": 126,
+      "source": "HistData USDJPY SHA256 72834b8a2d3c553e76018a8a3724af64ac30de4ec7211875378887b73232a896",
+      "symbol": "USDJPY",
+      "warmup": {
+        "H1": 312,
+        "M15": 1254
+      }
+    }
+  ],
+  "progress": [
+    {
+      "symbol": "EURUSD",
+      "phase": "training",
+      "status": "COMPLETE",
+      "scope": "EXPLORATORY_ONLY",
+      "result_id": "ea0816473077304c81a086f7ed08346ab22fa4e5a6c61e57fd1f38859c25b732",
+      "closed_trades": 1,
+      "minimum_closed_trades": 100,
+      "assessment": "MORE_OBSERVATIONS_REQUIRED"
+    },
+    {
+      "symbol": "USDJPY",
+      "phase": "training",
+      "status": "COMPLETE",
+      "scope": "EXPLORATORY_ONLY",
+      "result_id": "bc7124ad9f6747a9e189d7bcfb5438e5783a0fe2571bd90b26801587b3595d60",
+      "closed_trades": 1,
+      "minimum_closed_trades": 100,
+      "assessment": "MORE_OBSERVATIONS_REQUIRED"
+    }
+  ],
+  "result": {
+    "status": "DATA_REQUIRED",
+    "execution_enabled": false,
+    "qualified_for_paper": false,
+    "validation_complete": false,
+    "next_action": "Acquire source-verified recent history for the requested dates, dated costs, calendar/news coverage and an unexposed holdout; retain these exploratory results.",
+    "holdout_opened": false
+  },
+  "runs": [
+    {
+      "symbol": "EURUSD",
+      "phase": "training",
+      "ticks": 122952,
+      "duration_seconds": 86400,
+      "closed_trades": 1,
+      "actions": {
+        "HOLD": 88,
+        "CANDIDATE": 8,
+        "SUBMITTED_TO_SIMULATOR": 1,
+        "EXPIRED": 7
+      },
+      "hold_reasons": {
+        "OUTSIDE_SESSION": 60,
+        "NO_SIGNAL": 28
+      }
+    },
+    {
+      "symbol": "USDJPY",
+      "phase": "training",
+      "ticks": 167688,
+      "duration_seconds": 86400,
+      "closed_trades": 1,
+      "actions": {
+        "HOLD": 93,
+        "CANDIDATE": 3,
+        "SUBMITTED_TO_SIMULATOR": 1,
+        "EXPIRED": 2
+      },
+      "hold_reasons": {
+        "OUTSIDE_SESSION": 60,
+        "NO_SIGNAL": 32,
+        "POSITION_ALREADY_OPEN": 1
+      }
+    }
+  ],
+  "page_reload_preserved_run": true,
+  "container_restart_preserved_result": true,
+  "export_matches_durable_report": true,
+  "duplicate_start_returned_original": true,
+  "mobile_no_horizontal_overflow": true,
+  "errors": []
+}

@@ -17,6 +17,7 @@ from uuid import UUID
 from fx_talanta.clock import SystemClock
 from fx_talanta.dashboard.app import Dashboard
 from fx_talanta.dashboard.demo import demo
+from fx_talanta.dashboard.local_sessions import SetupValidationError
 from fx_talanta.dashboard.models import Snapshot
 from fx_talanta.dashboard.sessions import Owner, Sessions, cookie_header, cookie_token
 from fx_talanta.provider_pipeline import status_lock
@@ -99,10 +100,25 @@ def make_server(
     remote_key=None,
     remote_ca=None,
     owner=None,
+    local_signin=False,
+    local_workspace=False,
 ):
+    if local_workspace and (bind != "127.0.0.1" or origin or owner or remote_ca or local_signin):
+        raise ValueError("account-free workspace requires exclusive IPv4 loopback mode")
+    from fx_talanta.dashboard.translation import Translator
+
+    translator = Translator(app.research.transport)
+    workspace_csrf = __import__("secrets").token_urlsafe(32)
     if owner is not None and not (remote_cert and remote_key):
         raise ValueError("owner sign-in requires HTTPS")
-    sessions = Sessions(app, owner)
+    if local_signin and (bind != "127.0.0.1" or origin or owner or remote_ca):
+        raise ValueError("local sign-in requires exclusive IPv4 loopback mode")
+    if local_signin:
+        from fx_talanta.dashboard.local_sessions import LocalSessions
+
+        sessions = LocalSessions(app)
+    else:
+        sessions = Sessions(app, owner)
     remote = not ipaddress.ip_address(bind).is_loopback
     if app.operator is not None and (origin or remote_ca):
         raise ValueError("simulator operator cannot use public-origin/client-CA mode")
@@ -154,6 +170,13 @@ def make_server(
         def session(self, mutation=False):
             if mutation and self.headers.get("Origin") != self.origin():
                 raise PermissionError("origin required")
+            if local_workspace:
+                if mutation and not hmac.compare_digest(
+                    self.headers.get("X-FX-CSRF", ""), workspace_csrf
+                ):
+                    raise PermissionError("CSRF required")
+                app.renew_owner_access()
+                return {"authenticated": True, "mode": "LOCAL_WORKSPACE", "csrf": workspace_csrf}
             cert = (
                 self.connection.getpeercert(binary_form=True)
                 if isinstance(self.connection, ssl.SSLSocket)
@@ -167,6 +190,8 @@ def make_server(
             )
 
         def session_request(self):
+            if local_workspace:
+                return self.reply(404, {"error": "Accounts are disabled in local workspace mode"})
             if (
                 not self.allowed()
                 or self.headers.get("Origin") != self.origin()
@@ -198,10 +223,15 @@ def make_server(
                     result,
                     headers={
                         "Set-Cookie": cookie_header(
-                            self.cookie_name(), token, bool(self.server.tls_context)
+                            self.cookie_name(),
+                            token,
+                            bool(self.server.tls_context),
+                            max_age=2592000 if local_signin else 28800,
                         )
                     },
                 )
+            except SetupValidationError as error:
+                return self.reply(400, {"error": str(error)})
             except (ValueError, TypeError, PermissionError, UnicodeError):
                 return self.reply(403, {"error": "Sign-in denied or temporarily unavailable"})
 
@@ -216,7 +246,9 @@ def make_server(
             if self.headers.get("Sec-Fetch-Site") not in (None, "same-origin", "none"):
                 return False
             browser = False
-            if private and (owner is not None or self.session_token()):
+            if private and (
+                local_workspace or local_signin or owner is not None or self.session_token()
+            ):
                 try:
                     self.session(mutation=self.command == "POST")
                     browser = True
@@ -251,10 +283,36 @@ def make_server(
                 try:
                     result = self.session()
                 except PermissionError:
-                    result = {"authenticated": False, "mode": "OWNER" if owner else "LOCAL_LAUNCH"}
+                    result = {
+                        "authenticated": False,
+                        "mode": sessions.mode()
+                        if local_signin
+                        else "OWNER"
+                        if owner
+                        else "LOCAL_LAUNCH",
+                    }
                 return self.reply(200, result)
             if not self.allowed(private=self.path.startswith("/api/")):
                 return self.reply(403, {"error": "Access denied or session expired"})
+            if self.path.startswith("/api/research/validation/"):
+                try:
+                    return self.reply(
+                        200, app.research.validation_agent.status(self.path.rsplit("/", 1)[1])
+                    )
+                except ValueError:
+                    return self.reply(404, {"error": "Unknown validation run"})
+            if self.path.startswith("/api/research/run/"):
+                try:
+                    return self.reply(200, app.research.run_status(self.path.rsplit("/", 1)[1]))
+                except ValueError:
+                    return self.reply(404, {"error": "Unknown research run"})
+            if self.path.startswith("/api/research/item/"):
+                try:
+                    return self.reply(200, app.research.item(self.path.rsplit("/", 1)[1]))
+                except ValueError:
+                    return self.reply(404, {"error": "Unknown research evidence"})
+            if self.path == "/api/research":
+                return self.reply(200, app.research.read())
             if self.path == "/api/operator/state":
                 try:
                     result = app.operator.status(
@@ -266,10 +324,28 @@ def make_server(
             assets = {
                 "/": ("index.html", "text/html; charset=utf-8"),
                 "/app.js": ("app.js", "text/javascript"),
+                "/language.js": ("language.js", "text/javascript"),
                 "/style.css": ("style.css", "text/css"),
+                "/brand-emblem.png": ("brand-emblem.png", "image/png"),
             }
-            if self.path in assets:
-                name, mime = assets[self.path]
+            assets["/pages.js"] = ("pages.js", "text/javascript")
+            assets["/improvement.js"] = ("improvement.js", "text/javascript")
+            assets["/market-sessions.js"] = ("market-sessions.js", "text/javascript")
+            for page in (
+                "/overview",
+                "/strategies",
+                "/strategies/describe",
+                "/strategies/review",
+                "/strategies/backtest",
+                "/strategies/results",
+                "/strategies/improve",
+                "/market",
+                "/advisor",
+                "/activity",
+            ):
+                assets[page] = ("index.html", "text/html; charset=utf-8")
+            if urlsplit(self.path).path in assets:
+                name, mime = assets[urlsplit(self.path).path]
                 return self.reply(
                     200, files("fx_talanta.dashboard").joinpath("static", name).read_bytes(), mime
                 )
@@ -319,12 +395,17 @@ def make_server(
         def do_POST(self):
             if self.path == "/api/session":
                 return self.session_request()
-            if self.path == "/api/session/logout":
+            if self.path in ("/api/session/logout", "/api/session/logout-all"):
+                if self.path.endswith("logout-all") and not local_signin:
+                    return self.reply(404, {"error": "Not available"})
                 try:
                     if not self.allowed():
                         raise PermissionError("access denied")
                     self.session(mutation=True)
-                    sessions.logout(self.session_token())
+                    if self.path.endswith("logout-all"):
+                        sessions.logout_all()
+                    else:
+                        sessions.logout(self.session_token())
                     return self.reply(
                         200,
                         {"authenticated": False},
@@ -372,6 +453,19 @@ def make_server(
                 "/api/calendar",
                 "/api/explain",
                 "/api/study",
+                "/api/translate",
+                "/api/research/generate",
+                "/api/research/register",
+                "/api/research/select_dataset",
+                "/api/research/execute",
+                "/api/research/plan_validation",
+                "/api/research/start_validation",
+                "/api/research/diagnose",
+                "/api/research/investigate_halt",
+                "/api/research/analyze_sessions",
+                "/api/research/revise_diagnosis",
+                "/api/research/compare_revision",
+                "/api/research/improvement_status",
                 "/api/strategies/save",
                 "/api/strategies/freeze",
                 "/api/notifications/ack",
@@ -380,7 +474,13 @@ def make_server(
             try:
                 size = int(self.headers.get("Content-Length", "-1"))
                 maximum = (
-                    4096
+                    32768
+                    if self.path == "/api/translate"
+                    else 8 * 1024 * 1024
+                    if self.path == "/api/research/register"
+                    else 16384
+                    if self.path.startswith("/api/research/")
+                    else 4096
                     if self.path in ("/api/chat", "/api/explain", "/api/notifications/ack")
                     else 32768
                     if self.path.startswith("/api/strategies/")
@@ -401,12 +501,16 @@ def make_server(
                     raise ValueError("short request")
                 if self.path == "/api/notifications/ack":
                     result = app.notifications.acknowledge(json.loads(raw))
+                elif self.path == "/api/translate":
+                    result = translator.translate(json.loads(raw))
                 elif self.path == "/api/chat":
                     result = app.chat(json.loads(raw))
                 elif self.path == "/api/explain":
                     result = app.explain(json.loads(raw))
                 elif self.path == "/api/study":
                     result = app.upload_study(raw)
+                elif self.path.startswith("/api/research/"):
+                    result = getattr(app.research, self.path.rsplit("/", 1)[1])(json.loads(raw))
                 elif self.path == "/api/strategies/save":
                     result = app.strategies.save(json.loads(raw))
                 elif self.path == "/api/strategies/freeze":
@@ -540,6 +644,24 @@ def main():
     parser.add_argument(
         "--monitor-interval", type=int, default=5, help="Inspection sampling cadence, 1..60 seconds"
     )
+    parser.add_argument(
+        "--research-key-file",
+        type=Path,
+        help="Enable bounded strategy proposals: at most 10 calls per research store",
+    )
+    parser.add_argument(
+        "--local-signin",
+        action="store_true",
+        help="Persistent owner sign-in on 127.0.0.1 only; first visit creates owner",
+    )
+    parser.add_argument(
+        "--local-workspace", action="store_true", help="Account-free workspace on 127.0.0.1 only"
+    )
+    parser.add_argument(
+        "--research-datasets",
+        type=Path,
+        help="Read-only directory of historical *-bundle.json files",
+    )
     args = parser.parse_args()
     try:
         validate_access(
@@ -590,6 +712,15 @@ def main():
 
 
 def serve(snapshot, args):
+    research_transport = None
+    if getattr(args, "research_key_file", None):
+        from dotenv import dotenv_values
+
+        from fx_talanta.advisor.provider import OpenAITransport
+
+        research_transport = OpenAITransport(
+            dotenv_values(args.research_key_file).get("OPENAI_API_KEY", "")
+        )
     budget = transport = None
     if args.model_key_file:
         from dotenv import dotenv_values
@@ -681,6 +812,8 @@ def serve(snapshot, args):
             SystemClock(),
             telemetry=args.telemetry,
             telemetry_run=args.telemetry_run,
+            research_transport=research_transport,
+            dataset_directory=getattr(args, "research_datasets", None),
             model_budget=budget,
             model_transport=transport,
             broker_view=broker_view,
@@ -698,13 +831,21 @@ def serve(snapshot, args):
             remote_cert=args.tls_cert,
             remote_key=args.tls_key,
             remote_ca=args.tls_client_ca,
+            local_signin=getattr(args, "local_signin", False),
+            local_workspace=getattr(args, "local_workspace", False),
             owner=Owner.model_validate_json(args.owner_file.read_bytes())
             if args.owner_file
             else None,
         )
         scheme = configure_tls(server, args.tls_cert, args.tls_key, args.tls_client_ca)
         origin = args.public_origin or f"{scheme}://{args.bind}:{server.server_port}"
-        url = f"{origin}/" if args.owner_file else f"{origin}/#token={app.token}"
+        url = (
+            f"{origin}/"
+            if args.owner_file
+            or getattr(args, "local_signin", False)
+            or getattr(args, "local_workspace", False)
+            else f"{origin}/#token={app.token}"
+        )
         if args.session_file:
             with args.session_file.open("x", encoding="utf-8") as f:
                 f.write(url)

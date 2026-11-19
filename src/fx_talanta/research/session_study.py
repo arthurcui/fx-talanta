@@ -104,8 +104,9 @@ def timeline(bars, events, start, end):
 
 
 class TrackedEvents:
-    def __init__(self, source, start, end):
+    def __init__(self, source, start, end, maximum_ticks=MAX_SESSION_TICKS):
         self.source, self.start, self.end = source, start, end
+        self.maximum_ticks = maximum_ticks
         self.count = 0
         self.first = self.last = None
         self.max_gap = Decimal(0)
@@ -120,7 +121,7 @@ class TrackedEvents:
             self.first = self.first or at
             self.last = at
             self.count += 1
-            if self.count > MAX_SESSION_TICKS:
+            if self.count > self.maximum_ticks:
                 raise ValueError("session tick bound; no downsampling allowed")
             if self.count % 25000 == 0:
                 print(json.dumps({"processed_ticks": self.count}), flush=True)

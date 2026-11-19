@@ -1,0 +1,70 @@
+{
+  "schema": "trading-risk-assessment/1",
+  "date": "2026-11-18",
+  "scope": "Read-only arithmetic from retained evidence and an explicitly hypothetical sizing illustration; no replay or new trading observation",
+  "reviewed_commit": "2c979d1feea1bd678a2b1b154460970037da9c26",
+  "retained_evidence": {
+    "docs/evidence/shared-risk-halt-20261118.json": "f78d108a4ec74bfa5e2bf809a5ebb6108dcd965adccea62b675d70033ccbbd13",
+    "docs/evidence/full-history-remediation-20261118.json": "4e928e308c25717ed5de7b51aa65e92da74581a1e701301d481a30afdcb73a28",
+    "docs/evidence/eurusd-24bar-comparison-20261118.json": "4859ef2977448c0d6d05aae12dff76e24d36762acf2206d204575e1767081ad7",
+    "docs/evidence/session-aware-research-20261118.json": "168e4101bf84c30199e5dbee338f49a1bb27318495a64210f10ba28917d7998d"
+  },
+  "eurusd_recorded_trigger": {
+    "aggregate_fraction": "0.001",
+    "fixed_entry_to_stop_and_exit_buffer": "8.00000000",
+    "unrealized_profit": "2.08000000",
+    "aggregate_risk_recomputed": "10.08000000",
+    "aggregate_limit": "9.996957921980555555555555555555556",
+    "uncapped_equity_branch_profit_boundary": "1.9968747967773328884439995551106666666666666666667",
+    "assumptions": "One fixed-stop EURUSD position, USD valuation, unchanged exit buffer, equity below allocated capital; boundary equality is permitted, greater than breaches"
+  },
+  "planning_illustration": {
+    "not_a_counterfactual_replay": true,
+    "not_a_trade_authorization": true,
+    "original_target_ratio_not_assumed_known": true,
+    "assumed_target_multiple": "2",
+    "assumed_equity_floor": "9990",
+    "unchanged_aggregate_fraction": "0.001",
+    "additional_fraction_withheld": "0.0001",
+    "planned_fraction_available": "0.0009",
+    "planned_capacity": "8.9910",
+    "loss_per_lot_from_retained_position": "89.000000",
+    "exit_buffer_per_lot_from_retained_position": "11",
+    "rows": [
+      {
+        "volume": "0.02",
+        "planned_target_to_stop_plus_exit": "5.56000000",
+        "fraction_of_illustrative_equity_floor": "0.00055655655655655655655655655655655655655655655655656",
+        "passes_illustrative_headroom": true
+      },
+      {
+        "volume": "0.03",
+        "planned_target_to_stop_plus_exit": "8.34000000",
+        "fraction_of_illustrative_equity_floor": "0.00083483483483483483483483483483483483483483483483483",
+        "passes_illustrative_headroom": true
+      },
+      {
+        "volume": "0.04",
+        "planned_target_to_stop_plus_exit": "11.12000000",
+        "fraction_of_illustrative_equity_floor": "0.0011131131131131131131131131131131131131131131131131",
+        "passes_illustrative_headroom": false
+      },
+      {
+        "volume": "0.08",
+        "planned_target_to_stop_plus_exit": "22.24000000",
+        "fraction_of_illustrative_equity_floor": "0.0022262262262262262262262262262262262262262262262262",
+        "passes_illustrative_headroom": false
+      }
+    ],
+    "limitations": [
+      "Same fill/stop geometry and linear costs assumed for illustration only.",
+      "Equity floor and buffer are uncalibrated planning assumptions, not observed conservative bounds.",
+      "Spread/commission admission, daily loss, margin, currency, lot-step, adverse moves and all other controls still apply.",
+      "No claim about counterfactual fills, P&L, USDJPY conversion or gap safety."
+    ]
+  },
+  "resolution": "Proposed additional lifecycle exposure sizing bound; preserve current-to-stop semantics, all numeric caps, persistent halt and two-second entry ceiling.",
+  "implemented": false,
+  "execution_enabled": false,
+  "new_backtest_started": false
+}

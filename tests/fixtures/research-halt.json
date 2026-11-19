@@ -1,0 +1,1811 @@
+{
+  "gateway": {
+    "account": {
+      "broker": "REPLAY",
+      "environment": "PAPER",
+      "login": "B01",
+      "server": "OFFLINE",
+      "venue": "SIMULATOR"
+    },
+    "administrative_pause": false,
+    "entries": [
+      {
+        "case_id": "bf938cb2-41c2-5d36-9f81-6144c78eb89c",
+        "intent": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "benchmark": "1.164980",
+          "decision_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "exit_at": "2026-05-25T16:45:00Z",
+          "expires_at": "2026-05-25T12:46:00.250000Z",
+          "intent_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+          "policy_version": "offline-risk/1",
+          "side": "BUY",
+          "stop": "1.164530",
+          "strategy": "candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2",
+          "symbol": "EURUSD",
+          "target": "1.165970"
+        },
+        "reason": "position volume and protective stop verified",
+        "request": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "action": "ENTER",
+          "entry_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+          "expected_version": null,
+          "initial_stop": true,
+          "position_id": null,
+          "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+          "side": "BUY",
+          "stop": "1.164530",
+          "symbol": "EURUSD",
+          "target": "1.165970",
+          "volume": "0.08"
+        },
+        "reservation": {
+          "currency_per_lot": {
+            "EUR": "116496.000000",
+            "USD": "-116501.000000"
+          },
+          "gross_per_lot": "116496.000000",
+          "margin_per_lot": "2329.92000000",
+          "risk_per_lot": "63.000000",
+          "volume": "0.00"
+        },
+        "state": "COMPLETED",
+        "submitted_at": "2026-05-25T12:45:02.399000Z"
+      },
+      {
+        "case_id": "13bf67d7-7973-5c1b-97b7-8dffbbe10216",
+        "intent": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "benchmark": "1.165620",
+          "decision_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+          "exit_at": "2026-05-27T17:00:00Z",
+          "expires_at": "2026-05-27T13:31:00.250000Z",
+          "intent_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+          "policy_version": "offline-risk/1",
+          "side": "BUY",
+          "stop": "1.164800",
+          "strategy": "candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2",
+          "symbol": "EURUSD",
+          "target": "1.167410"
+        },
+        "reason": "position volume and protective stop verified",
+        "request": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "action": "ENTER",
+          "entry_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+          "expected_version": null,
+          "initial_stop": true,
+          "position_id": null,
+          "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+          "side": "BUY",
+          "stop": "1.164800",
+          "symbol": "EURUSD",
+          "target": "1.167410",
+          "volume": "0.08"
+        },
+        "reservation": {
+          "currency_per_lot": {
+            "EUR": "116566.000000",
+            "USD": "-116567.000000"
+          },
+          "gross_per_lot": "116566.000000",
+          "margin_per_lot": "2331.32000000",
+          "risk_per_lot": "102.000000",
+          "volume": "0.00"
+        },
+        "state": "PROTECTED",
+        "submitted_at": "2026-05-27T13:30:00.578000Z"
+      }
+    ],
+    "health_at": "2026-05-27T13:30:31.581000Z",
+    "healthy_count": 2,
+    "integrity_halt": false,
+    "losses": {
+      "day": "2026-05-27",
+      "day_flow_base": "0",
+      "day_loss": "0",
+      "hard_halt": false,
+      "high_water_nav": "1",
+      "loss_pause_day": null,
+      "processed_flows": [],
+      "start_equity": "9995.197921980555555555555555555556",
+      "units": "10000"
+    },
+    "operations": [
+      {
+        "reason": "broker confirmed",
+        "request": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "action": "CLOSE",
+          "entry_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+          "expected_version": 1,
+          "initial_stop": true,
+          "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+          "request_id": "7b8e547a-d248-55b3-a475-d2cf1e73ea9b",
+          "side": "BUY",
+          "stop": null,
+          "symbol": "EURUSD",
+          "target": null,
+          "volume": "0.08"
+        },
+        "state": "COMPLETED"
+      }
+    ],
+    "policy": {
+      "aggregate_fraction": "0.001",
+      "capital": "10000",
+      "currency_multiple": "1",
+      "daily_fraction": "0.003",
+      "drawdown_fraction": "0.05",
+      "gross_multiple": "2",
+      "healthy_samples": 2,
+      "margin_fraction": "0.20",
+      "maximum_positions": 1,
+      "protection_mode": "INITIAL_STOP",
+      "protection_seconds": 5,
+      "quote_age_seconds": 2,
+      "trade_fraction": "0.001",
+      "version": "offline-risk/1"
+    },
+    "state": "RUNNING"
+  },
+  "broker": {
+    "account": {
+      "broker": "REPLAY",
+      "environment": "PAPER",
+      "login": "B01",
+      "server": "OFFLINE",
+      "venue": "SIMULATOR"
+    },
+    "balance": "9994.877921980555555555555555555556",
+    "calls": [
+      "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+      "7b8e547a-d248-55b3-a475-d2cf1e73ea9b",
+      "a7139455-0fcb-57ad-81e3-e5c86bfc36af"
+    ],
+    "cash_flows": [],
+    "deals": [
+      {
+        "action": "ENTER",
+        "at": "2026-05-25T12:45:02.399000Z",
+        "commission": "0.32",
+        "deal_id": "55799ed3-4858-52b5-87bc-fd5df888a346",
+        "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+        "price": "1.165030",
+        "realized": "-0.32",
+        "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "volume": "0.08"
+      },
+      {
+        "action": "CLOSE",
+        "at": "2026-05-25T12:57:30.486000Z",
+        "commission": "0.32",
+        "deal_id": "873c2c73-9ab5-5f08-a2d9-88e3c9ac6851",
+        "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+        "price": "1.164510",
+        "realized": "-4.482078019444444444444444444444444",
+        "request_id": "7b8e547a-d248-55b3-a475-d2cf1e73ea9b",
+        "volume": "0.08"
+      },
+      {
+        "action": "ENTER",
+        "at": "2026-05-27T13:30:00.578000Z",
+        "commission": "0.32",
+        "deal_id": "b25f1dbc-5e0f-5d3e-a22c-35e32c08bbb6",
+        "position_id": "83307ce3-d3f2-5677-9047-d544666c8d94",
+        "price": "1.165690",
+        "realized": "-0.32",
+        "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "volume": "0.08"
+      }
+    ],
+    "initial_balance": "10000",
+    "orders": [
+      {
+        "filled": "0.08",
+        "reason": "",
+        "remaining": "0.00",
+        "request": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "action": "ENTER",
+          "entry_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+          "expected_version": null,
+          "initial_stop": true,
+          "position_id": null,
+          "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+          "side": "BUY",
+          "stop": "1.164530",
+          "symbol": "EURUSD",
+          "target": "1.165970",
+          "volume": "0.08"
+        },
+        "state": "FILLED"
+      },
+      {
+        "filled": "0.08",
+        "reason": "",
+        "remaining": "0",
+        "request": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "action": "CLOSE",
+          "entry_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+          "expected_version": 1,
+          "initial_stop": true,
+          "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+          "request_id": "7b8e547a-d248-55b3-a475-d2cf1e73ea9b",
+          "side": "BUY",
+          "stop": null,
+          "symbol": "EURUSD",
+          "target": null,
+          "volume": "0.08"
+        },
+        "state": "FILLED"
+      },
+      {
+        "filled": "0.08",
+        "reason": "",
+        "remaining": "0.00",
+        "request": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "action": "ENTER",
+          "entry_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+          "expected_version": null,
+          "initial_stop": true,
+          "position_id": null,
+          "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+          "side": "BUY",
+          "stop": "1.164800",
+          "symbol": "EURUSD",
+          "target": "1.167410",
+          "volume": "0.08"
+        },
+        "state": "FILLED"
+      }
+    ],
+    "positions": [
+      {
+        "entry_cost": "0.32",
+        "entry_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "owned": true,
+        "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+        "price": "1.165030",
+        "realized": "-4.802078019444444444444444444444444",
+        "side": "BUY",
+        "stop": "1.164530",
+        "symbol": "EURUSD",
+        "target": "1.165970",
+        "version": 2,
+        "volume": "0.00"
+      },
+      {
+        "entry_cost": "0.32",
+        "entry_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "owned": true,
+        "position_id": "83307ce3-d3f2-5677-9047-d544666c8d94",
+        "price": "1.165690",
+        "realized": "-0.32",
+        "side": "BUY",
+        "stop": "1.164800",
+        "symbol": "EURUSD",
+        "target": "1.167410",
+        "version": 1,
+        "volume": "0.08"
+      }
+    ]
+  },
+  "market": {
+    "at": "2026-05-27T13:30:31.687000Z",
+    "quotes": [
+      {
+        "symbol": "EURUSD",
+        "bid": "1.165950",
+        "ask": "1.165960",
+        "at": "2026-05-27T13:30:31.687000Z"
+      }
+    ],
+    "instruments": [
+      {
+        "symbol": "EURUSD",
+        "base": "EUR",
+        "quote": "USD",
+        "contract_size": "100000",
+        "minimum_volume": "0.01",
+        "volume_step": "0.01",
+        "maximum_volume": "100",
+        "minimum_stop": "0.00005",
+        "maximum_spread": "0.0003",
+        "maximum_adverse_move": "0.0005",
+        "margin_rate": "0.02",
+        "commission_per_lot": "4",
+        "slippage_per_lot": "4",
+        "financing_per_lot": "3"
+      }
+    ],
+    "conversion": {
+      "USD": "1",
+      "EUR": "1.165950"
+    },
+    "calendar_ok": true,
+    "news_ok": true,
+    "session_open": true,
+    "event_blackout": false
+  },
+  "at": "2026-05-27T13:30:31.937000+00:00",
+  "records": [
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "action": "ENTER",
+        "candidates": [
+          "candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2"
+        ],
+        "cutoff": "2026-05-25T12:45:00.250000Z",
+        "decision": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "action": "ENTER",
+          "candidate_id": "candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2",
+          "expected_state_version": null,
+          "expires_at": "2026-05-25T12:46:00.250000Z",
+          "position_id": null,
+          "rationale": "Frozen replay candidate",
+          "side": "BUY",
+          "symbol": "EURUSD"
+        },
+        "input_snapshot": "c293a6e42cb5b61d7478460f4394bdcbab98174c3a0ef0391a407530f848ca63",
+        "kind": "decision",
+        "reason": "Research-only signal",
+        "response": "{\"account\":{\"environment\":\"PAPER\",\"broker\":\"REPLAY\",\"server\":\"OFFLINE\",\"login\":\"B01\",\"venue\":\"SIMULATOR\"},\"action\":\"ENTER\",\"candidate_id\":\"candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2\",\"symbol\":\"EURUSD\",\"side\":\"BUY\",\"position_id\":null,\"expected_state_version\":null,\"expires_at\":\"2026-05-25T12:46:00.250000Z\",\"rationale\":\"Frozen replay candidate\"}",
+        "result": "VALID",
+        "trace": {
+          "input_tokens": 0,
+          "latency_ms": 0,
+          "output_tokens": 0,
+          "provider": "scripted",
+          "request_id": "df1c8bff-9544-5f68-8424-0af8ff677c13",
+          "requested_model": "scripted/1",
+          "returned_model": "scripted/1"
+        }
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+      "recorded_at": "2026-05-25T12:45:00.250000Z",
+      "references": [],
+      "supersedes": null,
+      "versions": {
+        "component": "m0a/0.1.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "entry intention recorded",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": null,
+        "position_id": null,
+        "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "state": "CREATED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "bb96f161-9647-5ae1-9d5f-6f8b9db5e611",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "entry intention recorded"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "a0114339-78bd-54da-b0f2-680c4e115187",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "bb96f161-9647-5ae1-9d5f-6f8b9db5e611",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "decision reference and account validated",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": null,
+        "position_id": null,
+        "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "state": "VALIDATED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "fb562d80-4f7c-530a-9331-075c84cda6bd",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "decision reference and account validated"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "b4f3c948-cd52-596d-b343-fff4c78d3c52",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "fb562d80-4f7c-530a-9331-075c84cda6bd",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "a0114339-78bd-54da-b0f2-680c4e115187",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "approved": true,
+        "checked_limits": [
+          "trade",
+          "aggregate",
+          "daily",
+          "currency",
+          "gross",
+          "margin",
+          "slots"
+        ],
+        "evaluation_mode": "DETERMINISTIC",
+        "kind": "risk",
+        "planned_loss": "5.04000000",
+        "proposed_volume": "0.08",
+        "reasons": [
+          "approved"
+        ],
+        "reservation_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "b088cf11-9b85-5c19-aef4-fd75a1a010fd",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "approved",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": null,
+        "position_id": null,
+        "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "state": "RESERVED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "629beee0-bbf6-51e4-9574-aa3e31231467",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "approved"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "6b3124f1-dd82-5afc-9790-b8fcbbd395a2",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "629beee0-bbf6-51e4-9574-aa3e31231467",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "b4f3c948-cd52-596d-b343-fff4c78d3c52",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "exact request durable before send",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "position_id": null,
+        "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "state": "SUBMITTING"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "1be7c90a-e11f-559d-9999-38565a14598b",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "exact request durable before send"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "5ab69c7f-166a-561b-95e8-c0735ae5274c",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "1be7c90a-e11f-559d-9999-38565a14598b",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "6b3124f1-dd82-5afc-9790-b8fcbbd395a2",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "broker fill reconciled",
+        "fill_price": "1.165030",
+        "filled_volume": "0.08",
+        "kind": "execution",
+        "order_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+        "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "state": "FILLED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "a68c7f65-3d74-5d86-a2f2-be1ba5281543",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "broker fill reconciled"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0.32",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "a926fa37-4a0a-50cc-8ea7-aa4201598a6f",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "a68c7f65-3d74-5d86-a2f2-be1ba5281543",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "5ab69c7f-166a-561b-95e8-c0735ae5274c",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "position volume and protective stop verified",
+        "fill_price": "1.165030",
+        "filled_volume": "0.08",
+        "kind": "execution",
+        "order_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+        "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "state": "PROTECTED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "c230d755-fc9e-5351-a352-d21866fe9a3b",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "position volume and protective stop verified"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0.32",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "c8ff24f8-3b62-51f2-a151-d16beaf44256",
+      "recorded_at": "2026-05-25T12:45:02.399000Z",
+      "references": [
+        {
+          "record_id": "c230d755-fc9e-5351-a352-d21866fe9a3b",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "a926fa37-4a0a-50cc-8ea7-aa4201598a6f",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "broker confirmed",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": null,
+        "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+        "request_id": "7b8e547a-d248-55b3-a475-d2cf1e73ea9b",
+        "state": "COMPLETED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "f85a017c-37a3-5e39-b058-cdcb10f0f307",
+      "recorded_at": "2026-05-25T12:57:30.486000Z",
+      "references": [],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "position volume and protective stop verified",
+        "fill_price": "1.165030",
+        "filled_volume": "0.00",
+        "kind": "execution",
+        "order_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "position_id": "207863a6-b26f-564a-b806-2db368a1dc45",
+        "request_id": "ad4a6ff0-316d-5302-9c58-9dfa2831f904",
+        "state": "COMPLETED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "f496afd8-1efe-5a27-a321-9da6e8740a13",
+      "recorded_at": "2026-05-25T12:57:30.486000Z",
+      "references": [
+        {
+          "record_id": "ad86c41f-6a09-5918-92cf-1556742cded0",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "LOSS",
+        "kind": "experience",
+        "net_pnl": "-4.802078019444444444444444444444444",
+        "operational_result": "SUCCESS",
+        "outcome_known_at": "2026-05-25T12:57:30.486000Z",
+        "policy_compliance": "COMPLIANT",
+        "summary": "position volume and protective stop verified"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0.64",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "bf938cb2-41c2-5d36-9f81-6144c78eb89c",
+      "recorded_at": "2026-05-25T12:57:30.486000Z",
+      "references": [
+        {
+          "record_id": "f496afd8-1efe-5a27-a321-9da6e8740a13",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "c8ff24f8-3b62-51f2-a151-d16beaf44256",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "action": "ENTER",
+        "candidates": [
+          "candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2"
+        ],
+        "cutoff": "2026-05-27T13:30:00.250000Z",
+        "decision": {
+          "account": {
+            "broker": "REPLAY",
+            "environment": "PAPER",
+            "login": "B01",
+            "server": "OFFLINE",
+            "venue": "SIMULATOR"
+          },
+          "action": "ENTER",
+          "candidate_id": "candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2",
+          "expected_state_version": null,
+          "expires_at": "2026-05-27T13:31:00.250000Z",
+          "position_id": null,
+          "rationale": "Frozen replay candidate",
+          "side": "BUY",
+          "symbol": "EURUSD"
+        },
+        "input_snapshot": "3994660696b70309375af28929a9ff8f624f683f0c6ed4a8294c58be40e9a22f",
+        "kind": "decision",
+        "reason": "Research-only signal",
+        "response": "{\"account\":{\"environment\":\"PAPER\",\"broker\":\"REPLAY\",\"server\":\"OFFLINE\",\"login\":\"B01\",\"venue\":\"SIMULATOR\"},\"action\":\"ENTER\",\"candidate_id\":\"candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2\",\"symbol\":\"EURUSD\",\"side\":\"BUY\",\"position_id\":null,\"expected_state_version\":null,\"expires_at\":\"2026-05-27T13:31:00.250000Z\",\"rationale\":\"Frozen replay candidate\"}",
+        "result": "VALID",
+        "trace": {
+          "input_tokens": 0,
+          "latency_ms": 0,
+          "output_tokens": 0,
+          "provider": "scripted",
+          "request_id": "28b37ad8-f5a6-5960-9a6e-9f5a3696f43a",
+          "requested_model": "scripted/1",
+          "returned_model": "scripted/1"
+        }
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+      "recorded_at": "2026-05-27T13:30:00.250000Z",
+      "references": [],
+      "supersedes": null,
+      "versions": {
+        "component": "m0a/0.1.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "candidate/1aab2d1ca1595bfc98eea18a59f772b7cf181e721efc668cd6761cb6153ac5b2"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "entry intention recorded",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": null,
+        "position_id": null,
+        "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "state": "CREATED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "27c86185-f230-541e-bca7-ad973d3bf8de",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "entry intention recorded"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "ed431580-0a86-5cf3-ae5c-1f12a5fe5409",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "27c86185-f230-541e-bca7-ad973d3bf8de",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "decision reference and account validated",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": null,
+        "position_id": null,
+        "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "state": "VALIDATED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "390f8384-9f1f-5601-9361-b0c94cbdf1a9",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "decision reference and account validated"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "d39f4aa8-51ed-51a7-9afb-251cd0134de9",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "390f8384-9f1f-5601-9361-b0c94cbdf1a9",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "ed431580-0a86-5cf3-ae5c-1f12a5fe5409",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "approved": true,
+        "checked_limits": [
+          "trade",
+          "aggregate",
+          "daily",
+          "currency",
+          "gross",
+          "margin",
+          "slots"
+        ],
+        "evaluation_mode": "DETERMINISTIC",
+        "kind": "risk",
+        "planned_loss": "8.16000000",
+        "proposed_volume": "0.08",
+        "reasons": [
+          "approved"
+        ],
+        "reservation_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "59265ea3-7054-5b5a-a5ba-ad716f2f5fc9",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "approved",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": null,
+        "position_id": null,
+        "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "state": "RESERVED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "16204213-7f5c-53bc-85c1-4b3cef3de646",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "approved"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "fbdbd5f6-1b15-5da8-be38-17c5b878e7c3",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "16204213-7f5c-53bc-85c1-4b3cef3de646",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "d39f4aa8-51ed-51a7-9afb-251cd0134de9",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "exact request durable before send",
+        "fill_price": null,
+        "filled_volume": "0",
+        "kind": "execution",
+        "order_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "position_id": null,
+        "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "state": "SUBMITTING"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "eb6a434f-4e06-51fd-9a85-8258556927f7",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "exact request durable before send"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "2bce9825-ffcd-5823-8f70-a4995eb71469",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "eb6a434f-4e06-51fd-9a85-8258556927f7",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "fbdbd5f6-1b15-5da8-be38-17c5b878e7c3",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "broker fill reconciled",
+        "fill_price": "1.165690",
+        "filled_volume": "0.08",
+        "kind": "execution",
+        "order_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "position_id": "83307ce3-d3f2-5677-9047-d544666c8d94",
+        "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "state": "FILLED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "2c79938f-e357-55c3-8686-505b9392cef9",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "broker fill reconciled"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0.32",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "46ef814b-31a5-55f4-8648-09d9480d0b25",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "2c79938f-e357-55c3-8686-505b9392cef9",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "2bce9825-ffcd-5823-8f70-a4995eb71469",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "deal_id": null,
+        "evidence": "position volume and protective stop verified",
+        "fill_price": "1.165690",
+        "filled_volume": "0.08",
+        "kind": "execution",
+        "order_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "position_id": "83307ce3-d3f2-5677-9047-d544666c8d94",
+        "request_id": "a7139455-0fcb-57ad-81e3-e5c86bfc36af",
+        "state": "PROTECTED"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "9369f3cb-6a3d-598b-9796-816f53bbcc85",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "9a2a9590-ce7f-55a0-bfb3-dbf6617a90ba",
+          "relation": "DECISION"
+        }
+      ],
+      "supersedes": null,
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    },
+    {
+      "account": {
+        "broker": "REPLAY",
+        "environment": "PAPER",
+        "login": "B01",
+        "server": "OFFLINE",
+        "venue": "SIMULATOR"
+      },
+      "body": {
+        "economic_outcome": "UNKNOWN",
+        "kind": "experience",
+        "net_pnl": null,
+        "operational_result": "SUCCESS",
+        "outcome_known_at": null,
+        "policy_compliance": "COMPLIANT",
+        "summary": "position volume and protective stop verified"
+      },
+      "correlation_id": "6fbb8bee-fcc4-5d7f-a3c2-e916bb446e91",
+      "costs": {
+        "commission": "0.32",
+        "currency": "USD",
+        "data": "0",
+        "financing": "0",
+        "model": "0"
+      },
+      "provenance": "OFFLINE_SIMULATION",
+      "record_id": "13bf67d7-7973-5c1b-97b7-8dffbbe10216",
+      "recorded_at": "2026-05-27T13:30:00.578000Z",
+      "references": [
+        {
+          "record_id": "9369f3cb-6a3d-598b-9796-816f53bbcc85",
+          "relation": "EXECUTION"
+        }
+      ],
+      "supersedes": "46ef814b-31a5-55f4-8648-09d9480d0b25",
+      "versions": {
+        "component": "m0b/0.2.0",
+        "model": "scripted/1",
+        "policy": "offline-risk/1",
+        "prompt": "fixture/1",
+        "strategy": "fixture/1"
+      }
+    }
+  ]
+}

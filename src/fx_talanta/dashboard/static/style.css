@@ -117,8 +117,9 @@ p {
   width: 218px;
   position: fixed;
   inset: 0 auto 0 0;
-  background: #142b33;
-  color: #c8d5d8;
+  background: #f5f7f4;
+  color: #263b35;
+  border-right: 1px solid var(--line);
   padding: 30px 20px;
   display: flex;
   flex-direction: column;
@@ -130,32 +131,25 @@ p {
   font-size: 18px;
   font-weight: 650;
   text-decoration: none;
-  color: #fff;
+  color: #203b33;
 }
 .brand small {
   display: block;
   font-size: 8px;
   letter-spacing: 1.3px;
-  color: #91afb7;
+  color: #596e65;
   margin-top: 4px;
 }
 .mark {
-  width: 34px;
-  height: 38px;
-  font-size: 27px;
-  color: #9ad6c6;
-  letter-spacing: -6px;
-  line-height: 38px;
+  border-radius: 22%;
+  object-fit: contain;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  display: block;
 }
-.mark span {
-  font-size: 21px;
-  color: #fff;
-}
-.nav-label {
-  font-size: 10px;
-  letter-spacing: 1.6px;
-  margin: 50px 12px 14px;
-  color: #8ba5af;
+.sidebar > nav {
+  margin-top: 32px;
 }
 nav a {
   display: block;
@@ -167,11 +161,11 @@ nav a {
 }
 nav a:hover,
 nav a.active {
-  background: #24414a;
-  color: #fff;
+  background: #deeee7;
+  color: #145b49;
 }
 nav a.active {
-  box-shadow: inset 3px 0 #8ac5b6;
+  box-shadow: inset 3px 0 #187468;
 }
 .sidebar-bottom {
   margin-top: auto;
@@ -180,7 +174,7 @@ nav a.active {
 }
 .sidebar-bottom p {
   font-size: 12px;
-  color: #8fa8b0;
+  color: #596e65;
   letter-spacing: 0;
   margin-top: 12px;
 }
@@ -195,7 +189,7 @@ nav a.active {
 .version {
   display: block;
   margin-top: 30px;
-  color: #8fa8b0;
+  color: #596e65;
   font-size: 10px;
   letter-spacing: 0;
 }
@@ -696,7 +690,6 @@ footer {
     width: 100%;
     padding: 18px;
   }
-  .nav-label,
   .sidebar-bottom {
     display: none;
   }
@@ -825,4 +818,140 @@ footer {
   .strategy-form {
     grid-template-columns: 1fr;
   }
+}
+
+.topbar {
+  gap: 16px;
+}
+.language-switch {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.language-switch button {
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  padding: 6px 2px;
+  min-height: 36px;
+}
+.language-switch button[aria-pressed="true"] {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.language-switch button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.workflow-step {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  margin-top: 24px;
+  scroll-margin-top: 20px;
+}
+
+#research-message:not(:empty),
+#research-candidate-status {
+  padding: 12px 14px;
+  border-left: 3px solid var(--teal, #16796a);
+  background: #edf5f2;
+  overflow-wrap: anywhere;
+}
+#research-message:focus-visible {
+  outline: 2px solid var(--teal, #16796a);
+  outline-offset: 2px;
+}
+/* Routed task pages share the shell, never expose unrelated forms. */
+.app-page[hidden],
+#strategy-flow[hidden] {
+  display: none !important;
+}
+.app-page {
+  min-width: 0;
+}
+.app-page > .panel,
+.app-page > section {
+  margin-bottom: 20px;
+}
+.app-page .advisor {
+  position: static;
+  max-width: 900px;
+}
+#strategy-flow {
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid var(--border, #31433f);
+  border-radius: 10px;
+}
+#strategy-flow nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+#strategy-flow a,
+.primary-link,
+.secondary-link {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 6px;
+  color: inherit;
+}
+#strategy-flow a.active,
+.primary-link {
+  background: #143d34;
+  color: #c7f8e9;
+}
+#strategy-context {
+  overflow-wrap: anywhere;
+  margin-top: 0;
+}
+#strategy-history {
+  display: grid;
+  gap: 10px;
+}
+#strategy-history button {
+  text-align: left;
+  white-space: normal;
+}
+#strategy-continue {
+  margin-top: 16px;
+}
+.app-page #research-results article,
+#strategy-improvement article {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid #31433f;
+  border-radius: 8px;
+}
+#strategy-improvement details {
+  margin: 16px 0;
+}
+#strategy-improvement table {
+  width: 100%;
+  margin: 18px 0;
+}
+#strategy-improvement td {
+  padding: 8px;
+  border-bottom: 1px solid #bccdc7;
+  overflow-wrap: anywhere;
+}
+#strategy-improvement label {
+  display: block;
+  margin: 16px 0;
+}
+#strategy-improvement button {
+  margin: 8px 12px 8px 0;
+}
+
+[data-session-results] {
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+[data-session-results] table {
+  width: 100%;
 }

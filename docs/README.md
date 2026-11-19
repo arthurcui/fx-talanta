@@ -3,6 +3,9 @@
 Start with the product [README](../README.md). For the current implementation and
 its limits, read [status](product/status.md) before using a historical milestone note.
 
+- [Candidate research workflow](engineering/candidate-research.md): AI proposals, reviewed rules, historical registration and replay.
+- [Trading research assessment](product/trading-research-assessment.md): strategy/risk compatibility, measured session conditions, the shelved EUR/USD fixing idea and USD/JPY data requirements before further coding.
+
 ## Understand the system
 
 - [AI-led trading lifecycle](architecture/trading-lifecycle.md): current system diagram,

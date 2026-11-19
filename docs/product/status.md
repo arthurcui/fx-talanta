@@ -1,6 +1,35 @@
 # Current product status
 
-## R0-R6 delivery direction (November 14, 2026)
+## Market-setup roadmap revision (November 18, 2026)
+
+The [R0–R6 roadmap](roadmap.md) now starts research with market context, a known
+price level, an ordered pullback/retest, confirmation and invalidation. Preserve
+R0; the immediate gap is one auditable EUR/USD trend-pullback workflow and its
+compatibility with unchanged risk. Current kernels implement EMA recross and range
+breakout, not structural support/retest recognition. Setup timelines/charts and
+lifecycle admission sizing are **planned, not shipped**. USD/JPY follows as a
+separate study; the product scope remains forex, with no gold expansion.
+
+Engineering progress, observable setup validity, economic evidence and operational
+readiness remain separate. A rejected study can be completed without qualifying
+a strategy. This documentation revision starts no market study or campaign and changes no
+trading authority or runtime UI. PR #65 remains unmerged; trading stays disabled.
+
+## Trading assessment priority (November 18, 2026)
+
+The [trading research assessment](trading-research-assessment.md) is complete as
+an evidence review and design decision, not a profitability or implementation
+claim. It retains all limits and resolves the intended strategy/risk design by
+requiring smaller entries with headroom for current-to-stop exposure through the
+planned exit. That additional sizing check is not implemented. The subsequent
+75-weekday market analysis shelves EUR/USD post-fix research: 63 eligible endpoint
+pairs averaged −0.921 pips after source spread, before other costs; its uncertainty
+interval spans zero. USD/JPY post-policy research remains data-gated. This is
+exposed-training analysis, not a strategy backtest or current market view. No new replay,
+campaign or trading authority was created; PR #65 remains unmerged. This priority
+precedes further application features and the historical milestone sections below.
+
+## Existing R0-R6 integration (begun November 14, 2026)
 
 The [revised roadmap](roadmap.md) organizes delivery around strategy design,
 backtesting, demo, capped live and controlled AI improvement, with UI acceptance
@@ -8,9 +37,7 @@ at every milestone. M0-M7 remain historical component/gate identifiers.
 PR #63 is merged, including the restart-overrun fix; fixture dispatch remains offline.
 R0 and Strategy + Research have started: the local UI now stores immutable descriptive
 candidate revisions, freezes exact content for research and exports selected records.
-It shows lifecycle status and unresolved qualification. **AI strategy generation,
-executable rule mapping and candidate-bound backtest execution are not connected to
-this workspace yet.** R1/R2 are not complete. Current work grants no trading authority.
+It shows lifecycle status and unresolved qualification. The [candidate research workflow](../engineering/candidate-research.md) adds bounded AI proposals, reviewed parameter mappings, registered single-symbol historical replay, result inspection and export. **Full R1/R2 qualification remains open:** joint portfolio evaluation, larger studies, independent holdouts and qualified costs/inputs are not supplied by this integration. Current work grants no trading authority.
 See the [scope and gap register](../engineering/r0-strategy-research.md).
 
 Research baseline: merged PR #34 (`93fb4c5`, November 5, 2026). M3's completed

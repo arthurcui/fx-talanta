@@ -54,7 +54,7 @@ jobs:
         working-directory: tools/dashboard-tests
         run: |
           npm ci
-          npx prettier --check ../../src/fx_talanta/dashboard/static/* *.js package.json
+          npx prettier --check "../../src/fx_talanta/dashboard/static/*.{html,css,js,json}" "*.js" package.json
           npx playwright install --with-deps chromium --only-shell
           cd ../..
           python -m tools.qualification.m5_acceptance --output .local/m5-acceptance.json
@@ -67,7 +67,7 @@ jobs:
       - name: Verify packaged dashboard assets
         run: |
           python -m pip wheel --no-deps . --wheel-dir .local/wheels
-          python -c "import pathlib,zipfile; p=next(pathlib.Path('.local/wheels').glob('fx_talanta-*.whl')); names=zipfile.ZipFile(p).namelist(); assert all('fx_talanta/dashboard/static/'+n in names for n in ('index.html','app.js','style.css'))"
+          python -c "import pathlib,zipfile; p=next(pathlib.Path('.local/wheels').glob('fx_talanta-*.whl')); names=zipfile.ZipFile(p).namelist(); assert all('fx_talanta/dashboard/static/'+n in names for n in ('index.html','app.js','pages.js','language.js','market-sessions.js','improvement.js','style.css'))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

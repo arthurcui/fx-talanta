@@ -3,39 +3,57 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>FX-Talanta · Observatory</title>
+    <title>FX-Talanta</title>
     <link rel="stylesheet" href="/style.css" />
+    <script src="/pages.js" defer></script>
+    <script src="/market-sessions.js" defer></script>
     <script src="/app.js" defer></script>
+    <script src="/improvement.js" defer></script>
+    <script src="/language.js" defer></script>
   </head>
   <body>
-    <a href="#workspace" class="skip">Skip to workspace</a>
+    <a href="#workspace" class="skip">Skip to content</a>
     <aside class="sidebar">
       <a class="brand" href="#workspace"
-        ><span class="mark">F<span>×</span></span
-        ><span>FX-Talanta<small>OPERATING WORKSPACE</small></span></a
+        ><img
+          class="mark"
+          src="/brand-emblem.png"
+          alt=""
+          width="52"
+          height="52"
+        /><span>FX-Talanta<small>STRATEGY & RESEARCH</small></span></a
       >
-      <div class="nav-label">OBSERVATORY</div>
-      <nav aria-label="Workspace">
-        <a href="#workspace" class="active">◈ &nbsp; Overview</a
-        ><a href="#strategy-workspace">Strategies & research</a
-        ><a href="#channels">≋ &nbsp; Data channels</a
-        ><a href="#journal">▤ &nbsp; Evidence journal</a
-        ><a href="#incidents">! &nbsp; Incidents</a
-        ><a href="#calendar">▦ &nbsp; Calendar & news</a
-        ><a href="#advisor">◇ &nbsp; Advisor</a>
+      <nav aria-label="Main navigation">
+        <a href="/overview">Overview</a>
+        <a href="/strategies">Strategies</a>
+        <a href="/market">Market &amp; Data</a>
+        <a href="/advisor">Advisor</a>
+        <a href="/activity">Activity</a>
       </nav>
       <div class="sidebar-bottom">
-        <span class="dot"></span> READ-ONLY WORKSPACE
+        <span class="dot"></span> TRADING DISABLED
         <p>No order controls.<br />No broker connections.</p>
         <span class="version">M5 / Inspection surface</span>
       </div>
     </aside>
     <div class="shell">
       <header class="topbar">
-        <span
-          >Workspace <span class="slash">/</span>
-          <strong>Observatory</strong></span
-        ><span class="pill locked">Trading disabled</span>
+        <strong id="page-breadcrumb">Overview</strong>
+        <span class="pill locked">Trading disabled</span>
+        <div
+          id="ui-language"
+          class="language-switch"
+          role="group"
+          aria-label="Interface language"
+        >
+          <button type="button" data-language="en" aria-pressed="true">
+            English
+          </button>
+          <span aria-hidden="true">|</span>
+          <button type="button" data-language="zh" aria-pressed="false">
+            中文
+          </button>
+        </div>
       </header>
       <main id="workspace">
         <div class="heading">
@@ -43,12 +61,15 @@
             <div class="eyebrow">
               SEE THE EVIDENCE. UNDERSTAND THE DECISION.
             </div>
-            <h1>Market observatory</h1>
+            <h1>Overview</h1>
             <p class="subtitle">
               A clear view of inputs, decisions and the reasons to wait.
             </p>
           </div>
           <div class="workspace-actions">
+            <button id="logout-all" class="secondary" hidden>
+              Sign out all sessions
+            </button>
             <button id="logout" class="secondary" hidden>Sign out</button>
             <button id="refresh" class="secondary">Refresh snapshot</button
             ><button id="export" class="secondary">
@@ -57,7 +78,7 @@
           </div>
         </div>
         <section id="login" class="panel" hidden>
-          <h2>Sign in to your workspace</h2>
+          <h2 id="login-title">Sign in</h2>
           <p id="login-help">Checking access mode�</p>
           <form id="login-form" hidden>
             <label for="username">Username</label
@@ -65,9 +86,9 @@
               id="username"
               autocomplete="username"
               required
-              maxlength="64"
+              maxlength="128"
             />
-            <label for="password">Passphrase</label
+            <label for="password">Password</label
             ><input
               id="password"
               type="password"
@@ -75,7 +96,17 @@
               required
               maxlength="256"
             />
-            <button>Sign in</button>
+            <label id="password-confirm-label" for="password-confirm" hidden
+              >Repeat password</label
+            >
+            <input
+              id="password-confirm"
+              type="password"
+              autocomplete="new-password"
+              maxlength="256"
+              hidden
+            />
+            <button id="login-submit">Sign in</button>
           </form>
         </section>
         <div id="notice" role="status" aria-live="polite">
@@ -95,157 +126,373 @@
             <ul id="lifecycle-gaps"></ul>
           </section>
           <section class="panel" id="strategy-workspace">
-            <h2>Strategy & research workspace</h2>
+            <h2>Strategies</h2>
             <p>
-              Save a descriptive candidate and freeze its content for research.
-              No AI generation or executable backtest is connected here yet.
-              Proposed percentage limits are not an approved trading mandate.
+              Start with a research brief, review an AI proposal, then save and
+              freeze a candidate before backtesting. Nothing here authorizes
+              trading.
             </p>
-            <button id="strategy-new" class="secondary" type="button">
-              New candidate
-            </button>
-            <p id="strategy-selection">New candidate · EUR/USD + USD/JPY</p>
-            <form id="strategy-form" class="strategy-form">
+            <section id="proposal-workflow" class="workflow-step">
+              <h3>1. Describe your research and generate a proposal</h3>
+              <p>
+                No candidate fields are required to generate a proposal.
+                Describe your goals and constraints in English or Chinese.
+              </p>
               <label
-                >Name<input
-                  id="strategy-name"
-                  required
-                  minlength="3"
-                  maxlength="100"
-              /></label>
-              <label
-                >Hypothesis<textarea
-                  id="strategy-hypothesis"
-                  required
-                  minlength="10"
-                  maxlength="4000"
+                >Research brief<textarea
+                  id="research-brief"
+                  maxlength="2000"
                 ></textarea>
               </label>
+              <button type="button" id="research-generate">
+                Generate AI proposal
+              </button>
+              <p id="research-provider-status"></p>
+              <p id="proposal-message" role="status"></p>
+              <div id="proposal-results"></div>
+              <details>
+                <summary>Optional: translate your input</summary>
+                <section id="translation-panel">
+                  <h3>Translate input (preview only)</h3>
+                  <p>
+                    English and Chinese inputs are accepted directly.
+                    Translation uses the AI provider; nothing is saved or
+                    applied automatically. Provider retention policies may
+                    apply.
+                  </p>
+                  <label
+                    >Text to translate<textarea
+                      id="translation-input"
+                      maxlength="4000"
+                      autocomplete="off"
+                    ></textarea>
+                  </label>
+                  <label
+                    >Target language<select id="translation-target">
+                      <option value="en">English</option>
+                      <option value="zh">中文</option>
+                    </select></label
+                  >
+                  <button id="translate-input" type="button">Translate</button>
+                  <button id="translation-clear" type="button">
+                    Clear translation
+                  </button>
+                  <p id="translation-status" role="status"></p>
+                  <label
+                    >Translation preview<textarea
+                      id="translation-output"
+                      readonly
+                      autocomplete="off"
+                    ></textarea>
+                  </label>
+                </section>
+              </details>
+            </section>
+            <section id="candidate-review" class="workflow-step">
+              <h3>2. Review, save and freeze your candidate</h3>
+              <p>
+                Choose Review proposal in form above to populate these fields.
+                Edit and save your candidate, then freeze the version you want
+                to backtest. Or start manually without AI.
+              </p>
+              <button id="strategy-new" class="secondary" type="button">
+                Start a manual candidate
+              </button>
+              <p id="strategy-selection">New candidate · EUR/USD + USD/JPY</p>
+              <form id="strategy-form" class="strategy-form">
+                <label
+                  >Name<input
+                    id="strategy-name"
+                    required
+                    minlength="3"
+                    maxlength="100"
+                /></label>
+                <label
+                  >Hypothesis<textarea
+                    id="strategy-hypothesis"
+                    required
+                    minlength="10"
+                    maxlength="4000"
+                  ></textarea>
+                </label>
+                <label
+                  >Inputs, sessions and calendar/news policy<textarea
+                    id="strategy-input_policy"
+                    required
+                    minlength="10"
+                    maxlength="4000"
+                  ></textarea>
+                </label>
+                <label
+                  >Entry signals and HOLD conditions<textarea
+                    id="strategy-entry_rules"
+                    required
+                    minlength="10"
+                    maxlength="4000"
+                  ></textarea>
+                </label>
+                <label
+                  >Exit and protection rules<textarea
+                    id="strategy-exit_rules"
+                    required
+                    minlength="10"
+                    maxlength="4000"
+                  ></textarea>
+                </label>
+                <label
+                  >Portfolio and combined USD exposure policy<textarea
+                    id="strategy-portfolio_policy"
+                    required
+                    minlength="10"
+                    maxlength="4000"
+                  ></textarea>
+                </label>
+                <label
+                  >Evaluation plan: costs, windows, benchmarks and rejection
+                  criteria<textarea
+                    id="strategy-evaluation_plan"
+                    required
+                    minlength="10"
+                    maxlength="4000"
+                  ></textarea>
+                </label>
+                <label
+                  >Proposed risk per trade (%)<input
+                    id="strategy-risk_per_trade_pct"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    max="100"
+                    required
+                /></label>
+                <label
+                  >Proposed total open risk (%)<input
+                    id="strategy-total_open_risk_pct"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    max="100"
+                    required
+                /></label>
+                <label
+                  >Proposed daily loss limit (%)<input
+                    id="strategy-daily_loss_limit_pct"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    max="100"
+                    required
+                /></label>
+                <label
+                  >Declared authorship<select id="strategy-authorship">
+                    <option value="USER">User draft</option>
+                    <option value="AI_IMPORTED">
+                      Imported AI proposal (unverified)
+                    </option>
+                  </select></label
+                >
+                <label
+                  >Provenance: author or model, prompt and evidence
+                  references<textarea
+                    id="strategy-provenance"
+                    required
+                    minlength="10"
+                    maxlength="4000"
+                  ></textarea>
+                </label>
+                <button id="strategy-save">Save new revision</button>
+              </form>
+              <div class="workspace-actions">
+                <button id="strategy-freeze" type="button" disabled>
+                  Freeze saved revision
+                </button>
+                <button
+                  id="strategy-export"
+                  class="secondary"
+                  type="button"
+                  disabled
+                >
+                  Export selected revision
+                </button>
+              </div>
+              <p id="strategy-message" role="status"></p>
+              <h3>Saved versions</h3>
+              <p>
+                Latest 100 revisions. Select a version to inspect its exact
+                specification.
+              </p>
+              <div id="strategy-history"></div>
+              <h3>Research readiness</h3>
+              <p id="strategy-research-status">
+                Not evaluated. Freezing does not qualify a strategy.
+              </p>
+              <ul>
+                <li>
+                  Reviewed executable mapping: required for each registration
+                </li>
+                <li>
+                  Candidate-bound historical dataset: upload and register below
+                </li>
+                <li>
+                  Frozen cost profile and development/holdout windows: not
+                  registered
+                </li>
+                <li>Backtest results below; promotion remains unavailable</li>
+              </ul>
+            </section>
+            <section id="research-workflow" class="workflow-step">
+              <h3>3. Register historical inputs and run a backtest</h3>
+              <p>
+                Research only. Review parameter mappings explicitly; prose is
+                not executable code. Each run is a standalone symbol study, not
+                combined portfolio validation.
+              </p>
               <label
-                >Inputs, sessions and calendar/news policy<textarea
-                  id="strategy-input_policy"
-                  required
-                  minlength="10"
-                  maxlength="4000"
-                ></textarea>
-              </label>
-              <label
-                >Entry signals and HOLD conditions<textarea
-                  id="strategy-entry_rules"
-                  required
-                  minlength="10"
-                  maxlength="4000"
-                ></textarea>
-              </label>
-              <label
-                >Exit and protection rules<textarea
-                  id="strategy-exit_rules"
-                  required
-                  minlength="10"
-                  maxlength="4000"
-                ></textarea>
-              </label>
-              <label
-                >Portfolio and combined USD exposure policy<textarea
-                  id="strategy-portfolio_policy"
-                  required
-                  minlength="10"
-                  maxlength="4000"
-                ></textarea>
-              </label>
-              <label
-                >Evaluation plan: costs, windows, benchmarks and rejection
-                criteria<textarea
-                  id="strategy-evaluation_plan"
-                  required
-                  minlength="10"
-                  maxlength="4000"
-                ></textarea>
-              </label>
-              <label
-                >Proposed risk per trade (%)<input
-                  id="strategy-risk_per_trade_pct"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  max="100"
-                  required
-              /></label>
-              <label
-                >Proposed total open risk (%)<input
-                  id="strategy-total_open_risk_pct"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  max="100"
-                  required
-              /></label>
-              <label
-                >Proposed daily loss limit (%)<input
-                  id="strategy-daily_loss_limit_pct"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  max="100"
-                  required
-              /></label>
-              <label
-                >Declared authorship<select id="strategy-authorship">
-                  <option value="USER">User draft</option>
-                  <option value="AI_IMPORTED">
-                    Imported AI proposal (unverified)
-                  </option>
+                >Frozen candidate for this backtest<select
+                  id="research-candidate"
+                >
+                  <option value="">Select a frozen candidate</option>
                 </select></label
               >
               <label
-                >Provenance: author or model, prompt and evidence
-                references<textarea
-                  id="strategy-provenance"
-                  required
-                  minlength="10"
-                  maxlength="4000"
+                >Saved AI proposal rules<select id="research-rule-proposal">
+                  <option value="">Select a saved proposal</option>
+                </select></label
+              >
+              <button id="research-load-rules" type="button">
+                Load proposal rules for review
+              </button>
+              <p>
+                Loading rules keeps your selected candidate unchanged. Review
+                the mapping again before registering.
+              </p>
+              <label
+                >Reviewed executable rules (JSON)<textarea
+                  id="research-rules"
+                  rows="10"
                 ></textarea>
               </label>
-              <button id="strategy-save">Save new revision</button>
-            </form>
-            <div class="workspace-actions">
-              <button id="strategy-freeze" type="button" disabled>
-                Freeze saved revision
-              </button>
-              <button
-                id="strategy-export"
-                class="secondary"
-                type="button"
-                disabled
+              <details id="research-session-settings">
+                <summary>Session-aware rules</summary>
+                <p>
+                  Choose the trading session and the range used for breakout
+                  research. Apply these settings to the JSON, then review the
+                  mapping again. Existing results are unchanged.
+                </p>
+                <label
+                  >Entry session<select id="research-entry-session">
+                    <option value="UTC_WINDOW">UTC window only (legacy)</option>
+                    <option value="TOKYO">Tokyo</option>
+                    <option value="LONDON">London</option>
+                    <option value="NEW_YORK">New York</option>
+                    <option value="LONDON_NEW_YORK_OVERLAP">
+                      London–New York overlap
+                    </option>
+                  </select></label
+                >
+                <label
+                  >Breakout reference<select id="research-reference-window">
+                    <option value="ROLLING">Previous N completed bars</option>
+                    <option value="CURRENT_SESSION">
+                      Current named session range
+                    </option>
+                    <option value="PREVIOUS_COMPLETED_TOKYO">
+                      Latest completed Tokyo range
+                    </option>
+                  </select></label
+                >
+                <p>
+                  Tokyo 09–18 local; London and New York 08–17 local, with
+                  daylight-saving handling. The UTC window remains an additional
+                  cap. Session ranges use all complete reference bars, not
+                  signal_period. Missing or incomplete ranges block signals.
+                  These are research conventions, not holiday calendars.
+                </p>
+                <button type="button" id="research-session-apply">
+                  Apply session settings to rules
+                </button>
+              </details>
+              <p>
+                Supported: H1 EMA trend with M15 breakout or EMA pullback,
+                simple ATR stop, reward/risk target, time exit and UTC weekday
+                session. Calendar veto uses historical market health; arbitrary
+                news rules and combined-pair portfolio backtests are not
+                implemented.
+              </p>
+              <label
+                >Tested symbol<select id="research-symbol">
+                  <option value="EURUSD">EUR/USD</option>
+                  <option value="USDJPY">USD/JPY</option>
+                </select></label
               >
-                Export selected revision
+              <p>
+                One pair per study. Select the pair matching the strategy you
+                intend to test.
+              </p>
+              <label
+                >Historical dataset<select id="research-dataset">
+                  <option value="">Select an available dataset</option>
+                </select></label
+              >
+              <p id="research-dataset-status" role="status"></p>
+              <div id="research-dataset-details"></div>
+              <p>
+                Windows and cost assumptions are fixed for each dataset.
+                Registration caps risk at the lower of the dataset policy and
+                your frozen candidate limits.
+              </p>
+              <details id="research-advanced">
+                <summary>Advanced: import a research bundle</summary>
+                <label
+                  ><input id="research-use-upload" type="checkbox" />Use an
+                  uploaded bundle instead of the selected dataset</label
+                >
+                <label
+                  >Historical research bundle (dataset + experiment + acceptance
+                  criteria)<input
+                    id="research-file"
+                    type="file"
+                    accept="application/json,.json"
+                /></label>
+              </details>
+              <label
+                ><input id="research-reviewed" type="checkbox" />I reviewed
+                these executable rules against the selected frozen candidate;
+                any differences are explicit research assumptions.</label
+              >
+              <p id="research-candidate-status" role="status">
+                Choose a strategy, then save and freeze a version on Review.
+              </p>
+              <button type="button" id="research-register">
+                Register selected frozen candidate
               </button>
-            </div>
-            <p id="strategy-message" role="status"></p>
-            <h3>Saved versions</h3>
-            <p>
-              Latest 100 revisions. Select a version to inspect its exact
-              specification.
-            </p>
-            <div id="strategy-history"></div>
-            <h3>Research readiness</h3>
-            <p id="strategy-research-status">
-              Not evaluated. Freezing does not qualify a strategy.
-            </p>
-            <ul>
-              <li>Reviewed executable rule mapping: not connected</li>
-              <li>
-                Candidate-bound dataset and availability audit: not registered
-              </li>
-              <li>
-                Frozen cost profile and development/holdout windows: not
-                registered
-              </li>
-              <li>Backtest result and promotion verdict: unavailable</li>
-            </ul>
-            <button type="button" disabled>
-              Run candidate backtest — integration pending
-            </button>
+              <p
+                id="research-message"
+                role="status"
+                aria-live="polite"
+                tabindex="-1"
+              ></p>
+              <label
+                >Registered experiment<select
+                  id="research-registration"
+                ></select
+              ></label>
+              <label
+                >Window<select id="research-partition">
+                  <option>training</option>
+                  <option>validation</option>
+                  <option>holdout</option>
+                </select></label
+              >
+              <button type="button" id="research-run">
+                Run registered backtest
+              </button>
+              <button type="button" id="research-refresh">
+                Refresh research evidence
+              </button>
+
+              <div id="research-results"></div>
+            </section>
           </section>
           <section class="source-banner">
             <span class="pill" id="source">—</span>
@@ -255,7 +502,7 @@
             </div>
             <span class="source-note">Recorded inputs · never live</span>
           </section>
-          <section class="metrics" aria-label="Workspace summary">
+          <section class="metrics" aria-label="Trading summary">
             <article>
               <span class="metric-label">EXECUTION AUTHORITY</span
               ><strong class="metric-value teal">Disabled</strong>
@@ -560,7 +807,7 @@
               </div>
               <div id="messages" role="log" aria-live="polite">
                 <article class="answer">
-                  <strong>Welcome to your evidence workspace.</strong>
+                  <strong>How can I help?</strong>
                   <p>
                     Ask about input timing and safety boundaries, or select a
                     journal record. Answers retain their source and cutoff.
@@ -577,7 +824,7 @@
                 Check same explanation request
               </button>
               <form id="chat-form">
-                <label for="question">Ask about this workspace</label
+                <label for="question">Ask about your strategy or evidence</label
                 ><textarea
                   id="question"
                   rows="3"
@@ -599,7 +846,7 @@
             </aside>
           </div>
           <footer>
-            FX-Talanta <span>Evidence first. Authority bounded.</span
+            <span>Evidence first. Authority bounded.</span
             ><span id="updated"></span>
           </footer>
         </div>

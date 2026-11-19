@@ -14,16 +14,17 @@ Percentage = Annotated[Amount, Field(gt=0, le=100)]
 
 MILESTONES = (
     ("R0", "Foundation overview", "IN_PROGRESS"),
-    ("R1", "AI Strategy V1", "DESCRIPTIVE_WORKSPACE_STARTED"),
-    ("R2", "Historical validation", "EXISTING_ENGINE_NOT_BOUND_TO_CANDIDATES"),
+    ("R1", "AI Strategy V1", "PROPOSAL_AND_REVIEW_WORKFLOW"),
+    ("R2", "Historical validation", "BOUNDED_CANDIDATE_REPLAY"),
     ("R3", "Paper readiness", "BLOCKED_BY_QUALIFICATION"),
     ("R4", "Prospective demo", "NOT_AUTHORIZED"),
     ("R5", "Capped live", "NOT_AUTHORIZED"),
     ("R6", "AI improvement", "NOT_IMPLEMENTED"),
 )
 GAPS = (
-    "R1: AI generation and reviewed executable rule mapping are not connected here.",
-    "R2: Candidate-bound datasets, preregistration, replay and verdict UI remain unfinished.",
+    "R1: AI proposals require owner review; only supported parameter mappings execute.",
+    "R2: Bounded symbol replay is integrated; joint portfolio and independent holdout "
+    "qualification remain open.",
     "R3: M1 broker/calendar/news qualification and M2 connected fault matrix remain open.",
     "R2/R3: M3 historical cost/availability gaps remain; B01 is REJECT_FOR_PROMOTION.",
     "R4/R5: No campaign or trading authority; unattended acceptance remains unqualified.",

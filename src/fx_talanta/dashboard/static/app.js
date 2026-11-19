@@ -1,9 +1,10 @@
 "use strict";
 let bootstrap = new URLSearchParams(location.hash.slice(1)).get("token") || "";
 let authenticated = false,
+  accessMode = "",
   csrf = "",
   sessionEpoch = 0;
-history.replaceState(null, "", location.pathname);
+history.replaceState(null, "", location.pathname + location.search);
 let lastIncident = null,
   retryExplanation = null;
 let snapshot = null,
@@ -38,16 +39,49 @@ async function api(path, options = {}) {
     headers: { "X-FX-CSRF": csrf, ...options.headers },
     credentials: "same-origin",
     cache: "no-store",
-    signal: AbortSignal.timeout(path === "/api/explain" ? 25000 : 8000),
+    signal: AbortSignal.timeout(
+      path === "/api/explain" || path.startsWith("/api/research/")
+        ? 60000
+        : 8000,
+    ),
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (_) {
+    throw new Error(
+      "The server returned an empty or unreadable response. Check retained evidence before submitting again.",
+    );
+  }
   if (epoch !== sessionEpoch) throw new Error("Session changed");
   if (
     response.status === 403 &&
     !path.startsWith("/api/operator/") &&
     path !== "/api/session"
-  )
+  ) {
+    if (accessMode === "LOCAL_WORKSPACE") {
+      // A restarted local server rotates CSRF. Never clear drafts or replay a mutation.
+      try {
+        const session = await api("/api/session");
+        if (!session.authenticated || session.mode !== "LOCAL_WORKSPACE")
+          throw new Error("Access mode changed");
+        csrf = session.csrf || "";
+        $("login").hidden = true;
+        notice(
+          "Local connection refreshed. Your inputs are preserved; the rejected action was not resent.",
+        );
+      } catch (_) {
+        notice(
+          "Local service unavailable or access mode changed. Your inputs are preserved; reload after checking the service.",
+        );
+        throw new Error("Local connection unavailable; no action was resent");
+      }
+      throw new Error(
+        "Local connection refreshed. The rejected action was not resent; review your inputs and submit again",
+      );
+    }
     signedOut();
+  }
   if (!response.ok) throw new Error(data.error || "Inspection unavailable");
   return data;
 }
@@ -465,6 +499,12 @@ $("kind").addEventListener("change", renderRecords);
 $("evidence-search").addEventListener("input", renderRecords);
 $("refresh").addEventListener("click", refresh);
 function signedOut() {
+  try {
+    for (const key of Object.keys(sessionStorage))
+      if (key.startsWith("fx-flow-")) sessionStorage.removeItem(key);
+  } catch (_) {
+    /* Optional tab storage. */
+  }
   clearStrategy();
   $("strategy-history").replaceChildren();
   $("lifecycle-milestones").replaceChildren();
@@ -478,6 +518,7 @@ function signedOut() {
   $("dashboard").hidden = true;
   $("login").hidden = false;
   $("logout").hidden = true;
+  $("logout-all").hidden = true;
   $("operator-token").value = "";
   $("password").value = "";
   $("messages").replaceChildren();
@@ -498,23 +539,54 @@ async function openSession(data) {
           }
         : {},
     );
-    $("login-form").hidden = result.mode !== "OWNER";
+    accessMode = result.mode;
+    const local = ["LOCAL_OWNER", "LOCAL_SETUP"].includes(result.mode);
+    const setup = result.mode === "LOCAL_SETUP";
+    $("login-form").hidden = !local && result.mode !== "OWNER";
+    $("login-title").textContent =
+      result.mode === "LOCAL_WORKSPACE"
+        ? "Local connection"
+        : setup
+          ? "Set up your workspace"
+          : "Sign in";
+    $("login-submit").textContent = setup ? "Create account" : "Sign in";
+    $("password").minLength = setup ? 16 : 1;
+    $("password").autocomplete = setup ? "new-password" : "current-password";
+    $("password-confirm-label").hidden = !setup;
+    $("password-confirm").hidden = !setup;
+    $("password-confirm").required = setup;
+    $("logout-all").hidden = !(local && result.authenticated);
     $("login-help").textContent =
-      result.mode === "OWNER"
-        ? "Use your configured owner credentials. Trading remains disabled."
-        : "Open your private dashboard launch shortcut. No token needs to be pasted here.";
+      result.mode === "LOCAL_WORKSPACE"
+        ? "No account or launch shortcut is required. Reload to reconnect to the local service."
+        : setup
+          ? "Choose a username (email-style names are allowed; no spaces) and a password of at least 16 characters. This account is only for this local workspace."
+          : local
+            ? "Sign in normally. Sessions last up to 30 days, with a 7-day inactivity limit. You can revoke all sessions. Trading remains disabled."
+            : result.mode === "OWNER"
+              ? "Use your configured owner credentials. Trading remains disabled."
+              : "Open your private dashboard launch shortcut. No token needs to be pasted here.";
     authenticated = result.authenticated;
     csrf = result.csrf || "";
-    $("logout").hidden = !authenticated;
+    $("logout").hidden = !authenticated || result.mode === "LOCAL_WORKSPACE";
     await refresh();
   } catch (e) {
+    if (data && "bootstrap" in data) return openSession(null);
     notice(e.message);
-    $("login").hidden = false;
+    $("login").hidden = accessMode === "LOCAL_WORKSPACE";
   }
 }
 $("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (
+    !$("password-confirm").hidden &&
+    $("password-confirm").value !== $("password").value
+  ) {
+    notice("Passwords do not match.");
+    return;
+  }
   const data = { username: $("username").value, password: $("password").value };
+  $("password-confirm").value = "";
   $("password").value = "";
   await openSession(data);
 });
@@ -522,6 +594,7 @@ $("logout").addEventListener("click", async () => {
   try {
     await api("/api/session/logout", { method: "POST" });
     signedOut();
+    await openSession(null);
   } catch (e) {
     notice("Sign-out could not be confirmed: " + e.message);
   }
@@ -815,7 +888,7 @@ window.addEventListener("hashchange", () => {
   const supplied = new URLSearchParams(location.hash.slice(1)).get("token");
   if (!supplied) return;
   sessionEpoch++;
-  history.replaceState(null, "", location.pathname);
+  history.replaceState(null, "", location.pathname + location.search);
   historyLoaded = false;
   openSession({ bootstrap: supplied });
 });
@@ -972,6 +1045,77 @@ const strategyFields = [
   "authorship",
   "provenance",
 ];
+let frozenCandidates = [];
+function rememberCandidate(sha) {
+  try {
+    if (sha) sessionStorage.setItem("fx-research-candidate", sha);
+    else sessionStorage.removeItem("fx-research-candidate");
+  } catch (_) {
+    /* Storage may be disabled. Selection still works for this page. */
+  }
+}
+function rememberedCandidate() {
+  try {
+    return (
+      new URLSearchParams(location.search).get("candidate") ||
+      sessionStorage.getItem("fx-research-candidate") ||
+      ""
+    );
+  } catch (_) {
+    return "";
+  }
+}
+let researchContext = {};
+let restoredDraft = false;
+function updateStrategyURL(sha) {
+  const url = new URL(location.href);
+  if (sha) url.searchParams.set("candidate", sha);
+  else url.searchParams.delete("candidate");
+  history.replaceState(null, "", url.pathname + url.search);
+}
+function readResearchContext(sha) {
+  try {
+    return JSON.parse(
+      sessionStorage.getItem("fx-flow-" + (sha || "draft")) || "{}",
+    );
+  } catch (_) {
+    return {};
+  }
+}
+function saveResearchContext(registration) {
+  researchContext = {
+    ...researchContext,
+    draft: strategySpec(),
+    brief: $("research-brief").value,
+    rules: $("research-rules").value,
+    symbol: $("research-symbol").value,
+    dataset: $("research-dataset").value,
+    proposal: $("research-rule-proposal").value,
+    partition: $("research-partition").value,
+    registration:
+      registration ||
+      $("research-registration").value ||
+      researchContext.registration ||
+      "",
+  };
+  try {
+    sessionStorage.setItem(
+      "fx-flow-" + (selectedStrategy?.sha256 || "draft"),
+      JSON.stringify(researchContext),
+    );
+  } catch (_) {
+    /* Forms remain usable when browser storage is disabled. */
+  }
+}
+function filterResearchResults() {
+  let count = 0;
+  for (const card of $("research-results").children) {
+    card.hidden =
+      !selectedStrategy || card.dataset.candidate !== selectedStrategy.sha256;
+    if (!card.hidden && card.dataset.researchKind === "BACKTEST") count++;
+  }
+  $("results-empty").hidden = count > 0;
+}
 let selectedStrategy = null,
   strategyId = crypto.randomUUID(),
   strategyRetry = null;
@@ -982,7 +1126,24 @@ function strategySpec() {
   ]);
 }
 function clearStrategy() {
+  researchContext = {};
+  restoredDraft = true;
+  try {
+    sessionStorage.removeItem("fx-flow-draft");
+  } catch (_) {
+    /* Optional tab storage. */
+  }
+  $("research-rules").value = "";
+  $("research-registration").value = "";
+  updateStrategyURL(null);
+  $("strategy-continue").disabled = true;
+  $("strategy-context").textContent = "New strategy · not saved";
+  $("research-reviewed").checked = false;
   selectedStrategy = null;
+  rememberCandidate(null);
+  $("research-candidate").value = "";
+  $("research-candidate-status").textContent =
+    "Choose a strategy, then save and freeze a version on Review.";
   strategyId = crypto.randomUUID();
   strategyRetry = null;
   $("strategy-form").reset();
@@ -993,8 +1154,38 @@ function clearStrategy() {
   $("strategy-research-status").textContent =
     "Not evaluated. Freezing does not qualify a strategy.";
 }
-function selectStrategy(record) {
+function selectStrategy(record, carry = false) {
+  if (!carry && selectedStrategy?.sha256 !== record.sha256) {
+    researchContext = readResearchContext(record.sha256);
+    $("research-rules").value = researchContext.rules || "";
+    $("research-registration").value = researchContext.registration || "";
+    $("research-symbol").value = researchContext.symbol || "EURUSD";
+    populateDatasets(researchContext.dataset || "");
+    const matchingProposal = researchProposals.find((p) =>
+      record.specification.provenance.includes(p.id),
+    );
+    $("research-rule-proposal").value =
+      researchContext.proposal ||
+      matchingProposal?.id ||
+      (researchProposals.length === 1 ? researchProposals[0].id : "");
+    $("research-partition").value = researchContext.partition || "training";
+  }
+  updateStrategyURL(record.sha256);
+  $("strategy-context").textContent =
+    record.specification.name + " · v" + record.version + " · " + record.state;
+  $("strategy-continue").disabled = record.state !== "FROZEN_FOR_RESEARCH";
+  $("research-reviewed").checked = false;
   selectedStrategy = record;
+  rememberCandidate(record.sha256);
+  $("research-candidate").value =
+    record.state === "FROZEN_FOR_RESEARCH" ? record.sha256 : "";
+  $("research-candidate-status").textContent =
+    record.state === "FROZEN_FOR_RESEARCH"
+      ? "Selected frozen candidate: " +
+        record.specification.name +
+        " · version " +
+        record.version
+      : "Save and freeze this version on Review first.";
   strategyId = record.strategy_id;
   strategyRetry = null;
   strategyFields.forEach((k) => {
@@ -1013,13 +1204,54 @@ function selectStrategy(record) {
   $("strategy-research-status").textContent =
     record.state +
     " · Descriptive only; not executable, evaluated or approved for paper.";
+  if (restoredDraft || carry) saveResearchContext();
+  filterResearchResults();
 }
 async function refreshStrategies() {
   try {
+    await refreshResearch();
     const data = await api("/api/strategies");
+    frozenCandidates = data.records.filter(
+      (record) => record.state === "FROZEN_FOR_RESEARCH",
+    );
+    $("research-candidate").replaceChildren(
+      new Option("Select a frozen candidate", ""),
+      ...frozenCandidates.map(
+        (record) =>
+          new Option(
+            record.specification.name +
+              " · v" +
+              record.version +
+              " · " +
+              record.sha256.slice(0, 12),
+            record.sha256,
+          ),
+      ),
+    );
+    const remembered = data.records.find(
+      (record) => record.sha256 === rememberedCandidate(),
+    );
+    if (!selectedStrategy && remembered) selectStrategy(remembered);
+    if (!restoredDraft) {
+      restoredDraft = true;
+      const saved = readResearchContext(selectedStrategy?.sha256);
+      if (saved.draft)
+        strategyFields.forEach((k) => {
+          $("strategy-" + k).value = saved.draft[k] || "";
+        });
+      if (!selectedStrategy) {
+        researchContext = saved;
+        $("research-rules").value = saved.rules || "";
+      }
+      if (saved.brief) $("research-brief").value = saved.brief;
+    }
+    $("research-candidate").value =
+      selectedStrategy?.state === "FROZEN_FOR_RESEARCH"
+        ? selectedStrategy.sha256
+        : "";
     $("lifecycle-status").textContent =
       data.mode +
-      " · Trading disabled · AI generation and candidate backtest integration pending";
+      " · Trading disabled · Research runs do not qualify a strategy";
     $("lifecycle-milestones").replaceChildren(
       ...data.milestones.map((m) =>
         node("p", m.id + " · " + m.title + " · " + m.status),
@@ -1040,6 +1272,7 @@ async function refreshStrategies() {
         b.type = "button";
         b.addEventListener("click", () => {
           selectStrategy(record);
+          window.fxPages.navigate("/strategies/review");
         });
         return b;
       }),
@@ -1076,7 +1309,7 @@ $("strategy-form").addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(strategyRetry.request),
     });
-    selectStrategy(record);
+    selectStrategy(record, true);
     $("strategy-message").textContent =
       "Saved descriptive revision. No model call or trading authority.";
     await refreshStrategies();
@@ -1107,7 +1340,7 @@ $("strategy-freeze").addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sha256: selectedStrategy.sha256 }),
     });
-    selectStrategy(record);
+    selectStrategy(record, true);
     $("strategy-message").textContent =
       "Frozen for research only. Backtest and qualification remain pending.";
     await refreshStrategies();
@@ -1129,3 +1362,898 @@ $("strategy-export").addEventListener("click", () => {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
+
+let researchRequest = null;
+function researchPost(path, data) {
+  return api("/api/research/" + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+async function researchExport(item) {
+  item = await api("/api/research/item/" + item.id);
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify(item, null, 2)], { type: "application/json" }),
+  );
+  const a = node("a");
+  a.href = url;
+  a.download = "research-" + item.id + ".json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+let latestRegistration = null;
+let researchDatasets = [],
+  researchProposals = [];
+class ResearchInputError extends Error {}
+function parseResearchJSON(text, label) {
+  if (!text.trim())
+    throw new ResearchInputError(
+      label +
+        " is empty. Load saved proposal rules or enter reviewed rules first.",
+    );
+  let value;
+  try {
+    value = JSON.parse(text);
+  } catch (_) {
+    throw new ResearchInputError(
+      label + " is not valid JSON. Correct it before registering.",
+    );
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new ResearchInputError(label + " must be a JSON object.");
+  return value;
+}
+function populateDatasets(choice) {
+  const datasets = researchDatasets.filter(
+    (x) => x.symbol === $("research-symbol").value,
+  );
+  $("research-dataset").replaceChildren(
+    new Option("Select an available dataset", ""),
+    ...datasets.map(
+      (x) =>
+        new Option(
+          x.symbol +
+            " · " +
+            x.start.slice(0, 10) +
+            " → " +
+            x.end.slice(0, 10) +
+            " · " +
+            x.name,
+          x.id,
+        ),
+    ),
+  );
+  $("research-dataset").value = datasets.some((x) => x.id === choice)
+    ? choice
+    : "";
+  showDataset();
+}
+$("research-symbol").addEventListener("change", () => {
+  populateDatasets("");
+  $("research-reviewed").checked = false;
+  saveResearchContext();
+});
+function showDataset() {
+  const selected = researchDatasets.find(
+    (x) => x.id === $("research-dataset").value,
+  );
+  $("research-dataset-details").replaceChildren();
+  $("research-dataset-status").textContent = selected
+    ? selected.qualification
+    : researchDatasets.length
+      ? "Select a dataset to inspect its source and assumptions."
+      : "No datasets configured. Advanced import is available.";
+  if (!selected) return;
+  const details = $("research-dataset-details");
+  const hours = (new Date(selected.end) - new Date(selected.start)) / 3600000;
+  $("research-dataset-status").textContent =
+    selected.symbol +
+    " · " +
+    hours.toFixed(1) +
+    " hours total · " +
+    (selected.timeframes || ["H1", "M15"]).join(" / ") +
+    " · " +
+    selected.qualification +
+    (selected.replay_mode
+      ? " · Full ticks, background replay"
+      : " · Short software-check slice");
+  if (selected.warmup_bars)
+    details.append(
+      node(
+        "p",
+        "Pre-start warm-up: " +
+          selected.warmup_bars.H1 +
+          " H1 bars / " +
+          selected.warmup_bars.M15 +
+          " M15 bars",
+      ),
+    );
+  [
+    selected.source,
+    selected.provenance +
+      " · " +
+      selected.bars +
+      " bars · " +
+      selected.events +
+      " events",
+    "Training: " + selected.start + " → " + selected.training_end,
+    "Validation: " + selected.training_end + " → " + selected.validation_end,
+    "Holdout: " + selected.validation_end + " → " + selected.end,
+    selected.calendar_assumptions,
+    selected.exposure_note,
+    "Minimum closed trades: " +
+      selected.minimum_closed_trades +
+      "; maximum drawdown fraction: " +
+      selected.maximum_drawdown_fraction,
+    "Dataset fingerprint: " + selected.id,
+  ].forEach((text) => details.append(node("p", text)));
+  details.append(
+    node(
+      "pre",
+      JSON.stringify(
+        { costs: selected.costs, risk_policy: selected.risk_policy },
+        null,
+        2,
+      ),
+    ),
+  );
+}
+async function refreshResearch() {
+  const data = await api("/api/research");
+  renderAgent(data);
+  researchProposals = data.items.filter((x) => x.kind === "AI_PROPOSAL");
+  const previousProposal = $("research-rule-proposal").value;
+  $("research-rule-proposal").replaceChildren(
+    new Option("Select a saved proposal", ""),
+    ...researchProposals.map(
+      (x) =>
+        new Option(
+          x.payload.proposal.specification.name + " · " + x.id.slice(0, 12),
+          x.id,
+        ),
+    ),
+  );
+  if (researchProposals.some((x) => x.id === previousProposal))
+    $("research-rule-proposal").value = previousProposal;
+  else if (researchProposals.length === 1)
+    $("research-rule-proposal").value = researchProposals[0].id;
+  $("research-load-rules").disabled = !researchProposals.length;
+  researchDatasets = data.datasets || [];
+  populateDatasets($("research-dataset").value);
+  const registeredForCandidate = new Set(
+    data.items
+      .filter(
+        (x) =>
+          x.kind === "REGISTRATION" &&
+          x.payload.candidate_sha256 ===
+            (selectedStrategy?.sha256 || rememberedCandidate()),
+      )
+      .map((x) => x.id),
+  );
+  $("research-runs").replaceChildren(
+    ...(data.runs || [])
+      .filter((r) => registeredForCandidate.has(r.request.registration_id))
+      .map((r) =>
+        node(
+          "p",
+          "Historical replay · " +
+            r.request.partition +
+            " · " +
+            (r.status === "COMPLETED"
+              ? r.outcome.payload?.verdict || r.outcome.status
+              : r.status) +
+            (r.status === "RUNNING"
+              ? " · Processing every tick in the background. You can leave this page and return."
+              : ""),
+        ),
+      ),
+  );
+  $("research-generate").disabled = !data.ai_enabled;
+  $("research-provider-status").textContent = data.ai_enabled
+    ? "OpenAI configured: lifetime ceiling 10 requests; uncertain calls are not resent."
+    : "AI disabled: configure a private research key file on the server.";
+  const choice =
+    latestRegistration ||
+    researchContext.registration ||
+    $("research-registration").value;
+  $("research-registration").replaceChildren(
+    ...data.items
+      .filter(
+        (x) =>
+          x.kind === "REGISTRATION" &&
+          x.payload.candidate_sha256 ===
+            (selectedStrategy?.sha256 || rememberedCandidate()),
+      )
+      .map((x) => {
+        const o = node(
+          "option",
+          x.payload.experiment.name +
+            " · " +
+            x.payload.experiment.symbol +
+            " · " +
+            x.id.slice(0, 12),
+        );
+        o.value = x.id;
+        return o;
+      }),
+  );
+  if ([...$("research-registration").options].some((o) => o.value === choice))
+    $("research-registration").value = choice;
+  latestRegistration = null;
+  $("research-results").replaceChildren(
+    ...data.items
+      .filter((x) => ["BACKTEST", "AI_PROPOSAL", "EXPOSURE"].includes(x.kind))
+      .map((item) => {
+        const box = node("article");
+        box.dataset.researchKind = item.kind;
+        box.dataset.candidate = item.payload.candidate_sha256 || "";
+        box.append(node("h4", item.kind + " · " + item.id.slice(0, 12)));
+        const exportButton = node("button", "Export research evidence");
+        exportButton.onclick = () => researchExport(item);
+        box.append(exportButton);
+        if (item.kind === "AI_PROPOSAL") {
+          const load = node("button", "Review proposal in form");
+          load.onclick = () => {
+            clearStrategy();
+            const p = item.payload.proposal;
+            strategyFields.forEach(
+              (k) => ($("strategy-" + k).value = p.specification[k]),
+            );
+            $("strategy-provenance").value =
+              "Verified provider receipt " +
+              item.id +
+              "; " +
+              p.specification.provenance;
+            $("research-rules").value = JSON.stringify(p.rules, null, 2);
+            researchContext.proposal = item.id;
+            $("research-rule-proposal").value = item.id;
+            saveResearchContext();
+            window.fxPages.navigate("/strategies/review");
+            $("strategy-name").focus({ preventScroll: true });
+            $("research-message").textContent =
+              "Proposal loaded; review, save and freeze before registering a study.";
+          };
+          box.append(load);
+        }
+        if (item.kind === "BACKTEST") {
+          if (item.payload.partition === "training") {
+            const improve = node("button", "Diagnose and improve");
+            improve.onclick = () => window.fxImprovement.open(item.id);
+            box.append(improve);
+          }
+          const p = item.payload,
+            r = p.result;
+          const d = r.diagnostics;
+          const sessionReport =
+            r.session_results ||
+            data.items.find(
+              (x) =>
+                x.kind === "SESSION_ANALYSIS" &&
+                x.payload.baseline_id === item.id,
+            )?.payload.sessions;
+          if (sessionReport)
+            box.append(window.fxSessions.render(sessionReport));
+          if (r.integrity_halt) {
+            box.append(node("h4", "Risk halt — strategy requires revision"));
+            box.append(
+              node(
+                "p",
+                r.risk_halt
+                  ? r.risk_halt.at +
+                      " · " +
+                      r.risk_halt.reason +
+                      " · " +
+                      JSON.stringify(r.risk_halt.limits)
+                  : "Integrity halt recorded; exact cause requires investigation.",
+              ),
+            );
+            box.append(
+              node(
+                "p",
+                "Risk limits were preserved. Entries stayed blocked after the halt; this is not a successful validation.",
+              ),
+            );
+          }
+          if (d) {
+            box.append(node("h3", "Tested symbol: " + d.symbol));
+            box.append(
+              node(
+                "p",
+                p.partition +
+                  " · " +
+                  (d.duration_seconds / 3600).toFixed(2) +
+                  " hours · " +
+                  d.start +
+                  " → " +
+                  d.end,
+              ),
+            );
+            box.append(
+              node(
+                "p",
+                "Strategy evaluations: " +
+                  d.evaluations +
+                  " · Candidate signals: " +
+                  (d.actions.CANDIDATE || 0) +
+                  " · Closed trades: " +
+                  d.closed_trades,
+              ),
+            );
+            if (d.closed_trades === 0) {
+              box.append(node("h4", "Why no closed trades?"));
+              box.append(
+                node(
+                  "p",
+                  d.open_positions
+                    ? "Positions remain open at the end of this window; this is not a completed-trade result."
+                    : d.evaluations === 0
+                      ? "No completed bar evaluations occurred in this window."
+                      : !d.actions.CANDIDATE
+                        ? "No evaluated setup met all entry conditions. Recorded reasons:"
+                        : "Signals occurred, but no position completed a round trip. Inspect decision and entry outcomes below.",
+                ),
+              );
+            }
+            const reasons = node("ul");
+            const explanation = {
+              NO_SIGNAL: "Trend and breakout/pullback conditions did not align",
+              INDICATOR_WARMUP: "Not enough completed bars for the indicators",
+              OUTSIDE_SESSION: "Outside the strategy's UTC trading session",
+              OUTSIDE_NAMED_SESSION:
+                "Outside the named local-time session or overlap",
+              REFERENCE_RANGE_INCOMPLETE:
+                "Required completed session range is missing or incomplete",
+              SIGNAL_EXPIRED_OR_HISTORY_STALE:
+                "Signal expired or hourly history was stale",
+              DATASET_COMPLETENESS_UNVERIFIED:
+                "Historical input completeness was not assumed",
+              POSITION_ALREADY_OPEN: "A position was already open",
+            };
+            for (const [reason, count] of Object.entries(d.hold_reasons))
+              reasons.append(
+                node(
+                  "li",
+                  (explanation[reason] || reason) +
+                    " — " +
+                    count +
+                    " (" +
+                    reason +
+                    ")",
+                ),
+              );
+            box.append(reasons);
+            if (d.duration_seconds < 86400)
+              box.append(
+                node(
+                  "p",
+                  "Short research window: this alone cannot establish strategy performance.",
+                ),
+              );
+          }
+          box.append(
+            node(
+              "p",
+              p.partition +
+                " · " +
+                p.verdict +
+                " · Net P&L " +
+                Number(r.net_realized_pnl).toFixed(2) +
+                " · Closed trades " +
+                r.metrics.closed_trades +
+                " · Max observed drawdown " +
+                (
+                  Number(r.metrics.maximum_observed_drawdown_fraction) * 100
+                ).toFixed(4) +
+                "%",
+            ),
+          );
+          box.append(node("p", p.limitations.join("; ")));
+          const samples = r.equity_samples;
+          if (samples.length > 1) {
+            const canvas = node("canvas");
+            canvas.width = 600;
+            canvas.height = 160;
+            canvas.setAttribute(
+              "aria-label",
+              "Observed equity curve, see exported samples for exact times and values",
+            );
+            canvas.style.maxWidth = "100%";
+            const ctx = canvas.getContext("2d"),
+              values = samples.map((s) => Number(s.equity)),
+              lo = Math.min(...values),
+              hi = Math.max(...values);
+            ctx.strokeStyle = "#5ac8ae";
+            ctx.beginPath();
+            values.forEach((v, i) => {
+              const x = 5 + (i * 590) / (values.length - 1),
+                y = 150 - ((v - lo) * 140) / (hi - lo || 1);
+              if (i) ctx.lineTo(x, y);
+              else ctx.moveTo(x, y);
+            });
+            ctx.stroke();
+            box.append(canvas);
+          }
+          const details = node("details");
+          details.append(
+            node("summary", "Inspect trades, costs and verdict evidence"),
+            node(
+              "pre",
+              JSON.stringify(
+                {
+                  diagnostics: r.diagnostics,
+                  deals: r.deals,
+                  fill_costs: r.fill_costs,
+                  financing: r.financing,
+                  metrics: r.metrics,
+                },
+                null,
+                2,
+              ),
+            ),
+          );
+          box.append(details);
+        }
+        return box;
+      }),
+  );
+  $("proposal-results").replaceChildren(
+    ...$("research-results").querySelectorAll(
+      '[data-research-kind="AI_PROPOSAL"]',
+    ),
+  );
+  filterResearchResults();
+}
+async function researchAction(button, fn) {
+  const output = $(
+    button.id === "research-generate" ? "proposal-message" : "research-message",
+  );
+  const originalLabel = button.textContent;
+  const researchButtons = [
+    "research-register",
+    "research-run",
+    "research-start",
+    "agent-start",
+    "agent-plan-button",
+  ].map($);
+  researchButtons.forEach((b) => {
+    b.disabled = true;
+  });
+  button.disabled = true;
+  button.setAttribute("aria-busy", "true");
+  if (button.id === "research-register") {
+    button.textContent = document.documentElement.lang.startsWith("zh")
+      ? "正在注册…"
+      : "Registering…";
+    output.textContent = "Checking registration inputs…";
+  }
+  output.focus({ preventScroll: true });
+  try {
+    await fn();
+    await refreshResearch();
+  } catch (e) {
+    $(
+      button.id === "research-generate"
+        ? "proposal-message"
+        : "research-message",
+    ).textContent =
+      e instanceof ResearchInputError
+        ? "Not submitted: " + e.message
+        : "Not confirmed: " + e.message + "; refresh evidence before retrying.";
+  } finally {
+    researchButtons.forEach((b) => {
+      b.disabled = false;
+    });
+    button.disabled = false;
+    button.removeAttribute("aria-busy");
+    button.textContent = originalLabel;
+    if (output.getClientRects().length) {
+      output.scrollIntoView({ block: "nearest" });
+      output.focus({ preventScroll: true });
+    }
+  }
+}
+$("research-generate").onclick = () =>
+  researchAction($("research-generate"), async () => {
+    const brief = $("research-brief").value;
+    if (!researchRequest || researchRequest.brief !== brief)
+      researchRequest = { request_id: crypto.randomUUID(), brief };
+    const result = await researchPost("generate", researchRequest);
+    $("proposal-message").textContent =
+      result.kind === "AI_PROPOSAL"
+        ? "Proposal retained. Select Review proposal in form."
+        : (result.message ||
+            "The proposal could not be validated; the previous request was not resent.") +
+          (result.validation_errors?.length
+            ? " Fields: " +
+              result.validation_errors
+                .map((x) => x.field + " (" + x.code + ")")
+                .join(", ")
+            : "") +
+          " [" +
+          result.status +
+          "]";
+  });
+async function registerCurrentStudy() {
+  if (
+    selectedStrategy &&
+    strategyFields.some(
+      (k) => strategySpec()[k] !== selectedStrategy.specification[k],
+    )
+  )
+    throw new ResearchInputError(
+      "Save and freeze your changed strategy fields before backtesting.",
+    );
+  if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
+    throw new ResearchInputError("Select a frozen candidate first");
+  const common = {
+    candidate_sha256: selectedStrategy.sha256,
+    rules: parseResearchJSON($("research-rules").value, "Executable rules"),
+    reviewed_mapping: $("research-reviewed").checked,
+  };
+  if (!common.reviewed_mapping)
+    throw new ResearchInputError(
+      "Confirm that you reviewed the executable rules against the frozen candidate.",
+    );
+  let item;
+  if ($("research-use-upload").checked) {
+    const file = $("research-file").files[0];
+    if (!file || file.size > 8 * 1024 * 1024)
+      throw new Error("Choose a research JSON bundle up to 8 MiB");
+    item = await researchPost("register", {
+      ...parseResearchJSON(await file.text(), "Uploaded research bundle"),
+      ...common,
+    });
+  } else {
+    if (!$("research-dataset").value)
+      throw new ResearchInputError("Select an available historical dataset");
+    item = await researchPost("select_dataset", {
+      ...common,
+      dataset_id: $("research-dataset").value,
+    });
+  }
+  latestRegistration = item.id;
+  researchContext.registration = item.id;
+  saveResearchContext(item.id);
+  $("research-message").textContent =
+    "Registered immutable study " +
+    item.id.slice(0, 12) +
+    ". Inputs preserved for this strategy version.";
+  return item;
+}
+$("research-register").onclick = () =>
+  researchAction($("research-register"), registerCurrentStudy);
+$("research-start").onclick = () =>
+  researchAction($("research-start"), async () => {
+    const item = await registerCurrentStudy();
+    const result = await researchPost("execute", {
+      registration_id: item.id,
+      partition: $("research-partition").value,
+    });
+    $("research-message").textContent =
+      result.kind === "BACKGROUND_RUN"
+        ? "Historical replay accepted: " +
+          result.status +
+          ". Progress and results appear here; no need to submit again."
+        : result.kind === "BACKTEST"
+          ? "Backtest retained: " + result.payload.verdict
+          : "Previously exposed run; inspect retained result. No silent rerun.";
+    window.fxPages.navigate("/strategies/results");
+  });
+$("research-run").onclick = () =>
+  researchAction($("research-run"), async () => {
+    if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
+      throw new ResearchInputError("Select a frozen candidate first");
+    const registration = $("research-registration").value;
+    if (!registration)
+      throw new ResearchInputError("Register the reviewed inputs first");
+    const result = await researchPost("execute", {
+      registration_id: registration,
+      partition: $("research-partition").value,
+    });
+    $("research-message").textContent =
+      result.kind === "BACKGROUND_RUN"
+        ? "Historical replay accepted: " +
+          result.status +
+          ". Progress and results appear here; no need to submit again."
+        : result.kind === "BACKTEST"
+          ? "Backtest retained: " + result.payload.verdict
+          : "Previously exposed run; inspect retained result. No silent rerun.";
+    saveResearchContext();
+    window.fxPages.navigate("/strategies/results");
+  });
+$("research-refresh").onclick = () =>
+  researchAction($("research-refresh"), refreshResearch);
+
+$("research-rules").addEventListener("input", () => {
+  $("research-reviewed").checked = false;
+});
+$("research-file").addEventListener("change", () => {
+  $("research-reviewed").checked = false;
+});
+
+$("logout-all").addEventListener("click", async () => {
+  try {
+    await api("/api/session/logout-all", { method: "POST" });
+    signedOut();
+    await openSession(null);
+    notice("All sessions revoked. Sign in again when ready.");
+  } catch (e) {
+    notice("Revocation not confirmed: " + e.message);
+  }
+});
+
+$("research-dataset").addEventListener("change", () => {
+  $("research-reviewed").checked = false;
+  showDataset();
+});
+$("research-use-upload").addEventListener("change", () => {
+  $("research-reviewed").checked = false;
+});
+
+$("research-load-rules").addEventListener("click", () => {
+  const proposal = researchProposals.find(
+    (x) => x.id === $("research-rule-proposal").value,
+  );
+  if (!proposal) {
+    $("research-message").textContent = "Select a saved AI proposal first.";
+    return;
+  }
+  $("research-rules").value = JSON.stringify(
+    proposal.payload.proposal.rules,
+    null,
+    2,
+  );
+  $("research-reviewed").checked = false;
+  $("research-message").textContent =
+    "Proposal rules loaded. Your candidate is unchanged; review their mapping before registering.";
+});
+
+$("research-candidate").addEventListener("change", () => {
+  const record = frozenCandidates.find(
+    (candidate) => candidate.sha256 === $("research-candidate").value,
+  );
+  if (record) selectStrategy(record);
+  else clearStrategy();
+  $("research-reviewed").checked = false;
+  $("research-message").textContent = record
+    ? "Frozen candidate selected. Load or review executable rules, choose a dataset, and confirm the mapping."
+    : "Select a frozen candidate before registering.";
+});
+
+// Retain reviewed input choices in this browser tab, never translation text or credentials.
+for (const id of [
+  "research-rules",
+  "research-dataset",
+  "research-rule-proposal",
+  "research-partition",
+  "research-registration",
+]) {
+  $(id).addEventListener("change", () => saveResearchContext());
+}
+$("research-rules").addEventListener("input", () => saveResearchContext());
+$("research-load-rules").addEventListener("click", () => saveResearchContext());
+window.addEventListener("popstate", () => {
+  const sha = new URLSearchParams(location.search).get("candidate");
+  if (sha && sha !== selectedStrategy?.sha256) {
+    selectedStrategy = null;
+    refreshStrategies();
+  }
+});
+
+$("strategy-form").addEventListener("input", () => {
+  saveResearchContext();
+  $("strategy-continue").disabled =
+    !selectedStrategy ||
+    selectedStrategy.state !== "FROZEN_FOR_RESEARCH" ||
+    strategyFields.some(
+      (k) => strategySpec()[k] !== selectedStrategy.specification[k],
+    );
+});
+$("research-brief").addEventListener("input", () => saveResearchContext());
+
+function renderAgent(data) {
+  const sha = selectedStrategy?.sha256 || rememberedCandidate();
+  const plan = data.items.find(
+    (x) => x.kind === "VALIDATION_PLAN" && x.payload.candidate_sha256 === sha,
+  )?.payload;
+  const area = $("agent-plan");
+  area.replaceChildren();
+  if (plan) {
+    if (plan.automatic_acquisition)
+      area.append(
+        node(
+          "p",
+          "Automatic HistData acquisition enabled. The agent downloads missing monthly tick archives, verifies and prepares them, then runs exploratory research. Calendar/news and broker costs remain separate qualification requirements.",
+        ),
+      );
+    area.append(
+      node("h4", "Agent-selected research period"),
+      node(
+        "p",
+        plan.requested_start.slice(0, 10) +
+          " → " +
+          plan.requested_end.slice(0, 10) +
+          " · " +
+          plan.required_sessions +
+          " trading sessions requested per pair",
+      ),
+    );
+    area.append(
+      node(
+        "p",
+        "Plan fixed before results. The period is chosen by a strategy-aware policy, not by searching for profitable dates.",
+      ),
+    );
+    const rationale = node("details");
+    rationale.append(node("summary", "Why this period?"));
+    plan.rationale.forEach((r) => rationale.append(node("p", r)));
+    area.append(rationale);
+    const names = {
+      INSUFFICIENT_HISTORY: "Not enough history",
+      REQUESTED_PERIOD_NOT_COVERED: "Recommended recent dates are not covered",
+      WARMUP_NOT_VERIFIED: "Indicator warm-up not verified",
+      SOURCE_COST_CALENDAR_UNQUALIFIED:
+        "Source, costs and calendar/news are not qualified",
+      PLANNED_WINDOWS_NOT_AVAILABLE:
+        "Available dataset windows do not match the planned training, validation and holdout dates",
+      INDEPENDENT_HOLDOUT_UNVERIFIED: "No verified unexposed holdout",
+      NO_DATASET: "No dataset available",
+    };
+    for (const d of plan.datasets) {
+      area.append(
+        node(
+          "h4",
+          d.symbol +
+            " · " +
+            d.available_sessions +
+            " / " +
+            d.required_sessions +
+            " sessions available",
+        ),
+      );
+      if (d.available_start)
+        area.append(
+          node(
+            "p",
+            "Available: " +
+              d.available_start.slice(0, 10) +
+              " → " +
+              d.available_end.slice(0, 10) +
+              " · " +
+              d.age_days +
+              " days old",
+          ),
+        );
+      const gaps = node("ul");
+      d.blockers.forEach((reason) =>
+        gaps.append(node("li", names[reason] || reason)),
+      );
+      area.append(gaps);
+    }
+    area.append(
+      node(
+        "p",
+        plan.full_validation_ready
+          ? "Data gates met. Training must pass before validation and holdout."
+          : "Full validation is blocked by data adequacy. The agent can run available exploratory training checks; it will not open the holdout or authorize trading.",
+      ),
+    );
+  } else
+    area.append(
+      node(
+        "p",
+        "Review the strategy's executable rules, then preview or run its agent-selected plan.",
+      ),
+    );
+  const results = $("agent-validation-results");
+  results.replaceChildren();
+  for (const run of (data.agent_runs || []).filter(
+    (x) => x.candidate_sha256 === sha,
+  )) {
+    const section = node("article");
+    section.append(node("h3", "Research agent · " + run.status));
+    section.append(
+      node(
+        "p",
+        "Requested period: " +
+          run.plan.requested_start.slice(0, 10) +
+          " → " +
+          run.plan.requested_end.slice(0, 10),
+      ),
+    );
+    for (const step of run.progress)
+      section.append(
+        node(
+          "p",
+          step.symbol +
+            " · " +
+            (step.phase || "data check") +
+            " · " +
+            step.status +
+            (step.month ? " · " + step.month : "") +
+            (step.receipt
+              ? " · " + step.receipt.rows + " ticks prepared"
+              : "") +
+            (step.closed_trades !== undefined
+              ? " · " +
+                step.closed_trades +
+                " / " +
+                step.minimum_closed_trades +
+                " required closed trades · " +
+                step.assessment
+              : ""),
+        ),
+      );
+    if (run.result)
+      section.append(
+        node(
+          "p",
+          run.result.next_action ||
+            "The run failed or was interrupted. No automatic restart is permitted.",
+        ),
+      );
+    section.append(
+      node("p", "Trading disabled. No PAPER or LIVE qualification granted."),
+    );
+    const exportPlan = node("button", "Export agent research report");
+    exportPlan.onclick = async () => {
+      try {
+        const report = await api("/api/research/validation/" + run.id);
+        const url = URL.createObjectURL(
+          new Blob([JSON.stringify(report, null, 2)], {
+            type: "application/json",
+          }),
+        );
+        const link = node("a");
+        link.href = url;
+        link.download = "agent-research-" + run.id + ".json";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (error) {
+        section.append(node("p", "Export unavailable: " + error.message));
+      }
+    };
+    section.append(exportPlan);
+    results.append(section);
+  }
+}
+async function agentPlan() {
+  if (!selectedStrategy || selectedStrategy.state !== "FROZEN_FOR_RESEARCH")
+    throw new ResearchInputError("Save and freeze your strategy first");
+  if (
+    strategyFields.some(
+      (k) => strategySpec()[k] !== selectedStrategy.specification[k],
+    )
+  )
+    throw new ResearchInputError(
+      "Save and freeze your changed strategy fields first",
+    );
+  return researchPost("plan_validation", {
+    candidate_sha256: selectedStrategy.sha256,
+    rules: parseResearchJSON($("research-rules").value, "Executable rules"),
+  });
+}
+$("agent-plan-button").onclick = () =>
+  researchAction($("agent-plan-button"), async () => {
+    await agentPlan();
+    $("research-message").textContent =
+      "Research period and data adequacy assessed. Review the agent plan below.";
+  });
+$("agent-start").onclick = () =>
+  researchAction($("agent-start"), async () => {
+    if (!$("research-reviewed").checked)
+      throw new ResearchInputError(
+        "Confirm that the executable rules match your frozen strategy first",
+      );
+    const plan = await agentPlan();
+    const run = await researchPost("start_validation", {
+      plan_id: plan.id,
+      reviewed_mapping: true,
+    });
+    $("research-message").textContent =
+      "Research agent: " +
+      run.status +
+      ". The agent chooses datasets and stages; page reload does not start another run.";
+    window.fxPages.navigate("/strategies/results");
+  });

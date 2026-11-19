@@ -31,14 +31,14 @@ def verifier(password, salt):
 
 class Owner(FrozenModel):
     version: Literal["dashboard-owner/1"] = "dashboard-owner/1"
-    username: Annotated[str, Field(pattern=r"^[a-zA-Z0-9_.-]{1,64}$")]
+    username: Annotated[str, Field(pattern=r"^[a-zA-Z0-9_.@+-]{1,128}$")]
     salt: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
     password_hash: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 
     @classmethod
     def create(cls, username, password):
         if not isinstance(password, str) or not 16 <= len(password) <= 256:
-            raise ValueError("owner passphrase must contain 16..256 characters")
+            raise ValueError("owner password must contain 16..256 characters")
         salt = secrets.token_hex(32)
         return cls(username=username, salt=salt, password_hash=verifier(password, salt))
 
@@ -144,9 +144,10 @@ def cookie_token(header, name):
         return ""
 
 
-def cookie_header(name, token, secure, *, clear=False):
-    return f"{name}={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age={0 if clear else 28800}" + (
-        "; Secure" if secure else ""
+def cookie_header(name, token, secure, *, clear=False, max_age=28800):
+    return (
+        f"{name}={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age={0 if clear else max_age}"
+        + ("; Secure" if secure else "")
     )
 
 
@@ -159,9 +160,9 @@ def main():
     args = parser.parse_args()
     if args.output.exists():
         raise ValueError("owner file already exists")
-    password = getpass.getpass("Owner passphrase (16+ characters): ")
-    if password != getpass.getpass("Repeat passphrase: "):
-        raise ValueError("passphrases differ")
+    password = getpass.getpass("Owner password (16+ characters): ")
+    if password != getpass.getpass("Repeat password: "):
+        raise ValueError("passwords differ")
     record = Owner.create(args.username, password)
     with args.output.open("x", encoding="utf-8") as stream:
         stream.write(record.model_dump_json(indent=2))

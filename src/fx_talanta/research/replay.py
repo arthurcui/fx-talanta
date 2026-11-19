@@ -228,7 +228,7 @@ def priced(market, costs, at=None):
     )
 
 
-def run(dataset, experiment, partition):
+def run(dataset, experiment, partition, *, signal=None, strategy_version=VERSION):
     dataset = Dataset.model_validate_json(dataset.model_dump_json())
     experiment = Experiment.model_validate_json(experiment.model_dump_json())
     start, end = experiment.window(partition)
@@ -255,16 +255,34 @@ def run(dataset, experiment, partition):
                 "dataset": dataset.model_dump(mode="json"),
                 "experiment": experiment.model_dump(mode="json"),
                 "partition": partition,
-                "strategy": VERSION,
+                "strategy": strategy_version,
             }
         ),
     )
     timeline = ((at, at in bar_times, events.get(at, ())) for at in timeline)
-    return execute_timeline(dataset, experiment, partition, timeline, run_id)
+    return execute_timeline(
+        dataset,
+        experiment,
+        partition,
+        timeline,
+        run_id,
+        signal=signal,
+        strategy_version=strategy_version,
+    )
 
 
 def execute_timeline(
-    dataset, experiment, partition, timeline, run_id, *, journal_sink=None, samples_sink=None
+    dataset,
+    experiment,
+    partition,
+    timeline,
+    run_id,
+    *,
+    journal_sink=None,
+    samples_sink=None,
+    signal=None,
+    strategy_version=VERSION,
+    compact_journal=False,
 ):
     """Shared risk/execution loop; alternate sinks do not change trading decisions."""
     start, end = experiment.window(partition)
@@ -273,6 +291,7 @@ def execute_timeline(
     )
     clock = FakeClock(start)
     gateway = Gateway.for_replay(account, run_id, clock, experiment.policy)
+    gateway.store.compact = compact_journal
     broker_costs = isinstance(experiment.costs, BrokerCosts)
     if broker_costs:
         costs = experiment.costs
@@ -320,7 +339,7 @@ def execute_timeline(
                     )
                     pending = None
                 if bar_arrival:
-                    candidate = evaluate(
+                    candidate = (signal or evaluate)(
                         dataset.bars,
                         experiment.symbol,
                         at,
@@ -368,11 +387,13 @@ def execute_timeline(
                             decision = Decision(
                                 account=account,
                                 action="ENTER",
-                                candidate_id=VERSION,
+                                candidate_id=strategy_version,
                                 symbol=experiment.symbol,
                                 side=side,
                                 expires_at=pending["expires_at"],
-                                rationale="Frozen B01 replay candidate",
+                                rationale="Frozen B01 replay candidate"
+                                if strategy_version == VERSION
+                                else "Frozen replay candidate",
                             )
                             record = Record(
                                 record_id=decision_id,
@@ -381,14 +402,14 @@ def execute_timeline(
                                 correlation_id=run_id,
                                 provenance="OFFLINE_SIMULATION",
                                 versions=Versions(
-                                    strategy=VERSION, policy=experiment.policy.version
+                                    strategy=strategy_version, policy=experiment.policy.version
                                 ),
                                 body=DecisionAttempt(
                                     result="VALID",
                                     action="ENTER",
                                     cutoff=pending["as_of"],
                                     input_snapshot=pending["input_hash"],
-                                    candidates=(VERSION,),
+                                    candidates=(strategy_version,),
                                     response=decision.model_dump_json(),
                                     decision=decision,
                                     reason="Research-only signal",
@@ -400,12 +421,12 @@ def execute_timeline(
                                 intent_id=uuid5(decision_id, "entry"),
                                 account=account,
                                 decision_id=decision_id,
-                                strategy=VERSION,
+                                strategy=strategy_version,
                                 policy_version=experiment.policy.version,
                                 symbol=experiment.symbol,
                                 side=side,
                                 stop=price - sign * distance,
-                                target=price + sign * distance * 2,
+                                target=price + sign * Decimal(pending["target_distance"]),
                                 benchmark=benchmark,
                                 expires_at=pending["expires_at"],
                                 exit_at=pending["time_exit_at"],
@@ -433,8 +454,8 @@ def execute_timeline(
                 raise ValueError("partition has no market evidence")
             book = gateway.broker.book
             result = {
-                "schema": "b01-replay/1",
-                "strategy": VERSION,
+                "schema": "b01-replay/1" if strategy_version == VERSION else "candidate-replay/1",
+                "strategy": strategy_version,
                 "partition": partition,
                 "provenance": dataset.provenance,
                 "source": dataset.source,
@@ -457,6 +478,9 @@ def execute_timeline(
                 "m1_qualified": False,
                 "economic_acceptance": False,
             }
+            if strategy_version != VERSION:
+                result["integrity_halt"] = gateway.book.integrity_halt
+                result["risk_halt"] = getattr(gateway, "integrity_breach", None)
             if broker_costs:
                 result["cost_model"] = "broker-costs/1"
                 result["cost_qualification"] = experiment.costs.status

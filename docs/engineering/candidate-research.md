@@ -1,0 +1,672 @@
+# AI proposal and candidate-bound historical research
+
+This workflow connects strategy authoring to the existing replay simulator. It is
+offline research, not permission to trade or a claim of profitability. The Docker
+preview has been updated to PR #65 with [direct local workspace access](../guides/local-signin.md); its saved strategies were preserved.
+
+The [November 18 roadmap](../product/roadmap.md) defines a planned structural-setup
+extension. The implemented workflow described here still executes only the two
+kernels below. EMA recross is not verified support/retest recognition; a range
+breakout does not wait for a retest. New setup charts, opportunity-state records and
+lifecycle admission sizing are not present merely because the design is documented.
+
+## Owner workflow
+
+1. Open the local Docker preview directly (no account required). Optional
+   `--research-key-file PATH` enables the existing OpenAI transport using an ignored
+   dotenv file containing `OPENAI_API_KEY`. Never put the key into the browser.
+   Without that flag, manually reviewed candidates and backtests still work.
+2. Enter a generic research brief. Generate a proposal, then choose **Review proposal
+   in form**. Inspect the model receipt, proposed percentages, descriptive rules and
+   executable parameters. Generation does not save or freeze a candidate for you.
+3. Edit, save and freeze the candidate. Select its exact frozen version. Freezing
+   descriptive prose alone still does not establish executable semantics.
+4. Supply the supported executable-rule JSON and explicitly confirm the reviewed
+   mapping. Differences from the prose must be treated as research assumptions;
+   the application cannot prove that a human review was correct.
+5. Choose **Preview agent plan** to see the strategy-selected period and available
+   data. **Run agent research** checks adequacy, selects both pairs' catalog inputs
+   and drives the permitted stages. You do not need to choose dates or files.
+   Inadequate inputs allow labeled exploratory training only, not full validation.
+6. Inspect Results for each stage, data requirements, net P&L, trade count, drawdown,
+   equity and recorded HOLD reasons. Export the agent report and underlying research
+   evidence. Advanced controls retain manual dataset/partition selection and custom
+   bundle import; all registrations cap risk to the lower frozen candidate limits.
+
+For a runnable **synthetic** upload (not historical evidence):
+
+```powershell
+python -m tools.fixtures.candidate_research > synthetic-research-bundle.json
+```
+
+Use a breakout mapping with `trend_period=50`, `signal_period=20`, `atr_period=14`,
+`stop_atr="1.5"`, `reward_risk="2"`, `hold_bars=16`, UTC session hours 0–23 and
+`calendar_policy="REQUIRE_MARKET_HEALTH"`. The fixture produces a costed loss; the
+expected assessment is **REJECT_OR_REVISE**, not successful strategy qualification.
+Historical bundles can use the existing HistData import pipeline. Source receipt
+times, calendar availability and broker costs must retain their original caveats.
+
+## Executable boundary
+
+Only two reviewed kernels execute: H1 EMA trend with M15 preceding-range breakout,
+or M15 EMA crossing after a pullback. H1 trend slope compares the current EMA with
+three H1 bars earlier. ATR is the simple mean of the last registered true ranges,
+not Wilder smoothing. Stop and target distances round upward to native tick size.
+Time exits and UTC weekday sessions are fixed parameters. Future revisions are
+invisible until their availability time. Entry remains subject to the existing
+two-second quote limit, protection, exposure and risk simulator.
+
+No Python/MQL or expressions returned by the model are evaluated. Unsupported
+families/fields are rejected. Calendar veto uses the supplied historical Market
+health; this does not implement an arbitrary prose blackout or news strategy.
+Each run contains one symbol and one position at a time. Combined EURUSD/USDJPY
+portfolio testing and signed USD exposure evaluation across simultaneous symbols
+remain open, rather than being inferred by adding two independent equity curves.
+
+Uploaded bundles retain the 2,000-bar/5,000-event interactive limit. Server-pinned
+full-session indexes now use background streamed execution (see below), preserving
+every tick with bounded memory. Neither path constitutes full R2 qualification.
+
+## Authority, retries and evidence
+
+- AI calls require explicit server configuration. One store permits at most ten
+  requests, each capped at 3,000 output tokens; this is a request/token ceiling,
+  not a billing guarantee. The existing TLS-only, fixed-endpoint, no-redirect
+  transport is reused. No broker credentials or account data enter the prompt.
+- A durable request identity is reserved before dispatch. Conflicting retries are
+  rejected. Failure, crash or uncertain completion never permits an automatic
+  resend. Model name, request/response hashes, usage and parsed proposal are retained.
+- Registration pins the replay and candidate-kernel source hashes; changed engines cannot execute an old registration. Registration, exposure and results are immutable. A partition exposure is written
+  before running; an interrupted run remains exposed without result and cannot be
+  silently rerun. Completed retries return the original result. A new registration
+  is a new experiment; it does not make previously seen holdout data untouched.
+- Closing the browser does not cancel a synchronous server calculation. Refresh
+  research evidence after a timeout. No broker state or trading authority exists in
+  this path. Dedicated queued cancellation/large-study workers remain future work.
+- Verdicts are **INSUFFICIENT_EVIDENCE**, **REJECT_OR_REVISE**, or
+  **FURTHER_VALIDATION_REQUIRED**. No result grants PAPER/LIVE eligibility. Minimum
+  sample and drawdown criteria are registered by the researcher, not supplied by AI
+  after seeing results. Qualified inputs/costs, robustness and independent holdouts
+  are still required before promotion.
+
+## Actual evidence
+
+The [integration receipt](../evidence/r1-r2-integration-20261115.json) records a real
+OpenAI proposal and bounded runs using retained, previously exposed EURUSD/USDJPY
+historical inputs. Each used an exact contiguous 3,000-event prefix, not resampled
+ticks. Both produced zero closed trades and **INSUFFICIENT_EVIDENCE**. They verify
+plumbing only. The first provider attempt failed decimal schema validation; it was
+retained privately, the schema was corrected to decimal strings, and a distinct
+bounded request succeeded. No failed request was relabelled successful.
+
+Synthetic acceptance exercises a closed trade with costs and a rejected verdict.
+Browser acceptance covers freeze, registration, run, chart, retained result and reload.
+Tests preserve the original B01 result hash, future-data exclusion, percentage limits,
+provider retry conflicts and uncertain outcomes. All M1–M3 gaps and the existing B01
+**REJECT_FOR_PROMOTION** verdict remain unchanged. No campaign or broker connection.
+
+## English / Chinese interface and translation
+
+Use the header language selector to switch interface labels between English and
+Simplified Chinese. Switching does not rewrite form values, saved specifications,
+rule enums, identifiers or historical evidence. Evidence stays in its original
+language. Both languages are accepted in strategy descriptions, research briefs
+and advisor questions; proposal prose follows the brief language unless requested
+otherwise. Executable JSON keys and enums remain unchanged.
+
+The **Translate input (preview only)** panel accepts pasted prose and returns an
+English or Chinese preview through the configured AI provider. Copy it manually
+only after checking numbers and meaning. This never saves a candidate or updates
+an input field. Clear, reload or leaving the page discards the translation. Neither
+translation input nor output is written to the application journal, database or
+browser storage. Requests use `store=false`; this is not a guarantee of zero
+provider retention. Do not paste secrets. Twenty requests per server process,
+4,000 input characters, 3,000 output tokens; no automatic retries. Failed requests
+consume the process limit. Provider configuration is shared with proposals but
+translation does not consume their durable ten-request research allowance.
+
+Validation uses deterministic provider fixtures for both translation directions,
+invalid inputs, no retries and request limits. Headless browser acceptance checks
+language switching, unchanged strategy inputs and option values, translation
+preview and clearing on reload. These tests do not qualify translation accuracy.
+
+Two live preview translation smoke checks also completed (English to Chinese and
+Chinese to English); both preserved the sample 0.10% risk value. These generic
+checks are not a comprehensive semantic-accuracy evaluation.
+
+## Proposal validation diagnostics
+
+Two preview attempts returned `ValidationError`; their original receipts retained
+only the error class, so the exact failing fields cannot be reconstructed. They
+remain failed and were not resent. A distinct generic Chinese diagnostic proposal
+passed validation. The prompt now states the cross-field constraints explicitly
+(both pairs exactly once, ordered same-day session, percentage relationships and
+minimum description lengths); the provider schema also fixes the pair count at two.
+Future failures retain only validation field paths and error codes, never raw error
+inputs or provider exception text. The UI explains failures instead of showing only
+an opaque status, and failed jobs no longer appear as completed in the job list.
+
+The revised prompt/schema passed an additional live end-to-end proposal generation
+check in a temporary journal. It produced `AI_PROPOSAL` without changing the preview
+research records or its request allowance. This is a smoke check, not a guarantee
+that every generated proposal will satisfy all constraints.
+
+The UI follows three numbered steps: (1) research brief and generated proposals,
+(2) candidate review/save/freeze, (3) historical registration and backtesting.
+No candidate fields are required for generation. Selecting a proposal populates
+and focuses the review form. Manual creation remains an alternative; translation
+is an optional disclosure beside the brief. Proposal cards are separate from
+backtest results. Headless acceptance covers this ordering and transfer.
+
+## Managed historical dataset selection
+
+Configure `--research-datasets DIRECTORY` with up to eight bounded `*-bundle.json`
+files. The preview mounts read-only copies of the existing EURUSD and USDJPY pilot
+bundles, verified byte-for-byte against the originals. It does not mount the source
+journal or broker credentials. Dates are January 16, 2025, approximately 37 and 35
+minutes respectively, with 3,000 events and 1,283 bars each. They are short,
+previously exposed, unqualified HistData research slices, not a new independent
+holdout, complete historical coverage, or broker-calibrated prices/costs.
+
+Catalog responses contain source and assumptions, windows, event/bar counts,
+acceptance criteria, cost/risk policy and SHA-256 identities; never server paths or
+raw quotes. Clients submit the selected hash, frozen candidate, rules and review
+confirmation. Registration rechecks the source bytes, copies the exact dataset,
+pins its catalog hash, and retains the original cost basis and windows. Only risk
+fractions are capped downward against candidate limits. No resampling, broadened
+risk, clock changes, market data fetch or broker connection occurs. Invalid,
+changed or out-of-root sources fail closed. Existing registrations remain usable
+from their pinned evidence even if the catalog file later changes.
+
+Advanced imports require an explicit checkbox and retain the existing validation
+path. Changing the selected dataset or import mode clears mapping confirmation.
+Custom date/window construction remains outside this UI; full-session catalog
+entries now provide longer fixed windows through the background path below.
+
+The CI regressions fixed alongside this work were an absent `local_workspace`
+attribute in the existing deployment launcher and an unintentionally enlarged
+chat request-body ceiling. The launcher defaults safely to authenticated mode;
+the existing 4 KiB chat ceiling is restored while research briefs retain their
+Unicode-sized request allowance.
+
+## Guided pages and strategy context
+
+The primary navigation is Overview, Strategies, Market & Data, Advisor and
+Activity. Strategies has a task sequence with real, reloadable URLs:
+`/strategies/describe` → `/strategies/review` → `/strategies/backtest` →
+`/strategies/results`. Browser Back/Forward works without submitting requests.
+Legacy section links still route to their corresponding page.
+
+Describe accepts English or Chinese instructions and displays retained proposals.
+Review loads the chosen proposal and its executable mapping together. Save a
+revision, freeze it, then choose Continue to backtest. The strategy name, version
+and state remain visible throughout; its immutable hash is carried in the URL.
+Saved strategies open directly in Review. Saving changes to a frozen version
+creates a new revision; the frozen evidence is retained.
+
+Backtest requires a frozen version, an explicitly reviewed rules mapping and a
+historical dataset. **Run backtest** registers these inputs and executes the chosen
+partition in one action, then opens Results. Separate registration and previous
+registered studies remain under Advanced. File import remains optional. Invalid
+input never submits; uncertain requests are not automatically resent. Results
+are filtered to the selected version and retain export, costs, limitations and
+verdict evidence. Missing or unknown candidate hashes show no other strategy's
+results. Nothing here grants trading authority or changes qualification gates.
+
+Within the browser tab, strategy draft fields, rules, proposal choice, dataset,
+partition and registered-study choice survive navigation/reload. Mapping approval
+is deliberately not persisted and must be checked again after reload or changing
+inputs. Translation previews and credentials are never included in this state;
+sign-out clears the tab's flow state. Server records are the source of truth for
+saved/frozen versions. Reload validates the selected hash against returned records.
+For older candidates without tab state, select a saved proposal and explicitly
+load its rules; an exact provenance match (or sole available proposal) preselects
+the dropdown but does not automatically assert mapping review.
+
+## Actual Docker UI verification, November 16
+
+Step 3 now provides a frozen-candidate selector directly. Selection is restored
+from its hash in browser session storage after reloading, only if that record is
+still returned as frozen by the server. This stores no translation or credentials;
+clearing selection/signing out clears the preference. Mapping review is always
+reset on selection, including restoration.
+
+The actual running Docker preview was exercised headlessly, without route mocks,
+using its retained AI proposal, real EURUSD catalog bundle and a separately named
+`UI registration verification 2026-11-16` candidate. Existing candidate records
+were not changed. Save/freeze, reload/restore, rule loading, registration, automatic
+experiment selection, training backtest and result persistence succeeded. Both
+registration and backtest returned HTTP 200; zero browser errors occurred. The
+result was INSUFFICIENT_EVIDENCE with zero closed trades. The test candidate and
+its evidence are retained in the preview, clearly separate from the owner's work.
+See [actual UI receipt](../evidence/docker-registration-ui-20261116.json).
+
+
+## Separate-page acceptance, November 16
+
+Browser regression coverage exercises the guided flow, direct URL reload,
+Back/Forward, saved and unsaved context, result isolation, Chinese labels, mobile
+width, mapping reapproval and refusal to backtest unsaved changes. The real Docker
+preview also uses retained model output and an actual historical catalog bundle,
+without mocked HTTP responses or new model calls. Its INSUFFICIENT_EVIDENCE result
+is a workflow verification, not a strategy qualification. See the
+[Docker guided-page receipt](../evidence/docker-guided-pages-20261116.json).
+
+## Local preview restart recovery
+
+A Docker rebuild rotates the local CSRF value. An already-open tab now refreshes
+its local connection on a rejected request without showing sign-in or clearing
+its draft/context. The rejected action is never resent automatically; the UI asks
+the user to review and submit again. Authenticated deployments retain ordinary
+session-expiry behavior and all Host/Origin/CSRF checks remain enforced.
+
+Verified against an actual preview restart with an open background browser:
+no sign-in page, preserved draft across reload, one rejected write with no resend,
+and unchanged saved strategy hashes. See
+[restart receipt](../evidence/docker-local-recovery-20261116.json).
+
+## Full-session catalog and result diagnostics
+
+The preview now adds **EUR/USD and USD/JPY, January 21–23, 2025**: three complete
+24-hour partitions per pair (training, validation, previously available holdout).
+Each has 312 pre-start H1 and 1,254 M15 bars, sufficient to initialize the supported
+H1 trend/M15 breakout or pullback rules. Every selected tick is replayed in source
+order, including timestamp ties. No sparse sampling or invented quotes are used.
+The earlier tiny bundles and all old results remain intact.
+
+| Pair | Training ticks | Validation ticks | Holdout ticks | Total |
+| --- | ---: | ---: | ---: | ---: |
+| EUR/USD | 122,952 | 88,605 | 101,193 | 312,750 |
+| USD/JPY | 167,688 | 115,620 | 117,768 | 401,076 |
+
+**Tested symbol** explicitly filters dataset choices. The strategy specification
+covers both permitted pairs, but a study still tests one selected pair; the name
+of a strategy is not a symbol binding. Results display the actual pair, UTC bounds,
+duration, number of evaluations, candidate signals, closed trades and recorded
+hold reasons. Zero closed trades are distinguished from no signals, no evaluations
+and positions still open. Diagnostics are derived from retained decisions, so old
+results become explainable without rerunning or rewriting their evidence.
+
+Long studies run in a single bounded background worker. Durable admission prevents
+duplicate starts; browser reload only observes progress. A process interruption is
+reported as INTERRUPTED_NO_RESEND, never silently restarted. Full tick processing
+uses the existing streamed simulator engine and bounded compressed journal/equity
+spools. Result exports contain sampled chart values, full decisions/trades and
+hash receipts for the exact local audit streams under the private state directory.
+They do not embed the entire tick archive or gzip streams. At most one background
+run is admitted at a time; each partition remains bounded to 300,000 ticks/one day.
+
+The index and manifest are pinned by SHA-256; bindings are checked before and after
+replay. Index files are read-only copies mounted in the preview catalog. Create a
+catalog reproducibly from an existing full-session plan and local indexes:
+
+```powershell
+python -m tools.dev.catalog_sessions --plan PLAN.json --index EURUSD=EURUSD_INDEX.sqlite --index USDJPY=USDJPY_INDEX.sqlite --output CATALOG_DIRECTORY
+```
+
+This preserves the prior M3 sources, B01 verdict and M1 gaps. The existing dataset
+assumption remains counterfactual: calendar/news are assumed clear, receipt latency
+is modeled at 250 ms, and costs are uncalibrated. Previously exposed January data
+is not a fresh independent holdout. Three days provide more signal opportunities
+than the original minutes-long slices, but do not establish profitability or
+permission for PAPER/LIVE promotion. Trading remains disabled.
+
+Actual Docker acceptance exercised the owner's retained strategy with each pair's
+24-hour validation window, without mocked responses or new AI calls. EUR/USD
+processed 88,605 ticks and produced 96 evaluations, five candidate signals and one
+closed simulated trade. USD/JPY processed 115,620 ticks and produced 96 evaluations,
+seven candidate signals and one closed simulated trade. Both remain
+INSUFFICIENT_EVIDENCE. Reload during processing, completed result display and
+browser export passed. The earlier 11-minute zero-trade result now explicitly
+shows USD/JPY, one evaluation and NO_SIGNAL without changing its retained record.
+See [actual full-history receipt](../evidence/docker-full-history-20261116.json)
+and [catalog/source receipt](../evidence/historical-catalog-20261116.json).
+
+## Agent-selected periods and staged validation
+
+The default Backtest page now asks the owner to review executable rules and select
+**Run agent research**. The agent chooses both pairs' catalog inputs and stages;
+manual dataset/partition selection remains under Advanced. Preview agent plan
+explains the requested dates, warmup, available dates, age, coverage gaps and why a
+stage is blocked. Results retain progress, stage decisions and a downloadable
+agent report. A reload observes the same job rather than creating another one.
+
+`dashboard/validation_agent.py` implements versioned policy `strategy-validation/1`.
+The model authors the strategy; a deterministic strategy-aware planner chooses the
+research period before looking at outcomes. It does not ask a model to guess dates
+or search for a profitable window. The initial planning heuristic uses active UTC
+hours, M15 signal lookback and holding bars to request at least 126 weekday sessions,
+or more for slower/narrower-session rules. Targets are 100/50/50 closed trades in
+chronological 60/20/20 development/validation/holdout windows. These are engineering
+planning assumptions, not statistical power guarantees or measured trade frequency.
+Actual observations determine whether a stage has enough evidence.
+
+The requested end is the current UTC day's start. Catalog selection ranks overlap
+with the requested dates, then duration, recency and stable identity, never P&L.
+Checks include H1/M15 warmup, history length, requested-date coverage, source/cost/
+calendar qualification, independent holdout evidence and exact planned window
+bindings. Weekday counts are a preliminary availability estimate, not proof of
+complete market sessions. The current catalog is explicitly unqualified, so it
+cannot pass the full data gate regardless of a profitable exploratory result.
+
+The worker automatically registers the reviewed frozen strategy and runs available
+training partitions for each pair. With inadequate data those are explicitly
+EXPLORATORY_ONLY: the existing catalog windows are used and disclosed, not relabeled
+as the requested recent period. Validation and holdout stay closed. With qualified,
+exactly matched windows, the staged coordinator requires sufficient closed trades,
+settled positions, positive net P&L and preserved drawdown/underlying study gates
+before advancing. This staged coordinator is regression-tested with controlled
+outcomes; full qualified-window execution is not demonstrated by today's catalog.
+Walk-forward robustness, stress costs, benchmarks, uncertainty and combined-portfolio
+validation remain R2 requirements. No stage grants PAPER or LIVE authority.
+
+Admission is durable and at-most-once per plan. Changed catalog manifests are refused;
+manual replay cannot compete with an active agent. Interrupted or uncertain work is
+reported without automatic resend. Prior results, exposed holdouts and B01 remain
+unchanged. Automatic acquisition is now available through the explicitly configured fixed
+provider described below. Downloaded prices remain unqualified research inputs.
+
+Owner walkthrough: **Strategies → select frozen strategy → Backtest → Load proposal
+rules for review → review mapping → Preview agent plan → Run agent research → Results**.
+No dates, symbols, datasets or partitions need to be selected on the default path.
+
+Actual Docker acceptance used the owner's existing frozen strategy and retained AI
+rules with no new model calls, mocked responses or manual date/dataset selection.
+The plan requested 126 sessions from May 24 to November 17, 2026 (UTC). The catalog
+has three January 2025 sessions per pair, outside those requested dates. The agent
+ran each available training day: EUR/USD 122,952 ticks, eight candidate signals,
+one closed simulated trade; USD/JPY 167,688 ticks, three candidate signals, one
+closed simulated trade. Both failed the 100-trade training target; final state was
+DATA_REQUIRED, not strategy acceptance. No validation or holdout was opened by this
+agent run. Earlier standalone validation evidence remains unchanged.
+
+Actual UI verification covered plan preview, start, reload while processing, final
+results, report export, container-restart persistence, duplicate-start returning
+the original job and mobile width. A test-receipt script initially expected derived
+diagnostics in the raw immutable item; it was corrected to read the existing summary
+API. The completed studies were not repeated. See
+[Docker agent validation receipt](../evidence/docker-agent-validation-20261116.json).
+
+## Automatic historical acquisition (November 17)
+
+Set `FX_HISTORY_ACQUISITION=histdata` explicitly on the research service to enable
+fixed-origin downloads. The local Docker preview enables this setting. It does not
+configure broker connections or trading. With acquisition disabled, existing
+catalog-only behavior remains available. **Run agent research** now acquires missing
+history before replay; the UI shows downloading month, preparation and study stages.
+No file upload or manually selected dates are needed on this path.
+
+The provider is HistData's public monthly ASCII bid/ask tick ZIP download form.
+Only EURUSD and USDJPY are supported. HTTPS origin is pinned to www.histdata.com;
+redirects to another host or plaintext are refused. Download form identity, ZIP
+signature, byte limits, original archive SHA-256, member/month validation and price
+validation are checked. Requests are serial with bounded timeouts, no paid service,
+no account credentials and no automatic retries on provider errors. The form token
+is transient and never included in receipts. HTTP errors remain failures, not empty
+market sessions. Source archives are private and not committed or redistributed.
+
+Preparation downloads the months covering the fixed research period plus warmup.
+Completed months are cached immutably; the current month has a dated snapshot key
+so later plans can acquire a newer version without replacing old evidence. Cache
+and prepared index hashes are checked before reuse. Interrupted preparation is
+preserved rather than overwritten. The job itself remains at-most-once; a stopped
+job is not automatically restarted. Templates retain reviewed risk/cost assumptions;
+expired dated broker costs are not silently extended.
+
+October's actual EURUSD source contained reversed timestamps. The default legacy
+importer still rejects these. The acquisition path explicitly uses stable sorting
+by timestamp and original row sequence, retaining original ZIPs and a source-order
+SQLite journal. Equal-time ticks and duplicates remain intact; no prices/ticks are
+invented or sampled. The first rejected import was retained privately. UTC mapping
+continues to use the existing fixed-EST HistData convention. Gaps, observed days,
+missing weekdays and end lag are reported, not equated with certified coverage.
+
+Prepared data is registered in a separate private catalog under the dashboard state
+and restored on server restart. New acquisitions can span up to 366 days per
+partition, 50 million ticks per index/partition and 14 source months, with streaming
+replay and disk-backed normalization. Legacy catalog limits remain one day/300,000
+ticks. Larger studies may take substantial time and several GB of disk. Existing
+registrations retain their original engine hash and cannot execute against changed
+code; their saved results and all B01/M1 evidence remain untouched.
+
+Acquisition does **not** qualify source reliability, receipt timing, broker costs,
+calendar/news or untouched holdout evidence. Training uses explicitly disclosed
+assumed-clear calendar/news and modeled receipt latency for exploratory research.
+Missing warmup prevents replay. Later stages remain gated; no result grants trading
+permission. Walk-forward/portfolio robustness remains separate work.
+
+Verification: real October 2026 archives downloaded for both pairs on the host and
+inside Docker, with matching SHA-256 identities. An isolated Docker acceptance
+store exercised UI start → verified cache → preparation → training → result/export,
+using three explicitly bounded one-hour windows, not the full 126-session plan.
+Prepared inputs contained 790,379 EURUSD and 981,596 USDJPY ticks including warmup;
+both training studies finished, returned insufficient observations and opened no
+holdout. Reload and report export passed. The normal preview retains the full
+agent-selected horizon; this acceptance override exists only in the private test
+server, not production code. See
+[actual Docker receipt](../evidence/history-acquisition-docker-20261117.json).
+
+### Full 126-session attempt (November 17)
+
+The actual preview launched the frozen candidate's May 24–November 17 plan for
+EURUSD and USDJPY, targeting 126 weekday sessions per pair. **It did not complete.**
+EURUSD acquisition prepared 8,868,381 ticks including warmup, but the source lacked
+November 16. Training contained 4,361,547 ticks. Replay stopped after the last
+1,925,000-tick progress marker because its retained audit reached the inherited
+8 GiB uncompressed limit (8,589,933,369 bytes retained). This was not a container
+crash or an out-of-memory event. USDJPY was not started by the sequential worker.
+
+The preserved journal also first records an integrity halt on May 27 at
+13:30:31.937 UTC. Its exact trigger is not yet proven; it must not be labeled a
+broker, clock or stale-quote defect. There is no completed performance verdict.
+Validation and holdout remained closed. Trading remained disabled.
+
+The Results page displays `FAILED_NO_RESEND`; actual browser checks verified its
+export, reload and absence of JavaScript errors. The failed exposure, source data
+and compressed journal/equity files remain intact. Temporary CPU/memory allowances
+were restored after the worker stopped. See the
+[full-study failure receipt](../evidence/full-history-study-attempt-20261117.json).
+
+Before a corrected run, the long-study path needs segmented, bounded audit storage
+with independently readable receipts, specific safe failure diagnostics, and a
+diagnosis of that first integrity halt. Do not erase this failed exposure or treat
+it as a completed 126-session study. Any corrected run must have a distinct
+engine/plan identity; acquisition alone never changes qualification.
+
+### Long-study remediation
+
+The preserved May 27 checkpoint reproduces an **actual aggregate-risk breach**:
+10.08 of modeled open risk exceeded the 9.99695792198 equity-based limit. A favorable
+price move increased liquidation-to-stop exposure while the stop remained fixed.
+This is not a stale quote or broker defect. The exact checkpoint regression proves
+the original policy still closes the simulated position and keeps HARD_HALT latched.
+No risk limit, quote-age rule or reset behavior was changed. Candidate results now
+include the measured breach and report REJECT_OR_REVISE when an integrity halt
+occurred, even if the trade sample is small. The UI shows the reason and values.
+
+Acquired-history journals use lossless segments (256 MiB raw per segment), a final
+manifest and independent hashes/counts/sequence ranges. Every original record and
+chain hash remains reconstructible; this is not downsampling. Per-study bounds are
+512 segments, 128 GiB raw and 8 GiB compressed, with a 512 MiB free-disk reserve
+checked before each segment. Incomplete streams retain their parts without a success
+manifest. Readers reject changed/missing/reordered parts and receipt mismatches.
+Legacy short-study storage and committed B01 numerical evidence remain unchanged.
+
+Plans now pin the engine hash; a changed engine requires a distinct reviewed plan.
+Audit-capacity/disk failures receive safe specific codes, and subsequent unstarted
+pairs are explicit. A corrected run preserves the prior failed exposure and reuses
+only verified source inputs; it does not acquire trading authority.
+
+Verification before rerun: the original checkpoint closes and remains halted;
+segmented reconstruction crosses the old per-file bound in a bounded fixture and
+detects tampering, interruption and disk exhaustion. Acquired-index replay/export
+uses the new manifest in integration tests. Native suite: 1,381 passed, 145 skipped;
+31 affected tests passed after the final manifest guard/integration test. All 19
+headless browser tests and all 36 B01 numerical-parity cases passed.
+
+The first corrected attempt completed EURUSD training (4,361,547 ticks; two closed
+trades; net simulated P&L −3.52216512778; REJECT_OR_REVISE). Its 19.5 GB logical
+journal successfully crossed the former limit in 73 segments. USDJPY then exposed
+a further scaling cost: repeating a growing entry history on every tick. That
+attempt was deliberately stopped and preserved, including its completed EURUSD
+result and interrupted USDJPY stream; it is not a completed two-pair study.
+
+The acquired-history path now uses versioned `book-delta/1` records inside those
+segments. Every event is retained; exact prior books are reconstructed by applying
+each delta to its preceding checkpoint. Hash chains cover the encoded records.
+Validated frozen core fields can be reused when their identities are unchanged;
+nested mutable mappings are separately compared against detached snapshots, and
+changes force full revalidation. Dynamic fields are still validated for every
+update. Legacy replay keeps full snapshots, preserving the committed B01 evidence.
+
+Tests compare every reconstructed book and all financial outputs against legacy
+replay and verify that nested mapping mutation invalidates the cache. A separate
+benchmark using the captured 15-entry simulator history processed the same 2,000
+updates in 4.54 seconds / 54.7 MB with full snapshots versus 0.31 seconds / 0.76 MB
+with deltas; this is a serialization benchmark, not a strategy result. The native
+suite passed 1,385 tests with 145 skipped. Corrected-engine plans can explicitly
+supersede a stopped plan while preserving its exact period, rules, source bindings
+and gates; they cannot restart the original exposure or repeat the same engine.
+
+### Corrected two-symbol study result — November 18
+
+Engine `66e7507` completed both exploratory training replays under the unchanged
+May 24–November 17, 126-weekday request. Training ran through September 7 at
+04:48 UTC; validation and holdout were not opened. The overall result is
+`DATA_REQUIRED`, not full-period qualification. Both sources lack November 16,
+and dated broker costs, calendar/news and independent holdout remain unqualified.
+
+| Training result | EURUSD | USDJPY |
+| --- | ---: | ---: |
+| Ticks processed | 4,361,547 | 6,433,389 |
+| Closed trades / wins | 2 / 1 | 23 / 8 |
+| Net simulated P&L | −3.52216513 | −28.98697836 |
+| Maximum observed drawdown | 0.05522% | 0.36235% |
+| Verdict | REJECT_OR_REVISE | REJECT_OR_REVISE |
+
+These are separate single-symbol studies, not portfolio returns. Both hit actual
+aggregate-risk limits and ended fully settled with no open positions. EURUSD's
+halt was May 27 at 13:30:31.937 UTC; USDJPY's was June 12 at 09:38:01.777 UTC
+(10.09629634 modeled open risk versus the unchanged 9.97155453 limit). The
+protective close and latched halt remain correct behavior; no threshold was
+relaxed to create trades or a passing result.
+
+The current journal retains 4,361,583 EURUSD and 6,433,782 USDJPY records using
+lossless deltas. EURUSD's financial outputs exactly match the prior completed
+full-snapshot replay. The failed original and deliberately interrupted
+segment-only attempt remain preserved with distinct identities. See the
+[corrected-study verification receipt](../evidence/full-history-remediation-20261118.json)
+for exact values, hashes, preservation checks and UI export verification.
+
+The Docker Results page shows both symbol verdicts and the specific risk halts;
+its exported agent report matches the stored result. Trading remains disabled.
+The same browser checks passed after restarting the preview with its original
+0.5-CPU / 256-MiB limits; both results and exports persisted without another run.
+
+### AI diagnosis, controlled revision and comparison
+
+From a training result, choose **Diagnose and improve**. The separate Improve page
+shows verified baseline facts, an optional English/Chinese instruction, and the
+AI's explanation, hypothesis, proposed rule change, falsification criterion and
+uncertainty. Model statements are hypotheses, not verified causal conclusions.
+The request is pinned to the retained result, policy, rules and metrics. It shares
+the existing ten-call research budget; uncertain requests are retained without
+automatic resend. No broker credentials or order capability enter this workflow.
+
+The owner reviews a single supported Rules change, then creates a linked draft.
+Risk percentages, pair scope and portfolio policy are inherited unchanged. An
+investigation-only recommendation, unchanged rules or multiple changed parameters
+cannot create a revision. Original versions and results remain immutable.
+
+**Freeze revision and run comparison** registers the exact original training data,
+window, costs, acceptance thresholds and engine with the new rule and candidate.
+The comparison checks those bindings again before displaying results. It reports
+original/revised P&L, trades, drawdown, risk halt and verdict side by side, with an
+exportable immutable receipt. Admission prevents duplicate replay; interrupted or
+failed comparisons are explicit and never retried automatically. Large indexed
+comparisons use the existing background worker and refresh while this page is open.
+
+This is exploratory reuse of training data. It cannot open validation/holdout,
+change the two-second rule, relax a risk limit, promote a strategy or enable
+trading. The AI's prose falsification criterion is retained for review; it is not
+arbitrary executable code. Deterministic assessment remains authoritative.
+
+Acceptance covered the real backend and Docker image through diagnosis, review,
+revision, freeze, replay, comparison, export and reload using explicitly synthetic
+market/provider fixtures. Separately, a real OpenAI call diagnosed the retained
+EURUSD full-study training result and suggested signal_period 20 → 24 as an
+unvalidated hypothesis. That live diagnosis survived a preview recreation. Its
+suggestion has not been run on the full historical study and is not an improvement
+claim. See [workflow acceptance](../evidence/ai-improvement-20261118.json).
+
+### Authorized 24-bar EURUSD comparison
+
+The subsequent owner-authorized comparison ran the real saved AI revision against
+the original EURUSD training inputs. Only `signal_period` changed, from 20 to 24
+completed M15 bars. Dataset, May 24–September 7 at 04:48 UTC window, engine, costs,
+risk policy and acceptance thresholds were verified identical before execution
+and again when the comparison receipt was created.
+
+All 4,361,547 ticks completed. Both versions produced two closed trades (one win),
+net simulated P&L −3.52216512778, and maximum observed drawdown 0.05522%. The net
+P&L difference is zero. Independent deal comparison found identical entry/exit
+times and economic values after excluding version-specific identifiers. The same
+aggregate-risk halt occurred May 27 at 13:30:31.937 UTC; both ended flat and remain
+REJECT_OR_REVISE. This hypothesis produced **no observed improvement** and did not
+resolve the risk-policy behavior. Two trades cannot support broader inference.
+
+The journal chain, lossless reconstruction and equity stream were independently
+verified; original baseline segments and equity hashes remain unchanged. The UI
+shows both versions in Improve, with a verified comparison export. No validation
+or holdout was opened, no risk limit changed, and trading remains disabled.
+See [the actual comparison receipt](../evidence/eurusd-24bar-comparison-20261118.json).
+
+### Shared risk-halt diagnosis (November 18)
+
+On a training result, **Diagnose and improve → Investigate risk halt** verifies
+its pinned engine, historical index and compressed journal parts, reconstructs
+the pre-halt gateway/broker books and ledger, then replays the two exact historical
+quotes straddling the first aggregate-risk halt in the in-memory simulator.
+The recorded close's action, volume, price, commission and realized amount must
+match. A repeated-quote check verifies that the halt remains latched and flat.
+The immutable report includes trade outcomes, risk decomposition, hashes and an
+export. This deterministic investigation does not consume an AI request, create
+an entry, rerun the full study, change policy or open validation/holdout.
+
+Both original 20-bar and revised 24-bar EURUSD runs reproduced the same outcome:
+
+| Trade | Simulated net P&L (USD) | Exit | Admitted entry risk |
+| --- | ---: | --- | ---: |
+| 1 | -4.802078 | Stop reached | 5.04 |
+| 2 | +1.279913 | Aggregate-risk protective close | 8.16 |
+
+At 13:30:31.831 UTC on May 27, risk was 9.92, below the 9.996798 cap.
+At 13:30:31.937, just 106 ms later, it was 10.08, above the 9.996958 cap:
+**7.12 entry-to-stop loss + 2.08 unrealized profit + 0.88 incremental exit buffer**.
+Unresolved reservation risk was zero; the filled entry was not double-counted.
+The cap remained 0.10% of eligible current equity. The original entry-risk
+calculation also budgets opening costs; it is not the same measurement as ongoing
+current-liquidation-to-stop exposure.
+
+This matches the [canonical risk definition](../architecture/specification.md):
+ongoing exposure includes profit that could be given back to the stop. No arithmetic
+defect was reproduced. The fixed stop and the halt policy interacted to close a
+profitable position and prevent subsequent entries. This explains the shared halt;
+it does not establish whether either strategy would be profitable without it.
+Changing breakout lookback produced identical trades and did not address that
+interaction. Protective management within the unchanged limits is the next
+research question, not permission to loosen the cap or silently reset the halt.
+
+Both short replays reproduced the original close and ended HARD_HALT, flat, with
+unchanged policies. Each verified 111,073 journal-prefix rows and all pinned
+compressed-part hashes. The full baseline/revision results remain REJECT_OR_REVISE;
+M1 qualification gaps, costs and historical-input limitations remain open.
+See [the diagnosis and UI verification receipt](../evidence/shared-risk-halt-20261118.json).
+
+### Session-aware research
+
+Named local-time entry sessions, overlap attribution, explicit breakout reference
+ranges, and session evidence in AI diagnosis are now available. Existing frozen
+results are interpreted in separate immutable reports, never rewritten or silently
+rerun. See [session-aware research](session-aware-research.md) for precise clock,
+range, UI, comparison and sample-size semantics.

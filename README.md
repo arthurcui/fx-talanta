@@ -64,10 +64,15 @@ implementation code is merged. There is no automatic broker failover.
 ## Current status and roadmap
 
 The current [R0-R6 roadmap](docs/product/roadmap.md) follows the trading lifecycle:
-AI strategy design -> backtest -> demo -> capped live -> evaluate and improve.
+market context -> observable setup and invalidation -> costed validation -> demo
+-> capped live -> evaluate and improve. The immediate research priority is one
+trend-pullback setup at a previously known price level, with confirmation, an
+inspectable chart and unchanged risk controls. This extension is planned; the
+existing indicator kernels do not yet recognize structural support/retest sequences.
 Each milestone includes a usable UI and end-to-end acceptance. The initial strategy
-workspace stores and freezes descriptive candidates; AI generation and candidate-bound
-backtest execution remain to integrate. Existing M0-M7 evidence below is preserved.
+workspace stores and freezes candidates. [AI proposals and candidate-bound
+historical replay](docs/engineering/candidate-research.md) connect reviewed rules to
+research results; full portfolio and independent validation remain open. Existing M0-M7 evidence below is preserved.
 
 | Area | Status |
 | --- | --- |

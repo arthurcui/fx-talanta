@@ -1,0 +1,253 @@
+{
+  "scope": "Actual original and 24-bar EURUSD training halts, independently reconstructed",
+  "original": {
+    "id": "08192db77fc209fb7b69770a63d043cd0073aa43839e31b18c73bc399f36ea4d",
+    "kind": "RISK_DIAGNOSIS",
+    "payload": {
+      "baseline_id": "ca91178a0a0a37ef887ab05af0933eb28971d07ab112b57c9125cd3bf354cfa6",
+      "candidate_sha256": "8ce7a0108e5fcbbd0284b4aa987369e82d4c94657eee885517a15eb7ddd9388e",
+      "trades": [
+        {
+          "trade": 1,
+          "symbol": "EURUSD",
+          "side": "BUY",
+          "opened_at": "2026-05-25T12:45:02.399000Z",
+          "closed_at": "2026-05-25T12:57:30.486000Z",
+          "volume": "0.08",
+          "admitted_risk": "5.04000000",
+          "net_pnl": "-4.802078019444444444444444444444444",
+          "exit_reason": "STOP_REACHED"
+        },
+        {
+          "trade": 2,
+          "symbol": "EURUSD",
+          "side": "BUY",
+          "opened_at": "2026-05-27T13:30:00.578000Z",
+          "closed_at": "2026-05-27T13:30:31.937000Z",
+          "volume": "0.08",
+          "admitted_risk": "8.16000000",
+          "net_pnl": "1.279912891666666666666666666666667",
+          "exit_reason": "AGGREGATE_RISK_HALT"
+        }
+      ],
+      "replay": {
+        "previous_at": "2026-05-27T13:30:31.831000+00:00",
+        "trigger_at": "2026-05-27T13:30:31.937000+00:00",
+        "historical_observations": 2,
+        "elapsed_seconds": 0.106,
+        "before": {
+          "equity": "9996.797921980555555555555555555556",
+          "balance": "9994.877921980555555555555555555556",
+          "eligible_equity": "9996.797921980555555555555555555556",
+          "aggregate_fraction": "0.001",
+          "aggregate_limit": "9.996797921980555555555555555555556",
+          "aggregate_risk": "9.92000000",
+          "excess": "-0.076797921980555555555555555555556",
+          "pending_reservation_risk": "0E-8",
+          "positions": [
+            {
+              "symbol": "EURUSD",
+              "side": "BUY",
+              "volume": "0.08",
+              "entry_to_stop_loss": "7.12000000",
+              "unrealized_pnl": "1.92000000",
+              "current_to_stop_loss": "9.04000000",
+              "incremental_exit_buffer": "0.88",
+              "aggregate_contribution": "9.92000000"
+            }
+          ]
+        },
+        "trigger": {
+          "equity": "9996.957921980555555555555555555556",
+          "balance": "9994.877921980555555555555555555556",
+          "eligible_equity": "9996.957921980555555555555555555556",
+          "aggregate_fraction": "0.001",
+          "aggregate_limit": "9.996957921980555555555555555555556",
+          "aggregate_risk": "10.08000000",
+          "excess": "0.083042078019444444444444444444444",
+          "pending_reservation_risk": "0E-8",
+          "positions": [
+            {
+              "symbol": "EURUSD",
+              "side": "BUY",
+              "volume": "0.08",
+              "entry_to_stop_loss": "7.12000000",
+              "unrealized_pnl": "2.08000000",
+              "current_to_stop_loss": "9.20000000",
+              "incremental_exit_buffer": "0.88",
+              "aggregate_contribution": "10.08000000"
+            }
+          ]
+        },
+        "breach": {
+          "at": "2026-05-27T13:30:31.937000+00:00",
+          "reason": "RISK_LIMIT_BREACH",
+          "limits": {
+            "aggregate_risk": {
+              "actual": "10.08000000",
+              "limit": "9.996957921980555555555555555555556"
+            }
+          }
+        },
+        "final_balance": "9996.477834872222222222222222222223",
+        "final_state": "HARD_HALT",
+        "remaining_positions": 0,
+        "policy_unchanged": true,
+        "repeated_quote_stays_halted": true,
+        "execution_enabled": false
+      },
+      "checkpoint_sha256": "1ae8cecf593ba98c23099b1e91272b2ef837d56565d3d4211374bd3f0cca3375",
+      "journal_sha256": "fb8375215cef9c0bdae1512557175b326bfc03fe6ccc93333b5bcd4c521398e9",
+      "index_sha256": "16bfee856c1b2c52c913da3e925422569006c2c95878de2b2bcc5069b0cffd49",
+      "verified_prefix_rows": 111073,
+      "checkpoint_chain_tip": "d278e0a01041f7b6fb5711aeb03e80e6a1a79db2b65360e65089233e41b22775",
+      "conclusion": "CURRENT_TO_STOP_GIVEBACK_EXCEEDED_AGGREGATE_LIMIT",
+      "policy_matches_documented_definition": true,
+      "calculation_defect_reproduced": false,
+      "explanation": "Ongoing risk includes unrealized profit that can be given back to a fixed stop. This differs from initial entry-to-stop capital risk and matches the documented policy. The current-equity aggregate limit was crossed; the protective close was reproduced from retained evidence.",
+      "next_action": "Review protective management within the unchanged limits before another parameter sweep.",
+      "scope": "Two historical observations replayed; repeated-quote latch check; no new entry or full-study run.",
+      "execution_enabled": false,
+      "qualified_for_paper": false
+    }
+  },
+  "revision": {
+    "id": "ad084b39c447959092beb44023785855dcaf71461ceb1a36114af8583a4c1bed",
+    "kind": "RISK_DIAGNOSIS",
+    "payload": {
+      "baseline_id": "b3f95e2b8967f801b8f2c2eee9397254d8045391b10663b8e4a53583e6a45a79",
+      "candidate_sha256": "439422cc59019394269a5d99c809be1043a00707d50013d55e5b0bee4870f3ba",
+      "trades": [
+        {
+          "trade": 1,
+          "symbol": "EURUSD",
+          "side": "BUY",
+          "opened_at": "2026-05-25T12:45:02.399000Z",
+          "closed_at": "2026-05-25T12:57:30.486000Z",
+          "volume": "0.08",
+          "admitted_risk": "5.04000000",
+          "net_pnl": "-4.802078019444444444444444444444444",
+          "exit_reason": "STOP_REACHED"
+        },
+        {
+          "trade": 2,
+          "symbol": "EURUSD",
+          "side": "BUY",
+          "opened_at": "2026-05-27T13:30:00.578000Z",
+          "closed_at": "2026-05-27T13:30:31.937000Z",
+          "volume": "0.08",
+          "admitted_risk": "8.16000000",
+          "net_pnl": "1.279912891666666666666666666666667",
+          "exit_reason": "AGGREGATE_RISK_HALT"
+        }
+      ],
+      "replay": {
+        "previous_at": "2026-05-27T13:30:31.831000+00:00",
+        "trigger_at": "2026-05-27T13:30:31.937000+00:00",
+        "historical_observations": 2,
+        "elapsed_seconds": 0.106,
+        "before": {
+          "equity": "9996.797921980555555555555555555556",
+          "balance": "9994.877921980555555555555555555556",
+          "eligible_equity": "9996.797921980555555555555555555556",
+          "aggregate_fraction": "0.001",
+          "aggregate_limit": "9.996797921980555555555555555555556",
+          "aggregate_risk": "9.92000000",
+          "excess": "-0.076797921980555555555555555555556",
+          "pending_reservation_risk": "0E-8",
+          "positions": [
+            {
+              "symbol": "EURUSD",
+              "side": "BUY",
+              "volume": "0.08",
+              "entry_to_stop_loss": "7.12000000",
+              "unrealized_pnl": "1.92000000",
+              "current_to_stop_loss": "9.04000000",
+              "incremental_exit_buffer": "0.88",
+              "aggregate_contribution": "9.92000000"
+            }
+          ]
+        },
+        "trigger": {
+          "equity": "9996.957921980555555555555555555556",
+          "balance": "9994.877921980555555555555555555556",
+          "eligible_equity": "9996.957921980555555555555555555556",
+          "aggregate_fraction": "0.001",
+          "aggregate_limit": "9.996957921980555555555555555555556",
+          "aggregate_risk": "10.08000000",
+          "excess": "0.083042078019444444444444444444444",
+          "pending_reservation_risk": "0E-8",
+          "positions": [
+            {
+              "symbol": "EURUSD",
+              "side": "BUY",
+              "volume": "0.08",
+              "entry_to_stop_loss": "7.12000000",
+              "unrealized_pnl": "2.08000000",
+              "current_to_stop_loss": "9.20000000",
+              "incremental_exit_buffer": "0.88",
+              "aggregate_contribution": "10.08000000"
+            }
+          ]
+        },
+        "breach": {
+          "at": "2026-05-27T13:30:31.937000+00:00",
+          "reason": "RISK_LIMIT_BREACH",
+          "limits": {
+            "aggregate_risk": {
+              "actual": "10.08000000",
+              "limit": "9.996957921980555555555555555555556"
+            }
+          }
+        },
+        "final_balance": "9996.477834872222222222222222222223",
+        "final_state": "HARD_HALT",
+        "remaining_positions": 0,
+        "policy_unchanged": true,
+        "repeated_quote_stays_halted": true,
+        "execution_enabled": false
+      },
+      "checkpoint_sha256": "661a5ea167f96d7fb786f99685b744604fc41ff91fc6bd4576fb6d0d7ce91700",
+      "journal_sha256": "89ce4f2d815fa51274125264fe611d62a7fdf29d078bfeddb6512e9240073d1c",
+      "index_sha256": "16bfee856c1b2c52c913da3e925422569006c2c95878de2b2bcc5069b0cffd49",
+      "verified_prefix_rows": 111073,
+      "checkpoint_chain_tip": "b0c49f0e6e316a5e273087c9ac251fac77c3960e6f6475742b6e973564cbf8e6",
+      "conclusion": "CURRENT_TO_STOP_GIVEBACK_EXCEEDED_AGGREGATE_LIMIT",
+      "policy_matches_documented_definition": true,
+      "calculation_defect_reproduced": false,
+      "explanation": "Ongoing risk includes unrealized profit that can be given back to a fixed stop. This differs from initial entry-to-stop capital risk and matches the documented policy. The current-equity aggregate limit was crossed; the protective close was reproduced from retained evidence.",
+      "next_action": "Review protective management within the unchanged limits before another parameter sweep.",
+      "scope": "Two historical observations replayed; repeated-quote latch check; no new entry or full-study run.",
+      "execution_enabled": false,
+      "qualified_for_paper": false
+    }
+  },
+  "economic_diagnoses_identical": true,
+  "full_study_rerun": false,
+  "new_ai_call": false,
+  "validation_or_holdout_opened": false,
+  "policy_changed": false,
+  "trading_enabled": false,
+  "pr_merged": false,
+  "ui": {
+    "original_and_revision_visible": true,
+    "cached_investigation_idempotent": true,
+    "export_matches": true,
+    "reload_passed": true,
+    "chinese_labels_verified": true,
+    "page_errors": []
+  },
+  "verification": {
+    "native_passed": 1396,
+    "native_skipped": 145,
+    "targeted_tests_passed": 16,
+    "note": "Headless real Docker preview; normal 0.5 CPU/256 MiB limits restored",
+    "browser_passed": 20
+  },
+  "limitations": [
+    "Training evidence only; no promotion or profitability conclusion",
+    "Historical input, cost, calendar/news and independent validation gaps retained",
+    "Unchanged fixed-stop giveback policy explains the halt, not all future performance",
+    "Targeted reproduction uses two quotes plus a repeated-quote latch check; it is not a new full study"
+  ]
+}

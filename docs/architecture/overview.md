@@ -14,7 +14,8 @@ submission boundary. A model cannot replace the EA or bypass those checks.
 | Step | Responsible component and authority | Recorded evidence | Failure behavior |
 | --- | --- | --- | --- |
 | Observe | `observer/`, provider/calendar adapters and channel telemetry observe; no order authority | Source timestamps, receipt times, provenance, revisions and channel state | Missing, stale or unqualified inputs block readiness; connection health alone is insufficient |
-| Propose | Bounded model selection and recorded/fixture runner integration; AI strategy design remains to integrate | Versioned intent, inputs, rationale and exact evidence references | Invalid/expired proposals are rejected; a model cannot grant itself execution rights |
+| Propose | Bounded model selection and recorded/fixture runner integration; reviewed AI strategy proposals and offline research orchestration | Versioned intent, inputs, rationale and exact evidence references | Invalid/expired proposals are rejected; a model cannot grant itself execution rights |
+| Recognize setup (planned) | Reviewed deterministic rules, using point-in-time context; no order authority | Known level, closed-bar sequence, confirmation/invalidation, expiry and all watched opportunities | Future/absent evidence cannot confirm a setup; retire broken/expired setups and retain HOLD reasons. This extends the existing indicator kernels; it is not implemented yet |
 | Reserve risk | `risk/`, `safety/`, bounded demo budget and coordinator | Deterministic sizing, account scope, reservation and policy/budget fingerprints | Reject or hold before admission; committed reservations are not replenished by retries/restarts |
 | Execute | Fixed MQL5 EA validates native identity, authority, quote freshness and protection | Native attempt journal, request identity, broker response and protective state | Fail closed on bad identity/clock/freshness; uncertain submission is reconciled, never blindly resent |
 | Reconcile | Native reconciliation and backend projection compare broker orders/deals/positions | Positive entry/exit witnesses, protected state, durable outbox/ACK and final closure | Flatness alone is not proof; unresolved ownership/protection halts entry and retains evidence |
@@ -26,6 +27,11 @@ closure without recovery. Neither proves the full fault matrix. Advisor engineer
 exists, but the complete production learning loop remains unqualified. Read the
 [status](../product/status.md) for the exact boundary.
 
+The November 18 roadmap prioritizes one structural trend-pullback study before
+additional indicator families. Its chart, opportunity ledger and restrictive
+lifecycle sizing are planned. Existing EMA recross/range-breakout kernels remain
+accurately labeled; neither is proof of a confirmed support/retest strategy.
+
 ## Code and data boundaries
 
 - `src/fx_talanta/domain/` defines validated contracts. `storage/` provides account-bound
@@ -36,8 +42,10 @@ exists, but the complete production learning loop remains unqualified. Read the
   implement distinct bounded, disabled, shadow and protocol paths; names do not imply LIVE authority.
 - `mql5/` contains runtime EA programs and shared native libraries. `tests/native/`
   contains native checks and Tester-only programs, outside runtime deployment inputs.
-- `src/fx_talanta/research/` contains synthetic demonstration records and observations.
-  These ship for offline demos, but are not production strategy implementations.
+- `src/fx_talanta/research/` implements schema-bound strategy evaluation and historical
+  replay. `dashboard/validation_agent.py` plans periods, checks data adequacy and
+  orchestrates staged research with durable admission. Fixture evidence remains
+  distinct from historical evidence; neither module has broker order authority.
 - `tools/` contains development, fixture generation and qualification commands. It is
   not included in the runtime application image; the acceptance image includes it explicitly.
 

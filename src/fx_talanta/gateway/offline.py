@@ -677,6 +677,25 @@ class Gateway:
                         abs(v) > eligible * policy.currency_multiple for v in currencies.values()
                     )
                 ):
+                    if not self.book.integrity_halt:
+                        checks = {
+                            "aggregate_risk": (risk, eligible * policy.aggregate_fraction),
+                            "gross_exposure": (gross, eligible * policy.gross_multiple),
+                            "margin": (margin, eligible * policy.margin_fraction),
+                            **{
+                                f"currency_{c}": (abs(v), eligible * policy.currency_multiple)
+                                for c, v in currencies.items()
+                            },
+                        }
+                        self.integrity_breach = {
+                            "at": now.isoformat(),
+                            "reason": "RISK_LIMIT_BREACH",
+                            "limits": {
+                                name: {"actual": str(actual), "limit": str(limit)}
+                                for name, (actual, limit) in checks.items()
+                                if actual > limit
+                            },
+                        }
                     self.book = self.book.model_copy(update={"integrity_halt": True})
             self._protect_and_exit(market)
             self._sync_operations()

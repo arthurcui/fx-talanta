@@ -1,3 +1,5 @@
+See [normal local sign-in](local-signin.md) to use a persistent, revocable session without a launch shortcut.
+
 # Read-only operating dashboard
 
 The M5 dashboard is a working local browser interface for **offline inspection**.
@@ -7,6 +9,22 @@ offline. Optional explicit configuration adds bounded model citation selection
 and a read-only historical broker-journal panel, as described below. It never
 connects to MT5 or enables broker trading. The optional operator mode below
 attaches only the existing offline PAPER simulator gateway.
+
+## Find your task
+
+- **Overview**: current research status and trading boundaries.
+- **Strategies**: create a strategy or open a saved version.
+- **Market & Data**: EA/Python/MCP status, quote latency, calendar and news.
+- **Advisor**: evidence-backed questions and explanations.
+- **Activity**: journal, incidents and service records.
+
+For strategy research, follow **Describe → Review → Backtest → Results**.
+Describe your idea, review a proposal, save and freeze a version, then choose a
+historical dataset and confirm its executable rules. **Run backtest** handles
+registration and execution together. Results show the verdict and exportable
+evidence. Use **Revise this strategy** to return to its form. The selected version
+stays with you across pages and reloads. Review confirmation must be checked again
+after reload; unsaved edits must be saved/frozen before backtesting.
 
 ## Open the UI
 
@@ -642,3 +660,16 @@ Save, inspect, freeze, revise and export candidates for EURUSD/USDJPY. Proposed 
 percentages do not alter account mandates. A freeze preserves content for research;
 it does not qualify execution. AI generation and candidate-bound backtest execution
 are not connected to this form yet. The UI states these limits explicitly.
+
+### Choose a historical study
+
+On Backtest, choose **Tested symbol** first, then the matching dataset. The
+`three-full-days` datasets contain January 21–23, 2025, with pre-start H1/M15
+warm-up bars. Each training/validation/holdout choice runs one complete 24-hour
+window. The older pilot datasets remain available for quick software checks.
+
+After **Run backtest**, Results shows background status; you can leave the page
+or reload without starting another run. Completed results show the tested pair,
+UTC window, duration, evaluation counts and reasons for holding. A zero-trade
+result is evidence of what those rules did on that window, not a profitability
+assessment. All datasets retain their source/cost/calendar qualification caveats.

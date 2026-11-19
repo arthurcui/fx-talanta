@@ -1,3 +1,4 @@
+import { openPage } from "./navigation.js";
 import { test, expect } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { mkdtempSync, readFileSync, existsSync } from "node:fs";
@@ -36,30 +37,39 @@ test("bounded model and offline study integrate without trading capability", asy
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(url);
   await expect(page.locator("#model-status")).toContainText("0/1");
+  await openPage(page, "/advisor");
   await page.locator("#use-model").check();
+  await openPage(page, "/advisor");
   await page.locator("#question").fill("Explain the available evidence");
+  await openPage(page, "/advisor");
   await page.locator("#send").click();
   await expect(page.locator("#messages")).toContainText(
     "M4 bounded evidence selection",
   );
   await expect(page.locator("#retry-explanation")).toBeHidden();
+  await openPage(page, "/advisor");
   await page.locator("#question").fill("Explain again");
+  await openPage(page, "/advisor");
   await page.locator("#send").click();
   await expect(page.locator("#messages")).toContainText("BUDGET_EXHAUSTED");
+  await openPage(page, "/activity");
   await page
     .locator("#study-file")
     .setInputFiles(resolve(root, "tests/fixtures/m5/matched-study.json"));
+  await openPage(page, "/activity");
   await page.locator("#study-upload").click();
   await expect(page.locator("#study-results")).toContainText("SYNTHETIC");
   await expect(page.locator("#study-message")).toContainText(
     "No qualification or execution enabled",
   );
   const original = await page.locator("#study-results").innerText();
+  await openPage(page, "/activity");
   await page.locator("#study-file").setInputFiles({
     name: "invalid.json",
     mimeType: "application/json",
     buffer: Buffer.from("{}"),
   });
+  await openPage(page, "/activity");
   await page.locator("#study-upload").click();
   await expect(page.locator("#study-message")).toContainText(
     "previous result retained",
@@ -124,6 +134,7 @@ test("sampled alert and broker outage clear stale displayed details", async ({
     "quote freshness: UNVERIFIED",
   );
   await expect(page.locator("#broker-details")).toContainText("NOT_OBSERVED");
+  await openPage(page, "/activity");
   await page.locator("#alert-changes").check();
   changed = true;
   failed = true;
@@ -138,33 +149,46 @@ test("operator confirmation, viewer denial, replay and revocation", async ({
   page,
 }) => {
   await page.goto(url);
+  await openPage(page, "/activity");
   await expect(page.locator("#operator-panel")).toBeVisible();
+  await openPage(page, "/activity");
   await page
     .locator("#operator-token")
     .fill("fixture-token-local-only-at-least-32-characters");
+  await openPage(page, "/activity");
   await page.locator("#operator-read").click();
   await expect(page.locator("#operator-state")).toHaveText("Unavailable");
+  await openPage(page, "/activity");
   await page
     .locator("#operator-token")
     .fill("isolated-operator-fixture-" + "z".repeat(40));
+  await openPage(page, "/activity");
   await page.locator("#operator-read").click();
   await expect(page.locator("#operator-state")).toContainText("SIMULATOR");
+  await openPage(page, "/activity");
   await page.locator("#operator-preview").click();
   await expect(page.locator("#operator-preview-text")).toContainText(
     "SIMULATOR ONLY",
   );
+  await openPage(page, "/activity");
   await page.locator("#operator-confirmation").fill("yes");
+  await openPage(page, "/activity");
   await page.locator("#operator-confirm").click();
   await expect(page.locator("#operator-result")).toContainText("Invalid");
+  await openPage(page, "/activity");
   await page.locator("#operator-confirmation").fill("SIMULATOR ONLY");
+  await openPage(page, "/activity");
   await page.locator("#operator-confirm").click();
   await expect(page.locator("#operator-result")).toContainText("COMPLETED");
+  await openPage(page, "/activity");
   await page.locator("#operator-confirm").click();
   await expect(page.locator("#operator-result")).toContainText("COMPLETED");
+  await openPage(page, "/activity");
   await page.locator("#operator-read").click();
   await expect(page.locator("#operator-state")).toContainText(
     '"administrative_pause": true',
   );
+  await openPage(page, "/activity");
   await page.locator("#operator-revoke").click();
   await expect(page.locator("#operator-result")).toContainText("revoked");
   await expect(page.locator("#operator-token")).toHaveValue("");
@@ -177,15 +201,18 @@ test("local notifications remain acknowledged after reopening", async ({
   await expect(page.locator("#service-status")).toContainText("RECENT", {
     timeout: 12000,
   });
+  await openPage(page, "/activity");
   await page.locator("#notification-refresh").click();
   await expect(page.locator("#notification-list")).toContainText(
     "Local file verified",
   );
+  await openPage(page, "/activity");
   await page.locator("#notification-list button").first().click();
   await expect(page.locator("#notification-list")).toContainText(
     "Acknowledged",
   );
   await page.goto(url);
+  await openPage(page, "/activity");
   await page.locator("#notification-refresh").click();
   await expect(page.locator("#notification-list")).toContainText(
     "Acknowledged",
@@ -295,6 +322,7 @@ test("external receiver acceptance stays distinct from local acknowledgement and
   page,
 }) => {
   await page.goto(url);
+  await openPage(page, "/activity");
   await page.locator("#notification-refresh").click();
   await expect(page.locator("#notification-status")).toContainText(
     "Receiver acceptance does not mean a person read the alert",
@@ -312,6 +340,7 @@ test("external receiver acceptance stays distinct from local acknowledgement and
     };
     await route.fulfill({ response, json: body });
   });
+  await openPage(page, "/activity");
   await page.locator("#notification-refresh").click();
   await expect(page.locator("#notification-status")).toContainText(
     "1 uncertain",
@@ -327,6 +356,7 @@ test("external receiver acceptance stays distinct from local acknowledgement and
       body: JSON.stringify({ error: "fixture outage" }),
     }),
   );
+  await openPage(page, "/activity");
   await page.locator("#notification-refresh").click();
   await expect(page.locator("#notification-status")).toContainText(
     "Notifications unavailable",
