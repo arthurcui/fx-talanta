@@ -310,6 +310,12 @@ def execute_timeline(
             journal_sink.append(item)
         gateway.store.journal = journal_sink
     pending, seen, decisions, final_market = None, set(), [], None
+    structural_exits = {}
+
+    def setup_outcome(candidate, **evidence):
+        if candidate and candidate.get("setup_id") and hasattr(signal, "entry_outcome"):
+            signal.entry_outcome(candidate["setup_id"], **evidence)
+
     financing_samples = 0
     samples = [] if samples_sink is None else samples_sink
     with localcontext() as context:
@@ -330,6 +336,7 @@ def execute_timeline(
                     )
                     financing_samples += 1
                 if pending and at >= datetime.fromisoformat(pending["expires_at"]):
+                    setup_outcome(pending, disposition="EXPIRED_UNFILLED", ended_at=at.isoformat())
                     decisions.append(
                         {
                             "at": at.isoformat(),
@@ -355,7 +362,47 @@ def execute_timeline(
                         seen.add(candidate["signal_bar_close"])
                 for event in event_group:
                     market = priced(event.market, experiment.costs, at)
+                    prior_deals = len(gateway.broker.book.deals) if hasattr(signal, "finish") else 0
                     gateway.reconcile(market)
+                    if hasattr(signal, "finish"):
+                        for deal in gateway.broker.book.deals[prior_deals:]:
+                            if deal.action != "CLOSE":
+                                continue
+                            position = next(
+                                p
+                                for p in gateway.broker.book.positions
+                                if p.position_id == deal.position_id
+                            )
+                            owner = next(
+                                e
+                                for e in gateway.book.entries
+                                if e.intent.intent_id == position.entry_id
+                            )
+                            quote = market.quote_for(position.symbol)
+                            liquidation = quote.bid if position.side == "BUY" else quote.ask
+                            direction = 1 if position.side == "BUY" else -1
+                            conditions = []
+                            if position.stop and direction * (liquidation - position.stop) <= 0:
+                                conditions.append("STRUCTURAL_STOP_TOUCHED")
+                            if position.target and direction * (liquidation - position.target) >= 0:
+                                conditions.append("FIXED_TARGET_TOUCHED")
+                            if at >= owner.intent.exit_at:
+                                conditions.append("TIME_OR_SESSION_EXIT")
+                            if gateway.book.integrity_halt:
+                                conditions.append("INTEGRITY_OR_RISK_HALT")
+                            if (
+                                gateway.book.losses.hard_halt
+                                or gateway.book.losses.loss_pause_day == at.date()
+                            ):
+                                conditions.append("LOSS_MANDATE")
+                            structural_exits.setdefault(str(position.position_id), []).append(
+                                dict(
+                                    at=at.isoformat(),
+                                    observed_conditions=conditions
+                                    or ["OTHER_PROTECTIVE_MANAGEMENT"],
+                                    note="Close conditions; simultaneous triggers retained",
+                                )
+                            )
                     final_market = market
                     if pending:
                         q, spec = (
@@ -363,6 +410,16 @@ def execute_timeline(
                             market.spec_for(experiment.symbol),
                         )
                         after_signal = q.at > datetime.fromisoformat(pending["as_of"])
+                        veto = (
+                            "WAIT_FOR_NEXT_ORIGINAL_QUOTE"
+                            if not after_signal
+                            else gateway.book.state
+                            if gateway.book.state != "RUNNING"
+                            else health_reason(market, at, experiment.policy)
+                            or ("SPREAD_LIMIT" if q.ask - q.bid > spec.maximum_spread else None)
+                        )
+                        if veto:
+                            setup_outcome(pending, last_veto=veto, last_veto_at=at.isoformat())
                         if (
                             after_signal
                             and gateway.book.state == "RUNNING"
@@ -370,11 +427,41 @@ def execute_timeline(
                             and q.ask - q.bid <= spec.maximum_spread
                         ):
                             side = pending["side"]
-                            distance = Decimal(pending["stop_distance"])
                             price = q.ask if side == "BUY" else q.bid
                             sign = 1 if side == "BUY" else -1
+                            distance = (
+                                sign * (price - Decimal(pending["structural_stop"]))
+                                if "structural_stop" in pending
+                                else Decimal(pending["stop_distance"])
+                            )
+                            target_distance = (
+                                distance * Decimal(pending["reward_risk"])
+                                if "structural_stop" in pending
+                                else Decimal(pending["target_distance"])
+                            )
+                            if distance <= 0:
+                                setup_outcome(
+                                    pending,
+                                    disposition="STOP_ALREADY_CROSSED",
+                                    ended_at=at.isoformat(),
+                                )
+                                decisions.append(
+                                    dict(
+                                        at=at.isoformat(),
+                                        action="REJECTED",
+                                        reason="STOP_ALREADY_CROSSED",
+                                        setup_id=pending.get("setup_id"),
+                                    )
+                                )
+                                pending = None
+                                continue
                             benchmark = Decimal(pending["signal_price"])
                             if sign * (price - benchmark) > spec.maximum_adverse_move:
+                                setup_outcome(
+                                    pending,
+                                    last_veto="ADVERSE_MOVE_LIMIT",
+                                    last_veto_at=at.isoformat(),
+                                )
                                 samples.append(
                                     {
                                         "at": at.isoformat(),
@@ -426,13 +513,27 @@ def execute_timeline(
                                 symbol=experiment.symbol,
                                 side=side,
                                 stop=price - sign * distance,
-                                target=price + sign * Decimal(pending["target_distance"]),
+                                target=price + sign * target_distance,
                                 benchmark=benchmark,
                                 expires_at=pending["expires_at"],
                                 exit_at=pending["time_exit_at"],
+                                lifecycle_guard=pending.get("lifecycle_guard"),
                             )
                             gateway.broker.next_fault = event.fault
                             entry = gateway.submit(intent, market)
+                            setup_outcome(
+                                pending,
+                                disposition=entry.state,
+                                reason=entry.reason,
+                                submitted_at=at.isoformat(),
+                                entry_id=str(intent.intent_id),
+                                reservation=entry.reservation.model_dump(mode="json")
+                                if entry.reservation
+                                else None,
+                                stop=str(intent.stop),
+                                target=str(intent.target),
+                                quote_age_seconds=str((at - q.at).total_seconds()),
+                            )
                             decisions.append(
                                 {
                                     "at": at.isoformat(),
@@ -481,6 +582,24 @@ def execute_timeline(
             if strategy_version != VERSION:
                 result["integrity_halt"] = gateway.book.integrity_halt
                 result["risk_halt"] = getattr(gateway, "integrity_breach", None)
+            if hasattr(signal, "finish"):
+                if pending:
+                    setup_outcome(pending, disposition="UNFILLED_AT_WINDOW_END")
+                result["structural_setups"] = signal.finish(end)
+                for setup in result["structural_setups"]["opportunities"]:
+                    entry = setup.get("entry")
+                    if not entry or "entry_id" not in entry:
+                        continue
+                    positions = [p for p in book.positions if str(p.entry_id) == entry["entry_id"]]
+                    ids = {p.position_id for p in positions}
+                    entry["deals"] = [
+                        d.model_dump(mode="json") for d in book.deals if d.position_id in ids
+                    ]
+                    entry["open_volume"] = str(sum((p.volume for p in positions), Decimal(0)))
+                    entry["exit_context"] = [
+                        x for p in positions for x in structural_exits.get(str(p.position_id), [])
+                    ]
+                    entry["net_realized"] = str(sum((p.realized for p in positions), Decimal(0)))
             if broker_costs:
                 result["cost_model"] = "broker-costs/1"
                 result["cost_qualification"] = experiment.costs.status
@@ -536,6 +655,7 @@ def source_hash():
         "research/cost_calibration.py",
         "research/store.py",
         "risk/governor.py",
+        "risk/lifecycle.py",
         "gateway/offline.py",
         "brokers/simulator.py",
         "domain/offline.py",

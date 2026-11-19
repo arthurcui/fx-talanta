@@ -30,11 +30,12 @@ No provider call, broker activation, deployment or new campaign follows from thi
 
 R0's foundation is retained. R1 now explicitly requires point-in-time structural
 setup definitions and chart verification; R2 separates feasibility, governed
-development and independent evaluation. The first planned implementation is one
+development and independent evaluation. The first review-branch implementation is one
 EUR/USD H1/M15 trend-pullback workflow plus restrictive lifecycle sizing, without
 new trading authority. Box retests are a later separate candidate; gold, indicator
 stacks and partial/trailing exit variants are outside that first scope. The
-roadmap defines its acceptance and distinguishes planned work from current kernels.
+roadmap defines its acceptance; the [structural study](../engineering/structural-pullback-study.md)
+retains its fixed contract, engineering results and unqualified economic scope.
 
 # Product mandate
 

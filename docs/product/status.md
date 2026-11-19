@@ -1,19 +1,38 @@
 # Current product status
 
+## Structural research implementation (November 19, 2026 UTC)
+
+This review branch implements one offline EUR/USD H1-swing/M15-retest kernel,
+an opportunity ledger and a chart that displays only bars available at its selected
+cutoff. A matched first-touch control reuses the same frozen candidate, input,
+period, cost and risk policy. Additional finite-target sizing reduces entry volume
+to allow for profit giveback; it does not relax the original caps or HALT behavior.
+See the [preregistered study and actual acceptance](../engineering/structural-pullback-study.md).
+
+The short exposed June comparison processed 660,471 quotes per arm: confirmation
+had no entries; the first-touch control closed four trades for **-$4.10 net**.
+Both watched the same 13 levels and completed without a risk/integrity halt.
+Independent audit/fill/cost reconstruction passed. The absence of confirmation
+trades and six-day setup coverage do not prove an economic edge.
+
+This is a bounded R1/R2A engineering increment, not a qualified trading strategy.
+USD/JPY, independent economic evaluation, production inputs and broker readiness
+remain separate gaps. PR #65 and this implementation stay unmerged; trading is disabled.
+
 ## Market-setup roadmap revision (November 18, 2026)
 
 The [R0–R6 roadmap](roadmap.md) now starts research with market context, a known
 price level, an ordered pullback/retest, confirmation and invalidation. Preserve
 R0; the immediate gap is one auditable EUR/USD trend-pullback workflow and its
-compatibility with unchanged risk. Current kernels implement EMA recross and range
-breakout, not structural support/retest recognition. Setup timelines/charts and
-lifecycle admission sizing are **planned, not shipped**. USD/JPY follows as a
+compatibility with unchanged risk. Earlier kernels implement EMA recross and range
+breakout; the review branch above adds a distinct structural detector, setup timeline
+and lifecycle admission sizing. USD/JPY follows as a
 separate study; the product scope remains forex, with no gold expansion.
 
 Engineering progress, observable setup validity, economic evidence and operational
 readiness remain separate. A rejected study can be completed without qualifying
-a strategy. This documentation revision starts no market study or campaign and changes no
-trading authority or runtime UI. PR #65 remains unmerged; trading stays disabled.
+a strategy. The original roadmap revision was documentation only; the separately
+authorized implementation above adds offline research, never trading authority.
 
 ## Trading assessment priority (November 18, 2026)
 
@@ -21,7 +40,7 @@ The [trading research assessment](trading-research-assessment.md) is complete as
 an evidence review and design decision, not a profitability or implementation
 claim. It retains all limits and resolves the intended strategy/risk design by
 requiring smaller entries with headroom for current-to-stop exposure through the
-planned exit. That additional sizing check is not implemented. The subsequent
+planned exit. That assessment proposed the sizing check now implemented on this branch. The subsequent
 75-weekday market analysis shelves EUR/USD post-fix research: 63 eligible endpoint
 pairs averaged −0.921 pips after source spread, before other costs; its uncertainty
 interval spans zero. USD/JPY post-policy research remains data-gated. This is

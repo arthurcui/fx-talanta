@@ -30,6 +30,11 @@ def sessions(start, end):
 
 
 def choose_plan(candidate, rules, catalog, now):
+    if rules.family == "STRUCTURAL_PULLBACK":
+        raise ValueError(
+            "structural research uses its preregistered development dataset; "
+            "register the reviewed study in Backtest, without automatic expansion"
+        )
     hours = rules.end_hour_utc - rules.start_hour_utc
     if rules.entry_session != "UTC_WINDOW":
         from fx_talanta.research.market_sessions import bounds
@@ -225,12 +230,12 @@ class ValidationAgent:
         from pydantic import TypeAdapter
 
         from fx_talanta.domain.models import Hash
-        from fx_talanta.research.candidate import Rules
+        from fx_talanta.research.candidate import ExecutableRules
 
         if set(data) != {"candidate_sha256", "rules"}:
             raise ValueError("invalid plan request")
         sha = TypeAdapter(Hash).validate_python(data["candidate_sha256"])
-        rules = Rules.model_validate(data["rules"])
+        rules = TypeAdapter(ExecutableRules).validate_python(data["rules"])
         with self.repo.lock:
             candidate = self.research.app.strategies._record(sha)
         if candidate["state"] != "FROZEN_FOR_RESEARCH":

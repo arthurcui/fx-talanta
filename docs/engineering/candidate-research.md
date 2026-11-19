@@ -670,3 +670,29 @@ ranges, and session evidence in AI diagnosis are now available. Existing frozen
 results are interpreted in separate immutable reports, never rewritten or silently
 rerun. See [session-aware research](session-aware-research.md) for precise clock,
 range, UI, comparison and sample-size semantics.
+
+### Structural pullback development workflow
+
+The separate `STRUCTURAL_PULLBACK` family recognizes a confirmed H1 swing, M15
+touch/bounce/retest/confirmation and structural invalidation. It is not the legacy
+EMA recross. Its first release fixes EUR/USD, London, the sequence, 2R target and
+16-bar exit; it permits only an explicit first-touch control on the same inputs.
+
+In Backtest, expand **Structural pullback study · EUR/USD**, apply its rules,
+review against the selected frozen candidate, select the development dataset and
+run. In Results, **Inspect opportunity** opens the H1/M15 chart and recorded
+timeline. Move the cutoff to see only then-available bars; the final account result
+is explicitly separated from the as-of chart. **Run matched first-touch control**
+uses the original registration's dates, costs, data, engine and percentage limits.
+Repeated clicks return the same retained run; they never reset a halted study.
+Export contains full opportunities, reservations, entry vetoes and exit conditions.
+
+All required bar history must be contiguous. Missing history, consumed-bar revisions,
+stale quotes, blocked risk or minimum lot remain explicit no-trade outcomes. The
+finite-target guard is an additional conservative admission bound; gaps/overshoot
+can still produce the original HALT. The template is an engineering research
+contract, not a claimed AI discovery. AI diagnosis may inspect its recorded facts
+when separately configured; automatic rule revisions and validation/holdout
+expansion are blocked for this preregistered development study.
+
+See [the fixed plan, limitations and actual results](structural-pullback-study.md).

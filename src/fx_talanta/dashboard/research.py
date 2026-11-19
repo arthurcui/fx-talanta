@@ -11,8 +11,9 @@ from pydantic import Field, ValidationError, model_validator
 from fx_talanta.advisor.provider import MODEL
 from fx_talanta.dashboard.strategies import Specification, canonical
 from fx_talanta.domain.models import FrozenModel, Hash
-from fx_talanta.research.candidate import Rules
+from fx_talanta.research.candidate import ExecutableRules, Rules, make_signal
 from fx_talanta.research.replay import Dataset, Experiment, digest, run, source_hash
+from fx_talanta.research.structural import StructuralRules
 
 
 class Proposal(FrozenModel):
@@ -28,14 +29,14 @@ class Generate(FrozenModel):
 class DatasetSelection(FrozenModel):
     dataset_id: Hash
     candidate_sha256: Hash
-    rules: Rules
+    rules: ExecutableRules
     reviewed_mapping: bool
 
 
 class Registration(FrozenModel):
     dataset_catalog_sha256: Hash | None = None
     candidate_sha256: Hash
-    rules: Rules
+    rules: ExecutableRules
     reviewed_mapping: bool
     dataset: Dataset | None = None
     indexed: bool = False
@@ -50,6 +51,10 @@ class Registration(FrozenModel):
             raise ValueError("exactly one bounded dataset or pinned index required")
         if self.indexed and self.dataset_catalog_sha256 is None:
             raise ValueError("index requires pinned catalog")
+        if isinstance(self.rules, StructuralRules) and (
+            self.experiment.symbol != "EURUSD" or self.experiment.policy.maximum_positions != 1
+        ):
+            raise ValueError("structural study requires EURUSD and one position")
         return self
 
 
@@ -74,6 +79,7 @@ def engine_hash():
         dict(
             replay=source_hash(),
             candidate=kernel.read_text(encoding="utf-8"),
+            structural=kernel.with_name("structural.py").read_text(encoding="utf-8-sig"),
             sessions=kernel.with_name("market_sessions.py").read_text(encoding="utf-8-sig"),
             tzdata=tzdata.__version__,
         )
@@ -488,6 +494,21 @@ class Research:
                 request=json.loads(request),
             )
 
+    def structural_control(self, data):
+        if set(data) != {"result_id"}:
+            raise ValueError("one completed primary result required")
+        item = self.item(data["result_id"])
+        if item["kind"] != "BACKTEST" or item["payload"]["partition"] != "training":
+            raise ValueError("completed training result required")
+        original = self.item(item["payload"]["registration_id"])
+        plan = Registration.model_validate(original["payload"])
+        if not isinstance(plan.rules, StructuralRules) or plan.rules.arm != "RETEST_CONFIRMATION":
+            raise ValueError("completed structural confirmation arm required")
+        # Reuse the exact validated candidate, dataset, period, costs, engine and risk policy.
+        control = plan.model_copy(update={"rules": StructuralRules(arm="FIRST_TOUCH")})
+        registered = self.retain("REGISTRATION", control.model_dump(mode="json"))
+        return self.execute(dict(registration_id=registered["id"], partition="training"))
+
     def execute(self, data):
         return self._execute(data)
 
@@ -513,6 +534,14 @@ class Research:
         if not row:
             raise ValueError("unknown registration")
         plan = Registration.model_validate_json(row[0])
+        if isinstance(plan.rules, StructuralRules) and data["partition"] != "training":
+            raise ValueError("structural development study is training-only; holdout stays closed")
+        if (
+            plan.indexed
+            and self.catalog.read(plan.dataset_catalog_sha256).development_only
+            and data["partition"] != "training"
+        ):
+            raise ValueError("development dataset has no validation or holdout authority")
         if plan.engine_sha256 != (indexed_engine_hash() if plan.indexed else engine_hash()):
             raise ValueError("registered engine changed; original evidence preserved")
         key = digest(data)
@@ -583,7 +612,7 @@ class Research:
                 plan.dataset,
                 plan.experiment,
                 data["partition"],
-                signal=plan.rules.evaluate,
+                signal=make_signal(plan.rules),
                 strategy_version="candidate/"
                 + digest(
                     dict(
@@ -619,6 +648,15 @@ class Research:
                 **data,
                 candidate_sha256=plan.candidate_sha256,
                 rules=plan.rules.model_dump(mode="json"),
+                engine_sha256=plan.engine_sha256,
+                structural_comparison_key=digest(
+                    {
+                        **plan.model_dump(mode="json"),
+                        "rules": StructuralRules().model_dump(mode="json"),
+                    }
+                )
+                if isinstance(plan.rules, StructuralRules)
+                else None,
                 dataset_sha256=(
                     self.catalog.read(plan.dataset_catalog_sha256).index_sha256
                     if plan.indexed

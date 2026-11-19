@@ -7,9 +7,13 @@ setups before implementation: context, known level, ordered price response,
 confirmation and invalidation must be explicit. AI proposes and explains; reviewed
 deterministic rules recognize eligible setups and enforce the account mandate.
 
-This is the target design. Existing code supports H1/M15 indicator kernels, session
-filters and replay, not structural pullback/retest sequences or annotated setup
-charts. Trading stays disabled; no campaign or deployment follows this update.
+This is the target operating design. The review branch now adds an offline EUR/USD
+structural pullback/retest detector and cutoff-aware setup charts alongside the
+existing indicator kernels. The detector records price observations and eligibility;
+the replay gateway retains sizing, veto, protective management and reconciliation
+authority. Finite-target lifecycle admission only reduces sizing; ongoing risk and
+persistent HALTs are unchanged. The [study contract](../engineering/structural-pullback-study.md)
+defines current scope. It adds no broker authority; trading stays disabled.
 
 ```mermaid
 flowchart TD
